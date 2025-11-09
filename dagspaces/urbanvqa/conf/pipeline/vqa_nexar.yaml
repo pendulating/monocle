@@ -1,0 +1,73 @@
+# @package _global_
+# VQA Pipeline Configuration for Nexar Dashcam Dataset
+# Processes prompt + image(s) -> answer(s)
+
+defaults:
+  - _self_  # Best Practice: Include _self_ for explicit composition order control
+  - override /hydra/launcher: slurm_monitor
+  - override /data: nexar_dashcam
+  - override /model: vllm_multimodal_qwen2.5_vl_7b  # Use multimodal model for VQA
+  - override /prompt: vqa
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false  # VQA requires images; fail if missing
+  batch_inference: true
+  streaming_io: true  # Recommended for large datasets
+  job_memory_gb: 32  # Memory for SLURM job
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/results.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          # Model config for 2-GPU setup (g2_slurm_pierson)
+          # Multimodal model (e.g., Qwen2.5-VL-7B-Instruct) - adjust based on downloaded model
+          # Update model_source to point to downloaded model in zoo
+          model.model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-7B-Instruct  # Update after downloading
+          model.engine_kwargs.gpu_memory_utilization: 0.85  # Multimodal models need memory for images
+          model.engine_kwargs.tensor_parallel_size: 2  # Split model across 2 GPUs
+          model.engine_kwargs.max_model_len: 28672  # Typical for VL models
+          model.engine_kwargs.max_num_batched_tokens: 5120  # Higher for multimodal
+          model.engine_kwargs.limit_mm_per_prompt.image: 1  # Single image per prompt
+          model.engine_kwargs.trust_remote_code: true  # Required for Qwen VL models
+          # Fix CUDA custom_all_reduce error with tensor parallelism:
+          # Disable CUDA graphs (enforce_eager) or disable custom all-reduce
+          model.engine_kwargs.enforce_eager: true  # Disable CUDA graphs for stability with TP
+          model.engine_kwargs.disable_custom_all_reduce: false  # Keep enabled (can try true if issues persist)
+          model.concurrency: 1  # Match number of model replicas (2 GPUs / 2 TP = 1 replica)
+          model.batch_size: 16  # Adjust based on model size and GPU memory
+        launcher: g2_slurm_pierson
+        wandb_suffix: vqa_nexar
+  
+# Model config uses vllm_multimodal_zoo.yaml as base
+# Overrides specify the exact model path and GPU settings
+# Default model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-7B-Instruct
+# 
+# To download a model, run:
+#   python scripts/download_mllm_model.py \
+#       --model_name Qwen/Qwen2.5-VL-7B-Instruct \
+#       --zoo_path /share/pierson/matt/zoo/models
+#
+# Alternative models:
+#   - Qwen/Qwen2.5-VL-3B-Instruct (smaller, faster, less capable)
+#   - Qwen/Qwen2-VL-7B-Instruct (alternative 7B model)
+#   - Qwen/Qwen2-VL-2B-Instruct (very small, fast)
+
+data:
+  columns:
+    prompt: prompt
+    sample_id: sample_id
+    image_path: image_path
+    image_url: image_url
+    image_base64: image_base64
+

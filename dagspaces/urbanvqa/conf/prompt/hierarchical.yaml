@@ -1,0 +1,45 @@
+# Hierarchical Prompt Configuration Example
+# Multi-step reasoning with intermediate outputs
+
+prompt:
+  hierarchical:
+    enabled: true
+    steps:
+      - name: "observation"
+        prompt: "Describe what you see in this image."
+        output_key: "observation"
+      - name: "reasoning"
+        prompt: "Based on your observation: {{observation}}, analyze the urban planning implications."
+        output_key: "reasoning"
+      - name: "answer"
+        prompt: "Finally, answer: {{final_question}}"
+        output_key: "answer"
+
+# Many-to-One Example (parallel steps converging):
+# prompt:
+#   hierarchical:
+#     enabled: true
+#     steps:
+#       - name: "structure_analysis"
+#         prompt: "Identify and describe all structures visible in this image."
+#         output_key: "structures"
+#         parallel: true
+#       - name: "context_analysis"
+#         prompt: "Describe the surrounding context and environment."
+#         output_key: "context"
+#         parallel: true
+#       - name: "infrastructure_analysis"
+#         prompt: "Identify infrastructure elements (roads, utilities, etc.)."
+#         output_key: "infrastructure"
+#         parallel: true
+#       - name: "synthesis"
+#         prompt: |
+#           Based on the following analyses:
+#           
+#           Structures: {{structures}}
+#           Context: {{context}}
+#           Infrastructure: {{infrastructure}}
+#           
+#           Provide a comprehensive urban planning assessment.
+#         output_key: "final_answer"
+#         depends_on: ["structures", "context", "infrastructure"]

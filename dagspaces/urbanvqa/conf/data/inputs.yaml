@@ -1,0 +1,6 @@
+parquet_path: ${oc.env:DATA_ROOT,/share/pierson/matt/URBANVQA/data}/global_subset/all_articles.parquet
+columns:
+  # Canonical URBANVQA column expected by stages is now article_text directly
+  article_text: article_text
+
+

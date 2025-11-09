@@ -1,0 +1,8 @@
+# Retrieval-Augmented Prompting (RAP) Configuration
+prompt:
+  retrieval_augmented:
+    enabled: false
+    knowledge_base: "urban_planning_kb"  # Path to knowledge base
+    max_context_tokens: 500
+    retrieval_method: "semantic_search"  # or "keyword_match", "hybrid"
+    top_k: 3  # Number of retrieved documents

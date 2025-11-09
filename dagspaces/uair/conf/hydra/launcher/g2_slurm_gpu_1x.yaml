@@ -16,9 +16,9 @@ additional_parameters:
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source /share/pierson/matt/UAIR/.venv/bin/activate
+  - source /share/pierson/matt/mllmsci/.venv/bin/activate
   - export PYTHONUNBUFFERED=1
-  - export PYTHONPATH=/share/pierson/matt/UAIR:$PYTHONPATH
+  - export PYTHONPATH=/share/pierson/matt/mllmsci:$PYTHONPATH
   - export UAIR_VERIFY_DEBUG=1
   - echo "=== GPU sanity (pre-job) ==="
   - echo "HOST=$(hostname) DATE=$(date)"

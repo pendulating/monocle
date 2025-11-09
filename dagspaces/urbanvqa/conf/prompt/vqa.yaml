@@ -1,0 +1,17 @@
+# VQA Prompt Configuration
+
+system: "You are a helpful assistant that answers questions about images accurately and concisely."
+
+# User prompt template (prompt from data column is inserted here)
+user_template: "{{prompt}}"
+
+# Future: Support for hierarchical prompts
+# hierarchical:
+#   enabled: false
+#   steps:
+#     - type: "observation"
+#       prompt: "First, describe what you see in the image."
+#     - type: "reasoning"
+#       prompt: "Based on your observation, {{reasoning_prompt}}"
+#     - type: "answer"
+#       prompt: "Finally, answer: {{prompt}}"

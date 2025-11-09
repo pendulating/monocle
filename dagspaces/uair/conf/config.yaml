@@ -30,6 +30,9 @@ runtime:
   job_memory_gb: 32
   gate_on_relevance: true
   rows_per_block: 4000
+  # Multimodal options (optional, auto-detected from model if not set)
+  # multimodal_enabled: false  # Force enable/disable multimodal mode
+  # image_fallback: true  # Fallback to text-only if image loading fails (default: true)
 
 # Topic modeling configuration
 topic:

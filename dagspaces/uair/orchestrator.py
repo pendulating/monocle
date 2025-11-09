@@ -419,6 +419,10 @@ def _load_parquet_dataset(parquet_path: str, columns: Mapping[str, str], debug: 
         columns.get("country", "country"): "country",
         columns.get("year", "year"): "year",
         columns.get("article_id", "article_id"): "article_id",
+        # Image columns
+        columns.get("image_path", "image_path"): "image_path",
+        columns.get("image_url", "image_url"): "image_url",
+        columns.get("image_base64", "image_base64"): "image_base64",
     }
     present = {src: dst for src, dst in col_map.items() if src in df.columns}
     if present:
@@ -434,7 +438,7 @@ def _load_parquet_dataset(parquet_path: str, columns: Mapping[str, str], debug: 
         except Exception:
             return str(x) if x is not None else ""
 
-    for column in ("article_path", "country", "year", "article_id"):
+    for column in ("article_path", "country", "year", "article_id", "image_path", "image_url", "image_base64"):
         if column not in df.columns:
             df[column] = None
         else:
@@ -702,6 +706,10 @@ def _prepare_streaming_dataset(dataset_path: str, columns: Mapping[str, str], cf
             columns.get("country", "country"): "country",
             columns.get("year", "year"): "year",
             columns.get("article_id", "article_id"): "article_id",
+            # Image columns
+            columns.get("image_path", "image_path"): "image_path",
+            columns.get("image_url", "image_url"): "image_url",
+            columns.get("image_base64", "image_base64"): "image_base64",
         }
 
         def _ensure_canon(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -716,6 +724,49 @@ def _prepare_streaming_dataset(dataset_path: str, columns: Mapping[str, str], cf
             ds = ds.map(_ensure_canon)
         except Exception:
             pass
+        
+        # Check if image_path config points to a separate directory
+        # If so, read images and merge with parquet data
+        image_path_config = getattr(cfg.data, "image_path", None)
+        if image_path_config and isinstance(image_path_config, str) and image_path_config.strip():
+            try:
+                if not os.path.isabs(image_path_config):
+                    image_path_config = os.path.abspath(image_path_config)
+                if os.path.isdir(image_path_config):
+                    print(f"[_prepare_streaming_dataset] Reading images from directory: {image_path_config}", flush=True)
+                    # Read images - returns numpy arrays in 'image' column
+                    ds_images = ray.data.read_images(image_path_config, include_paths=True)
+                    
+                    # Convert numpy arrays to PIL Images (lazy conversion in map function)
+                    # Import here to avoid circular imports
+                    from .stages.classify import _convert_numpy_to_pil_map
+                    ds_images = ds_images.map(_convert_numpy_to_pil_map)
+                    
+                    # Merge on paths - try article_path first, then image_path
+                    # Note: This assumes image filenames match article_path or image_path
+                    try:
+                        # Get sample to check available columns
+                        sample = ds.take(1)
+                        if sample and len(sample) > 0:
+                            sample_row = sample[0]
+                            # Try to join on path column
+                            join_key = None
+                            if "article_path" in sample_row:
+                                join_key = "article_path"
+                            elif "image_path" in sample_row:
+                                join_key = "image_path"
+                            
+                            if join_key:
+                                # Join datasets on path
+                                ds = ds.join(ds_images, on=join_key, how="left")
+                                print(f"[_prepare_streaming_dataset] Merged images with parquet data on {join_key}", flush=True)
+                            else:
+                                print(f"[_prepare_streaming_dataset] Warning: No path column found for merging images", flush=True)
+                    except Exception as e:
+                        print(f"[_prepare_streaming_dataset] Warning: Failed to merge images: {e}", flush=True)
+            except Exception as e:
+                print(f"[_prepare_streaming_dataset] Warning: Failed to read images from directory: {e}", flush=True)
+        
         debug = bool(getattr(cfg.runtime, "debug", False))
         sample_n = getattr(cfg.runtime, "sample_n", None)
         if debug and isinstance(sample_n, int) and sample_n > 0:
@@ -834,6 +885,10 @@ class ClassificationRunner(StageRunner):
         df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
         in_obj = ds if use_streaming and ds is not None else df
         # Relevance-only implementation (isolated from EU/RB behavior)
+        # Note: Multimodal image support is automatically enabled if:
+        #   - Model is detected as multimodal (via _is_multimodal_model)
+        #   - Or runtime.multimodal_enabled is explicitly set
+        # Images are loaded from image_path, image_url, or image_base64 columns
         out = run_classification_relevance(in_obj, cfg)
         
         out = _convert_to_pandas_if_needed(out)
@@ -1395,6 +1450,8 @@ class ClassificationEUActRunner(StageRunner):
         OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
         # Note: Prompt injection is handled internally by run_classification_eu_act
         # Always load as pandas for gating; streaming not supported for this custom stage
+        # prepare_stage_input handles image columns automatically (image_path, image_url, image_base64)
+        # Multimodal support is auto-detected from model source in run_classification_stage()
         df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
         in_df = df if df is not None else (ds.to_pandas() if hasattr(ds, "to_pandas") else None)
         if in_df is None:
@@ -1484,6 +1541,8 @@ class ClassificationRisksBenefitsRunner(StageRunner):
         except Exception:
             pass
         # Note: Prompt injection is handled internally by run_classification_risks_benefits
+        # prepare_stage_input handles image columns automatically (image_path, image_url, image_base64)
+        # Multimodal support is auto-detected from model source in run_classification_stage()
         df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
         in_df = df if df is not None else (ds.to_pandas() if hasattr(ds, "to_pandas") else None)
         if in_df is None:

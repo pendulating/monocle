@@ -1,0 +1,25 @@
+# Multimodal Model Configuration - InternVL Models
+# Optimized for OpenGVLab/InternVL* models
+
+model_source: "OpenGVLab/InternVL3-2B"
+
+engine_kwargs:
+  tensor_parallel_size: 1
+  max_model_len: 4096
+  max_num_seqs: 5
+  enable_chunked_prefill: true
+  max_num_batched_tokens: 5120
+  limit_mm_per_prompt:
+    image: 1
+  mm_processor_kwargs:
+    max_dynamic_patch: 4  # Reduce for memory savings
+  trust_remote_code: true  # Usually required for InternVL
+  tokenizer_mode: auto
+  dtype: auto
+  kv_cache_dtype: auto
+  enable_prefix_caching: true
+  use_v2_block_manager: true
+
+batch_size: 16
+concurrency: 1
+

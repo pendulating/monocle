@@ -1,0 +1,12 @@
+# Contextual Dynamic Prompting Configuration
+prompt:
+  contextual:
+    enabled: false
+    context_window: 5  # Number of previous interactions to consider
+    adaptation_rules:
+      - condition: "low_confidence"
+        action: "add_detail_prompt"
+        detail_prompt: "Please provide more specific details."
+      - condition: "ambiguous_answer"
+        action: "add_clarification"
+        clarification: "Can you clarify which aspect you're referring to?"

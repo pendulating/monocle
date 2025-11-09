@@ -1,0 +1,22 @@
+# Multimodal Data Configuration
+# Extends inputs.yaml with image column support
+
+parquet_path: ${oc.env:DATA_ROOT,/share/pierson/matt/URBANVQA/data}/multimodal_dataset.parquet
+
+columns:
+  # Standard text columns
+  article_text: article_text
+  article_id: article_id
+  article_path: article_path
+  country: country
+  year: year
+  
+  # Image columns (use one or more of these)
+  image_path: image_path    # Path to local image files
+  image_url: image_url      # URL to remote images
+  image_base64: image_base64  # Base64-encoded images
+
+# Optional: Path to directory containing images (if images are in separate directory)
+# If set, images will be loaded from this directory and merged with parquet data
+# image_path: /path/to/images/directory
+

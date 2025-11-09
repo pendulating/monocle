@@ -1,0 +1,11 @@
+# Self-Consistency Prompting Configuration
+prompt:
+  self_consistency:
+    enabled: false
+    num_samples: 5  # Generate 5 different reasoning paths
+    consistency_threshold: 0.7  # Minimum agreement threshold
+    voting_method: "majority"  # or "weighted"
+    prompt_variations:
+      - "Think step by step: {prompt}"
+      - "Analyze carefully: {prompt}"
+      - "Consider multiple perspectives: {prompt}"

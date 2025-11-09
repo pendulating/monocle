@@ -1,0 +1,11 @@
+# ReAct (Reasoning and Acting) Pattern Configuration
+prompt:
+  react:
+    enabled: false
+    tools:
+      - name: "lookup_building_code"
+        description: "Look up building code information"
+        function: "lookup_building_code"
+      - name: "check_urban_planning_regs"
+        description: "Check urban planning regulations"
+        function: "check_urban_planning_regs"

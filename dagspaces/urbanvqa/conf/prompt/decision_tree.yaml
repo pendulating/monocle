@@ -1,0 +1,10 @@
+# Decision Tree Prompt Configuration Example
+# Structured branching prompts where next question depends on previous answers
+
+prompt:
+  decision_tree:
+    enabled: true
+    tree_path: "dagspaces/urbanvqa/conf/prompts/decision_trees/urban_planning_vqa.yaml"
+    tree_format: "yaml"  # or "json"
+    max_depth: 10  # Maximum tree depth
+    enable_cycle_detection: true

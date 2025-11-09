@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from dataclasses import MISSING
 import re
 from bisect import bisect_right
@@ -46,6 +46,347 @@ def _maybe_silence_vllm_logs() -> None:
         _VLLM_LOGS_SILENCED = True
     except Exception:
         pass
+
+try:
+    import PIL.Image  # type: ignore
+    from io import BytesIO
+    _PIL_AVAILABLE = True
+except Exception:
+    _PIL_AVAILABLE = False
+    PIL = None  # type: ignore
+    BytesIO = None  # type: ignore
+
+try:
+    import requests  # type: ignore
+    _REQUESTS_AVAILABLE = True
+except Exception:
+    _REQUESTS_AVAILABLE = False
+    requests = None  # type: ignore
+
+
+def _load_image_from_path(path: str) -> Optional[Any]:
+    """Load image from local path or URL.
+    
+    Handles:
+    - Local file paths (absolute or relative)
+    - HTTP/HTTPS URLs
+    - Data URLs (data:image/...;base64,...)
+    
+    Always converts to RGB format for vLLM compatibility.
+    
+    Args:
+        path: Path to image file or URL
+        
+    Returns:
+        PIL.Image.Image in RGB format, or None on failure
+    """
+    if not _PIL_AVAILABLE:
+        return None
+    
+    try:
+        if path.startswith(("http://", "https://")):
+            if not _REQUESTS_AVAILABLE:
+                print(f"Warning: requests not available, cannot load image from URL: {path}", flush=True)
+                return None
+            response = requests.get(path, timeout=10, headers={"User-Agent": "UAIR/1.0"})
+            response.raise_for_status()
+            return PIL.Image.open(BytesIO(response.content)).convert("RGB")
+        elif path.startswith("data:image/"):
+            # Handle data URL: data:image/jpeg;base64,...
+            import base64
+            header, encoded = path.split(",", 1)
+            image_bytes = base64.b64decode(encoded)
+            return PIL.Image.open(BytesIO(image_bytes)).convert("RGB")
+        else:
+            return PIL.Image.open(path).convert("RGB")
+    except Exception as e:
+        print(f"Warning: Failed to load image from {path}: {e}", flush=True)
+        return None
+
+
+def _load_image_from_base64(base64_str: str) -> Optional[Any]:
+    """Load image from base64-encoded string.
+    
+    Args:
+        base64_str: Base64-encoded image string (with or without data URL prefix)
+        
+    Returns:
+        PIL.Image.Image in RGB format, or None on failure
+    """
+    if not _PIL_AVAILABLE:
+        return None
+    
+    try:
+        import base64
+        # Handle with or without data URL prefix
+        if "," in base64_str:
+            base64_str = base64_str.split(",", 1)[1]
+        image_bytes = base64.b64decode(base64_str)
+        return PIL.Image.open(BytesIO(image_bytes)).convert("RGB")
+    except Exception as e:
+        print(f"Warning: Failed to decode base64 image: {e}", flush=True)
+        return None
+
+
+def _normalize_image(image: Any) -> Optional[Any]:
+    """Normalize various image formats to PIL.Image.
+    
+    Supports:
+    - PIL.Image.Image: Direct conversion to RGB
+    - numpy.ndarray: Convert array to PIL Image
+    - bytes: Load from bytes buffer
+    - str: Try base64 decode, then path/URL load
+    
+    All images converted to RGB format.
+    
+    Args:
+        image: Image in various formats
+        
+    Returns:
+        PIL.Image.Image in RGB format, or None on failure
+    """
+    if not _PIL_AVAILABLE or image is None:
+        return None
+    
+    if isinstance(image, PIL.Image.Image):
+        return image.convert("RGB")
+    elif isinstance(image, np.ndarray):
+        # Handle different array shapes and dtypes
+        if image.dtype != np.uint8:
+            # Normalize float arrays to [0, 255]
+            if image.max() <= 1.0:
+                image = (image * 255).astype(np.uint8)
+            else:
+                image = image.astype(np.uint8)
+        # Handle different channel orders (HWC vs CHW)
+        if len(image.shape) == 3 and image.shape[0] < image.shape[2]:
+            # Likely CHW format, transpose to HWC
+            image = image.transpose(1, 2, 0)
+        return PIL.Image.fromarray(image).convert("RGB")
+    elif isinstance(image, bytes):
+        return PIL.Image.open(BytesIO(image)).convert("RGB")
+    elif isinstance(image, str):
+        # Try base64 decode first
+        if image.startswith("data:image/") or len(image) > 100:
+            try:
+                return _load_image_from_base64(image)
+            except Exception:
+                pass
+        # Fallback to path/URL
+        return _load_image_from_path(image)
+    return None
+
+
+def _load_image_from_row(row: Dict[str, Any]) -> Optional[Any]:
+    """Load image from various sources in row.
+    
+    Priority:
+    1. image_path (local file or URL)
+    2. image_url
+    3. image_base64
+    4. image_bytes (if already loaded)
+    5. image (if already a PIL Image or numpy array)
+    
+    Returns PIL.Image.Image in RGB format, or None on failure.
+    
+    Args:
+        row: Dictionary containing image data in various formats
+        
+    Returns:
+        PIL.Image.Image in RGB format, or None if no image found or loading failed
+    """
+    # Check for already loaded image
+    if "image" in row and row["image"] is not None:
+        return _normalize_image(row["image"])
+    
+    # Try image_path
+    if "image_path" in row and row["image_path"]:
+        return _load_image_from_path(row["image_path"])
+    
+    # Try image_url
+    if "image_url" in row and row["image_url"]:
+        return _load_image_from_path(row["image_url"])
+    
+    # Try image_base64
+    if "image_base64" in row and row["image_base64"]:
+        return _load_image_from_base64(row["image_base64"])
+    
+    # Try image_bytes
+    if "image_bytes" in row and row["image_bytes"]:
+        return _normalize_image(row["image_bytes"])
+    
+    return None
+
+def _convert_numpy_to_pil_map(row: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert numpy array images to PIL Images.
+    
+    Called after ray.data.read_images() which returns numpy arrays.
+    This is a Ray Dataset map function for lazy conversion.
+    
+    Args:
+        row: Dictionary containing numpy array in 'image' column
+        
+    Returns:
+        Dictionary with 'image' column containing PIL.Image.Image (or None)
+    """
+    if "image" in row:
+        if isinstance(row["image"], np.ndarray):
+            row["image"] = _normalize_image(row["image"])
+        elif not isinstance(row["image"], PIL.Image.Image if _PIL_AVAILABLE else None):
+            # Try to normalize other formats
+            row["image"] = _normalize_image(row["image"])
+    return row
+
+
+def _load_images_map(row: Dict[str, Any]) -> Dict[str, Any]:
+    """Ray Dataset map function to load images from paths/URLs.
+    
+    This is called lazily during Ray Dataset execution, not at dataset creation.
+    Handles multiple input formats and converts to PIL Image.
+    
+    Args:
+        row: Dictionary containing image data in various formats
+        
+    Returns:
+        Dictionary with 'image' column containing PIL.Image.Image (or None)
+    """
+    image = None
+    
+    # Priority order: existing image > path > URL > base64
+    if "image" in row and row["image"] is not None:
+        image = _normalize_image(row["image"])
+    elif "image_path" in row and row["image_path"]:
+        image = _load_image_from_path(row["image_path"])
+    elif "image_url" in row and row["image_url"]:
+        # For URLs, we can either load now or pass URL to vLLM
+        # Loading now is safer for batch processing
+        image = _load_image_from_path(row["image_url"])
+    elif "image_base64" in row and row["image_base64"]:
+        image = _load_image_from_base64(row["image_base64"])
+    
+    # Set image column (None if loading failed)
+    row["image"] = image
+    return row
+
+
+def _ensure_images_map(row: Dict[str, Any]) -> Dict[str, Any]:
+    """Ensure image column exists (for compatibility).
+    
+    Called before preprocessing to ensure consistent schema.
+    
+    Args:
+        row: Dictionary that may or may not have 'image' column
+        
+    Returns:
+        Dictionary with 'image' column (None if not present)
+    """
+    if "image" not in row:
+        row["image"] = None
+    return row
+
+# Model zoo base path
+MODEL_ZOO_BASE = "/share/pierson/matt/zoo/models"
+
+
+def _resolve_model_path(model_source: str) -> str:
+    """Resolve model path from zoo or HuggingFace Hub.
+    
+    Priority:
+    1. If absolute path exists: use as-is
+    2. If relative path in zoo: resolve to zoo/models/{model_source}
+    3. If model name matches zoo directory: resolve to zoo/models/{name}
+    4. Otherwise: use as HuggingFace Hub identifier
+    
+    Args:
+        model_source: Model path/name from config (e.g., "Qwen2.5-VL-3B-Instruct" 
+                     or "/share/pierson/matt/zoo/models/Qwen3-30B-A3B-Instruct-2507")
+    
+    Returns:
+        Resolved path (absolute path or HuggingFace Hub identifier)
+    """
+    # Already an absolute path
+    if os.path.isabs(model_source) and os.path.exists(model_source):
+        return model_source
+    
+    # Check if it's in the zoo
+    zoo_path = os.path.join(MODEL_ZOO_BASE, model_source)
+    if os.path.exists(zoo_path):
+        return zoo_path
+    
+    # Try fuzzy matching in zoo directory
+    if os.path.exists(MODEL_ZOO_BASE):
+        try:
+            zoo_dirs = [d for d in os.listdir(MODEL_ZOO_BASE) 
+                       if os.path.isdir(os.path.join(MODEL_ZOO_BASE, d))]
+            # Check for exact match or partial match
+            for dir_name in zoo_dirs:
+                if model_source.lower() in dir_name.lower() or dir_name.lower() in model_source.lower():
+                    resolved = os.path.join(MODEL_ZOO_BASE, dir_name)
+                    if os.path.exists(os.path.join(resolved, "config.json")):
+                        return resolved
+        except Exception:
+            pass  # Fallback to HuggingFace Hub
+    
+    # Fallback to HuggingFace Hub
+    return model_source
+
+
+def _is_multimodal_model(model_source: str, cfg: Optional[Any] = None) -> bool:
+    """Detect if model supports multimodal inputs.
+    
+    Checks:
+    1. Model name patterns (e.g., "Qwen2.5-VL", "InternVL", "Phi-3.5-vision")
+    2. Explicit config flag: runtime.multimodal_enabled
+    3. Model config metadata (if available)
+    4. Config.json in model directory for local models
+    
+    Args:
+        model_source: Model path/name
+        cfg: Optional config object for checking runtime.multimodal_enabled
+        
+    Returns:
+        True if multimodal capabilities detected
+    """
+    # Resolve model path first
+    resolved_path = _resolve_model_path(model_source)
+    
+    # Check explicit flag first
+    if cfg is not None and hasattr(cfg, "runtime"):
+        if hasattr(cfg.runtime, "multimodal_enabled"):
+            return bool(cfg.runtime.multimodal_enabled)
+    
+    # For local models, check config.json
+    if os.path.isabs(resolved_path) and os.path.exists(resolved_path):
+        config_path = os.path.join(resolved_path, "config.json")
+        if os.path.exists(config_path):
+            try:
+                with open(config_path, "r") as f:
+                    config = json.load(f)
+                    # Check for multimodal indicators in config
+                    model_type = config.get("model_type", "").lower()
+                    arch = config.get("architectures", [])
+                    if any("vision" in str(a).lower() or "multimodal" in str(a).lower() 
+                           for a in arch):
+                        return True
+                    if "vision" in model_type or "multimodal" in model_type:
+                        return True
+            except Exception:
+                pass  # Fallback to pattern matching
+    
+    # Pattern matching for common multimodal models
+    multimodal_patterns = [
+        r"Qwen.*VL",
+        r"InternVL",
+        r"Phi-3.*vision",
+        r"SmolVLM",
+        r"LLaVA",
+        r"CLIP",
+        r"vision",
+        r"multimodal",
+    ]
+    
+    model_lower = model_source.lower()
+    return any(re.search(pattern, model_lower, re.IGNORECASE) for pattern in multimodal_patterns)
 
 
 def _read_int_file(path: str) -> int:
@@ -1523,11 +1864,38 @@ def run_classification_stage(df: pd.DataFrame, cfg):
         except Exception:
             return None
 
+    # Resolve model path from zoo or HuggingFace Hub
+    model_source_raw = str(getattr(cfg.model, "model_source", ""))
+    resolved_model_source = _resolve_model_path(model_source_raw)
+    
+    # Detect if model supports multimodal inputs
+    is_multimodal = _is_multimodal_model(resolved_model_source, cfg)
+    
     # Constrain GPU mem via vLLM engine args: prefer provided config; otherwise set conservative defaults
     ek = dict(getattr(cfg.model, "engine_kwargs", {}))
     ek.setdefault("max_model_len", 4096)
     ek.setdefault("max_num_seqs", 16)
     ek.setdefault("gpu_memory_utilization", 0.85)
+    
+    # Configure multimodal-specific settings if needed
+    if is_multimodal:
+        # Required: limit multimodal inputs per prompt
+        ek.setdefault("limit_mm_per_prompt", {"image": 1})
+        
+        # Model-specific image processing settings
+        # Qwen models use min_pixels/max_pixels
+        # InternVL uses max_dynamic_patch
+        # Phi-3 uses num_crops
+        # Default to Qwen settings if not specified
+        if "mm_processor_kwargs" not in ek:
+            ek["mm_processor_kwargs"] = {
+                "min_pixels": 28 * 28,  # 784
+                "max_pixels": 1280 * 28 * 28,  # 9830400 for Qwen
+            }
+        
+        # Increase max_num_batched_tokens for multimodal (default: 5120)
+        # vs text-only (default: 2048)
+        ek.setdefault("max_num_batched_tokens", 5120)
     tp_env = os.environ.get("UAIR_TENSOR_PARALLEL_SIZE")
     if "tensor_parallel_size" not in ek and tp_env:
         try:
@@ -1571,20 +1939,32 @@ def run_classification_stage(df: pd.DataFrame, cfg):
             batch_size = 16
     except Exception:
         batch_size = 16
+    # Build runtime environment (include HF_TOKEN if needed)
+    runtime_env_vars = {
+        # Doc-supported knob to reduce verbosity safely
+        "VLLM_LOGGING_LEVEL": str(os.environ.get("VLLM_LOGGING_LEVEL", "WARNING")),
+        # Propagate wandb config to Ray workers (uses in-process mode)
+        "WANDB_DISABLE_SERVICE": str(os.environ.get("WANDB_DISABLE_SERVICE", "true")),
+        "WANDB_SILENT": str(os.environ.get("WANDB_SILENT", "true")),
+    }
+    # Add HuggingFace token if available (needed for private models)
+    hf_token = os.environ.get("HF_TOKEN")
+    if hf_token:
+        runtime_env_vars["HF_TOKEN"] = hf_token
+    
+    # Get accelerator_type if specified (for Ray cluster optimization)
+    accelerator_type = getattr(cfg.model, "accelerator_type", None)
+    
     engine_config = vLLMEngineProcessorConfig(
-        model_source=str(getattr(cfg.model, "model_source")),
+        model_source=resolved_model_source,  # Use resolved path
         runtime_env={
-            "env_vars": {
-                # Doc-supported knob to reduce verbosity safely
-                "VLLM_LOGGING_LEVEL": str(os.environ.get("VLLM_LOGGING_LEVEL", "WARNING")),
-                # Propagate wandb config to Ray workers (uses in-process mode)
-                "WANDB_DISABLE_SERVICE": str(os.environ.get("WANDB_DISABLE_SERVICE", "true")),
-                "WANDB_SILENT": str(os.environ.get("WANDB_SILENT", "true")),
-            }
+            "env_vars": runtime_env_vars
         },
         engine_kwargs=ek,
         concurrency=int(getattr(cfg.model, "concurrency", 1) or 1),
         batch_size=int(batch_size),
+        has_image=is_multimodal,  # Required for multimodal models
+        accelerator_type=accelerator_type if accelerator_type else None,
     )
 
     # Prefer stage/profile-specific sampling params when present; convert nested DictConfig -> dict
@@ -1977,6 +2357,69 @@ def run_classification_stage(df: pd.DataFrame, cfg):
         except Exception:
             pass
         user = _trim_text_for_prompt(user_raw, tok_local, system_prompt)
+        
+        # Load and normalize image if present (for multimodal models)
+        image = None
+        image_url = None
+        image_load_failed = False
+        
+        if is_multimodal:
+            try:
+                # Check for URL first - vLLM can handle URLs directly (more efficient)
+                if "image_url" in row and row["image_url"]:
+                    url = str(row["image_url"]).strip()
+                    if url.startswith(("http://", "https://")):
+                        image_url = url
+                    else:
+                        # Try loading as path
+                        image = _load_image_from_row(row)
+                elif "image_path" in row and row["image_path"]:
+                    path = str(row["image_path"]).strip()
+                    if path.startswith(("http://", "https://")):
+                        # Path field contains URL
+                        image_url = path
+                    else:
+                        # Try loading from local path
+                        image = _load_image_from_row(row)
+                else:
+                    # Try loading from other sources (base64, bytes, etc.)
+                    image = _load_image_from_row(row)
+                
+                if image is None and image_url is None:
+                    image_load_failed = True
+            except Exception as e:
+                image_load_failed = True
+                # Check if fallback is enabled (default: True)
+                image_fallback = getattr(cfg.runtime, "image_fallback", True) if hasattr(cfg, "runtime") else True
+                if not image_fallback:
+                    # Re-raise if fallback disabled
+                    raise RuntimeError(f"Image loading failed and fallback disabled: {e}") from e
+                # Log warning but continue with text-only
+                article_id = row.get("article_id", "unknown")
+                print(f"Warning: Failed to load image for article_id={article_id}: {e}", flush=True)
+        
+        # Build multimodal messages if image is available, otherwise text-only
+        if is_multimodal and image is not None:
+            # Multimodal format: content is a list with text and image (PIL Image)
+            user_content = [
+                {"type": "text", "text": user},
+                {"type": "image", "image": image}
+            ]
+        elif is_multimodal and image_url is not None:
+            # Use URL format for remote images (vLLM handles fetching)
+            user_content = [
+                {"type": "text", "text": user},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": image_url},
+                    # Optional UUID for caching (use article_id if available)
+                    "uuid": row.get("article_id") or image_url,
+                }
+            ]
+        else:
+            # Text-only format (backward compatible or fallback)
+            user_content = user
+        
         # Sanitize sampling params; then stabilize to a fixed-key schema
         sp_local = _sanitize_for_json(dict(sampling_params or {}))
         if is_eu_profile and EU_GUIDED_JSON_SCHEMA is not None:
@@ -1998,11 +2441,16 @@ def run_classification_stage(df: pd.DataFrame, cfg):
         from datetime import datetime as _dt
         # Drop any conflicting keys from input row to avoid clobbering our constructed fields
         base = {k: v for k, v in row.items() if k not in {"messages", "sampling_params", "generated_text", "llm_output", "json", "guided_decoding", "response_format", "structured_output"}}
+        
+        # Add image_load_failed flag for tracking if fallback was used
+        if image_load_failed and is_multimodal:
+            base["image_load_failed"] = True
+        
         return {
             **base,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user},
+                {"role": "user", "content": user_content},
             ],
             "sampling_params": sp_local,
             "ts_start": _dt.now().timestamp(),
@@ -2194,6 +2642,39 @@ def run_classification_stage(df: pd.DataFrame, cfg):
             ds_in = ds_in.map(_coerce_boolish_map)
         except Exception:
             pass
+
+        # Image loading for multimodal models
+        if is_multimodal:
+            try:
+                # Check if 'image' column exists and contains numpy arrays (from ray.data.read_images())
+                # Take a sample to check without materializing the whole dataset
+                try:
+                    sample = ds_in.take(1)
+                    if sample and len(sample) > 0 and "image" in sample[0]:
+                        if isinstance(sample[0]["image"], np.ndarray):
+                            # Convert numpy arrays to PIL Images
+                            ds_in = ds_in.map(_convert_numpy_to_pil_map)
+                            print("[classify] Converted numpy array images to PIL Images", flush=True)
+                except Exception:
+                    pass  # Continue if check fails
+                
+                # Load images from paths/URLs if present
+                # Check if any image-related columns exist
+                try:
+                    sample = ds_in.take(1)
+                    if sample and len(sample) > 0:
+                        sample_row = sample[0]
+                        if any(col in sample_row for col in ["image_path", "image_url", "image_base64"]):
+                            ds_in = ds_in.map(_load_images_map)
+                            print("[classify] Loaded images from paths/URLs/base64", flush=True)
+                except Exception:
+                    pass  # Continue if check fails
+                
+                # Ensure image column exists (even if None) for consistent schema
+                ds_in = ds_in.map(_ensure_images_map)
+            except Exception as e:
+                print(f"[classify] Warning: Failed to load images: {e}", flush=True)
+                # Continue with text-only processing
 
         # Keyword flag + gating
         if prefilter_mode in ("pre_gating", "post_gating"):

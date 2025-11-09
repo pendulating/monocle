@@ -1,0 +1,14 @@
+# Prompt Chaining Configuration
+prompt:
+  chaining:
+    enabled: false
+    chain:
+      - step: 1
+        prompt: "Identify all visible structures in this image."
+        output_key: "structures"
+      - step: 2
+        prompt: "For each structure in {{structures}}, classify its type."
+        output_key: "structure_types"
+      - step: 3
+        prompt: "Based on {{structure_types}}, answer: {{user_question}}"
+        output_key: "final_answer"

@@ -1,0 +1,149 @@
+# Urban Planning VQA Decision Tree Example
+# Demonstrates adaptive questioning based on image content
+
+tree_id: "urban_planning_vqa_v1"
+version: "1.0.0"
+root_node: "start"
+
+nodes:
+  start:
+    node_id: "start"
+    prompt: "What is the primary land use visible in this image?"
+    node_type: "question"
+    output_key: "primary_land_use"
+    branches:
+      - condition:
+          type: "keyword_match"
+          keywords: ["residential", "housing", "apartments", "houses"]
+        target_node: "residential_analysis"
+        weight: 1.0
+      - condition:
+          type: "keyword_match"
+          keywords: ["commercial", "retail", "shopping", "business"]
+        target_node: "commercial_analysis"
+        weight: 1.0
+      - condition:
+          type: "keyword_match"
+          keywords: ["industrial", "factory", "warehouse", "manufacturing"]
+        target_node: "industrial_analysis"
+        weight: 1.0
+      - condition:
+          type: "default"
+        target_node: "general_analysis"
+        weight: 0.5
+  
+  residential_analysis:
+    node_id: "residential_analysis"
+    prompt: "Based on the residential context, what is the density level? (low, medium, high)"
+    node_type: "question"
+    output_key: "density_level"
+    branches:
+      - condition:
+          type: "keyword_match"
+          keywords: ["low", "low-density", "sparse"]
+        target_node: "low_density_details"
+      - condition:
+          type: "keyword_match"
+          keywords: ["medium", "medium-density"]
+        target_node: "medium_density_details"
+      - condition:
+          type: "keyword_match"
+          keywords: ["high", "high-density", "dense"]
+        target_node: "high_density_details"
+      - condition:
+          type: "default"
+        target_node: "convergence_assessment"
+  
+  commercial_analysis:
+    node_id: "commercial_analysis"
+    prompt: "What type of commercial activity is visible? (retail, office, mixed-use)"
+    node_type: "question"
+    output_key: "commercial_type"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "convergence_assessment"
+  
+  industrial_analysis:
+    node_id: "industrial_analysis"
+    prompt: "What industrial characteristics are present?"
+    node_type: "question"
+    output_key: "industrial_chars"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "convergence_assessment"
+  
+  low_density_details:
+    node_id: "low_density_details"
+    prompt: "Describe the specific characteristics of this low-density residential area."
+    node_type: "question"
+    output_key: "residential_details"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "convergence_assessment"
+  
+  medium_density_details:
+    node_id: "medium_density_details"
+    prompt: "Describe the specific characteristics of this medium-density residential area."
+    node_type: "question"
+    output_key: "residential_details"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "convergence_assessment"
+  
+  high_density_details:
+    node_id: "high_density_details"
+    prompt: "Describe the specific characteristics of this high-density residential area."
+    node_type: "question"
+    output_key: "residential_details"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "convergence_assessment"
+  
+  general_analysis:
+    node_id: "general_analysis"
+    prompt: "Provide a general analysis of the urban planning characteristics."
+    node_type: "question"
+    output_key: "general_analysis"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "convergence_assessment"
+  
+  # Many-to-one convergence node: aggregates outputs from multiple paths
+  convergence_assessment:
+    node_id: "convergence_assessment"
+    node_type: "convergence"
+    metadata:
+      aggregation_strategy: "summarize"  # How to combine multiple inputs
+      aggregation_prompt: |
+        Based on the following analyses:
+        
+        Primary Land Use: {{primary_land_use}}
+        Density Level: {{density_level}}
+        Residential Details: {{residential_details}}
+        Commercial Type: {{commercial_type}}
+        Industrial Characteristics: {{industrial_chars}}
+        General Analysis: {{general_analysis}}
+        
+        Provide a comprehensive urban planning assessment.
+    prompt: |
+      Synthesize all the information gathered so far:
+      {{aggregated_inputs}}
+      
+      Provide a final comprehensive assessment.
+    output_key: "final_answer"
+    branches:
+      - condition:
+          type: "always"
+        target_node: "final_summary"
+  
+  final_summary:
+    node_id: "final_summary"
+    prompt: "Provide a comprehensive summary of the urban planning characteristics of this area."
+    node_type: "leaf"
+    output_key: "final_answer"

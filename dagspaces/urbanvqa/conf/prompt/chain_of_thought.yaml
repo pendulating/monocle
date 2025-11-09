@@ -1,0 +1,10 @@
+# Chain-of-Thought Prompting Configuration
+prompt:
+  chain_of_thought:
+    enabled: false
+    template: |
+      Let's solve this step by step:
+      
+      1. First, analyze the image: {{image_analysis}}
+      2. Then, reason about the question: {{reasoning}}
+      3. Finally, provide the answer: {{answer}}

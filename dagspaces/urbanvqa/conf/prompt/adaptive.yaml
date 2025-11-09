@@ -1,0 +1,21 @@
+# Adaptive Prompting Configuration
+prompt:
+  adaptive:
+    enabled: false
+    complexity_assessment:
+      method: "token_count"  # or "semantic_complexity", "heuristic"
+      thresholds:
+        simple: 50  # tokens
+        medium: 150
+        complex: 300
+    prompt_variants:
+      simple:
+        prompt: "{{user_question}}"
+      medium:
+        prompt: "Analyze the image and answer: {{user_question}}"
+      complex:
+        prompt: |
+          Let's break down this complex question:
+          1. First, describe what you see: {{image_description}}
+          2. Then, analyze the context: {{context_analysis}}
+          3. Finally, answer: {{user_question}}"
