@@ -1,0 +1,46 @@
+# @package _global_
+# VQA Pipeline Configuration for BayFlood using Cambrian-13B
+# Specifically tuned for 48GB A6000 GPUs using the specialized sidecar processor.
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: bayflood
+  - override /model: vllm_multimodal_cambrian1_13b
+  - override /prompt: bayflood_relative_basic
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false
+  batch_inference: true
+  streaming_io: true
+  job_memory_gb: 64  # Increased for Ray Object Store management
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/results.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          # Select BayFlood split (train or test)
+          data.split: train
+          # Inherit optimized settings from model/vllm_multimodal_cambrian1_13b.yaml
+          model.model_source: ${model.model_source}
+          model.batch_size: ${model.batch_size}
+          model.concurrency: ${model.concurrency}
+          # Structured output config for binary verification if needed
+          prompt.structured_output:
+            enabled: false # Set to true if you want strictly Level 0-4 JSON parsing
+        launcher: g2_slurm_pierson
+        wandb_suffix: vqa_bayflood_cambrian
+
+# Usage:
+# python -m dagspaces.urbanvqa.cli pipeline=vqa_bayflood_cambrian

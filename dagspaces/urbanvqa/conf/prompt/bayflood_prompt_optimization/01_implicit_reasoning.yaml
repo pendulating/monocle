@@ -1,0 +1,13 @@
+
+
+
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+user_prompt: |-
+  Does the image show standing water of at least one foot in depth?
+  Base your decision on visual depth cues such as partial submersion of common objects (e.g., wheels, curbs, door thresholds).
+  Answer Yes or No.
+
+

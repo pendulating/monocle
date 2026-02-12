@@ -15,7 +15,7 @@ additional_parameters:
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source /share/pierson/matt/URBANVQA/.venv/bin/activate
+  - source /share/pierson/matt/mllmsci/.venv/bin/activate
   - unset WANDB_DISABLED
   - export RULE_TUPLES_SILENT=1
   - export WANDB_SILENT=true

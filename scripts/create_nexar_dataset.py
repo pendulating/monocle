@@ -34,20 +34,22 @@ def create_nexar_dataset(
     prompt: Optional[str] = None,
     max_images: Optional[int] = None,
     sample_id_prefix: str = "nexar",
-    absolute_paths: bool = True
+    absolute_paths: bool = True,
+    load_metadata: bool = True
 ) -> pd.DataFrame:
     """Create a parquet dataset from images in a directory.
     
     Args:
-        image_dir: Directory containing image files
+        image_dir: Directory containing image files (can be nested)
         output_path: Path to output parquet file
         prompt: Default prompt to use for all images (can be customized)
         max_images: Maximum number of images to include (None for all)
         sample_id_prefix: Prefix for sample IDs
         absolute_paths: If True, use absolute paths; if False, use relative paths
+        load_metadata: If True, look for and load metadata.csv files in the directory
         
     Returns:
-        DataFrame with columns: prompt, sample_id, image_path
+        DataFrame with columns: prompt, sample_id, image_path, and metadata columns
     """
     image_dir = Path(image_dir)
     if not image_dir.exists():
@@ -56,11 +58,13 @@ def create_nexar_dataset(
     # Default prompt for dashcam images
     default_prompt = prompt or "What urban planning features are visible in this dashcam image?"
     
-    # Find all image files
+    # Find all image files recursively
+    print(f"Searching for images in {image_dir}...")
     image_extensions = {'.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'}
     image_files = []
     for ext in image_extensions:
-        image_files.extend(image_dir.glob(f"*{ext}"))
+        # Use rglob to find images in nested subdirectories
+        image_files.extend(image_dir.rglob(f"*{ext}"))
     
     if not image_files:
         raise ValueError(f"No image files found in {image_dir}")
@@ -74,6 +78,29 @@ def create_nexar_dataset(
     
     print(f"Found {len(image_files)} image files")
     
+    # Load metadata if requested
+    metadata_df = None
+    if load_metadata:
+        print("Searching for metadata.csv files...")
+        metadata_files = list(image_dir.rglob("metadata.csv"))
+        if metadata_files:
+            print(f"Found {len(metadata_files)} metadata files. Loading...")
+            metadata_dfs = []
+            for mf in metadata_files:
+                try:
+                    m_df = pd.read_csv(mf)
+                    metadata_dfs.append(m_df)
+                except Exception as e:
+                    print(f"Warning: Could not load metadata from {mf}: {e}")
+            
+            if metadata_dfs:
+                metadata_df = pd.concat(metadata_dfs, ignore_index=True)
+                # Drop duplicates if any
+                metadata_df = metadata_df.drop_duplicates(subset=['frame_id'])
+                print(f"Loaded {len(metadata_df)} metadata records")
+        else:
+            print("No metadata.csv files found.")
+    
     # Create DataFrame
     data = []
     for idx, img_path in enumerate(image_files):
@@ -84,22 +111,35 @@ def create_nexar_dataset(
         if absolute_paths:
             img_path_str = str(img_path.resolve())
         else:
-            img_path_str = str(img_path)
+            # Use path relative to image_dir for better portability
+            try:
+                img_path_str = str(img_path.relative_to(image_dir))
+            except ValueError:
+                img_path_str = str(img_path)
         
-        data.append({
+        row = {
             "prompt": default_prompt,
             "sample_id": sample_id,
             "image_path": img_path_str,
-        })
+            "frame_id": img_path.stem  # Key for joining with metadata
+        }
+        data.append(row)
     
     df = pd.DataFrame(data)
+    
+    # Join with metadata if available
+    if metadata_df is not None:
+        # Ensure frame_id is string for join
+        metadata_df['frame_id'] = metadata_df['frame_id'].astype(str)
+        df = df.merge(metadata_df, on='frame_id', how='left')
+        print("Joined image data with metadata")
     
     # Save to parquet
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False)
     print(f"Saved dataset to {output_path}")
-    print(f"Dataset contains {len(df)} rows")
+    print(f"Dataset contains {len(df)} rows and {len(df.columns)} columns")
     
     return df
 
@@ -130,6 +170,7 @@ def create_from_config(config_path: str, output_path: str, **overrides) -> pd.Da
     max_images = overrides.get('max_images')
     sample_id_prefix = overrides.get('sample_id_prefix', 'nexar')
     absolute_paths = overrides.get('absolute_paths', True)
+    load_metadata = overrides.get('load_metadata', True)
     
     return create_nexar_dataset(
         image_dir=image_dir,
@@ -137,7 +178,8 @@ def create_from_config(config_path: str, output_path: str, **overrides) -> pd.Da
         prompt=prompt,
         max_images=max_images,
         sample_id_prefix=sample_id_prefix,
-        absolute_paths=absolute_paths
+        absolute_paths=absolute_paths,
+        load_metadata=load_metadata
     )
 
 
@@ -192,11 +234,17 @@ def main():
         action="store_true",
         help="Use relative paths for images"
     )
+    parser.add_argument(
+        "--no_metadata",
+        action="store_true",
+        help="Do not load metadata.csv files"
+    )
     
     args = parser.parse_args()
     
     # Handle relative paths flag
     absolute_paths = not args.relative_paths if args.relative_paths else args.absolute_paths
+    load_metadata = not args.no_metadata
     
     if args.config:
         df = create_from_config(
@@ -206,7 +254,8 @@ def main():
             prompt=args.prompt,
             max_images=args.max_images,
             sample_id_prefix=args.sample_id_prefix,
-            absolute_paths=absolute_paths
+            absolute_paths=absolute_paths,
+            load_metadata=load_metadata
         )
     elif args.image_dir:
         df = create_nexar_dataset(
@@ -215,7 +264,8 @@ def main():
             prompt=args.prompt,
             max_images=args.max_images,
             sample_id_prefix=args.sample_id_prefix,
-            absolute_paths=absolute_paths
+            absolute_paths=absolute_paths,
+            load_metadata=load_metadata
         )
     else:
         parser.error("Either --image_dir or --config must be specified")

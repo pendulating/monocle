@@ -1,0 +1,33 @@
+# Scaffolding Detection Prompt Configuration
+# Binary classification: detect NYC sidewalk scaffolding in street-level images
+#
+# NOTE: The code reads `system` and `user_template`, NOT `system_prompt`/`user_prompt`.
+# Setting user_template to a static string (no {{variables}}) means it overrides
+# any prompt column in the input data -- the parquet does not need a prompt column.
+
+system: ""
+
+user_template: 'You are tasked with analyzing a street-level image to determine whether
+  it shows sidewalk scaffolding. Sidewalk scaffolding (also called a sidewalk shed
+  or construction canopy) is a temporary overhead protective structure built over a
+  sidewalk during building construction or renovation.
+
+
+  Key indicators:
+
+  - Metal or wooden framework extending over the sidewalk from a building facade
+
+  - Overhead plywood or metal decking providing a covered walkway for pedestrians
+
+  - Vertical support poles along the curb line
+
+  - Often painted green or left as raw metal/wood
+
+  - May have netting, signage, or construction permits attached
+
+
+  Do NOT confuse with: awnings, permanent building overhangs, bus shelters, store
+  canopies, or simple construction barriers without overhead coverage.
+
+
+  Does this image show sidewalk scaffolding? Answer with a single word: "Yes" or "No".'

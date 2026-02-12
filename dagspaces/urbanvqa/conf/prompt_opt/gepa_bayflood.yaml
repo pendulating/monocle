@@ -1,0 +1,148 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - /data: bayflood
+  - /model: vllm_multimodal_qwen2.5_vl_7b
+  - /prompt: vqa
+  - override /hydra/launcher: g2_slurm_pierson
+
+seed: 20251109
+
+prompt:
+  system: ""
+  # Template ignores the dataset's {{prompt}} and uses evolved text instead.
+  template: "Is there flooding in this image?"
+  structured_output:
+    enabled: true
+    json_schema:
+      type: object
+      properties:
+        answer:
+          type: string
+          enum: ["Yes", "No"]
+      required: ["answer"]
+      additionalProperties: false
+
+
+gepa:
+  mode: optimize
+  wandb_suffix: gepa_bayflood
+  components:
+    - name: user_prompt
+      target: prompt.template
+  dataset:
+    train:
+      parquet_path: ${data.processed_root}/train/metadata.parquet
+      image_path: ${data.processed_root}/train/images
+      prompt_column: ${data.columns.prompt}
+      answer_column: expected_answer
+      stratify_by: expected_answer
+      # null = use ALL training data (~1971 images)
+      # This ensures reflection sees full training distribution
+      limit: null
+    val:
+      parquet_path: ${data.processed_root}/test/metadata.parquet
+      image_path: ${data.processed_root}/test/images
+      prompt_column: ${data.columns.prompt}
+      answer_column: expected_answer
+      stratify_by: expected_answer
+      # null = use ALL validation data (~494 images)  
+      # Every prompt candidate is scored on the complete validation set
+      limit: null
+  sampler:
+    batch_size: 32
+    cache_dir: ${hydra:runtime.output_dir}/dataset_cache
+  metrics:
+    primary: f1
+    secondary:
+      - accuracy
+      - precision
+      - false_omission_rate
+    f1:
+      reference_column: expected_answer
+      prediction_column: answer
+    accuracy:
+      reference_column: expected_answer
+      prediction_column: answer
+    # P(y=1|ŷ=1) - When model predicts flooding, how often is there actually flooding?
+    # High precision = few false alarms
+    precision:
+      reference_column: expected_answer
+      prediction_column: answer
+      positive_class: "Yes"
+    # P(y=1|ŷ=0) - When model predicts NO flooding, how often is there actually flooding?
+    # Low FOR = rarely miss actual floods (critical for safety)
+    false_omission_rate:
+      reference_column: expected_answer
+      prediction_column: answer
+      positive_class: "Yes"
+  optimization:
+    # Budget calculation for full-data optimization:
+    # - Initial val eval: ~494 calls
+    # - Per iteration: 2 × 64 (reflection minibatch) + 494 (val eval if accepted) ≈ 622 calls
+    # - With 100k budget: allows ~159 iterations with full validation
+    max_metric_calls: 100000
+    # reflection_minibatch_size must fit in reflection LLM's context window
+    # qwen30b has 16k context limit; ~110 tokens/sample → max ~140 samples
+    # Using 64 samples to leave room for instruction template (~7k tokens)
+    reflection_minibatch_size: 128
+    # Enable persistent vLLM processor to eliminate model teardown between iterations
+    # This significantly speeds up optimization by reusing the same GPU model instance
+    persistent_processor: true
+    # Early stopping: halt optimization after N iterations without F1 improvement
+    # This prevents wasting compute when the prompt has converged
+    patience: 5
+  artifacts:
+    base_dir: outputs/gepa/bayflood
+  validation:
+    prompt_path: null
+    split: val
+    # null = validate on ALL data
+    limit: null
+    expected_score: null
+    tolerance: 0.01
+
+ray:
+  num_gpus: 2
+  num_cpus: 8
+  dataset_cache_dir: ${gepa.sampler.cache_dir}
+
+runtime:
+  job_memory_gb: 32
+  sample_n: null
+  streaming_io: true
+  suppress_child_warnings: true
+  debug: false
+  output_root: null
+  ray_skip_module_upload: true
+
+vllm:
+  model_config: ${model.model_source}
+  engine:
+    concurrency: ${model.concurrency}
+    batch_size: ${model.batch_size}
+    tensor_parallel_size: ${oc.select:model.engine_kwargs.tensor_parallel_size,1}
+    enable_chunked_prefill: ${oc.select:model.engine_kwargs.enable_chunked_prefill,true}
+
+llm:
+  # NOTE: llm.task is deprecated - VQA inference uses cfg.model directly
+  reflection:
+    provider: vllm
+    model: qwen3-30b-reflection
+    api_base: http://localhost:8000/v1
+    api_key_env: null
+    headers: {}
+    request_timeout_s: 120
+    max_tokens: 32768
+    # Deterministic reflection: temperature=0.0 ensures reproducible prompt mutations
+    temperature: 0.0
+    seed: ${seed}
+
+wandb:
+  enabled: true
+  project: URBANVQA
+  entity: urbanekg
+  group: gepa_bayflood
+  table_sample_rows: 1000
+

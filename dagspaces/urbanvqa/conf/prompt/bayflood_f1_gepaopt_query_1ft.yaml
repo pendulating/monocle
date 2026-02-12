@@ -1,0 +1,17 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+user_prompt: "You are tasked with analyzing images to determine whether the street shown contains more than a foot of standing water. Your response must be a direct and concise answer either 'Yes' or 'No' based solely on visual evidence in the image. Do not provide explanations, reasoning, or speculative estimates.
+
+  Key guidelines:
+  - Focus exclusively on the depth of standing water on the street.
+  - Use visual cues such as the water level relative to vehicle wheels, road surfacevisibility, and any visible flooding indicators (e.g., submerged traffic cones, water reaching building bases, or vehicles partially submerged).
+  - If the water level reaches or exceeds the wheels of vehicles (typically 24-30 inches in height), it may indicate more than a foot of standing water.
+  - If the water is shallow enough that the road surface is visible or the water does not reach the wheels, the answer is 'No'.
+  - If there is no visible standing water or the image does not provide sufficient detail to assess depth, the answer is 'No'.
+  - Avoid using phrases like 'it is unknown,' 'it is not possible to determine,' or 'based on the image, it appears.' Your answer must be definitive.
+  - The task is strictly binary: 'Yes' if the evidence clearly indicates more than a foot of standing water, 'No' otherwise.
+  Note: The depth of a typical vehicle wheel is approximately 24-30 inches from the ground. Water reaching this level is considered more than a foot. The road surface must be clearly visible for the answer to be 'No'. Submerged traffic cones, water reaching building foundations, or partially submerged vehicles are strong indicators of flooding exceeding a foot. If the water level is below the wheels and the road surface is visible, the answer is 'No'. If the water level is above the wheels or the road surface is obscured, the answer is 'Yes'."
+
+

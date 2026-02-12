@@ -1,0 +1,44 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+# User prompt template (prompt from data column is inserted here)
+user_prompt: |-
+  **Task**
+  You are an engineering vision assistant. From a single New York City street-view dashcam image frame, output:
+    • Estimated standing-water depth at the flooded area (cm, integer)
+    • Passability for ordinary sedan
+    • Short justification
+
+  **Visual anchors & canonical dimensions**
+    Raised planter curb reveal = 45 cm (+/- 5 cm)
+    White parking-stripe width = 10 cm
+    Concrete wheel stop height = 13 cm
+
+  **Cue-based depth bands**
+    • Wheel stop fully visible; stripes crisp -> < 5 cm
+    • Water pooling at wheel stop base; stripes still crisp -> 5–10 cm
+    • Water near top of wheel stop; stripes slightly faded -> 10–15 cm
+    • Stripes faint / curb clearly above water -> 15–20 cm
+    • Stripes barely visible, water ~5 cm below curb -> 20–25 cm
+    • Stripes gone, water nearly level with curb -> 25–30 cm
+    • Water lapping over curb top -> 30–40 cm
+    • Wheel stop submerged & curb hidden -> > 40 cm
+
+  **Passability rules**
+    - Sedan: pass <= 15 cm; caution 15–30 cm; unsafe > 30 cm
+
+  **Required reasoning steps**
+  1. Inspect stripe visibility and curb waterline.
+  2. Select the matching depth band.
+  3. Assign the band midpoint as depth_cm_estimate.
+  4. Determine sedan & ambulance verdict using the rules.
+  5. Output JSON ONLY.
+
+  **Output format**
+  {
+    "depth_cm_estimate": ,
+    "depth_range": "",
+    "passability": "",
+    "justification": ""
+  }

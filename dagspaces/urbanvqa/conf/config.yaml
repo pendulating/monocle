@@ -30,6 +30,8 @@ runtime:
   job_memory_gb: 32
   gate_on_relevance: true
   rows_per_block: 4000
+  prompt_override_path: null
+  suppress_child_warnings: true  # Suppress harmless multiprocessing resource_tracker warnings/errors
   # Multimodal options (optional, auto-detected from model if not set)
   # multimodal_enabled: false  # Force enable/disable multimodal mode
   # image_fallback: true  # Fallback to text-only if image loading fails (default: true)
@@ -126,7 +128,7 @@ wandb:
   enabled: true
   name_prefix: null
   project: ${oc.env:WANDB_PROJECT,URBANVQA}
-  entity: ${oc.env:WANDB_ENTITY,""}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
   group: ${oc.env:WANDB_GROUP,""}
   table_sample_rows: 1000
   single_run: true

@@ -1,0 +1,58 @@
+# @package _global_
+# VQA Pipeline Configuration for 10% Sample of 926k BayFlood images
+# Running the bayflood_prompts_from_literature/01_lyu_advanced prompt
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: bayflood_sep29all
+  - override /model: vllm_multimodal_cambrian1_13b
+  - override /prompt: bayflood_prompts_from_literature/01_lyu_advanced
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false
+  batch_inference: true
+  streaming_io: false  # DISABLED to prevent Ray from loading 1M images into RAM
+  auto_streaming_io: false # DISABLED to prevent automatic pixel loading
+  job_memory_gb: 64
+  # Random 10% sample with fixed seed
+  sample_ratio: 0.1
+  sample_seed: 42
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/bayflood_926k_10pct_lyu_advanced_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.auto_streaming_io: ${runtime.auto_streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.sample_ratio: ${runtime.sample_ratio}
+          runtime.sample_seed: ${runtime.sample_seed}
+          model.model_source: ${model.model_source}
+          model.batch_size: ${model.batch_size}
+          model.concurrency: ${model.concurrency}
+          # Use the 926k image parquet file
+          data.parquet_path: data/nexar_sep29all.parquet
+          # Explicitly set image path since it's disabled in bayflood_sep29all.yaml
+          data.image_path: /share/ju/nexar_data/2023/2023-09-29
+          # Map prompt keys to ensure compatibility with unified_preprocess
+          prompt.system: ${prompt.system_prompt}
+          prompt.user_template: ${prompt.user_prompt}
+          # Cambrian sidecar settings
+          prompt.structured_output:
+            enabled: false
+          # Cambrian performance optimizations
+          model.cambrian.use_flash_attn: true
+          model.cambrian.inference_batch_size: 6
+          model.cambrian.gc_frequency: 10
+        launcher: g2_slurm_pierson_6x
+        wandb_suffix: vqa_bayflood_926k_lyu_advanced

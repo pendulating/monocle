@@ -1,0 +1,30 @@
+# Qwen3-VL-30B-A3B-Instruct Model Configuration for OCR
+# Optimized for text spotting in street view imagery
+
+model_source: "/share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct"
+
+# Batch processing settings
+batch_size: 4  # Conservative for MoE model memory usage
+concurrency: 1
+
+# vLLM engine configuration
+engine_kwargs:
+  # Tensor parallelism for large MoE model
+  tensor_parallel_size: 2
+  
+  # Context length for OCR (images + JSON output)
+  max_model_len: 8192
+  
+  # Memory settings
+  gpu_memory_utilization: 0.90
+  
+  # Required for Qwen3-VL
+  trust_remote_code: true
+  
+  # Multimodal settings
+  limit_mm_per_prompt:
+    image: 1  # One image per OCR request
+
+# Accelerator type (optional, for scheduling)
+# accelerator_type: "NVIDIA-RTX-A6000"
+

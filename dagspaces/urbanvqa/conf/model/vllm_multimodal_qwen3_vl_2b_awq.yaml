@@ -1,0 +1,33 @@
+# Multimodal Model Configuration - Qwen3-VL-2B-Instruct-W4A16-AutoRound-AWQ
+# AWQ W4A16 quantized variant for maximum throughput on A6000 (Ampere).
+# ~2.1 GB model weights — smaller than Qwen2.5-VL-3B-AWQ (~3.2 GB),
+# freeing even more VRAM for KV cache and allowing higher concurrency.
+# Vision tower kept in FP16 (unquantized) for accuracy.
+
+model_source: /share/pierson/matt/zoo/models/Qwen3-VL-2B-Instruct-W4A16-AutoRound-AWQ
+
+engine_kwargs:
+  tensor_parallel_size: 1  # Single GPU -- 2B AWQ fits easily
+  max_model_len: 1024  # Tight context for 512x512 images: visual + prompt + output ≈ 502
+  max_num_seqs: 512  # 2B AWQ frees massive KV headroom; double seqs to keep GPU busy
+  enable_chunked_prefill: false  # Disabled: batch inference has no decode-latency SLA; one-shot prefill is faster
+  max_num_batched_tokens: 16384  # Aggressive batching -- prefill more images per iteration
+  limit_mm_per_prompt:
+    image: 1  # Single image per prompt
+  mm_processor_kwargs:
+    min_pixels: 784  # 28*28
+    max_pixels: 262144  # 512*512 -- fewer visual tokens for throughput
+    fps: 1
+  trust_remote_code: true  # Required for Qwen VL models
+  tokenizer_mode: auto
+  dtype: auto  # vLLM auto-detects auto-round quantization from config.json
+  kv_cache_dtype: auto
+  enable_prefix_caching: true  # Critical: same prompt repeated millions of times
+  use_v2_block_manager: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.92  # AWQ model is small; can be aggressive
+  enforce_eager: false  # CUDA graphs: ~100s one-time warmup, then faster kernel dispatch on every forward pass
+  disable_custom_all_reduce: false
+
+batch_size: 128  # Doubled vs 3B AWQ — smaller model needs deeper queue to stay saturated
+concurrency: 1  # Single replica on single GPU (pipeline overrides for multi-GPU)

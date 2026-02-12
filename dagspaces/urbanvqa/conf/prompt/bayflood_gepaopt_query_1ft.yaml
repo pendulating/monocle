@@ -1,0 +1,34 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+user_prompt: 'You are tasked with analyzing images of streets to determine whether
+  there is more than a foot (12 inches) of standing water present. Your response must
+  be a direct, concise answer to the question: "Does the street in this image show
+  more than a foot of standing water?" Your answer should be either "Yes" or "No,"
+  with no additional explanation or reasoning.
+
+
+  To make this determination, you should:
+
+  1. Observe the water level in relation to visible reference points such as vehicle
+  wheels, tires, or road markings.
+
+  2. Use the average height of vehicle wheels (typically 12-18 inches for cars) as
+  a benchmark for estimating water depth.
+
+  3. If the water reaches or exceeds the midpoint of a vehicle''s wheel, it is likely
+  more than a foot deep.
+
+  4. If the water is shallow enough that vehicle wheels remain mostly above the surface,
+  it is likely less than a foot deep.
+
+  5. If there is no visible standing water or only minor wetness, the answer is "No."
+
+  6. If the image is unclear or lacks sufficient reference points, you must still
+  provide a definitive "Yes" or "No" based on the best available evidence.
+
+
+  Do not include any speculative language, disclaimers, or explanations in your response.
+  The output must be strictly "Yes" or "No."'
+

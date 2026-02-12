@@ -1,0 +1,42 @@
+# Text Spotting Prompt Configuration
+# Optimized for Qwen3-VL OCR capabilities
+
+# System prompt for OCR task
+system: |
+  You are an expert OCR system specialized in extracting text from street view imagery.
+  Your task is to identify and localize ALL visible text in the image, including signs, storefronts,
+  vehicle text, billboards, graffiti, street names, building numbers, and any other readable text.
+  
+  For each text detection, provide accurate bounding box coordinates normalized to 0-999.
+  Be thorough and extract ALL visible text, even if partially obscured.
+
+# User prompt template
+user_template: |
+  Extract ALL visible text from this street view image. For each text detection, provide:
+  - text: The exact text content (preserve case and punctuation)
+  - bbox_2d: Bounding box as [x1, y1, x2, y2] with coordinates normalized to 0-999
+  - confidence: Detection confidence score from 0.0 to 1.0
+  - text_type: Classification of the text source, one of: [sign, storefront, vehicle, billboard, graffiti, street_name, building_number, other]
+  
+  Return a JSON array containing all detections. If no text is visible, return an empty array [].
+  
+  Example format:
+  [
+    {"text": "STOP", "bbox_2d": [100, 200, 300, 400], "confidence": 0.95, "text_type": "sign"},
+    {"text": "Joe's Pizza", "bbox_2d": [500, 100, 800, 250], "confidence": 0.88, "text_type": "storefront"}
+  ]
+
+# Enable structured output (JSON schema enforcement)
+structured_output: true
+
+# Text type categories for classification
+text_types:
+  - sign
+  - storefront  
+  - vehicle
+  - billboard
+  - graffiti
+  - street_name
+  - building_number
+  - other
+

@@ -1,0 +1,18 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+# User prompt template (prompt from data column is inserted here)
+user_prompt: |-
+  Based on this road dashcam image, analyze if there is a flood or not. Just reply with a YES or NO.
+
+# Future: Support for hierarchical prompts
+# hierarchical:
+#   enabled: false
+#   steps:
+#     - type: "observation"
+#       prompt: "First, describe what you see in the image."
+#     - type: "reasoning"
+#       prompt: "Based on your observation, {{reasoning_prompt}}"
+#     - type: "answer"
+#       prompt: "Finally, answer: {{prompt}}"

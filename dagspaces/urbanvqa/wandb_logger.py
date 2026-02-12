@@ -716,6 +716,10 @@ class WandbLogger:
         self.wb_config = WandbConfig.from_hydra_config(cfg)
         self._run = None
         
+        # State for GEPA tracking
+        self._gepa_history = []
+        self._gepa_buffer = {}
+        
         # Use the globally imported wandb module configured with legacy service
         if WandbLogger._wandb is None:
             with WandbLogger._lock:
@@ -979,6 +983,53 @@ class WandbLogger:
             run_name = getattr(self._run, "name", "unknown")
             run_mode = getattr(getattr(self._run, "settings", None), "mode", "unknown")
             
+            # Commit any remaining GEPA buffer before finishing
+            if self._gepa_buffer:
+                self._commit_gepa_row()
+            
+            # Log final GEPA summary if we have history
+            if self._gepa_history:
+                try:
+                    import pandas as pd
+                    df_final = pd.DataFrame(self._gepa_history)
+                    
+                    # Log final summary metrics
+                    if "best_val_score" in df_final.columns:
+                        best_score = df_final["best_val_score"].dropna().max()
+                        if pd.notna(best_score):
+                            self._run.summary["gepa/final_best_val_score"] = best_score
+                    
+                    if "val_score" in df_final.columns:
+                        final_val = df_final["val_score"].dropna().iloc[-1] if len(df_final["val_score"].dropna()) > 0 else None
+                        if final_val is not None:
+                            self._run.summary["gepa/final_val_score"] = final_val
+                    
+                    self._run.summary["gepa/total_iterations"] = len(self._gepa_history)
+                    
+                    # Save evolution history CSV for visualization
+                    try:
+                        from pathlib import Path
+                        # Get artifact dir from run config or use default
+                        run_dir = Path(self._run.dir) if hasattr(self._run, "dir") else None
+                        if run_dir and run_dir.exists():
+                            csv_path = run_dir / "evolution_history.csv"
+                            df_final.to_csv(csv_path, index=False)
+                            # Also save as wandb artifact
+                            artifact = self.wandb.Artifact(
+                                name=f"gepa-evolution-{self._run.id}",
+                                type="evolution_history",
+                                description="GEPA prompt evolution history for visualization"
+                            )
+                            artifact.add_file(str(csv_path))
+                            self._run.log_artifact(artifact)
+                            print(f"[wandb] ✓ Evolution history saved: {csv_path}", flush=True)
+                    except Exception as csv_err:
+                        print(f"[wandb] Warning: Failed to save evolution CSV: {csv_err}", file=sys.stderr)
+                    
+                    print(f"[wandb] ✓ GEPA evolution completed: {len(self._gepa_history)} iterations logged", flush=True)
+                except Exception as e:
+                    print(f"[wandb] Warning: Failed to log GEPA summary: {e}", file=sys.stderr)
+            
             print(f"[wandb] Finishing run: {run_name} (mode={run_mode})", flush=True)
             
             self.wandb.finish()
@@ -994,6 +1045,11 @@ class WandbLogger:
             print(f"[wandb] ✗ Failed to finish run: {e}", file=sys.stderr, flush=True)
             self._run = None
     
+    def log(self, message: str) -> None:
+        """Log a text message (LoggerProtocol implementation)."""
+        print(message)
+        # Optionally log to wandb as a persistent log if needed, but stdout is usually captured
+    
     def log_metrics(self, metrics: Dict[str, Any], step: Optional[int] = None, commit: bool = True) -> None:
         """Log metrics to wandb.
         
@@ -1006,10 +1062,247 @@ class WandbLogger:
             return
         
         try:
+            # Debug: print all incoming metrics for GEPA tracking
+            is_gepa_metric = any(k in metrics for k in ["iteration", "subsample_score", "new_subsample_score"]) or \
+               any(k.startswith("new_instruction_") for k in metrics) or \
+               any(k.startswith("base_program") for k in metrics) or \
+               any(k in metrics for k in ["val_program_average", "best_valset_agg_score"])
+            
+            if is_gepa_metric:
+                print(f"[wandb] GEPA metrics received: {list(metrics.keys())}", flush=True)
+            
+            # GEPA Progress Tracking
+            # Accumulate metrics from multiple log_metrics calls per iteration
+            # GEPA logs in this order per iteration:
+            # 1. {"iteration": i, "selected_program_candidate": idx}
+            # 2. {"subsample_score": score}
+            # 3. {"new_instruction_<component>": text} for each component
+            # 4. {"new_subsample_score": score}
+            # 5. After acceptance: detailed valset metrics including val_program_average, best_valset_agg_score
+            #
+            # IMPORTANT: Valset metrics (step 5) may include "iteration" again, so we must NOT
+            # treat that as a new iteration - we need to add those metrics to the current buffer
+            # before committing.
+            
+            iteration = metrics.get("iteration")
+            is_valset_update = "val_program_average" in metrics or "best_valset_agg_score" in metrics
+            
+            if iteration is not None:
+                # Check if this is a new iteration (different from current buffer)
+                current_iter = self._gepa_buffer.get("iteration")
+                
+                # If this is a valset update for the CURRENT iteration, don't commit yet
+                # (we need to capture the valset metrics first)
+                if is_valset_update and current_iter == iteration:
+                    pass  # Don't commit, continue to capture valset metrics below
+                elif current_iter is not None and current_iter != iteration:
+                    # New iteration starting - commit previous row first
+                    self._commit_gepa_row()
+                
+                # Start/update buffer for this iteration
+                self._gepa_buffer["iteration"] = iteration
+                
+            # Capture selected program candidate
+            if "selected_program_candidate" in metrics:
+                self._gepa_buffer["selected_candidate_idx"] = metrics["selected_program_candidate"]
+                
+            # Capture baseline score (score of parent/current program on subsample)
+            if "subsample_score" in metrics:
+                self._gepa_buffer["subsample_score_before"] = metrics["subsample_score"]
+                
+            # Capture new prompt texts - these are the evolved prompts!
+            for k, v in metrics.items():
+                if k.startswith("new_instruction_"):
+                    comp = k.replace("new_instruction_", "")
+                    self._gepa_buffer[f"prompt_{comp}"] = v
+                    print(f"[wandb] GEPA captured prompt for '{comp}': {v[:100]}..." if len(str(v)) > 100 else f"[wandb] GEPA captured prompt for '{comp}': {v}", flush=True)
+                    
+            # Capture new subsample score - this marks end of proposer phase
+            if "new_subsample_score" in metrics:
+                new_score = metrics["new_subsample_score"]
+                self._gepa_buffer["subsample_score_after"] = new_score
+                # Calculate improvement
+                baseline = self._gepa_buffer.get("subsample_score_before")
+                if baseline is not None:
+                    try:
+                        delta = new_score - baseline
+                        self._gepa_buffer["subsample_delta"] = delta
+                        # Proposal is accepted if it improves the score
+                        accepted = new_score > baseline
+                        self._gepa_buffer["proposal_accepted"] = accepted
+                        # Add status string for clarity
+                        if accepted:
+                            self._gepa_buffer["status"] = "improved"
+                        elif delta == 0:
+                            self._gepa_buffer["status"] = "no_change"
+                        else:
+                            self._gepa_buffer["status"] = "worse"
+                    except Exception:
+                        pass
+                        
+            # Capture secondary evaluation metrics (accuracy, precision, etc.)
+            # These are logged by the adapter during full validation with prefix "gepa/metric_"
+            for k, v in metrics.items():
+                if k.startswith("gepa/metric_"):
+                    metric_name = k.replace("gepa/metric_", "")
+                    self._gepa_buffer[f"metric_{metric_name}"] = v
+            
+            # Capture valset metrics (logged after full eval when proposal is accepted)
+            valset_metrics_found = False
+            for valset_key in ["val_program_average", "best_valset_agg_score", "best_score_on_valset", 
+                               "valset_pareto_front_agg", "new_program_idx", "val_evaluated_count_new_program",
+                               "val_total_count", "linear_pareto_front_program_idx"]:
+                if valset_key in metrics:
+                    self._gepa_buffer[valset_key] = metrics[valset_key]
+                    valset_metrics_found = True
+                    
+            # Commit the row when we have valset metrics (proposal was accepted and evaluated)
+            # OR when we get base_program metrics (initial evaluation)
+            if valset_metrics_found or "base_program_full_valset_score" in metrics:
+                if "base_program_full_valset_score" in metrics:
+                    # This is the base/seed program evaluation
+                    self._gepa_buffer["val_program_average"] = metrics["base_program_full_valset_score"]
+                    self._gepa_buffer["is_seed"] = True
+                    # Also capture base program coverage if present
+                    if "base_program_val_coverage" in metrics:
+                        cov = metrics["base_program_val_coverage"]
+                        # base_program_val_coverage is logged as "count / total", e.g., 494 / 494
+                        # or may be just the count depending on GEPA version
+                        if isinstance(cov, str) and "/" in cov:
+                            try:
+                                parts = cov.split("/")
+                                self._gepa_buffer["val_evaluated_count_new_program"] = int(parts[0].strip())
+                                self._gepa_buffer["val_total_count"] = int(parts[1].strip())
+                            except Exception:
+                                self._gepa_buffer["val_evaluated_count_new_program"] = cov
+                        elif isinstance(cov, (int, float)):
+                            self._gepa_buffer["val_evaluated_count_new_program"] = cov
+                        else:
+                            self._gepa_buffer["val_evaluated_count_new_program"] = cov
+                self._commit_gepa_row()
+
+            # Always log raw metrics to wandb for line charts
             if metrics:
-                self.wandb.log(metrics, step=step, commit=commit)
+                # Prefix GEPA metrics for better organization
+                prefixed_metrics = {}
+                for k, v in metrics.items():
+                    # Skip complex objects that wandb can't handle
+                    if isinstance(v, dict):
+                        continue
+                    if isinstance(v, list):
+                        # Convert small lists to string for logging
+                        if len(v) <= 10:
+                            prefixed_metrics[f"gepa/{k}"] = str(v)
+                        continue
+                    prefixed_metrics[f"gepa/{k}"] = v
+                
+                if prefixed_metrics:
+                    self.wandb.log(prefixed_metrics, step=step, commit=commit)
         except Exception as e:
             print(f"[wandb] Warning: Failed to log metrics: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc()
+    
+    def _commit_gepa_row(self) -> None:
+        """Commit the current GEPA buffer as a row in the evolution history table."""
+        if not self._gepa_buffer or "iteration" not in self._gepa_buffer:
+            return
+            
+        try:
+            import pandas as pd
+            
+            iteration = self._gepa_buffer.get("iteration")
+            
+            # Build the row - include ALL captured data
+            row = {
+                "iteration": iteration,
+                "is_seed": self._gepa_buffer.get("is_seed", False),
+                "status": self._gepa_buffer.get("status", "evaluated" if self._gepa_buffer.get("is_seed") else None),
+                "selected_candidate_idx": self._gepa_buffer.get("selected_candidate_idx"),
+                "subsample_score_before": self._gepa_buffer.get("subsample_score_before"),
+                "subsample_score_after": self._gepa_buffer.get("subsample_score_after"),
+                "subsample_delta": self._gepa_buffer.get("subsample_delta"),
+                "proposal_accepted": self._gepa_buffer.get("proposal_accepted"),
+                "val_score": self._gepa_buffer.get("val_program_average"),
+                "best_val_score": self._gepa_buffer.get("best_valset_agg_score"),
+                "pareto_agg_score": self._gepa_buffer.get("valset_pareto_front_agg"),
+                "new_program_idx": self._gepa_buffer.get("new_program_idx"),
+                "val_coverage": self._gepa_buffer.get("val_evaluated_count_new_program"),
+                "val_total": self._gepa_buffer.get("val_total_count"),
+            }
+            
+            # Add ALL prompt columns - these are the actual evolved prompts
+            for k, v in self._gepa_buffer.items():
+                if k.startswith("prompt_"):
+                    row[k] = v
+            
+            # Add ALL metric columns (secondary metrics like accuracy, precision, etc.)
+            for k, v in self._gepa_buffer.items():
+                if k.startswith("metric_"):
+                    row[k] = v
+                    
+            # Remove None values for cleaner display
+            row = {k: v for k, v in row.items() if v is not None}
+                    
+            # Debug: show all columns being logged for this row
+            all_cols_in_row = sorted(row.keys())
+            print(f"[wandb] DEBUG iteration {iteration} row columns: {all_cols_in_row}", flush=True)
+            
+            self._gepa_history.append(row)
+            
+            # Log the updated table
+            df_history = pd.DataFrame(self._gepa_history)
+            
+            # Ensure all rows have the same columns (fill missing with None)
+            all_cols = set()
+            for r in self._gepa_history:
+                all_cols.update(r.keys())
+            for col in all_cols:
+                if col not in df_history.columns:
+                    df_history[col] = None
+            
+            # Reorder columns for better display - put prompts at the end
+            metric_cols = ["iteration", "is_seed", "status", "selected_candidate_idx", 
+                          "subsample_score_before", "subsample_score_after", "subsample_delta",
+                          "proposal_accepted", "val_score", "best_val_score", "pareto_agg_score",
+                          "new_program_idx", "val_coverage", "val_total"]
+            prompt_cols = sorted([c for c in df_history.columns if c.startswith("prompt_")])
+            
+            cols = [c for c in metric_cols if c in df_history.columns]
+            cols += prompt_cols
+            cols += [c for c in df_history.columns if c not in cols]
+            df_history = df_history[cols]
+            
+            table = self.wandb.Table(dataframe=df_history)
+            self.wandb.log({"gepa/evolution_history": table})
+            
+            # Also log prompt texts as separate text artifacts for easy viewing
+            for k, v in self._gepa_buffer.items():
+                if k.startswith("prompt_") and v:
+                    self.wandb.log({f"gepa/{k}": self.wandb.Html(f"<pre>{v}</pre>")})
+            
+            # Build debug info showing what was captured
+            prompt_info = ", ".join([f"{k}: {len(str(v))} chars" for k, v in row.items() if k.startswith("prompt_")])
+            metric_info_parts = []
+            if "subsample_score_before" in row:
+                metric_info_parts.append(f"subsample_before={row['subsample_score_before']:.4f}")
+            if "subsample_score_after" in row:
+                metric_info_parts.append(f"subsample_after={row['subsample_score_after']:.4f}")
+            if "val_score" in row:
+                metric_info_parts.append(f"val={row['val_score']:.4f}")
+            if "status" in row:
+                metric_info_parts.append(f"status={row['status']}")
+            metric_info = ", ".join(metric_info_parts) if metric_info_parts else "base_only"
+            
+            print(f"[wandb] ✓ GEPA iteration {iteration}: logged ({len(self._gepa_history)} rows total). Metrics: [{metric_info}]. Prompts: {prompt_info or 'none'}", flush=True)
+            
+        except Exception as e:
+            print(f"[wandb] Warning: Failed to commit GEPA row: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Clear buffer for next iteration
+            self._gepa_buffer = {}
     
     def log_table(
         self,
@@ -1291,4 +1584,3 @@ class WandbLogger:
         """Context manager exit."""
         self.finish()
         return False
-

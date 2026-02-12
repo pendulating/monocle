@@ -1,0 +1,44 @@
+# @package _global_
+# VQA Pipeline Configuration for BayFlood Nearby FloodNet images
+# Running the bayflood_relative_basic prompt
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: bayflood_nearby_floodnet
+  - override /model: vllm_multimodal_cambrian1_13b
+  - override /prompt: bayflood_relative_basic
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false
+  batch_inference: true
+  streaming_io: true
+  job_memory_gb: 64
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/bayflood_nearby_floodnet_relative_basic_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          model.model_source: ${model.model_source}
+          model.batch_size: ${model.batch_size}
+          model.concurrency: ${model.concurrency}
+          # Map prompt keys to ensure compatibility with unified_preprocess
+          prompt.system: ${prompt.system_prompt}
+          prompt.user_template: ${prompt.user_prompt}
+          # Cambrian sidecar settings
+          prompt.structured_output:
+            enabled: false
+        launcher: g2_slurm_pierson
+        wandb_suffix: vqa_bayflood_nearby_floodnet_cambrian
+

@@ -1,6 +1,5 @@
-"""Stages for E_CI-rule-tuples (classification, taxonomy, verification)."""
+"""Stages for UrbanVQA pipeline."""
 
-from .classify import run_classification_stage  # noqa: F401
-from .taxonomy import run_taxonomy_stage  # noqa: F401
+from .vqa import run_vqa_stage  # noqa: F401
 
 

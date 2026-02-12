@@ -1,0 +1,83 @@
+# @package _global_
+# VQA Pipeline Configuration for Cyclomedia Scaffolding Detection
+# High-throughput binary classification of sidewalk scaffolding in Manhattan
+# Uses Qwen3-VL-2B-GPTQ (W4A16) at 512x512 for maximum throughput on A6000 GPUs
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_manhattan
+  - override /model: vllm_multimodal_qwen2.5_vl_3b_awq
+  - override /prompt: scaffolding_detection
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false  # VQA requires images; fail if missing
+  batch_inference: true
+  streaming_io: true  # Required for large dataset (~2.16M images)
+  job_memory_gb: 192
+  # Stratified reservoir sampling for wandb inspection table.
+  # Ensures rare classes (scaffolding = "Yes") are well-represented.
+  reservoir_class_key: answer       # column to stratify on
+  reservoir_weights:
+    "Yes": 0.5                      # 50 slots for positive detections
+    "No": 0.5                       # 50 slots for negative detections
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/cyclomedia_scaffolding_results.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          # Point to pre-built parquet manifest (images on local /scratch for fast I/O)
+          data.parquet_path: data/cyclomedia/manhattan_2025_1k_scratch.parquet
+          # Model settings tuned for Qwen3-VL-2B-GPTQ at 512×512 on A6000 GPUs
+          model.model_source: /share/pierson/matt/zoo/models/Qwen3-VL-2B-Instruct-W4A16-AutoRound-GPTQ
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.engine_kwargs.max_model_len: 1024  # 324 visual + 162 prompt + 16 output ≈ 502
+          model.engine_kwargs.max_num_batched_tokens: 16384
+          model.engine_kwargs.max_num_seqs: 512  # 2B GPTQ frees massive KV headroom
+          model.engine_kwargs.limit_mm_per_prompt.image: 1
+          model.engine_kwargs.mm_processor_kwargs.max_pixels: 262144  # 512*512
+          model.engine_kwargs.trust_remote_code: true
+          model.engine_kwargs.enforce_eager: false
+          model.engine_kwargs.disable_custom_all_reduce: false
+          model.engine_kwargs.enable_chunked_prefill: false
+          model.engine_kwargs.enable_prefix_caching: true
+          model.engine_kwargs.guided_decoding_backend: auto
+          model.concurrency: 4   # 1 vLLM replica per GPU
+          model.batch_size: 128  # per-replica batch; 4 tasks × 128 = 512 in-flight = max_num_seqs
+          # Cap output tokens -- structured JSON "{"answer":"Yes"}" is ~6 tokens
+          sampling_params_vqa.max_tokens: 16
+          # Structured output: binary Yes/No classification
+          prompt.structured_output:
+            enabled: true
+            json_schema:
+              type: object
+              properties:
+                answer:
+                  type: string
+                  enum: ["Yes", "No"]
+              required: ["answer"]
+              additionalProperties: false
+        launcher: g2_slurm_pierson_4x
+        wandb_suffix: vqa_cyclomedia_scaffolding
+
+# To test with a small sample:
+#   python -m dagspaces.urbanvqa.cli -m \
+#       pipeline=vqa_cyclomedia_scaffolding \
+#       runtime.debug=true runtime.sample_n=64
+#
+# Full run:
+#   python -m dagspaces.urbanvqa.cli -m \
+#       pipeline=vqa_cyclomedia_scaffolding \
+#       runtime.debug=false

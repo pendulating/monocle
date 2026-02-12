@@ -537,8 +537,9 @@ def preprocess_adaptive(row: Dict[str, Any], cfg: DictConfig) -> Dict[str, Any]:
     
     # Build vLLM-compatible messages
     if image_content:
+        prompt_with_placeholder = "<image>\n" + adapted_prompt
         user_content = [
-            {"type": "text", "text": adapted_prompt},
+            {"type": "text", "text": prompt_with_placeholder},
             image_content
         ]
     else:

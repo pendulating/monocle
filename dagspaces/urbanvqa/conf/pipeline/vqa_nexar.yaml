@@ -6,7 +6,7 @@ defaults:
   - _self_  # Best Practice: Include _self_ for explicit composition order control
   - override /hydra/launcher: slurm_monitor
   - override /data: nexar_dashcam
-  - override /model: vllm_multimodal_qwen2.5_vl_7b  # Use multimodal model for VQA
+  - override /model: vllm_multimodal_qwen3_vl_30b  # Use multimodal model for VQA
   - override /prompt: vqa
 
 runtime:
@@ -33,19 +33,15 @@ pipeline:
           # Model config for 2-GPU setup (g2_slurm_pierson)
           # Multimodal model (e.g., Qwen2.5-VL-7B-Instruct) - adjust based on downloaded model
           # Update model_source to point to downloaded model in zoo
-          model.model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-7B-Instruct  # Update after downloading
+          model.model_source: /share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct  # Update after downloading
           model.engine_kwargs.gpu_memory_utilization: 0.85  # Multimodal models need memory for images
-          model.engine_kwargs.tensor_parallel_size: 2  # Split model across 2 GPUs
-          model.engine_kwargs.max_model_len: 28672  # Typical for VL models
-          model.engine_kwargs.max_num_batched_tokens: 5120  # Higher for multimodal
-          model.engine_kwargs.limit_mm_per_prompt.image: 1  # Single image per prompt
-          model.engine_kwargs.trust_remote_code: true  # Required for Qwen VL models
-          # Fix CUDA custom_all_reduce error with tensor parallelism:
-          # Disable CUDA graphs (enforce_eager) or disable custom all-reduce
-          model.engine_kwargs.enforce_eager: true  # Disable CUDA graphs for stability with TP
-          model.engine_kwargs.disable_custom_all_reduce: false  # Keep enabled (can try true if issues persist)
-          model.concurrency: 1  # Match number of model replicas (2 GPUs / 2 TP = 1 replica)
-          model.batch_size: 16  # Adjust based on model size and GPU memory
+          model.engine_kwargs.tensor_parallel_size: 2
+          model.engine_kwargs.max_model_len: 8192
+          model.engine_kwargs.max_num_batched_tokens: 8192
+          model.engine_kwargs.limit_mm_per_prompt.image: 1
+          model.engine_kwargs.trust_remote_code: true
+          model.concurrency: 1
+          model.batch_size: 16
         launcher: g2_slurm_pierson
         wandb_suffix: vqa_nexar
   

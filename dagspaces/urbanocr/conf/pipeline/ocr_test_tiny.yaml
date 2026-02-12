@@ -1,0 +1,58 @@
+# @package _global_
+# OCR Pipeline: Tiny test (single location, 6 images)
+# Quick validation of the OCR pipeline
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_test_tiny
+  - override /model: qwen3_vl_30b_ocr
+  - override /prompt: text_spotting
+
+runtime:
+  multimodal_enabled: true
+  batch_inference: true
+  streaming_io: true
+  job_memory_gb: 64
+  debug: false
+  sample_n: null
+
+# Tiling for 8192x8192 Cyclomedia faces
+tiling:
+  enabled: true
+  tile_size: 1024
+  overlap: 64
+  max_dimension: 2048
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      ocr:
+        stage: ocr
+        depends_on: []
+        outputs:
+          results: outputs/ocr/detections.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          # Qwen3-VL-30B-A3B on 2 GPUs
+          model.model_source: /share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct
+          model.engine_kwargs.gpu_memory_utilization: 0.90
+          model.engine_kwargs.tensor_parallel_size: 2
+          model.engine_kwargs.max_model_len: 8192
+          model.engine_kwargs.limit_mm_per_prompt.image: 1
+          model.engine_kwargs.trust_remote_code: true
+          model.engine_kwargs.enforce_eager: true
+          model.engine_kwargs.guided_decoding_backend: auto
+          model.concurrency: 1
+          model.batch_size: 8
+          prompt.structured_output: true
+        launcher: g2_slurm_pierson
+        wandb_suffix: ocr_test_tiny
+
+# Test: 1 location, 6 images (B/D/F/L/R/U faces)
+# Each 8192x8192 -> 81 tiles = 486 total tiles
+

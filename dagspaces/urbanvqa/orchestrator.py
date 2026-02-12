@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
+import contextlib
 import os
+import random
 import re
 import subprocess
 import sys
@@ -10,6 +13,7 @@ import base64
 from io import BytesIO
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Mapping, Optional
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
@@ -24,19 +28,11 @@ from .config_schema import (
     load_pipeline_graph,
     resolve_output_root,
 )
-from .stages.classify import run_classification_stage
-from .stages.classify_relevance import run_classification_relevance
-from .stages.classify_eu_act import run_classification_eu_act
-from .stages.classify_risks_benefits import run_classification_risks_benefits
-from .stages.vqa import run_vqa_stage
-from .stages.decompose import run_decomposition_stage
-from .stages.decompose_nbl import run_decomposition_stage_nbl
-from .stages.taxonomy import run_taxonomy_stage
-from .stages.topic import run_topic_stage
-from .stages.verify import run_verification_stage
-from .stages.verify_nbl import run_verification_stage_nbl
-from .stages.synthesis import run_synthesis_stage
+from .stages.vqa import run_vqa_stage, _apply_ray_data_resource_limits
 from .wandb_logger import WandbLogger
+from .resource_tracker_patch import apply_patch as _apply_resource_tracker_patch
+
+_apply_resource_tracker_patch()
 
 try:
     import ray  # type: ignore
@@ -62,7 +58,7 @@ except ImportError:
     PILImage = None
 
 
-_STREAMING_COMPATIBLE_STAGES = {"classify", "taxonomy", "verification", "vqa"}
+_STREAMING_COMPATIBLE_STAGES = {"vqa", "gepa_train", "gepa_val", "gepa_test", "gepa_validate"}
 
 
 def _probe_single_gpu(device: str) -> bool:
@@ -248,6 +244,277 @@ def _convert_to_pandas_if_needed(out: Any) -> pd.DataFrame:
     return out
 
 
+def _build_stratified_reservoir(
+    class_reservoirs: Dict[str, List[Dict[str, Any]]],
+) -> List[Dict[str, Any]]:
+    """Flatten per-class reservoirs into a single list for logging."""
+    combined: List[Dict[str, Any]] = []
+    for rows in class_reservoirs.values():
+        combined.extend(rows)
+    return combined
+
+
+def _materialize_streaming_results(
+    ds: Any,
+    output_path: Optional[str],
+    logger: Optional['WandbLogger'],
+    cfg: DictConfig,
+    prefer_cols: Optional[List[str]] = None,
+) -> int:
+    """Iterate over a lazy Ray Dataset in batches, writing results to parquet
+    incrementally and streaming progress metrics + a class-balanced,
+    reservoir-sampled results table to wandb in real time.
+
+    Reservoir sampling is **stratified by a class column** (default: ``answer``)
+    so that rare classes are over-represented in the inspection table.  Configure
+    via ``runtime.reservoir_weights`` (dict mapping class values to relative
+    weights, e.g. ``{Yes: 0.5, No: 0.5}``).  If weights are omitted, each
+    observed class gets an equal share of the reservoir.
+
+    Args:
+        ds: Lazy Ray Dataset returned by ``build_llm_processor``/``run_vqa_stage``.
+        output_path: Destination parquet file path (single file, not a directory).
+        logger: Optional ``WandbLogger`` for streaming metrics/tables.
+        cfg: Hydra config – used to read ``runtime.streaming_batch_size``.
+        prefer_cols: Column subset for the wandb results table.
+
+    Returns:
+        Total number of rows written.
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    runtime_cfg = getattr(cfg, "runtime", None)
+    batch_size: int = int(
+        getattr(runtime_cfg, "streaming_batch_size", 256)
+        if runtime_cfg is not None
+        else 256
+    )
+    reservoir_size: int = 100
+    table_log_interval_s: float = 60.0
+
+    # ---- Stratified reservoir config ----------------------------------------
+    # reservoir_class_key: which output column to stratify on (default "answer")
+    # reservoir_weights:   {class_value: relative_weight} – if omitted, equal
+    #                      share across all observed classes
+    reservoir_class_key: str = str(
+        getattr(runtime_cfg, "reservoir_class_key", "answer")
+        if runtime_cfg is not None
+        else "answer"
+    )
+    raw_weights: Optional[Dict[str, float]] = None
+    try:
+        rw = getattr(runtime_cfg, "reservoir_weights", None) if runtime_cfg else None
+        if rw is not None:
+            raw_weights = {str(k): float(v) for k, v in dict(rw).items()}
+    except Exception:
+        raw_weights = None
+
+    # Per-class state: {class_val -> [reservoir rows]}
+    class_reservoirs: Dict[str, List[Dict[str, Any]]] = {}
+    class_counts: Dict[str, int] = {}  # total rows seen per class
+
+    def _class_limit(cls: str) -> int:
+        """Compute the reservoir slot budget for a given class."""
+        if raw_weights:
+            total_w = sum(raw_weights.values())
+            w = raw_weights.get(cls, 0.0)
+            if total_w > 0 and w > 0:
+                return max(1, int(reservoir_size * w / total_w))
+            # Class not in weights → give it a minimal allocation
+            known_alloc = sum(
+                max(1, int(reservoir_size * ww / total_w))
+                for ww in raw_weights.values()
+                if total_w > 0
+            )
+            remainder = max(1, reservoir_size - known_alloc)
+            n_unknown = len(class_reservoirs) - len(raw_weights)
+            return max(1, remainder // max(1, n_unknown))
+        # No weights → equal split across observed classes
+        n_classes = max(1, len(class_reservoirs))
+        return max(1, reservoir_size // n_classes)
+
+    total_rows: int = 0
+    batch_count: int = 0
+    writer: Optional[pq.ParquetWriter] = None
+    start_time = time.time()
+    last_table_log = start_time
+
+    print(
+        f"[streaming] Starting incremental materialisation "
+        f"(batch_size={batch_size}, reservoir={reservoir_size}, "
+        f"class_key={reservoir_class_key!r}, "
+        f"weights={raw_weights or 'equal'}, "
+        f"table_log_interval={table_log_interval_s}s)",
+        flush=True,
+    )
+
+    try:
+        for batch_df in ds.iter_batches(
+            batch_size=batch_size, batch_format="pandas"
+        ):
+            batch_count += 1
+            n = len(batch_df)
+
+            # ---- Write batch to parquet ----------------------------------------
+            try:
+                table = pa.Table.from_pandas(batch_df, preserve_index=False)
+                if writer is None and output_path:
+                    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+                    writer = pq.ParquetWriter(output_path, table.schema)
+                if writer is not None:
+                    writer.write_table(table)
+            except Exception as exc:
+                print(
+                    f"[streaming] Warning: parquet write failed on batch "
+                    f"{batch_count}: {exc}",
+                    flush=True,
+                )
+
+            # ---- Stratified reservoir sampling (per-class Algorithm R) ----------
+            for idx in range(n):
+                total_rows += 1
+                row_dict = {
+                    col: batch_df.iat[idx, ci]
+                    for ci, col in enumerate(batch_df.columns)
+                }
+                cls_val = str(row_dict.get(reservoir_class_key, "_unknown_"))
+                class_counts[cls_val] = class_counts.get(cls_val, 0) + 1
+                cls_n = class_counts[cls_val]
+
+                if cls_val not in class_reservoirs:
+                    class_reservoirs[cls_val] = []
+                cls_pool = class_reservoirs[cls_val]
+                limit = _class_limit(cls_val)
+
+                if len(cls_pool) < limit:
+                    cls_pool.append(row_dict)
+                else:
+                    j = random.randint(0, cls_n - 1)
+                    if j < limit:
+                        cls_pool[j] = row_dict
+
+            # ---- Wandb progress metrics (every batch) --------------------------
+            elapsed = time.time() - start_time
+            throughput = total_rows / elapsed if elapsed > 0 else 0.0
+            if logger:
+                try:
+                    metrics: Dict[str, Any] = {
+                        "vqa/rows_processed": total_rows,
+                        "vqa/batches_completed": batch_count,
+                        "vqa/throughput_rows_per_sec": round(throughput, 1),
+                        "vqa/elapsed_s": round(elapsed, 1),
+                    }
+                    # Per-class counts as metrics for live monitoring
+                    for ck, cv in class_counts.items():
+                        safe_key = ck.replace(" ", "_").lower()
+                        metrics[f"vqa/class_{safe_key}_count"] = cv
+                    logger.log_metrics(metrics)
+                except Exception:
+                    pass
+
+            # ---- Periodic console progress --------------------------------------
+            if batch_count % 20 == 1 or batch_count == 1:
+                cls_summary = ", ".join(
+                    f"{k}={v}" for k, v in sorted(class_counts.items())
+                )
+                print(
+                    f"[streaming] batch {batch_count}: "
+                    f"{total_rows:,} rows, "
+                    f"{throughput:.1f} rows/s, "
+                    f"elapsed {elapsed:.0f}s  "
+                    f"[{cls_summary}]",
+                    flush=True,
+                )
+
+            # ---- Wandb table (periodic) ----------------------------------------
+            now = time.time()
+            reservoir = _build_stratified_reservoir(class_reservoirs)
+            if (
+                logger
+                and reservoir
+                and (now - last_table_log) >= table_log_interval_s
+            ):
+                try:
+                    _safe_log_table(
+                        logger,
+                        pd.DataFrame(reservoir),
+                        "vqa/results",
+                        prefer_cols=prefer_cols,
+                        panel_group="inspect_results",
+                    )
+                except Exception:
+                    pass
+                last_table_log = now
+
+    finally:
+        if writer is not None:
+            writer.close()
+        elif output_path and total_rows == 0:
+            # No batches arrived – write an empty parquet so _collect_outputs
+            # finds the expected file (consistent with non-streaming path).
+            try:
+                empty_df = pd.DataFrame()
+                empty_df.to_parquet(output_path, index=False)
+            except Exception:
+                pass
+
+    total_elapsed = time.time() - start_time
+
+    # ---- Final wandb table + summary metrics --------------------------------
+    reservoir = _build_stratified_reservoir(class_reservoirs)
+    if logger and reservoir:
+        try:
+            _safe_log_table(
+                logger,
+                pd.DataFrame(reservoir),
+                "vqa/results",
+                prefer_cols=prefer_cols,
+                panel_group="inspect_results",
+            )
+        except Exception:
+            pass
+        try:
+            summary: Dict[str, Any] = {
+                "vqa/total_rows": total_rows,
+                "vqa/total_duration_s": round(total_elapsed, 1),
+                "vqa/final_throughput_rows_per_sec": round(
+                    total_rows / total_elapsed if total_elapsed > 0 else 0, 1
+                ),
+            }
+            for ck, cv in class_counts.items():
+                safe_key = ck.replace(" ", "_").lower()
+                summary[f"vqa/class_{safe_key}_total"] = cv
+                summary[f"vqa/class_{safe_key}_reservoir"] = len(
+                    class_reservoirs.get(ck, [])
+                )
+            logger.log_metrics(summary)
+        except Exception:
+            pass
+
+    cls_detail = ", ".join(
+        f"{k}: {len(class_reservoirs.get(k, []))}/{class_counts.get(k, 0)}"
+        for k in sorted(class_counts)
+    )
+    if total_elapsed > 0:
+        print(
+            f"[streaming] Materialisation complete: "
+            f"{total_rows:,} rows in {batch_count} batches, "
+            f"{total_elapsed:.1f}s total "
+            f"({total_rows / total_elapsed:.1f} rows/s)  "
+            f"reservoir [{cls_detail}]",
+            flush=True,
+        )
+    else:
+        print(
+            f"[streaming] Materialisation complete: {total_rows:,} rows  "
+            f"reservoir [{cls_detail}]",
+            flush=True,
+        )
+
+    return total_rows
+
+
 def _save_stage_outputs(out: pd.DataFrame, output_paths: Dict[str, str]) -> None:
     """Save DataFrame outputs to disk."""
     if isinstance(out, pd.DataFrame):
@@ -417,10 +684,31 @@ def prepare_node_config(base_cfg: DictConfig, node: PipelineNodeSpec, output_dir
     OmegaConf.update(cfg_copy, "runtime.stage", node.stage, merge=True)
     OmegaConf.update(cfg_copy, "runtime.output_dir", output_dir, merge=True)
     OmegaConf.update(cfg_copy, "runtime.output_csv", None, merge=True)
+    _apply_prompt_override(cfg_copy)
     return cfg_copy
 
 
-def _load_parquet_dataset(parquet_path: str, columns: Mapping[str, str], debug: bool, sample_n: Optional[int]) -> pd.DataFrame:
+def _apply_prompt_override(cfg: DictConfig) -> None:
+    override_path = OmegaConf.select(cfg, "runtime.prompt_override_path")
+    if not override_path:
+        return
+    if not isinstance(override_path, str):
+        raise ValueError("runtime.prompt_override_path must be a string if provided")
+    resolved = os.path.abspath(os.path.expanduser(override_path))
+    if not os.path.exists(resolved):
+        raise FileNotFoundError(f"Prompt override file not found: {resolved}")
+    override_cfg = OmegaConf.load(resolved)
+    if override_cfg is None:
+        return
+    system_prompt = override_cfg.get("system_prompt")
+    if system_prompt is not None:
+        OmegaConf.update(cfg, "prompt.system", system_prompt, merge=True)
+    user_prompt = override_cfg.get("user_prompt")
+    if user_prompt is not None:
+        OmegaConf.update(cfg, "prompt.user_template", user_prompt, merge=True)
+
+
+def _load_parquet_dataset(parquet_path: str, columns: Mapping[str, str], debug: bool, sample_n: Optional[int], sample_ratio: Optional[float] = None, sample_seed: Optional[int] = None) -> pd.DataFrame:
     if not isinstance(parquet_path, str) or parquet_path.strip() == "":
         raise ValueError("data.parquet_path is required")
     if not os.path.isabs(parquet_path):
@@ -491,20 +779,53 @@ def _load_parquet_dataset(parquet_path: str, columns: Mapping[str, str], debug: 
     except Exception:
         pass
 
-    if debug and isinstance(sample_n, int) and sample_n > 0:
+    # Apply random sampling if requested
+    if sample_ratio is not None and isinstance(sample_ratio, (int, float)) and 0 < sample_ratio < 1:
+        try:
+            seed = sample_seed if sample_seed is not None else 777
+            df = df.sample(frac=float(sample_ratio), random_state=seed).reset_index(drop=True)
+            print(
+                json.dumps(
+                    {
+                        "_load_parquet_dataset": {
+                            "event": "random_sample_applied",
+                            "sample_ratio": float(sample_ratio),
+                            "sample_seed": seed,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception as exc:
+            print(f"[_load_parquet_dataset] Warning: failed to apply sample_ratio ({exc})", flush=True)
+
+    if isinstance(sample_n, int) and sample_n > 0:
         try:
             n = min(int(sample_n), int(len(df)))
         except Exception:
             n = int(sample_n)
         try:
             seed_env = os.environ.get("URBANVQA_SAMPLE_SEED", "777")
-            seed = int(seed_env) if seed_env is not None else 777
+            seed = int(seed_env) if seed_env is not None else (sample_seed if sample_seed is not None else 777)
         except Exception:
             seed = 777
         try:
             df = df.sample(n=n, random_state=seed).reset_index(drop=True)
         except Exception:
             df = df.head(n)
+        print(
+            json.dumps(
+                {
+                    "_load_parquet_dataset": {
+                        "event": "sample_limit_applied",
+                        "sample_n": n,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                }
+            ),
+            flush=True,
+        )
     return df
 
 
@@ -528,51 +849,28 @@ def _parse_cpus_on_node(val: str) -> int:
 
 
 def _ensure_ray_init_with_cpu_limits(cfg: DictConfig) -> None:
-    """Initialize Ray with SLURM-aware CPU limits for orchestrator use."""
+    """Initialize Ray with SLURM-aware CPU limits for orchestrator use.
+
+    Delegates to the unified ``ensure_ray_init`` in ``multiprocessing_utils``
+    which also applies ``DataContext`` resource limits after ``ray.init()``.
+    """
     if not _RAY_AVAILABLE or ray.is_initialized():
+        # Even if Ray is already up, ensure resource limits are applied.
+        try:
+            _apply_ray_data_resource_limits(cfg)
+        except Exception:
+            pass
         return
-    
-    # Detect SLURM CPU allocation
-    cpus_alloc = None
     try:
-        cpt = os.environ.get("SLURM_CPUS_PER_TASK")
-        if cpt is not None and str(cpt).strip() != "":
-            cpus_alloc = int(cpt)
-        else:
-            con = os.environ.get("SLURM_CPUS_ON_NODE")
-            if con is not None and str(con).strip() != "":
-                cpus_alloc = _parse_cpus_on_node(con)
-    except Exception:
-        cpus_alloc = None
-    
-    # Get memory configuration
-    try:
-        job_mem_gb = int(getattr(cfg.runtime, "job_memory_gb", 64) or 64)
-    except Exception:
-        job_mem_gb = 64
-    
-    try:
-        obj_store_bytes = int(max(1, job_mem_gb) * (1024 ** 3) * 0.90)
-    except Exception:
-        obj_store_bytes = int(64 * (1024 ** 3) * 0.90)
-    
-    namespace = os.environ.get("RAY_NAMESPACE") or os.environ.get("WANDB_GROUP") or "urbanvqa"
-    
-    # Try full initialization, fallback to basic if that fails
-    try:
-        init_kwargs = {"log_to_driver": True, "object_store_memory": obj_store_bytes, "namespace": str(namespace)}
-        if cpus_alloc is not None and int(cpus_alloc) > 0:
-            init_kwargs["num_cpus"] = int(cpus_alloc)
-        ray.init(**init_kwargs)
-    except Exception:
-        # Fallback: basic initialization
-        init_kwargs = {"log_to_driver": True}
-        if cpus_alloc is not None and int(cpus_alloc) > 0:
-            init_kwargs["num_cpus"] = int(cpus_alloc)
-        ray.init(**init_kwargs)
-    
-    # Note: Ray Data CPU limits will be set in _prepare_streaming_dataset with proper parallelism
-    # Don't override here to allow for higher concurrency than raw CPU count
+        from .multiprocessing_utils import ensure_ray_init
+        ensure_ray_init(cfg, caller="orchestrator")
+    except Exception as exc:
+        print(f"[_ensure_ray_init_with_cpu_limits] Fallback: {exc}", flush=True)
+        # Minimal fallback — just start Ray
+        try:
+            ray.init(log_to_driver=True)
+        except Exception:
+            pass
 
 
 def _log_parquet_metadata(dataset_path: str) -> tuple[Optional[int], Optional[int], Optional[float]]:
@@ -662,11 +960,14 @@ def _calculate_target_blocks(
 def _prepare_streaming_dataset(dataset_path: str, columns: Mapping[str, str], cfg: DictConfig, stage: str) -> tuple[Optional[Any], bool]:
     """Prepare streaming dataset for VQA stage.
     
-    Simplified approach: Only handles directory-based images loaded via ray.data.read_images().
-    Images are loaded as numpy arrays (PyArrow-serializable) and converted to base64 in preprocessing.
+    Two modes:
+      1. Parquet-manifest mode (preferred): When dataset_path points to a parquet file
+         that contains an 'image_path' column, read the manifest and load images lazily
+         via a map step. This avoids expensive directory scanning for large/nested datasets.
+      2. Directory-scan mode (fallback): Uses ray.data.read_images() on cfg.data.image_path.
     
     Args:
-        dataset_path: Path to parquet file (optional, only for metadata)
+        dataset_path: Path to parquet manifest or metadata file
         columns: Column mapping configuration
         cfg: Configuration object
         stage: Stage name
@@ -683,20 +984,22 @@ def _prepare_streaming_dataset(dataset_path: str, columns: Mapping[str, str], cf
         image_path_config = getattr(cfg.data, "image_path", None)
         default_prompt = getattr(cfg.data, "default_prompt", None)
         metadata_columns = getattr(cfg.data, "metadata_columns", None)
-        
-        # Require directory-based images - no parquet fallback
-        if not image_path_config or not isinstance(image_path_config, str) or not image_path_config.strip():
-            raise ValueError("data.image_path must point to a directory containing JPG images")
-        
-        if not os.path.isabs(image_path_config):
-            image_path_config = os.path.abspath(image_path_config)
-        
-        if not os.path.isdir(image_path_config):
-            raise ValueError(f"data.image_path must be a directory, got: {image_path_config}")
-        
-        print(f"[_prepare_streaming_dataset] Reading images from directory: {image_path_config}", flush=True)
-        
-        # Ensure Ray is initialized
+        partitioning_cfg = getattr(cfg.data, "partitioning", None)
+
+        def _normalize_storage_path(path_val: Optional[str]) -> Optional[str]:
+            if not path_val or not isinstance(path_val, str):
+                return None
+            path_str = path_val.strip()
+            if not path_str:
+                return None
+            # Treat URI-style schemes (s3://, gs://, etc.) as remote paths
+            if re.match(r"^[a-zA-Z0-9+\-.]+://", path_str):
+                return path_str
+            if os.path.isabs(path_str):
+                return path_str
+            return os.path.abspath(path_str)
+
+        # Ensure Ray is initialized (needed for both modes)
         _ensure_ray_init_with_cpu_limits(cfg)
         if not ray.is_initialized():
             namespace = os.environ.get("RAY_NAMESPACE") or os.environ.get("WANDB_GROUP") or "urbanvqa"
@@ -706,137 +1009,447 @@ def _prepare_streaming_dataset(dataset_path: str, columns: Mapping[str, str], cf
                 ray.init(log_to_driver=True)
         
         # Configure Ray Data context
+        # NOTE: target_min_block_size and target_max_block_size are
+        # intentionally NOT set here.  They are managed exclusively by
+        # _apply_ray_data_resource_limits() (in stages/vqa.py) which
+        # sets a large target_max_block_size (2 GB) so that image-heavy
+        # blocks are not fragmented below vLLM's batch_size of 64.
         try:
             ctx = ray.data.DataContext.get_current()
-            ctx.target_min_block_size = 1 * 1024 * 1024  # 1MB
-            ctx.target_max_block_size = 64 * 1024 * 1024  # 64MB
             ctx.execution_options.verbose_progress = False
+            ctx.enable_fallback_to_arrow_object_ext_type = True
         except Exception:
             pass
+
+        # ── Helper functions (shared by both modes) ────────────────────────
+        def _normalize_dataset_path(path_val: Any) -> Optional[str]:
+            if path_val is None:
+                return None
+            path_str = str(path_val).strip()
+            if not path_str:
+                return None
+            if re.match(r"^[a-zA-Z0-9+\-.]+://", path_str):
+                return path_str
+            return os.path.abspath(path_str)
+
+        def _derive_sample_id_from_path(path_val: Optional[str]) -> Optional[str]:
+            if not path_val:
+                return None
+            base_name = os.path.basename(path_val.rstrip("/"))
+            if not base_name:
+                sanitized = re.sub(r"[^a-zA-Z0-9_]", "_", path_val.strip("/"))
+                return sanitized or None
+            stem, _ = os.path.splitext(base_name)
+            candidate = stem or base_name
+            sanitized = re.sub(r"[^a-zA-Z0-9_]", "_", candidate)
+            return sanitized or None
+
+        def _sanitize_prompt_value(value: Any, fallback: str) -> str:
+            if value is None:
+                return fallback
+            if isinstance(value, str):
+                sanitized = value.strip()
+            else:
+                sanitized = str(value).strip()
+            return sanitized or fallback
+
+        def _merge_sample_id(existing: Any, fallback: Optional[str]) -> Optional[str]:
+            if existing is None:
+                return fallback
+            if isinstance(existing, str):
+                candidate = existing.strip()
+            else:
+                candidate = str(existing).strip()
+            if not candidate or candidate.lower() in {"nan", "none"}:
+                return fallback
+            return candidate
+
+        DEFAULT_PROMPT = ""
+        if isinstance(default_prompt, str) and default_prompt.strip():
+            fallback_prompt = default_prompt.strip()
+        else:
+            fallback_prompt = DEFAULT_PROMPT
+
+        # ── Mode 1: Parquet-manifest mode ──────────────────────────────────
+        # When dataset_path is a parquet file containing an 'image_path' column,
+        # read the manifest directly and load images lazily via map.
+        # This avoids the extremely slow directory scan for large/nested datasets.
+        _parquet_path = None
+        if dataset_path and dataset_path.strip():
+            _parquet_candidate = os.path.abspath(dataset_path.strip()) if not os.path.isabs(dataset_path.strip()) else dataset_path.strip()
+            if os.path.isfile(_parquet_candidate):
+                # Try to read as parquet regardless of extension (some manifests have no .parquet ext)
+                try:
+                    import pyarrow.parquet as pq
+                    _pf = pq.ParquetFile(_parquet_candidate)
+                    _parquet_cols = [f.name for f in _pf.schema_arrow]
+                    if "image_path" in _parquet_cols:
+                        _parquet_path = _parquet_candidate
+                except Exception:
+                    pass
+
+        if _parquet_path is not None:
+            print(
+                f"[_prepare_streaming_dataset] Using parquet manifest: {_parquet_path} (skipping directory scan)",
+                flush=True,
+            )
+            ds = ray.data.read_parquet(_parquet_path)
+
+            try:
+                info_dict = {
+                    "event": "parquet_manifest_loaded",
+                    "path": _parquet_path,
+                    "cols": ds.schema().names if hasattr(ds, "schema") else [],
+                    "count": None,
+                }
+                try:
+                    info_dict["count"] = ds.count()
+                except Exception:
+                    info_dict["count"] = None
+                print(
+                    json.dumps({"_prepare_streaming_dataset": {**info_dict, "timestamp": datetime.utcnow().isoformat()}}),
+                    flush=True,
+                )
+            except Exception:
+                print(f"[_prepare_streaming_dataset] Parquet schema: {ds.schema()}", flush=True)
+
+            # ── Image loading via map_batches ────────────────────────────────
+            # CRITICAL: Use map_batches(batch_size=64) instead of map().
+            #
+            # map_batches(batch_size=64) batches the rows BEFORE calling the
+            # UDF, so each invocation loads only 64 images (~50 MB).
+            # Batches are processed sequentially within the task, so per-task
+            # peak memory stays manageable regardless of input block size.
+            # Block splitting uses a large threshold (2 GB, set by
+            # _apply_ray_data_resource_limits) so that downstream vLLM
+            # operators always receive full-sized blocks (>= batch_size 64).
+            def _load_images_batch(batch: Dict[str, Any]) -> Dict[str, Any]:
+                """Load images from image_path into numpy arrays for a batch."""
+                from PIL import Image as PILImage
+
+                images = []
+                prompts = []
+                sample_ids = []
+                image_paths = batch.get("image_path", [])
+                raw_prompts = batch.get("prompt", [None] * len(image_paths))
+                raw_sample_ids = batch.get("sample_id", [None] * len(image_paths))
+
+                for i, img_path in enumerate(image_paths):
+                    img_path_str = str(img_path) if img_path is not None else None
+                    # Load image
+                    if img_path_str and os.path.isfile(img_path_str):
+                        try:
+                            pil_img = PILImage.open(img_path_str)
+                            pil_img.load()
+                            images.append(np.asarray(pil_img.convert("RGB")))
+                        except Exception:
+                            images.append(None)
+                    else:
+                        images.append(None)
+                    # Sanitize prompt
+                    prompts.append(
+                        _sanitize_prompt_value(
+                            raw_prompts[i] if i < len(raw_prompts) else None,
+                            fallback_prompt,
+                        )
+                    )
+                    # Merge sample_id
+                    sample_ids.append(
+                        _merge_sample_id(
+                            raw_sample_ids[i] if i < len(raw_sample_ids) else None,
+                            _derive_sample_id_from_path(img_path_str),
+                        )
+                    )
+
+                result = dict(batch)
+                result["image"] = images
+                result["prompt"] = prompts
+                result["sample_id"] = sample_ids
+                return result
+
+            # num_cpus=2 limits concurrent image-loading tasks to ~8 (with
+            # 16 CPUs) instead of the default ~16, halving the upstream
+            # production rate so vLLM can keep up during warmup.
+            ds = ds.map_batches(_load_images_batch, batch_size=64, num_cpus=2)
+
+            try:
+                sample = ds.take(2)
+                print(
+                    json.dumps(
+                        {
+                            "_prepare_streaming_dataset": {
+                                "event": "parquet_manifest_sample",
+                                "sample": [
+                                    {k: ("<ndarray>" if isinstance(v, np.ndarray) else v) for k, v in item.items()}
+                                    for item in sample
+                                ],
+                                "timestamp": datetime.utcnow().isoformat(),
+                            }
+                        }
+                    ),
+                    flush=True,
+                )
+            except Exception as sample_exc:
+                print(f"[_prepare_streaming_dataset] Warning: sample failed: {sample_exc}", flush=True)
+
+            # Apply debug/sample limits
+            debug = bool(getattr(cfg.runtime, "debug", False))
+            sample_n = getattr(cfg.runtime, "sample_n", None)
+            sample_ratio = getattr(cfg.runtime, "sample_ratio", None)
+            sample_seed = getattr(cfg.runtime, "sample_seed", None)
+
+            if sample_ratio is not None and isinstance(sample_ratio, (int, float)) and 0 < sample_ratio < 1:
+                try:
+                    ds = ds.random_sample(fraction=float(sample_ratio), seed=sample_seed)
+                    print(f"[_prepare_streaming_dataset] Applied sample_ratio={sample_ratio}", flush=True)
+                except Exception as exc:
+                    print(f"[_prepare_streaming_dataset] Warning: failed to apply sample_ratio ({exc})", flush=True)
+
+            if isinstance(sample_n, int) and sample_n > 0:
+                try:
+                    ds = ds.limit(max(1, int(sample_n)))
+                    print(f"[_prepare_streaming_dataset] Applied sample_n={sample_n}", flush=True)
+                except Exception as exc:
+                    print(f"[_prepare_streaming_dataset] Warning: failed to apply sample_n ({exc})", flush=True)
+
+            return ds, True
+
+        # ── Mode 2: Directory-scan mode (fallback) ─────────────────────────
+        image_path_config = _normalize_storage_path(image_path_config)
+
+        if not image_path_config:
+            raise ValueError("data.image_path must point to a directory containing image files (no parquet manifest found)")
+
+        is_remote_path = bool(re.match(r"^[a-zA-Z0-9+\-.]+://", image_path_config))
+        if not is_remote_path and not os.path.isdir(image_path_config):
+            raise ValueError(f"data.image_path must be a directory, got: {image_path_config}")
+
+        if is_remote_path:
+            print(
+                json.dumps(
+                    {
+                        "_prepare_streaming_dataset": {
+                            "event": "image_read_start",
+                            "path": image_path_config,
+                            "is_remote": True,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        else:
+            print(
+                f"[_prepare_streaming_dataset] Reading images from directory: {image_path_config}",
+                flush=True,
+            )
         
+        # Configure optional directory partitioning
+        partitioning_obj = None
+        if partitioning_cfg:
+            try:
+                from ray.data.datasource.partitioning import Partitioning  # type: ignore
+
+                partitioning_type = str(getattr(partitioning_cfg, "type", "dir") or "dir").lower()
+                field_names = list(getattr(partitioning_cfg, "field_names", []))
+                partition_base_dir = getattr(partitioning_cfg, "base_dir", None)
+                partition_base_dir = _normalize_storage_path(partition_base_dir) or image_path_config
+
+                if partitioning_type == "dir":
+                    if not field_names:
+                        raise ValueError("partitioning.field_names must be provided when partitioning.type='dir'")
+                    partitioning_obj = Partitioning("dir", field_names=field_names, base_dir=partition_base_dir)
+                else:
+                    raise ValueError(f"Unsupported partitioning.type '{partitioning_type}' for image ingestion")
+
+                print(
+                    json.dumps(
+                        {
+                            "_prepare_streaming_dataset": {
+                                "event": "partitioning_enabled",
+                                "type": partitioning_type,
+                                "fields": field_names,
+                                "base_dir": partition_base_dir,
+                                "timestamp": datetime.utcnow().isoformat(),
+                            }
+                        }
+                    ),
+                    flush=True,
+                )
+            except Exception as exc:
+                print(
+                    f"[_prepare_streaming_dataset] Warning: Failed to configure partitioning "
+                    f"({exc}). Continuing without partitioning.",
+                    flush=True,
+                )
+                partitioning_obj = None
+
         # Read images. ray.data.read_images() produces ArrowTensorType columns that remain Arrow-native
         # until materialized. Further coercion happens lazily downstream in preprocessing.
-        ds = ray.data.read_images(image_path_config, include_paths=True)
-        
-        # Load metadata from parquet if provided
-        metadata_ds = None
-        if dataset_path and dataset_path.strip() and os.path.exists(dataset_path):
+        ds = ray.data.read_images(image_path_config, include_paths=True, partitioning=partitioning_obj)
+
+        try:
+            info_dict = {
+                "event": "dataset_loaded",
+                "cols": ds.schema().names if hasattr(ds, "schema") else [],
+                "count": None,
+            }
             try:
-                print(f"[_prepare_streaming_dataset] Loading metadata from parquet: {dataset_path}", flush=True)
-                import pyarrow.parquet as pq
-                pf = pq.ParquetFile(dataset_path)
-                schema = pf.schema_arrow
-                parquet_columns = [field.name for field in schema]
-                
-                # Identify metadata columns (exclude standard VQA columns)
-                standard_cols = {"prompt", "sample_id", "image_path", "image_url", "image_base64", "image"}
-                if metadata_columns:
-                    metadata_cols_to_read = [col for col in metadata_columns if col in parquet_columns]
-                else:
-                    metadata_cols_to_read = [col for col in parquet_columns if col not in standard_cols]
-                
-                if metadata_cols_to_read:
-                    # Need join key (image_path or sample_id)
-                    join_key = None
-                    if "image_path" in parquet_columns:
-                        join_key = "image_path"
-                        metadata_cols_to_read.append("image_path")
-                    elif "sample_id" in parquet_columns:
-                        join_key = "sample_id"
-                        metadata_cols_to_read.append("sample_id")
+                info_dict["count"] = ds.count()
+            except Exception:
+                info_dict["count"] = None
+            print(
+                json.dumps(
+                    {
+                        "_prepare_streaming_dataset": {
+                            **info_dict,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception:
+            print(f"[_prepare_streaming_dataset] Dataset schema: {ds.schema()}", flush=True)
+        
+        # Load metadata from external source if provided
+        metadata_ds = None
+        metadata_cols_available: set[str] = set()
+        if dataset_path and dataset_path.strip():
+            dataset_path = os.path.abspath(dataset_path)
+        if dataset_path and os.path.exists(dataset_path):
+            try:
+                _, metadata_ext = os.path.splitext(dataset_path)
+                metadata_ext = metadata_ext.lower()
+                if metadata_ext in {".parquet", ".pq"}:
+                    print(f"[_prepare_streaming_dataset] Loading metadata from parquet: {dataset_path}", flush=True)
+                    import pyarrow.parquet as pq
+                    pf = pq.ParquetFile(dataset_path)
+                    schema = pf.schema_arrow
+                    parquet_columns = [field.name for field in schema]
                     
-                    if join_key:
+                    # Identify metadata columns (exclude standard VQA columns)
+                    standard_cols = {"prompt", "sample_id", "image_path", "image_url", "image_base64", "image"}
+                    if metadata_columns:
+                        metadata_cols_to_read = [col for col in metadata_columns if col in parquet_columns]
+                    else:
+                        metadata_cols_to_read = [col for col in parquet_columns if col not in standard_cols]
+                    
+                    if metadata_cols_to_read:
+                        if "image_path" in parquet_columns and "image_path" not in metadata_cols_to_read:
+                            metadata_cols_to_read.append("image_path")
+                        if "sample_id" in parquet_columns and "sample_id" not in metadata_cols_to_read:
+                            metadata_cols_to_read.append("sample_id")
                         print(f"[_prepare_streaming_dataset] Loading metadata columns: {metadata_cols_to_read}", flush=True)
                         metadata_ds = ray.data.read_parquet(dataset_path, columns=metadata_cols_to_read)
+                        metadata_cols_available = set(metadata_cols_to_read)
                     else:
-                        print(f"[_prepare_streaming_dataset] Warning: Parquet missing image_path or sample_id for joining", flush=True)
+                        metadata_ds = ray.data.read_parquet(dataset_path)
+                        metadata_cols_available = set(metadata_ds.schema().names)
+                elif metadata_ext in {".csv"}:
+                    print(f"[_prepare_streaming_dataset] Loading metadata from csv: {dataset_path}", flush=True)
+                    metadata_ds = ray.data.read_csv(dataset_path)
+                    metadata_cols_available = set(metadata_ds.schema().names)
+                    if metadata_columns:
+                        selected_cols = [col for col in metadata_columns if col in metadata_cols_available]
+                        if selected_cols:
+                            metadata_ds = metadata_ds.select_columns(selected_cols)
+                            metadata_cols_available = set(metadata_ds.schema().names)
+                else:
+                    print(f"[_prepare_streaming_dataset] Warning: Unsupported metadata file type for {dataset_path}", flush=True)
+                    metadata_ds = None
+                
+                if metadata_ds is not None:
+                    # Derive sample_id from image basename when available
+                    if "image" in metadata_ds.schema().names and "sample_id" not in metadata_ds.schema().names:
+                        def _attach_sample_id(row: Dict[str, Any]) -> Dict[str, Any]:
+                            row_out = dict(row)
+                            sample_val = _derive_sample_id_from_path(row_out.get("image"))
+                            row_out["sample_id"] = sample_val
+                            return row_out
+                        metadata_ds = metadata_ds.map(_attach_sample_id)
+                    metadata_cols_available = set(metadata_ds.schema().names)
             except Exception as e:
                 print(f"[_prepare_streaming_dataset] Warning: Failed to load metadata: {e}", flush=True)
-        
-        # Add prompt and sample_id columns using PyArrow to preserve tensor storage
-        def _add_vqa_metadata_pyarrow(table):
-            import pyarrow as pa  # type: ignore
 
-            paths = table.column("path").to_pylist() if "path" in table.column_names else []
-            image_paths = []
-            sample_ids = []
-            for path_val in paths:
-                path_str = str(path_val)
-                abs_path = os.path.abspath(path_str)
-                image_paths.append(abs_path)
-                filename = os.path.basename(path_str)
-                sample_id = os.path.splitext(filename)[0]
-                sample_id = re.sub(r"[^a-zA-Z0-9_]", "_", sample_id)
-                sample_ids.append(sample_id)
+        def _enrich_vqa_metadata(row: Dict[str, Any]) -> Dict[str, Any]:
+            row_out = dict(row)
+            path_val = _normalize_dataset_path(row_out.get("path"))
+            row_out["image_path"] = path_val
 
-            prompt_val = str(default_prompt).strip() if default_prompt else "What do you see in this image?"
-            prompt_array = pa.array([prompt_val] * len(paths), type=pa.string())
+            derived_sample = _derive_sample_id_from_path(path_val)
+            row_out["sample_id"] = _merge_sample_id(row_out.get("sample_id"), derived_sample)
 
-            table = table.append_column("image_path", pa.array(image_paths, type=pa.string()))
-            table = table.append_column("sample_id", pa.array(sample_ids, type=pa.string()))
-            table = table.append_column("prompt", prompt_array)
-            return table
+            row_out["prompt"] = _sanitize_prompt_value(row_out.get("prompt"), fallback_prompt)
+            return row_out
 
-        ds = ds.map_batches(_add_vqa_metadata_pyarrow, batch_format="pyarrow")
-        
+        ds = ds.map(_enrich_vqa_metadata)
+
+        try:
+            materialized_sample = ds.take(3)
+            print(
+                json.dumps(
+                    {
+                        "_prepare_streaming_dataset": {
+                            "event": "post_enrich_sample",
+                            "sample": [
+                                {
+                                    k: ("<ndarray>" if isinstance(v, np.ndarray) else v)
+                                    for k, v in item.items()
+                                }
+                                for item in materialized_sample
+                            ],
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception as sample_exc:
+            print(
+                f"[_prepare_streaming_dataset] Warning: failed to materialize sample after enrichment: {sample_exc}",
+                flush=True,
+            )
+
+        debug = bool(getattr(cfg.runtime, "debug", False))
+        print(f"[_prepare_streaming_dataset] debug mode = {debug}", flush=True)
+
         # Join with metadata if available
         if metadata_ds is not None:
             try:
                 sample = ds.take(1)
                 if sample and len(sample) > 0:
                     sample_row = sample[0]
-                    join_key = None
-                    if "image_path" in sample_row:
-                        join_key = "image_path"
-                    elif "sample_id" in sample_row:
-                        join_key = "sample_id"
+                    join_candidates: List[str] = []
+                    if "sample_id" in sample_row and "sample_id" in metadata_cols_available:
+                        join_candidates.append("sample_id")
+                    if "image_path" in sample_row and "image_path" in metadata_cols_available:
+                        join_candidates.append("image_path")
                     
-                    if join_key:
+                    if join_candidates:
+                        join_key = join_candidates[0]
                         print(f"[_prepare_streaming_dataset] Joining images with metadata on {join_key}", flush=True)
-                        try:
-                            ds = ds.join(metadata_ds, on=join_key, how="left")
-                            print(f"[_prepare_streaming_dataset] Successfully joined metadata", flush=True)
-                        except TypeError:
-                            # Fallback: pandas merge
-                            try:
-                                df_images = ds.to_pandas()
-                                df_metadata = metadata_ds.to_pandas()
-                                
-                                def normalize_join_key(val):
-                                    import pandas as pd
-                                    if pd.isna(val) or val is None:
-                                        return None
-                                    return str(val).strip()
-                                
-                                df_images["_join_key"] = df_images[join_key].apply(normalize_join_key)
-                                df_metadata["_join_key"] = df_metadata[join_key].apply(normalize_join_key)
-                                
-                                df_merged = df_images.merge(df_metadata, on="_join_key", how="left", suffixes=("", "_meta"))
-                                df_merged = df_merged.drop(columns=["_join_key"])
-                                
-                                # Drop duplicate columns
-                                for col in df_merged.columns:
-                                    if col.endswith("_meta") and col.replace("_meta", "") in df_images.columns:
-                                        df_merged = df_merged.drop(columns=[col])
-                                
-                                # Override prompt from metadata if present
-                                if "prompt_meta" in df_merged.columns:
-                                    df_merged["prompt"] = df_merged["prompt_meta"].fillna(df_merged["prompt"])
-                                    df_merged = df_merged.drop(columns=["prompt_meta"])
-                                
-                                # Preserve numpy arrays in 'image' column
-                                for col in df_merged.columns:
-                                    if col == "image":
-                                        continue
-                                    if df_merged[col].dtype == 'object':
-                                        sample_val = df_merged[col].iloc[0] if len(df_merged) > 0 else None
-                                        if isinstance(sample_val, (dict, list)) and not isinstance(sample_val, np.ndarray):
-                                            df_merged[col] = df_merged[col].astype(str)
-                                
-                                ds = ray.data.from_pandas(df_merged)
-                                print(f"[_prepare_streaming_dataset] Successfully joined metadata via pandas", flush=True)
-                            except Exception as e2:
-                                print(f"[_prepare_streaming_dataset] Warning: Failed to join metadata: {e2}", flush=True)
+                        from ray.data.dataset import MaterializedDataset
+
+                        if not isinstance(ds, MaterializedDataset):
+                            ds = ds.materialize()
+
+                        left_names = set(ds.schema().names)
+                        right_names = set(metadata_ds.schema().names)
+                        drop_cols = [col for col in right_names if col in left_names and col != join_key]
+                        if drop_cols:
+                            metadata_ds = metadata_ds.drop_columns(drop_cols)
+
+                        if not isinstance(metadata_ds, MaterializedDataset):
+                            metadata_ds = metadata_ds.materialize()
+
+                        left_blocks = ds.num_blocks()
+                        right_blocks = metadata_ds.num_blocks()
+                        num_partitions = max(left_blocks or 1, right_blocks or 1)
+                        ds = ds.join(metadata_ds, "left_outer", num_partitions, on=(join_key,))
+                        print(f"[_prepare_streaming_dataset] Successfully joined metadata", flush=True)
+                    else:
+                        print(f"[_prepare_streaming_dataset] Warning: Metadata missing join key columns", flush=True)
             except Exception as e:
                 print(f"[_prepare_streaming_dataset] Warning: Failed to join metadata: {e}", flush=True)
         
@@ -845,14 +1458,70 @@ def _prepare_streaming_dataset(dataset_path: str, columns: Mapping[str, str], cf
         # Apply debug/sample limits if configured
         debug = bool(getattr(cfg.runtime, "debug", False))
         sample_n = getattr(cfg.runtime, "sample_n", None)
-        if debug and isinstance(sample_n, int) and sample_n > 0:
+        sample_ratio = getattr(cfg.runtime, "sample_ratio", None)
+        sample_seed = getattr(cfg.runtime, "sample_seed", None)
+
+        if sample_ratio is not None and isinstance(sample_ratio, (int, float)) and 0 < sample_ratio < 1:
             try:
-                ds = ds.limit(max(1, int(sample_n)))
-            except Exception:
-                pass
+                ds = ds.random_sample(fraction=float(sample_ratio), seed=sample_seed)
+                print(
+                    json.dumps(
+                        {
+                            "_prepare_streaming_dataset": {
+                                "event": "random_sample_applied",
+                                "sample_ratio": float(sample_ratio),
+                                "sample_seed": sample_seed,
+                                "timestamp": datetime.utcnow().isoformat(),
+                            }
+                        }
+                    ),
+                    flush=True,
+                )
+            except Exception as exc:
+                print(
+                    f"[_prepare_streaming_dataset] Warning: failed to apply sample_ratio ({exc})",
+                    flush=True,
+                )
+
+        if isinstance(sample_n, int) and sample_n > 0:
+            try:
+                limit_val = max(1, int(sample_n))
+                ds = ds.limit(limit_val)
+                print(
+                    json.dumps(
+                        {
+                            "_prepare_streaming_dataset": {
+                                "event": "sample_limit_applied",
+                                "sample_n": limit_val,
+                                "timestamp": datetime.utcnow().isoformat(),
+                            }
+                        }
+                    ),
+                    flush=True,
+                )
+            except Exception as exc:
+                print(
+                    f"[_prepare_streaming_dataset] Warning: failed to apply sample_n limit ({exc})",
+                    flush=True,
+                )
         
         return ds, True
-    except Exception:
+    except Exception as exc:
+        try:
+            print(
+                json.dumps(
+                    {
+                        "_prepare_streaming_dataset": {
+                            "event": "error",
+                            "message": str(exc),
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception:
+            print(f"[_prepare_streaming_dataset] Error: {exc}", flush=True)
         return None, False
 
 
@@ -919,6 +1588,23 @@ def prepare_stage_input(cfg: DictConfig, dataset_path: str, stage: str) -> tuple
     use_streaming = False
     if streaming_enabled:
         ds, use_streaming = _prepare_streaming_dataset(dataset_path, columns, cfg, stage)
+        try:
+            print(
+                json.dumps(
+                    {
+                        "prepare_stage_input": {
+                            "event": "streaming_result",
+                            "use_streaming": bool(use_streaming),
+                            "ds_type": type(ds).__name__ if ds is not None else None,
+                            "dataset_path": dataset_path,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception:
+            pass
         if auto_stream_attempted and not use_streaming:
             print(
                 f"[prepare_stage_input] Streaming IO requested for stage '{stage}' but Ray streaming is unavailable; falling back to pandas load",
@@ -926,8 +1612,17 @@ def prepare_stage_input(cfg: DictConfig, dataset_path: str, stage: str) -> tuple
             )
 
     df = None
-    if not use_streaming:
-        df = _load_parquet_dataset(dataset_path, columns, debug=debug, sample_n=sample_n)
+    if not use_streaming and dataset_path and str(dataset_path).strip():
+        sample_ratio = getattr(runtime_cfg, "sample_ratio", None) if runtime_cfg is not None else None
+        sample_seed = getattr(runtime_cfg, "sample_seed", None) if runtime_cfg is not None else None
+        df = _load_parquet_dataset(
+            dataset_path, 
+            columns, 
+            debug=debug, 
+            sample_n=sample_n,
+            sample_ratio=sample_ratio,
+            sample_seed=sample_seed
+        )
     return df, ds, use_streaming
 
 
@@ -945,733 +1640,6 @@ def _collect_outputs(context: StageExecutionContext, optional: Mapping[str, bool
     return resolved
 
 
-class ClassificationRunner(StageRunner):
-    stage_name = "classify"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        # Ensure base stage uses 'relevance' profile (avoid EU/RB vague gating here)
-        try:
-            OmegaConf.update(cfg, "runtime.classification_profile", "relevance", merge=True)
-        except Exception:
-            pass
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        # Relevance-only implementation (isolated from EU/RB behavior)
-        # Note: Multimodal image support is automatically enabled if:
-        #   - Model is detected as multimodal (via _is_multimodal_model)
-        #   - Or runtime.multimodal_enabled is explicitly set
-        # Images are loaded from image_path, image_url, or image_base64 columns
-        out = run_classification_relevance(in_obj, cfg)
-        
-        out = _convert_to_pandas_if_needed(out)
-        
-        # Calculate row count
-        row_count = None
-        if isinstance(out, pd.DataFrame):
-            row_count = len(out)
-        elif isinstance(out, pd.Series):
-            row_count = len(out)
-        elif hasattr(out, "__len__"):
-            try:
-                row_count = len(out)
-            except Exception:
-                pass
-        
-        # Save outputs to disk (ClassificationRunner has custom output logic)
-        if isinstance(out, pd.DataFrame):
-            # Scrub any stray too_vague_to_process for base relevance stage
-            try:
-                if "too_vague_to_process" in out.columns:
-                    out["too_vague_to_process"] = False
-            except Exception:
-                pass
-            # Save generic results if requested (profile-agnostic)
-            if "results" in context.output_paths:
-                out.to_parquet(context.output_paths["results"], index=False)
-            # Save "all" output (all classified articles)
-            if "all" in context.output_paths:
-                out.to_parquet(context.output_paths["all"], index=False)
-            # Save "relevant" output (only relevant articles)
-            if "relevant" in context.output_paths and "is_relevant" in out.columns:
-                relevant_df = out[out["is_relevant"] == True].copy()
-                relevant_df.to_parquet(context.output_paths["relevant"], index=False)
-        
-        # Log results table and keyword statistics to wandb
-        if isinstance(out, pd.DataFrame) and context.logger:
-            try:
-                # Include profile-specific columns when present
-                if any(c in out.columns for c in ("eu_ai_label", "eu_ai_desc", "eu_ai_relevant_text", "eu_ai_reason")):
-                    prefer_cols = [
-                        "article_id",
-                        "too_vague_to_process",
-                        "eu_valid_input_count",
-                        "eu_ai_label",
-                        "eu_ai_desc",
-                        "eu_ai_relevant_text",
-                        "eu_ai_reason",
-                        "classification_mode",
-                        "article_path",
-                        "country",
-                        "year",
-                    ]
-                else:
-                    prefer_cols = [
-                        "article_id",
-                        "too_vague_to_process",
-                        "eu_valid_input_count",
-                        "is_relevant",
-                        "classification_mode",
-                        "relevant_keyword",
-                        "matched_keywords",
-                        "keyword_match_count",
-                        "article_text",
-                        "article_path",
-                        "country",
-                        "year",
-                    ]
-                # Filter to only columns that exist
-                prefer_cols = [c for c in prefer_cols if c in out.columns]
-                _safe_log_table(context.logger, out, "classify/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-                
-                # Log keyword filtering statistics
-                if "relevant_keyword" in out.columns:
-                    total_articles = len(out)
-                    articles_with_keywords = out["relevant_keyword"].sum() if "relevant_keyword" in out.columns else 0
-                    articles_without_keywords = total_articles - articles_with_keywords
-                    keyword_presence_rate = articles_with_keywords / total_articles if total_articles > 0 else 0
-                    
-                    keyword_stats = {
-                        "classify/keyword_filtering/total_articles": total_articles,
-                        "classify/keyword_filtering/articles_with_keywords": int(articles_with_keywords),
-                        "classify/keyword_filtering/articles_without_keywords": int(articles_without_keywords),
-                        "classify/keyword_filtering/keyword_presence_rate": keyword_presence_rate,
-                    }
-                    
-                    # Average matches per article (for articles with matches)
-                    if "keyword_match_count" in out.columns:
-                        articles_with_matches = out[out["keyword_match_count"] > 0]
-                        if len(articles_with_matches) > 0:
-                            avg_matches = articles_with_matches["keyword_match_count"].mean()
-                            max_matches = articles_with_matches["keyword_match_count"].max()
-                            keyword_stats["classify/keyword_filtering/avg_matches_per_article"] = avg_matches
-                            keyword_stats["classify/keyword_filtering/max_matches_in_article"] = int(max_matches)
-                    
-                    context.logger.log_metrics(keyword_stats)
-                    print(f"[classify] Keyword filtering: {articles_with_keywords}/{total_articles} articles ({keyword_presence_rate:.1%}) have keywords", flush=True)
-                    
-                    # Log top matched keywords if available
-                    if "matched_keywords" in out.columns:
-                        try:
-                            # Flatten all matched keywords and count frequency
-                            from collections import Counter
-                            all_keywords = []
-                            for kws in out["matched_keywords"].dropna():
-                                if isinstance(kws, list):
-                                    all_keywords.extend(kws)
-                            
-                            if all_keywords:
-                                keyword_freq = Counter(all_keywords)
-                                top_10_keywords = keyword_freq.most_common(10)
-                                
-                                # Log as wandb summary (for easy viewing)
-                                for i, (keyword, count) in enumerate(top_10_keywords, 1):
-                                    context.logger.set_summary(f"classify/top_keywords/{i:02d}_{keyword}", count)
-                                
-                                print(f"[classify] Top 5 keywords: {', '.join([f'{kw}({cnt})' for kw, cnt in top_10_keywords[:5]])}", flush=True)
-                        except Exception as e:
-                            print(f"Warning: Failed to log top keywords: {e}", flush=True)
-            except Exception as e:
-                print(f"Warning: Failed to log classify results or keyword statistics to wandb: {e}", flush=True)
-        
-        metadata: Dict[str, Any] = {
-            "rows": row_count,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class TaxonomyRunner(StageRunner):
-    stage_name = "taxonomy"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        out = run_taxonomy_stage(in_obj, cfg)
-        
-        out = _convert_to_pandas_if_needed(out)
-        _save_stage_outputs(out, context.output_paths)
-        
-        # Log results table to wandb (in inspect_results panel group)
-        prefer_cols = ["article_id", "chunk_id", "taxonomy_json", "chunk_text", "article_path"]
-        _safe_log_table(context.logger, out, "taxonomy/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class DecomposeRunner(StageRunner):
-    stage_name = "decompose"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        out = run_decomposition_stage(in_obj, cfg)
-        
-        out = _convert_to_pandas_if_needed(out)
-        _save_stage_outputs(out, context.output_paths)
-        
-        # Log results table to wandb (in inspect_results panel group)
-        prefer_cols = ["article_id", "chunk_id", "chunk_text", "article_path"]
-        _safe_log_table(context.logger, out, "decompose/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class DecomposeNBLRunner(StageRunner):
-    stage_name = "decompose_nbl"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        out = run_decomposition_stage_nbl(in_obj, cfg)
-        
-        out = _convert_to_pandas_if_needed(out)
-        _save_stage_outputs(out, context.output_paths)
-        
-        # Log results table to wandb (in inspect_results panel group)
-        prefer_cols = ["article_id", "chunk_id", "chunk_text", "article_path"]
-        _safe_log_table(context.logger, out, "decompose_nbl/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class TopicRunner(StageRunner):
-    stage_name = "topic"
-
-    @staticmethod
-    def _resolve_topic_path(path: str) -> str:
-        if os.path.isdir(path):
-            candidates = [
-                os.path.join(path, "classify_relevant.parquet"),
-                os.path.join(path, "classify_all.parquet"),
-                os.path.join(path, "results.parquet"),
-            ]
-            for cand in candidates:
-                if os.path.exists(cand):
-                    return cand
-        return path
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        resolved_path = self._resolve_topic_path(dataset_path)
-        
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", resolved_path, merge=True)
-        df, ds, use_streaming = prepare_stage_input(cfg, resolved_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        
-        out = run_topic_stage(in_obj, cfg, logger=context.logger)
-        out = _convert_to_pandas_if_needed(out)
-        _save_stage_outputs(out, context.output_paths)
-        
-        # Log results table and plots to wandb
-        if isinstance(out, pd.DataFrame) and context.logger:
-            prefer_cols = ["unit_id", "topic_id", "topic_prob", "topic_top_terms", "article_keywords", "plot_x", "plot_y"]
-            _safe_log_table(context.logger, out, "topic/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-            
-            try:
-                # Log plotly visualization
-                from .stages.topic_plot import log_cluster_scatter_plotly_to_wandb
-                log_cluster_scatter_plotly_to_wandb(out, context.logger, title="topic_cluster_map")
-            except Exception as e:
-                print(f"Warning: Failed to log topic plot to wandb: {e}", flush=True)
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class VerificationRunner(StageRunner):
-    stage_name = "verification"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        out = run_verification_stage(in_obj, cfg)
-        
-        out = _convert_to_pandas_if_needed(out)
-        _save_stage_outputs(out, context.output_paths)
-        
-        # Log results table to wandb (in inspect_results panel group)
-        prefer_cols = ["article_id", "chunk_id", "chunk_text", "verification_result", "article_path"]
-        _safe_log_table(context.logger, out, "verification/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class VerificationNBLRunner(StageRunner):
-    stage_name = "verify_nbl"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_obj = ds if use_streaming and ds is not None else df
-        out = run_verification_stage_nbl(in_obj, cfg)
-        
-        out = _convert_to_pandas_if_needed(out)
-        
-        # Prepare optional doc-level aggregation and merge core flags into row-level output
-        docs_df = None
-        if isinstance(out, pd.DataFrame):
-            results_path = context.output_paths.get("results")
-            docs_df = _compute_doc_level_verification(out, results_path)
-            
-            # Merge core flags into row-level frame for downstream gating
-            if docs_df is not None and "article_id" in out.columns and "article_id" in docs_df.columns:
-                try:
-                    out = out.merge(docs_df[["article_id", "core_tuple_verified"]], on="article_id", how="left")
-                except Exception:
-                    pass
-
-        # Save outputs to disk
-        if isinstance(out, pd.DataFrame):
-            for output_name, output_path in context.output_paths.items():
-                if output_name == "docs":
-                    # Emit doc-level table if available
-                    try:
-                        if docs_df is not None and len(docs_df):
-                            docs_df.to_parquet(output_path, index=False)
-                        else:
-                            # If not available, synthesize minimal docs view with article_id and core flag
-                            if "article_id" in out.columns and "core_tuple_verified" in out.columns:
-                                tmp_docs = out[["article_id", "core_tuple_verified"]].drop_duplicates()
-                                tmp_docs.to_parquet(output_path, index=False)
-                    except Exception:
-                        pass
-                else:
-                    out.to_parquet(output_path, index=False)
-        
-        # Log verify_nbl results table with all columns (logger handles filtering of heavy/internal)
-        _safe_log_table(context.logger, out, "verify_nbl/results", prefer_cols=None, panel_group="inspect_results")
-        
-        # Log document-level aggregation in inspect_results; build from memory if needed
-        if docs_df is None and isinstance(out, pd.DataFrame) and "article_id" in out.columns:
-            try:
-                import pandas as _pd
-                docs_df = out[["article_id", "core_tuple_verified"]].drop_duplicates()
-            except Exception:
-                docs_df = None
-        
-        if docs_df is not None and len(docs_df):
-            _safe_log_table(context.logger, docs_df, "verify_nbl/docs", prefer_cols=None, panel_group="inspect_results")
-
-            # Plot run-level verification rates by input and doc-level
-            try:
-                import pandas as _pd
-                import matplotlib.pyplot as _plt  # type: ignore
-
-                df_res = out
-                df_docs = docs_df if 'docs_df' in locals() else None
-
-                # Helper: presence check for scalars/lists
-                def _present_series(s: _pd.Series) -> _pd.Series:
-                    try:
-                        ss = s.astype(str).str.strip()
-                        ssl = ss.str.lower()
-                        not_empty = ss != ""
-                        not_none = ~ssl.isin(["none", "null"])
-                        not_empty_json = ~ss.isin(["[]", "{}"])
-                        return not_empty & not_none & not_empty_json
-                    except Exception:
-                        return _pd.Series([False] * len(s))
-
-                scalar_fields = [
-                    "deployment_domain",
-                    "deployment_purpose",
-                    "deployment_capability",
-                    "deployment_space",
-                    "identity_of_ai_deployer",
-                    "identity_of_ai_subject",
-                    "identity_of_ai_developer",
-                    "location_of_ai_deployer",
-                    "location_of_ai_subject",
-                    "date_and_time_of_event",
-                ]
-                list_fields = [
-                    "list_of_harms_that_occurred",
-                    "list_of_risks_that_occurred",
-                    "list_of_benefits_that_occurred",
-                ]
-
-                labels = []
-                percents = []
-                # Scalars: percent verified among present inputs
-                for f in scalar_fields:
-                    try:
-                        if f in df_res.columns:
-                            present = _present_series(df_res[f])
-                            ver_col = f"ver_tuple_{f}_verified"
-                            if ver_col in df_res.columns:
-                                verified = present & df_res[ver_col].astype(bool)
-                                present_n = int(present.sum())
-                                verified_n = int(verified.sum())
-                                pct = (verified_n / present_n * 100.0) if present_n > 0 else None
-                                labels.append(f)
-                                percents.append(pct)
-                    except Exception:
-                        pass
-                # Lists: percent any verified among present lists
-                for f in list_fields:
-                    try:
-                        if f in df_res.columns:
-                            present = _present_series(df_res[f])
-                            any_col = f"ver_tuple_{f}_any"
-                            if any_col in df_res.columns:
-                                verified = present & df_res[any_col].astype(bool)
-                                present_n = int(present.sum())
-                                verified_n = int(verified.sum())
-                                pct = (verified_n / present_n * 100.0) if present_n > 0 else None
-                                labels.append(f)
-                                percents.append(pct)
-                    except Exception:
-                        pass
-
-                # Build bar plot for input percentages (filter out None)
-                try:
-                    labels_plot = []
-                    percents_plot = []
-                    for l, p in zip(labels, percents):
-                        if p is not None:
-                            labels_plot.append(l)
-                            percents_plot.append(p)
-                    if labels_plot:
-                        fig, ax = _plt.subplots(figsize=(10, max(3, int(len(labels_plot) * 0.4))))
-                        ax.barh(labels_plot, percents_plot, color="#4e79a7")
-                        ax.set_xlabel("Percent verified (%)")
-                        ax.set_title("Verification rate by input")
-                        for i, v in enumerate(percents_plot):
-                            ax.text(v + 1, i, f"{v:.1f}%", va='center')
-                        _plt.tight_layout()
-                        context.logger.log_plot("verify_nbl/percent_verified_by_input", fig)
-                except Exception as e:
-                    print(f"Warning: failed to log percent_verified_by_input plot: {e}", flush=True)
-
-                # Doc-level percentages
-                try:
-                    if df_docs is not None and len(df_docs):
-                        vals = {}
-                        for key in ("doc_any_component_verified", "core_tuple_verified"):
-                            if key in df_docs.columns:
-                                try:
-                                    vals[key] = float(df_docs[key].astype(bool).mean() * 100.0)
-                                except Exception:
-                                    pass
-                        if vals:
-                            fig2, ax2 = _plt.subplots(figsize=(6, 3))
-                            keys = list(vals.keys())
-                            vals_list = [vals[k] for k in keys]
-                            ax2.bar(keys, vals_list, color="#59a14f")
-                            ax2.set_ylabel("Percent of articles (%)")
-                            ax2.set_title("Doc-level verification rates")
-                            for i, v in enumerate(vals_list):
-                                ax2.text(i, v + 1, f"{v:.1f}%", ha='center')
-                            _plt.tight_layout()
-                            context.logger.log_plot("verify_nbl/doc_level_percentages", fig2)
-                except Exception as e:
-                    print(f"Warning: failed to log doc_level_percentages plot: {e}", flush=True)
-            except Exception as e:
-                print(f"Warning: verify_nbl run-level plots error: {e}", flush=True)
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": bool(use_streaming),
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-class SynthesisRunner(StageRunner):
-    stage_name = "synthesis"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        # Synthesis requires clusters; articles are optional (enables text-aware join when provided)
-        clusters_path = context.inputs.get("clusters")
-        articles_path = context.inputs.get("articles")
-        
-        if not clusters_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'clusters' input (topic assignments)")
-        
-        cfg = context.cfg
-        
-        # Load both datasets
-        try:
-            df_clusters = pd.read_parquet(clusters_path)
-            print(f"Loaded {len(df_clusters)} rows from clusters: {clusters_path}", flush=True)
-        except Exception as e:
-            raise ValueError(f"Failed to load clusters from '{clusters_path}': {e}")
-        
-        df_articles = None
-        if articles_path:
-            try:
-                if os.path.exists(articles_path):
-                    df_articles = pd.read_parquet(articles_path)
-                    print(f"Loaded {len(df_articles)} rows from articles: {articles_path}", flush=True)
-                else:
-                    print(f"Articles path not found; proceeding without articles: {articles_path}", flush=True)
-            except Exception as e:
-                print(f"Warning: Failed to load articles from '{articles_path}': {e}; proceeding without articles.", flush=True)
-        
-        # Pass both to synthesis stage
-        out = run_synthesis_stage(df_clusters, cfg, logger=context.logger, articles_df=df_articles)
-        
-        out = _convert_to_pandas_if_needed(out)
-        _save_stage_outputs(out, context.output_paths)
-        
-        # Log results table to wandb (in inspect_results panel group)
-        prefer_cols = ["cluster_id", "num_articles", "primary_risk_type", "risk_confidence", "synthesis_summary"]
-        _safe_log_table(context.logger, out, "synthesis/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-        
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": False,  # Synthesis uses dual-input join, not streaming
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class ClassificationEUActRunner(StageRunner):
-    stage_name = "classify_eu_act"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        # Note: Prompt injection is handled internally by run_classification_eu_act
-        # Always load as pandas for gating; streaming not supported for this custom stage
-        # prepare_stage_input handles image columns automatically (image_path, image_url, image_base64)
-        # Multimodal support is auto-detected from model source in run_classification_stage()
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_df = df if df is not None else (ds.to_pandas() if hasattr(ds, "to_pandas") else None)
-        if in_df is None:
-            raise RuntimeError("Failed to load input dataset for classify_eu_act")
-        # Gate by core_tuple_verified == True
-        try:
-            total_rows = len(in_df)
-        except Exception:
-            total_rows = None
-        try:
-            if "core_tuple_verified" in in_df.columns:
-                mask = in_df["core_tuple_verified"].fillna(False).astype(bool)
-            else:
-                mask = pd.Series([False] * len(in_df))
-            gated_df = in_df[mask].copy()
-        except Exception:
-            gated_df = in_df.iloc[0:0].copy()
-        # Prefer one row per article to avoid duplicate classifications
-        try:
-            if "article_id" in gated_df.columns and len(gated_df):
-                # Keep the first occurrence per article_id
-                gated_df = gated_df.sort_values(by=["article_id"]).drop_duplicates(subset=["article_id"], keep="first")
-        except Exception:
-            pass
-
-        # Run classification with EU AI Act profile (assumed set via overrides)
-        # EU-only classification (prompt injected inside wrapper)
-        out = run_classification_eu_act(gated_df, cfg)
-
-        out = _convert_to_pandas_if_needed(out)
-        
-        # Save outputs to disk
-        if isinstance(out, pd.DataFrame) and "results" in context.output_paths:
-            out.to_parquet(context.output_paths["results"], index=False)
-
-        # Log results
-        prefer_cols = [
-            c for c in [
-                "article_id",
-                "eu_ai_label",
-                "eu_ai_desc",
-                "eu_ai_relevant_text",
-                "eu_ai_reason",
-                "classification_mode",
-                "article_path",
-                "country",
-                "year",
-            ] if c in out.columns
-        ]
-        _safe_log_table(context.logger, out, "classify_eu_act/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-        
-        # Log simple counts
-        if context.logger:
-            try:
-                context.logger.log_metrics({
-                    "classify_eu_act/input_rows": int(total_rows or 0),
-                    "classify_eu_act/gated_rows": int(len(gated_df)),
-                    "classify_eu_act/output_rows": int(len(out)),
-                })
-            except Exception:
-                pass
-
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": False,
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
-class ClassificationRisksBenefitsRunner(StageRunner):
-    stage_name = "classify_risk_and_benefits"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        dataset_path = context.inputs.get("dataset")
-        if not dataset_path:
-            raise ValueError(f"Node '{context.node.key}' requires 'dataset' input")
-        cfg = context.cfg
-        OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
-        # Ensure proper profile
-        try:
-            OmegaConf.update(cfg, "runtime.classification_profile", "risks_and_benefits", merge=True)
-            OmegaConf.update(cfg, "runtime.use_llm_classify", True, merge=True)
-        except Exception:
-            pass
-        # Note: Prompt injection is handled internally by run_classification_risks_benefits
-        # prepare_stage_input handles image columns automatically (image_path, image_url, image_base64)
-        # Multimodal support is auto-detected from model source in run_classification_stage()
-        df, ds, use_streaming = prepare_stage_input(cfg, dataset_path, self.stage_name)
-        in_df = df if df is not None else (ds.to_pandas() if hasattr(ds, "to_pandas") else None)
-        if in_df is None:
-            raise RuntimeError("Failed to load input dataset for classify_risk_and_benefits")
-        # Gate by core_tuple_verified == True to mirror EU AI Act classification requirements
-        try:
-            if "core_tuple_verified" in in_df.columns:
-                mask = in_df["core_tuple_verified"].fillna(False).astype(bool)
-            else:
-                mask = pd.Series([False] * len(in_df))
-            gated_df = in_df[mask].copy()
-        except Exception:
-            gated_df = in_df.iloc[0:0].copy()
-        in_df = gated_df
-        # Prefer one row per article to avoid duplicate classifications
-        try:
-            if "article_id" in in_df.columns and len(in_df):
-                in_df = in_df.sort_values(by=["article_id"]).drop_duplicates(subset=["article_id"], keep="first")
-        except Exception:
-            pass
-        # Risks & Benefits classification (prompt injected inside wrapper)
-        out = run_classification_risks_benefits(in_df, cfg)
-
-        out = _convert_to_pandas_if_needed(out)
-        
-        # Save outputs to disk
-        if isinstance(out, pd.DataFrame) and "results" in context.output_paths:
-            out.to_parquet(context.output_paths["results"], index=False)
-
-        # Log results
-        prefer_cols = [
-            c for c in [
-                "article_id",
-                "risks_benefits_json",
-                "classification_mode",
-                "article_path",
-                "country",
-                "year",
-            ] if c in out.columns
-        ]
-        _safe_log_table(context.logger, out, "classify_risk_and_benefits/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-
-        metadata: Dict[str, Any] = {
-            "rows": len(out) if isinstance(out, pd.DataFrame) else None,
-            "streaming": False,
-        }
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
 class VQARunner(StageRunner):
     stage_name = "vqa"
 
@@ -1685,61 +1653,122 @@ class VQARunner(StageRunner):
             # Update parquet_path if dataset input is provided
             OmegaConf.update(cfg, "data.parquet_path", dataset_path, merge=True)
         else:
-            # No dataset input - check if we have image_path configured for directory-based images
-            image_path_config = getattr(cfg.data, "image_path", None)
-            if not image_path_config or not isinstance(image_path_config, str) or not image_path_config.strip():
+            # No dataset input - check if we have either parquet_path or image_path
+            parquet_path_cfg = getattr(cfg.data, "parquet_path", None)
+            image_path_cfg = getattr(cfg.data, "image_path", None)
+            
+            if not (parquet_path_cfg and str(parquet_path_cfg).strip()) and \
+               not (image_path_cfg and str(image_path_cfg).strip()):
                 raise ValueError(
-                    f"Node '{context.node.key}' requires either 'dataset' input or 'data.image_path' "
-                    f"pointing to an image directory"
+                    f"Node '{context.node.key}' requires either 'dataset' input, "
+                    f"'data.parquet_path', or 'data.image_path'"
                 )
-            # Set parquet_path to empty string to indicate we're using directory-based images
-            OmegaConf.update(cfg, "data.parquet_path", "", merge=True)
         
         # Load data with prompt + image columns
         # prepare_stage_input will handle both parquet and directory-based images
         parquet_path = getattr(cfg.data, "parquet_path", None) or dataset_path or ""
         df, ds, use_streaming = prepare_stage_input(cfg, parquet_path, self.stage_name)
         in_obj = ds if use_streaming and ds is not None else df
+        try:
+            print(
+                json.dumps(
+                    {
+                        "vqa_runner": {
+                            "event": "invoke_run_vqa_stage",
+                            "use_streaming": bool(use_streaming),
+                            "input_type": type(in_obj).__name__ if in_obj is not None else None,
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception:
+            pass
         
         # Run VQA stage
         out = run_vqa_stage(in_obj, cfg)
         
-        out = _convert_to_pandas_if_needed(out)
-        
-        # Calculate row count
-        row_count = None
-        if isinstance(out, pd.DataFrame):
-            row_count = len(out)
-        elif isinstance(out, pd.Series):
-            row_count = len(out)
-        elif hasattr(out, "__len__"):
-            try:
+        # ----------------------------------------------------------------
+        # Streaming path: iterate in batches, write parquet incrementally,
+        # and stream progress + sampled results to wandb in real time.
+        # ----------------------------------------------------------------
+        if use_streaming and hasattr(out, "iter_batches"):
+            prefer_cols = [
+                "sample_id",
+                "answer",
+                "model_response",
+                "image_path",
+            ]
+            row_count = _materialize_streaming_results(
+                out,
+                context.output_paths.get("results"),
+                context.logger,
+                cfg,
+                prefer_cols=prefer_cols,
+            )
+        else:
+            # ---- Non-streaming path (unchanged) ----------------------------
+            out = _convert_to_pandas_if_needed(out)
+
+            # Calculate row count
+            row_count = None
+            if isinstance(out, pd.DataFrame):
                 row_count = len(out)
-            except Exception:
-                pass
-        
-        # Save outputs to disk
-        if isinstance(out, pd.DataFrame):
-            # Save results output
-            if "results" in context.output_paths:
-                out.to_parquet(context.output_paths["results"], index=False)
-        
-        # Log results table to wandb
-        if isinstance(out, pd.DataFrame) and context.logger:
-            try:
-                prefer_cols = [
-                    "sample_id",
-                    "prompt",
-                    "answer",
-                    "model_response",
-                    "image_path",
-                    "image_url",
-                ]
-                # Filter to only columns that exist
-                prefer_cols = [c for c in prefer_cols if c in out.columns]
-                _safe_log_table(context.logger, out, "vqa/results", prefer_cols=prefer_cols, panel_group="inspect_results")
-            except Exception as e:
-                print(f"Warning: Failed to log VQA results to wandb: {e}", flush=True)
+            elif isinstance(out, pd.Series):
+                row_count = len(out)
+            elif hasattr(out, "__len__"):
+                try:
+                    row_count = len(out)
+                except Exception:
+                    pass
+
+            # Save outputs to disk
+            if isinstance(out, pd.DataFrame):
+                if "results" in context.output_paths:
+                    out.to_parquet(context.output_paths["results"], index=False)
+
+            # Log results table to wandb
+            if isinstance(out, pd.DataFrame) and context.logger:
+                try:
+                    non_stream_prefer = [
+                        "sample_id",
+                        "prompt",
+                        "answer",
+                        "model_response",
+                        "image_path",
+                        "image_url",
+                    ]
+                    non_stream_prefer = [
+                        c for c in non_stream_prefer if c in out.columns
+                    ]
+                    _safe_log_table(
+                        context.logger, out, "vqa/results",
+                        prefer_cols=non_stream_prefer,
+                        panel_group="inspect_results",
+                    )
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to log VQA results to wandb: {e}",
+                        flush=True,
+                    )
+
+        try:
+            print(
+                json.dumps(
+                    {
+                        "vqa_runner": {
+                            "event": "stage_completed",
+                            "rows": row_count,
+                            "streaming": bool(use_streaming),
+                            "timestamp": datetime.utcnow().isoformat(),
+                        }
+                    }
+                ),
+                flush=True,
+            )
+        except Exception:
+            pass
         
         metadata: Dict[str, Any] = {
             "rows": row_count,
@@ -1752,17 +1781,7 @@ class VQARunner(StageRunner):
         return StageResult(outputs=outputs, metadata=metadata)
 
 _STAGE_REGISTRY: Dict[str, StageRunner] = {
-    "classify": ClassificationRunner(),
-    "classify_eu_act": ClassificationEUActRunner(),
-    "classify_risk_and_benefits": ClassificationRisksBenefitsRunner(),
     "vqa": VQARunner(),
-    "decompose": DecomposeRunner(),
-    "decompose_nbl": DecomposeNBLRunner(),
-    "taxonomy": TaxonomyRunner(),
-    "topic": TopicRunner(),
-    "verification": VerificationRunner(),
-    "verify_nbl": VerificationNBLRunner(),
-    "synthesis": SynthesisRunner(),
 }
 
 
@@ -1831,12 +1850,35 @@ def _load_launcher_config(cfg: DictConfig, launcher_name: str) -> Optional[DictC
         raise ValueError(f"Failed to load launcher config '{launcher_name}': {e}") from e
 
 
+@contextlib.contextmanager
+def _clean_slurm_env():
+    """Temporarily remove Slurm environment variables to prevent incorrect inheritance when nesting.
+
+    When submitit submits child jobs from within a SLURM job, the parent's SLURM environment
+    variables can leak into the child job's submission context, causing issues like:
+    - Incorrect resource allocation
+    - Job dependency conflicts
+    - Namespace collisions
+
+    This context manager temporarily removes all SLURM/SBATCH env vars during job submission.
+    """
+    slurm_vars = {k: v for k, v in os.environ.items() if k.startswith("SLURM") or k.startswith("SBATCH")}
+    for k in slurm_vars:
+        del os.environ[k]
+    try:
+        yield
+    finally:
+        os.environ.update(slurm_vars)
+
+
 def _create_submitit_executor(launcher_cfg: DictConfig, job_name: str, log_folder: str) -> Any:
     """Create a submitit executor from launcher configuration."""
     if not _SUBMITIT_AVAILABLE or submitit is None:
         raise RuntimeError("submitit is not available but is required for SLURM job submission")
     
-    executor = submitit.AutoExecutor(folder=log_folder)
+    # Clean SLURM env to prevent inheritance issues from parent job
+    with _clean_slurm_env():
+        executor = submitit.AutoExecutor(folder=log_folder)
     
     # Map launcher config to submitit parameters
     executor.update_parameters(
@@ -2088,11 +2130,12 @@ def run_experiment(cfg: DictConfig) -> None:
                         "output_root": output_root,
                     }
                     
-                    # Submit the job
-                    job = executor.submit(execute_stage_job, context_data)
+                    # Submit the job (clean SLURM env to prevent inheritance issues)
+                    with _clean_slurm_env():
+                        job = executor.submit(execute_stage_job, context_data)
                     _print_status({"node": node.key, "stage": node.stage, "status": "submitted", "job_id": job.job_id})
                     
-                    # Wait for the job to complete
+                    # Wait for the job to complete with error recovery
                     try:
                         job_result = job.result()  # This blocks until the job completes
                         result = StageResult(
@@ -2100,18 +2143,131 @@ def run_experiment(cfg: DictConfig) -> None:
                             metadata=job_result["metadata"],
                         )
                     except Exception as exc:
-                        _print_status({"node": node.key, "stage": node.stage, "status": "failed", "job_id": job.job_id, "error": str(exc)})
-                        raise
+                        # Check if the job was actually cancelled or just misreported by submitit
+                        # This can happen due to signal handling issues or timing races
+                        try:
+                            import subprocess
+                            # Use squeue to check if the job is still alive
+                            check = subprocess.run(
+                                ["squeue", "-j", str(job.job_id), "-h", "-o", "%t"],
+                                capture_output=True, text=True, timeout=10
+                            )
+                            job_state = check.stdout.strip()
+                            
+                            if job_state in ("R", "PD", "CG"):
+                                # Job is still running/pending/completing - wait for it manually
+                                _print_status({
+                                    "debug": "job_misreported_as_failed",
+                                    "job_id": job.job_id,
+                                    "state": job_state,
+                                    "original_error": str(exc)
+                                })
+                                
+                                # Manual polling fallback
+                                while True:
+                                    time.sleep(30)
+                                    check = subprocess.run(
+                                        ["squeue", "-j", str(job.job_id), "-h", "-o", "%t"],
+                                        capture_output=True, text=True, timeout=10
+                                    )
+                                    current_state = check.stdout.strip()
+                                    if not current_state or current_state not in ("R", "PD", "CG"):
+                                        break
+                                
+                                # Try to read result from pickle file (submitit's fallback)
+                                if hasattr(job, 'paths') and hasattr(job.paths, 'result_pickle'):
+                                    if os.path.exists(job.paths.result_pickle):
+                                        import pickle
+                                        with open(job.paths.result_pickle, "rb") as f:
+                                            _outcome, _result = pickle.load(f)
+                                            job_result = _result
+                                            _print_status({
+                                                "debug": "recovered_result_from_pickle",
+                                                "job_id": job.job_id
+                                            })
+                                            result = StageResult(
+                                                outputs=job_result["outputs"],
+                                                metadata=job_result["metadata"],
+                                            )
+                                    else:
+                                        _print_status({
+                                            "node": node.key, "stage": node.stage,
+                                            "status": "failed", "job_id": job.job_id,
+                                            "error": f"Job completed but no result pickle found: {exc}"
+                                        })
+                                        raise
+                                else:
+                                    _print_status({
+                                        "node": node.key, "stage": node.stage,
+                                        "status": "failed", "job_id": job.job_id,
+                                        "error": f"Job completed but cannot access result paths: {exc}"
+                                    })
+                                    raise
+                            else:
+                                # Job actually failed
+                                _print_status({
+                                    "node": node.key, "stage": node.stage,
+                                    "status": "failed", "job_id": job.job_id,
+                                    "error": str(exc)
+                                })
+                                raise
+                        except subprocess.TimeoutExpired:
+                            _print_status({
+                                "node": node.key, "stage": node.stage,
+                                "status": "failed", "job_id": job.job_id,
+                                "error": f"squeue timeout while checking job status: {exc}"
+                            })
+                            raise
+                        except Exception as inner_exc:
+                            if 'result' not in locals():
+                                _print_status({
+                                    "node": node.key, "stage": node.stage,
+                                    "status": "failed", "job_id": job.job_id,
+                                    "error": f"{exc} (recovery failed: {inner_exc})"
+                                })
+                                raise exc from inner_exc
                 else:
                     # Run locally in the current process
                     _print_status({"node": node.key, "stage": node.stage, "status": "running", "inputs": inputs})
+                    # Create a stage-level wandb logger so VQARunner (and others)
+                    # can log tables/metrics even when running without a SLURM launcher.
+                    wandb_run_id = node.wandb_suffix or node.key
+                    stage_run_config = {
+                        "node": node.key,
+                        "stage": node.stage,
+                        "inputs": list(inputs.keys()),
+                        "outputs": list(output_paths.keys()),
+                    }
+                    stage_logger = WandbLogger(
+                        node_cfg, stage=node.stage,
+                        run_id=wandb_run_id, run_config=stage_run_config,
+                    )
+                    stage_logger.start()
+                    context.logger = stage_logger
                     try:
                         _sanitize_cuda_visible_devices(reason=f"node:{node.key}")
                         _log_gpu_environment(reason=f"node:{node.key}")
                         result = runner.run(context)
+                        # Log completion metrics
+                        stage_duration = time.time() - node_start
+                        try:
+                            stage_logger.set_summary(f"{node.stage}/status", "completed")
+                        except Exception:
+                            pass
+                        stage_logger.log_metrics({
+                            f"{node.stage}/duration_s": stage_duration,
+                            f"{node.stage}/rows_processed": result.metadata.get("rows", 0),
+                        })
                     except Exception as exc:
                         _print_status({"node": node.key, "stage": node.stage, "status": "failed", "error": str(exc)})
+                        try:
+                            stage_logger.set_summary(f"{node.stage}/status", "failed")
+                            stage_logger.set_summary(f"{node.stage}/error", str(exc))
+                        except Exception:
+                            pass
                         raise
+                    finally:
+                        stage_logger.finish()
                 
                 registry.register_outputs(node.key, result.outputs)
                 duration = time.time() - node_start

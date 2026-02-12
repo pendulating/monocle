@@ -23,7 +23,7 @@ columns:
 image_path: /share/ju/nexar_data/2023/2023-08-20/604222321527357439/frames
 
 # Default prompt for all images (can be overridden by per-image prompts in parquet)
-default_prompt: "What urban planning features are visible in this dashcam image?"
+default_prompt: "Does this image show more than a foot of standing water?"
 
 # Optional: Explicitly specify metadata columns to load from parquet
 # If not specified, all non-standard columns will be loaded automatically

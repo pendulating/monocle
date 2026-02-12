@@ -1,0 +1,14 @@
+{
+  "exclude": [
+    "data/**",
+    "outputs/**",
+    "logs/**",
+    "logs/**",
+    "multirun/**",
+    "wandb/**",
+    "log/**",
+    "logs/**",
+    "global_subset/**",
+    "global_subset/**",
+  ]
+}

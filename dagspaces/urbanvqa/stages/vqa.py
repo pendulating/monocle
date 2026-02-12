@@ -15,7 +15,9 @@ import os
 import base64
 import logging
 import re
+import copy
 from io import BytesIO
+from pathlib import Path
 from omegaconf import DictConfig
 
 # Import numpy for array checking
@@ -36,7 +38,9 @@ from ..prompts.unified import preprocess_simple
 
 try:
     import ray  # noqa: F401
-    from ray.data.llm import build_llm_processor, vLLMEngineProcessorConfig  # type: ignore
+    from ray.data.llm import build_processor, vLLMEngineProcessorConfig  # type: ignore
+    # Alias for call sites that haven't been updated yet
+    build_llm_processor = build_processor
     _RAY_OK = True
 except Exception:
     _RAY_OK = False
@@ -53,6 +57,131 @@ MODEL_ZOO_BASE = "/share/pierson/matt/zoo/models"
 
 # vLLM logging state
 _VLLM_LOGS_SILENCED = False
+_DEFAULT_IMAGE_PROMPT = "What do you see in this image?"
+_DEBUG_PREVIEW_LIMIT = 5
+_DEBUG_PREVIEW_COUNTER = 0
+
+# Suppress multiprocessing resource tracker warnings at module import time
+# and install the resilient tracker patch for all processes.
+try:
+    import warnings
+    import os
+    from ..resource_tracker_patch import apply_patch as _apply_resource_tracker_patch
+
+    _apply_resource_tracker_patch()
+
+    if "PYTHONWARNINGS" not in os.environ:
+        os.environ["PYTHONWARNINGS"] = "ignore::UserWarning:multiprocessing.resource_tracker"
+
+    warnings.filterwarnings(
+        "ignore",
+        message="resource_tracker: process died unexpectedly",
+        category=UserWarning,
+        module="multiprocessing.resource_tracker",
+    )
+    warnings.filterwarnings(
+        "ignore",
+        message=".*resource_tracker.*",
+        category=UserWarning,
+        module="multiprocessing",
+    )
+except Exception:
+    pass
+
+
+def _debug_log(event: str, payload: Dict[str, Any], cfg: Optional[DictConfig] = None, force: bool = False) -> None:
+    """Emit structured debug logs when runtime.debug is enabled."""
+    try:
+        if not force:
+            if cfg is not None:
+                runtime_cfg = getattr(cfg, "runtime", None)
+                if runtime_cfg is not None and not getattr(runtime_cfg, "debug", False):
+                    return
+        payload_out = {}
+        for k, v in payload.items():
+            if isinstance(v, np.ndarray):
+                payload_out[k] = "<ndarray>"
+            else:
+                payload_out[k] = v
+        print(
+            json.dumps(
+                {
+                    "vqa_debug": {
+                        "event": event,
+                        "payload": payload_out,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                }
+            ),
+            flush=True,
+        )
+    except Exception:
+        pass
+
+
+def _resolve_default_prompt(cfg: DictConfig) -> str:
+    """Resolve the default prompt for image-only inputs."""
+    try:
+        data_cfg = getattr(cfg, "data", None)
+        candidate = getattr(data_cfg, "default_prompt", None) if data_cfg is not None else None
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate.strip()
+    except Exception:
+        pass
+    return _DEFAULT_IMAGE_PROMPT
+
+
+def _sanitize_identifier(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        candidate = value.strip()
+    else:
+        candidate = str(value).strip()
+    if not candidate or candidate.lower() in {"nan", "none"}:
+        return None
+    return candidate
+
+
+def _normalize_path_value(path_val: Any) -> Optional[str]:
+    if path_val is None:
+        return None
+    path_str = str(path_val).strip()
+    return path_str or None
+
+
+def _derive_sample_id_from_path(path_val: Optional[str]) -> Optional[str]:
+    if not path_val:
+        return None
+    base_name = os.path.basename(path_val.rstrip("/"))
+    if not base_name:
+        sanitized = re.sub(r"[^a-zA-Z0-9_]", "_", path_val.strip("/"))
+        return sanitized or None
+    stem, _ = os.path.splitext(base_name)
+    candidate = stem or base_name
+    sanitized = re.sub(r"[^a-zA-Z0-9_]", "_", candidate)
+    return sanitized or None
+
+
+def _resolve_row_sample_id(row: Dict[str, Any]) -> Optional[str]:
+    existing = _sanitize_identifier(row.get("sample_id"))
+    if existing:
+        return existing
+    for key in ("image_path", "path"):
+        sample = _derive_sample_id_from_path(_normalize_path_value(row.get(key)))
+        if sample:
+            return sample
+    return None
+
+
+def _sanitize_prompt_value(value: Any, cfg: DictConfig) -> str:
+    if value is None:
+        return _resolve_default_prompt(cfg)
+    if isinstance(value, str):
+        sanitized = value.strip()
+    else:
+        sanitized = str(value).strip()
+    return sanitized or _resolve_default_prompt(cfg)
 
 
 def _ensure_numpy_image_value(image: Any, sample_id: Optional[str] = None) -> "np.ndarray":
@@ -273,11 +402,24 @@ def _resolve_model_path(model_source: str) -> str:
     return model_source
 
 
+def _is_cambrian_model(model_source: str) -> bool:
+    """Detect if model is a Cambrian model.
+    
+    Args:
+        model_source: Model path/name
+        
+    Returns:
+        True if Cambrian model detected
+    """
+    model_lower = str(model_source).lower()
+    return "cambrian" in model_lower
+
+
 def _is_multimodal_model(model_source: str, cfg: Optional[Any] = None) -> bool:
     """Detect if model supports multimodal inputs.
     
     Checks:
-    1. Model name patterns (e.g., "Qwen2.5-VL", "InternVL", "Phi-3.5-vision")
+    1. Model name patterns (e.g., "Qwen2.5-VL", "InternVL", "Phi-3.5-vision", "Cambrian")
     2. Explicit config flag: runtime.multimodal_enabled
     3. Model config metadata (if available)
     4. Config.json in model directory for local models
@@ -325,6 +467,7 @@ def _is_multimodal_model(model_source: str, cfg: Optional[Any] = None) -> bool:
         r"CLIP",
         r"vision",
         r"multimodal",
+        r"cambrian",
     ]
     
     model_lower = model_source.lower()
@@ -360,32 +503,113 @@ def _maybe_silence_vllm_logs() -> None:
         pass
 
 
+# Import shared multiprocessing utilities
+from ..multiprocessing_utils import get_suppress_child_warnings
+
+
+def _suppress_multiprocessing_warnings(cfg: Optional[DictConfig] = None) -> None:
+    """Suppress multiprocessing resource tracker warnings that occur during worker shutdown.
+    
+    Args:
+        cfg: Optional configuration object. If provided, checks runtime.suppress_child_warnings.
+            If not provided or config is True, suppresses warnings.
+    
+    These warnings are harmless and occur when worker processes terminate unexpectedly
+    during Ray Data MapBatches operations. The resource tracker tries to clean up
+    resources that were already cleaned up or never registered, causing UserWarnings
+    and KeyError exceptions that don't impact functionality.
+    """
+    suppress = get_suppress_child_warnings(cfg)
+    if suppress:
+        # Set environment variable and call worker setup hook to ensure warnings are suppressed
+        import os
+        os.environ["URBANVQA_SUPPRESS_WARNINGS"] = "true"
+        from ..multiprocessing_utils import _worker_process_setup_hook
+        _worker_process_setup_hook()
+    else:
+        # Ensure environment variable is set to false if suppression is disabled
+        import os
+        os.environ["URBANVQA_SUPPRESS_WARNINGS"] = "false"
+
+
 def _ensure_ray_init(cfg) -> None:
-    """Initialize Ray with SLURM-aware CPU and memory limits."""
+    """Initialize Ray with SLURM-aware CPU and memory limits.
+
+    Delegates to the unified ``ensure_ray_init`` in ``multiprocessing_utils``
+    which also applies ``DataContext`` resource limits after ``ray.init()``.
+    """
+    try:
+        from ..multiprocessing_utils import ensure_ray_init
+        ensure_ray_init(cfg, caller="run_vqa_stage")
+    except Exception:
+        # Minimal fallback
+        try:
+            import ray  # type: ignore
+            if not ray.is_initialized():
+                ray.init(log_to_driver=True)
+        except Exception:
+            pass
+
+
+def _apply_ray_data_resource_limits(cfg) -> None:
+    """Apply Ray Data execution resource limits to the current DataContext.
+
+    This function is IDEMPOTENT and safe to call whether or not Ray was
+    initialised by a different caller (e.g. the orchestrator).  It reads
+    the object-store size from the same 3-priority hierarchy used by
+    ``_ensure_ray_init`` and caps the streaming-executor budget at 80% of
+    that value via **both** ``ctx.execution_options.resource_limits`` and
+    ``ctx.override_object_store_memory_limit_fraction``.
+
+    Both knobs are required because ``ResourceManager.get_global_limits()``
+    computes::
+
+        effective = MIN(resource_limits, physical_store * fraction)
+
+    Setting only ``resource_limits`` leaves the fraction at 0.5, so the
+    effective budget is capped at ``physical_store * 0.5`` regardless of
+    what we request.  Setting the fraction ensures the denominator in the
+    MIN is at least as large as our ``resource_limits`` value.
+
+    Must be called **after** ``ray.init()`` and **before** any dataset
+    materialisation (``processor(ds)``, ``ds.iter_batches()``, etc.).
+    """
     try:
         import ray  # type: ignore
         if not ray.is_initialized():
-            # Detect SLURM CPU allocation
+            return  # nothing to configure yet
+
+        # ── Detect SLURM CPU allocation ──────────────────────────────────
+        cpus_alloc = None
+        try:
+            cpt = os.environ.get("SLURM_CPUS_PER_TASK")
+            if cpt is not None and str(cpt).strip() != "":
+                cpus_alloc = int(cpt)
+            else:
+                con = os.environ.get("SLURM_CPUS_ON_NODE")
+                if con is not None and str(con).strip() != "":
+                    cpus_alloc = _parse_cpus_on_node(con)
+        except Exception:
             cpus_alloc = None
+
+        # ── Object store size (3-priority hierarchy) ─────────────────────
+        obj_store_bytes = None
+
+        # Priority 1: RAY_OBJECT_STORE_MEMORY env var (absolute bytes)
+        try:
+            _env_obj_store = os.environ.get("RAY_OBJECT_STORE_MEMORY")
+            if _env_obj_store is not None and str(_env_obj_store).strip():
+                obj_store_bytes = int(str(_env_obj_store).strip())
+        except Exception:
+            pass
+
+        # Priority 2: cfg.runtime.object_store_proportion (0.0-1.0)
+        if obj_store_bytes is None:
             try:
-                cpt = os.environ.get("SLURM_CPUS_PER_TASK")
-                if cpt is not None and str(cpt).strip() != "":
-                    cpus_alloc = int(cpt)
-                else:
-                    con = os.environ.get("SLURM_CPUS_ON_NODE")
-                    if con is not None and str(con).strip() != "":
-                        cpus_alloc = _parse_cpus_on_node(con)
-            except Exception:
-                cpus_alloc = None
-            # Prefer proportion of system memory when available; fallback to job_memory_gb.
-            obj_store_bytes = None
-            try:
-                # Allow explicit override via cfg.runtime.object_store_proportion (0.0-1.0)
                 prop = getattr(cfg.runtime, "object_store_proportion", None)
                 prop = float(prop) if prop is not None else None
             except Exception:
                 prop = None
-            # Honor env proportion if set and no explicit override provided
             try:
                 if prop is None:
                     env_prop = os.environ.get("RAY_DEFAULT_OBJECT_STORE_MEMORY_PROPORTION")
@@ -396,48 +620,100 @@ def _ensure_ray_init(cfg) -> None:
             if prop is not None and 0.0 < prop <= 0.95:
                 try:
                     total_bytes = _effective_total_memory_bytes()
-                    if total_bytes:
+                    if total_bytes and total_bytes > 0:
                         obj_store_bytes = int(total_bytes * float(prop))
                 except Exception:
                     obj_store_bytes = None
-            if obj_store_bytes is None:
-                try:
-                    # Prefer SLURM job mem if available to avoid using full node memory
-                    slurm_bytes = _detect_slurm_job_mem_bytes()
-                    if slurm_bytes > 0:
-                        job_mem_gb = max(1, int(slurm_bytes / (1024 ** 3)))
-                    else:
-                        job_mem_gb = int(getattr(cfg.runtime, "job_memory_gb", 64) or 64)
-                except Exception:
-                    job_mem_gb = 64
-                try:
-                    job_mem_gb = int(getattr(cfg.runtime, "job_memory_gb", 64) or 64)
-                except Exception:
-                    job_mem_gb = 64
-                try:
-                    obj_store_bytes = int(max(1, job_mem_gb) * (1024 ** 3) * 0.90)
-                except Exception:
-                    obj_store_bytes = int(64 * (1024 ** 3) * 0.90)
+
+        # Priority 3: fallback to 30% of job_memory_gb
+        if obj_store_bytes is None:
             try:
-                if cpus_alloc is not None and int(cpus_alloc) > 0:
-                    ray.init(log_to_driver=True, object_store_memory=int(obj_store_bytes), num_cpus=int(cpus_alloc))
-                else:
-                    ray.init(log_to_driver=True, object_store_memory=int(obj_store_bytes))
+                job_mem_gb = int(getattr(cfg.runtime, "job_memory_gb", 64) or 64)
             except Exception:
-                # Best-effort fallback: let Ray auto-init
-                try:
-                    ray.init(log_to_driver=True)
-                except Exception:
-                    pass
-            # Constrain Ray Data CPU limits to SLURM allocation when available
+                job_mem_gb = 64
             try:
-                if cpus_alloc is not None and int(cpus_alloc) > 0:
-                    ctx = ray.data.DataContext.get_current()
-                    ctx.execution_options.resource_limits = ctx.execution_options.resource_limits.copy(cpu=int(cpus_alloc))
+                obj_store_bytes = int(max(1, job_mem_gb) * (1024 ** 3) * 0.30)
             except Exception:
-                pass
-    except Exception:
-        pass
+                obj_store_bytes = int(64 * (1024 ** 3) * 0.30)
+
+        # ── Apply limits to DataContext ───────────────────────────────────
+        ctx = ray.data.DataContext.get_current()
+        desired_budget = None
+        limits_kwargs = {}
+        if cpus_alloc is not None and int(cpus_alloc) > 0:
+            limits_kwargs["cpu"] = int(cpus_alloc)
+        if obj_store_bytes is not None and int(obj_store_bytes) > 0:
+            # Use 80 % of the allocated object store for the streaming
+            # pipeline (up from the default ~50 %).  The remaining 20 %
+            # is headroom for non-Data Ray objects (e.g. actor refs).
+            desired_budget = int(int(obj_store_bytes) * 0.80)
+            limits_kwargs["object_store_memory"] = desired_budget
+        if limits_kwargs:
+            ctx.execution_options.resource_limits = (
+                ctx.execution_options.resource_limits.copy(**limits_kwargs)
+            )
+
+        # ── Override the object-store fraction ────────────────────────────
+        # ResourceManager.get_global_limits() computes:
+        #     effective = MIN(resource_limits, physical_store * fraction)
+        # The physical object store size is reported by Ray cluster_resources
+        # as "object_store_memory".  We need `fraction` high enough so that
+        # `physical_store * fraction >= desired_budget`.
+        # We query the physical size and compute the needed fraction, capping
+        # at 0.95 for safety.  If the query fails, 0.85 is a safe default.
+        _fraction = 0.85  # sensible default
+        try:
+            cluster_res = ray.cluster_resources()
+            physical_obj_store = cluster_res.get("object_store_memory", 0)
+            if physical_obj_store > 0 and desired_budget is not None and desired_budget > 0:
+                # fraction such that physical * fraction >= desired_budget,
+                # with a 5 pp margin so the MIN doesn't clip us.
+                _fraction = min(0.95, max(0.5, desired_budget / physical_obj_store + 0.05))
+        except Exception:
+            pass
+        ctx.override_object_store_memory_limit_fraction = _fraction
+
+        _obj_budget_gb = round(limits_kwargs.get("object_store_memory", 0) / (1024 ** 3), 2) if limits_kwargs.get("object_store_memory") else "unset"
+        print(
+            f"[_apply_ray_data_resource_limits] "
+            f"object_store_memory budget={_obj_budget_gb} GB, "
+            f"cpu={limits_kwargs.get('cpu', 'unset')}, "
+            f"obj_store_fraction={_fraction:.2f}, "
+            f"source={'RAY_OBJECT_STORE_MEMORY env' if os.environ.get('RAY_OBJECT_STORE_MEMORY') else 'heuristic'}",
+            flush=True,
+        )
+
+        # ── Block-size tuning ─────────────────────────────────────────────
+        # For multimodal / image-heavy workloads, each row can be 3–32 MB
+        # (decoded RGB pixels).  The default 128 MB cap fragments blocks to
+        # 4–40 rows, far below vLLM's batch_size of 64.  map_batches only
+        # SPLITS blocks, never MERGES, so small blocks → small vLLM batches
+        # → wasted GPU cycles.
+        #
+        # We set a large target (2 GB) so that every operator's
+        # BlockOutputBuffer keeps at least ~64 image rows per block.
+        # With 3 MB images → ~682 rows/block; with 32 MB images → ~64.
+        # Memory safety is still governed by the resource_limits budget
+        # above, not by block-size splitting.
+        #
+        # NOTE: Do NOT use None here — that disables splitting entirely,
+        # causing _load_images_batch to accumulate millions of decoded
+        # images into a single block and OOM / hang.
+        ctx.target_max_block_size = 2 * 1024 * 1024 * 1024  # 2 GB
+        ctx.target_min_block_size = 1 * 1024 * 1024  # 1 MB (merge tiny blocks)
+
+        # ── Silence noisy high-memory issue-detector warnings ──────────
+        # Ray Data's issue detectors warn about per-task memory usage for
+        # Map(_preprocess), ChatTemplateUDF, and vLLMEngineStageUDF.
+        # These are expected for image-heavy workloads and just clutter
+        # the logs.  Disable the detectors entirely.
+        try:
+            ctx.issue_detectors_config.detectors = []
+        except Exception:
+            pass
+
+    except Exception as exc:
+        print(f"[_apply_ray_data_resource_limits] Warning: {exc}", flush=True)
 
 
 def _detect_num_gpus() -> int:
@@ -603,16 +879,18 @@ def _filter_vllm_engine_kwargs(ek: Dict[str, Any]) -> Dict[str, Any]:
 
 def _convert_image_to_base64(image_source: Any, row: Dict[str, Any] = None) -> Optional[str]:
     """Convert numpy array image to base64 string (PyArrow-serializable).
-    
-    CRITICAL: This function does NOT modify the original image_source.
-    It works on a copy to ensure ray.data.read_images() images are never tampered with.
-    
-    ray.data.read_images() already provides numpy arrays in consistent format - no checks needed.
-    
+
+    .. deprecated::
+        No longer used in the primary preprocessing path.
+        ``preprocess_simple`` now passes PIL Images directly via
+        ``{"type": "image", "image": pil_img}`` in messages, which Ray Data
+        LLM's PrepareImageStage forwards to vLLM with zero encode/decode
+        overhead.  Kept for backward compatibility with non-standard callers.
+
     Args:
         image_source: Numpy array from ray.data.read_images() (read-only, never modified)
         row: Optional row dict (unused, kept for compatibility)
-        
+
     Returns:
         Base64 string with data URI prefix, or None if conversion fails
     """
@@ -657,6 +935,54 @@ def _normalize_sampling_params(sp: Dict[str, Any]) -> Dict[str, Any]:
     return sp_normalized
 
 
+def _ensure_json_schema_dict(schema: Any) -> Optional[Dict[str, Any]]:
+    """Convert OmegaConf/DictConfig schemas into a plain Python dict."""
+    if schema is None:
+        return None
+    if isinstance(schema, DictConfig):
+        from omegaconf import OmegaConf
+
+        try:
+            return OmegaConf.to_container(schema, resolve=True)
+        except Exception:
+            return None
+    if isinstance(schema, dict):
+        return copy.deepcopy(schema)
+    return None
+
+
+def _extract_enum_choices(schema: Any) -> Optional[List[str]]:
+    """Recursively extract enum choices from a JSON schema."""
+    if isinstance(schema, dict):
+        enum_val = schema.get("enum")
+        if isinstance(enum_val, (list, tuple)):
+            choices = [
+                str(item) for item in enum_val if isinstance(item, (str, int, float))
+            ]
+            if choices:
+                return choices
+        for value in schema.values():
+            choices = _extract_enum_choices(value)
+            if choices:
+                return choices
+    elif isinstance(schema, list):
+        for item in schema:
+            choices = _extract_enum_choices(item)
+            if choices:
+                return choices
+    return None
+
+
+def _build_guided_decoding_config(schema: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """Build the guided decoding config payload expected by vLLM."""
+    if not schema:
+        return None
+    choices = _extract_enum_choices(schema)
+    if choices:
+        return {"choice": choices}
+    return {"json": schema}
+
+
 def render_prompt_template(template_str: str, context: Dict[str, Any]) -> str:
     """Render Jinja2 template with variable substitution.
     
@@ -680,17 +1006,18 @@ def render_prompt_template(template_str: str, context: Dict[str, Any]) -> str:
 
 def _prepare_image_content(image: Any, sample_id: str = None) -> Dict[str, Any]:
     """Prepare image content in vLLM-compatible OpenAI chat format.
-    
-    CRITICAL: This function does NOT modify the original image.
-    It uses _convert_image_to_base64 which works on a copy.
-    
-    Simplified approach: Only handles numpy arrays from ray.data.read_images().
-    Converts numpy arrays to base64 strings for PyArrow compatibility.
-    
+
+    .. deprecated::
+        The primary preprocessing path (``preprocess_simple``) now passes PIL
+        Images directly via ``{"type": "image", "image": pil_img}``.  This
+        function is only still called by the advanced prompting techniques in
+        ``techniques.py`` (CoT, ReAct, etc.) and the hierarchical / decision-tree
+        code paths.  It can be migrated to the PIL passthrough in a future PR.
+
     Args:
         image: Numpy array from ray.data.read_images() (read-only, never modified)
         sample_id: Optional sample ID for error messages
-        
+
     Returns:
         Dictionary with 'type': 'image_url' and base64 string (PyArrow-serializable!)
     """
@@ -747,24 +1074,47 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
     Returns:
         DataFrame with columns: sample_id, prompt, answer, model_response, metadata
     """
+    # Suppress multiprocessing resource tracker warnings early
+    _suppress_multiprocessing_warnings(cfg)
+    
     # Ensure Ray is initialized
     _ensure_ray_init(cfg)
+    
+    # ── Apply Ray Data resource limits unconditionally ────────────────
+    # _ensure_ray_init may be a no-op if the orchestrator already called
+    # _ensure_ray_init_with_cpu_limits (which does NOT set resource_limits).
+    # _apply_ray_data_resource_limits is idempotent and ensures the
+    # streaming executor budget is always configured, regardless of who
+    # started Ray.
+    _apply_ray_data_resource_limits(cfg)
     
     # Enable fallback to Arrow object extension types for PIL Images and other complex objects
     # This allows Ray Data to handle PIL Images in messages structure without Arrow conversion errors
     if _RAY_OK:
         try:
             from ray.data import DataContext
-            DataContext.get_current().enable_fallback_to_arrow_object_ext_type = True
+            ctx = DataContext.get_current()
+            ctx.enable_fallback_to_arrow_object_ext_type = True
         except Exception:
             pass  # Continue if DataContext not available
     
-    # Streaming path: if a Ray Dataset is passed, use it end-to-end
+    # 1. Detect prompt override
+    user_template = getattr(cfg.prompt, "user_template", "")
+    has_override = user_template and user_template != "{{prompt}}"
+    if has_override:
+        logging.info(f"Using prompt override from config: {user_template[:100]}...")
+
+    # Handle Ray Dataset input if provided
     is_ray_ds = hasattr(df, "map_batches") and hasattr(df, "count") and _RAY_OK
     
     if not is_ray_ds:
         if df is None or len(df) == 0:
             return pd.DataFrame(columns=["sample_id", "prompt", "answer"])
+        
+        # Apply prompt override to Pandas DataFrame if not already using streaming
+        if has_override:
+            df["prompt"] = user_template
+
         # Convert to Ray Dataset for processing
         if not _RAY_OK:
             raise RuntimeError("Ray is required for VQA stage but not available")
@@ -777,6 +1127,34 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         ds = ray.data.from_pandas(df)
     else:
         ds = df
+    
+    try:
+        is_ray_dataset = hasattr(ds, "take")
+        preview_payload: Dict[str, Any] = {
+            "is_ray_dataset": is_ray_dataset,
+            "object_type": type(ds).__name__,
+            "has_prompt_override": has_override,
+            "overridden_prompt_preview": user_template[:100] if has_override else None
+        }
+        if is_ray_dataset:
+            try:
+                sample_preview = ds.take(1)
+                sanitized_sample = []
+                for item in sample_preview:
+                    sanitized_sample.append(
+                        {
+                            k: "<ndarray>" if isinstance(v, np.ndarray) else v
+                            for k, v in item.items()
+                        }
+                    )
+                preview_payload["sample"] = sanitized_sample
+            except Exception as exc:
+                preview_payload["sample_error"] = str(exc)
+        else:
+            preview_payload["rows"] = len(ds) if hasattr(ds, "__len__") else None
+        _debug_log("vqa_stage_dataset_ready", preview_payload, cfg, force=True)
+    except Exception:
+        pass
     
     if np is None:
         raise RuntimeError("NumPy is required for VQA stage but is not available.")
@@ -869,11 +1247,68 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
                 json_schema = getattr(structured_output_config, "json_schema", None)
     except Exception:
         pass
+
+    json_schema = _ensure_json_schema_dict(json_schema)
+    if structured_output_enabled and not json_schema:
+        structured_output_enabled = False
+    guided_decoding_payload = _build_guided_decoding_config(json_schema)
     
     # Resolve model path
     model_source_raw = getattr(cfg.model, "model_source", "")
     resolved_model_source = _resolve_model_path(model_source_raw)
     is_multimodal = _is_multimodal_model(resolved_model_source, cfg)
+    
+    # Check if this is a Cambrian model requiring specialized handling
+    if _is_cambrian_model(resolved_model_source):
+        # Cambrian-13B is not Transformers-native and requires a persistent processor with a sidecar.
+        # We delegate the entire inference task to PersistentCambrianProcessor.
+        try:
+            from .persistent_cambrian import PersistentCambrianProcessor
+            
+            # If input is already a Ray Dataset, materialize it to pandas as required by Cambrian processor
+            if is_ray_ds:
+                # SAFETY: If the dataset has an 'image' column (decoded pixels), we MUST drop it
+                # before calling to_pandas() to avoid a fatal OOM on large datasets.
+                # The Cambrian sidecar will load images lazily from paths.
+                if "image" in ds.schema().names:
+                    logging.info("Dropping 'image' column from Ray Dataset before pandas conversion for Cambrian")
+                    ds = ds.drop_columns(["image"])
+                df_input = ds.to_pandas()
+                
+                # Apply prompt override to the materialized DataFrame
+                if has_override:
+                    logging.info("Applying prompt override to materialized Cambrian input")
+                    df_input["prompt"] = user_template
+            else:
+                df_input = df
+                # Prompt override already applied to df above for non-ray-ds case
+            
+            # Pass prompts from config if provided (supports prompt_override_path)
+            system_prompt = getattr(cfg.prompt, "system", "")
+            user_template = getattr(cfg.prompt, "user_template", "")
+            
+            # If user_template is just "{{prompt}}", we let the sidecar use row["prompt"]
+            if user_template == "{{prompt}}":
+                user_template = ""
+            
+            # Initialize and run Cambrian processor
+            processor = PersistentCambrianProcessor.get_or_create(cfg)
+            results_df = processor.evaluate(
+                df_input, 
+                system_prompt=system_prompt,
+                user_template=user_template,
+                cfg=cfg
+            )
+            
+            # Re-wrap in Ray Dataset if we started with one (for pipeline compatibility)
+            if is_ray_ds:
+                return ray.data.from_pandas(results_df)
+            return results_df
+            
+        except Exception as e:
+            import traceback
+            logging.error(f"Failed to run Cambrian inference: {e}\n{traceback.format_exc()}")
+            raise RuntimeError(f"Cambrian inference failed: {e}") from e
     
     # Build engine config
     engine_kwargs = getattr(cfg.model, "engine_kwargs", {})
@@ -892,7 +1327,11 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         cfg
     )
     
-    batch_size = gpu_settings.get("batch_size", getattr(cfg.model, "batch_size", 16))
+    # Prefer explicit config batch_size; fall back to GPU-aware default only when
+    # the config does not specify one (OmegaConf raises on missing keys, so use
+    # getattr with a sentinel to distinguish "set" from "absent").
+    _cfg_batch = getattr(cfg.model, "batch_size", None)
+    batch_size = _cfg_batch if _cfg_batch is not None else gpu_settings.get("batch_size", 16)
     concurrency = getattr(cfg.model, "concurrency", 1)
     
     # Get tensor parallelism size
@@ -902,24 +1341,69 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         # concurrency should match number of model replicas, not total GPU count
         concurrency = max(1, num_gpus // tp_val)
     
-    # Runtime environment
+    # Runtime environment for vLLM engine
+    # NOTE: worker_process_setup_hook is set at ray.init() time, not here
+    # to avoid serialization issues when passing runtime_env to vLLMEngineProcessorConfig
     runtime_env_vars = {}
     hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
     if hf_token:
         runtime_env_vars["HF_TOKEN"] = hf_token
     
+    # Conditionally add warning suppression env var based on config
+    suppress_warnings = get_suppress_child_warnings(cfg)
+    if suppress_warnings:
+        runtime_env_vars["URBANVQA_SUPPRESS_WARNINGS"] = "true"
+    else:
+        runtime_env_vars["URBANVQA_SUPPRESS_WARNINGS"] = "false"
+    
+    # Build runtime_env with only env_vars (no worker_process_setup_hook)
+    # The hook is set at ray.init() time in _ensure_ray_init()
+    runtime_env = {}
+    if runtime_env_vars:
+        runtime_env["env_vars"] = runtime_env_vars
+    
     accelerator_type = getattr(cfg.model, "accelerator_type", None)
     
+    # ── CPU-stage concurrency ────────────────────────────────────────
+    # ChatTemplateUDF loads the Qwen2VL image processor and is the
+    # fastest stage in the pipeline (~45 img/s per actor).  vLLM is the
+    # slowest (~6-7 img/s per GPU).  With 4 ChatTemplate actors vs 4
+    # vLLM actors the 7× production surplus fills the object store to
+    # 80+ GiB during the ~2 min CUDA-graph-capture phase (when vLLM
+    # consumes zero rows).  2 actors still produce ~90 img/s — well
+    # above the ~25-30 img/s vLLM steady-state rate — but halve the
+    # burst.  DetokenizeUDF is lightweight text work; 2 actors is plenty.
+    cpu_stage_pool = max(1, concurrency // 4)  # 1 for 4 GPUs, 2 for 8
+    # Use an explicit (min, max) tuple for concurrency to pin the actor
+    # pool size exactly.  Passing a bare int N causes Ray Data to create
+    # an autoscaling pool (1, 2*N) for CPU stages, which triggers the
+    # "configured utilization threshold couldn't be reached" warning and
+    # leads to actor churn.
     engine_config = vLLMEngineProcessorConfig(
         model_source=resolved_model_source,
         engine_kwargs=engine_kwargs,
-        concurrency=concurrency,
+        concurrency=(concurrency, concurrency),
         batch_size=batch_size,
-        tokenize=False,  # Let vLLM handle tokenization to avoid Ray TokenizeUDF Arrow/PIL conversions
-        apply_chat_template=False,  # Skip Ray ChatTemplateStage; we already supply final messages
-        has_image=is_multimodal,
+        # NOTE: Do NOT set experimental.max_tasks_in_flight_per_actor.
+        # The default (4) via DEFAULT_MAX_TASKS_IN_FLIGHT is correct.
+        # Setting it to 8 to "match max_concurrent_batches" was tried
+        # and HURT throughput: it queued 8 batches per actor during CUDA
+        # capture, producing 20-73 s first-batch latencies and increasing
+        # pipeline buffering without improving GPU utilisation (vLLM's
+        # continuous-batching scheduler saturates the GPU regardless of
+        # how many Ray Data tasks are dispatched).
+        #
+        # ── CPU-stage configs ─────────────────────────────────────────
+        # Fixed tuple (N, N) prevents the autoscaler from tearing down
+        # and respawning ChatTemplateUDF / DetokenizeUDF actors.
+        chat_template_stage={"concurrency": (cpu_stage_pool, cpu_stage_pool)},
+        tokenize_stage=False,
+        detokenize_stage={"concurrency": (cpu_stage_pool, cpu_stage_pool)},
+        # PrepareImageStage disabled — images flow via messages dict.
+        # Use the non-deprecated field (has_image triggers a warning).
+        prepare_image_stage=False,
         accelerator_type=accelerator_type,
-        runtime_env={"env_vars": runtime_env_vars} if runtime_env_vars else None,
+        runtime_env=runtime_env if runtime_env else None,
     )
     
     # Preprocessing function - use unified framework
@@ -934,13 +1418,33 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         """
         import logging
         
+        _suppress_multiprocessing_warnings(cfg)
         _maybe_silence_vllm_logs()
         
         # Use unified preprocessing framework
         from dagspaces.urbanvqa.prompts.unified import unified_preprocess
         
+        row_values = dict(row)
+        # Ensure prompt and sample identifiers are available for downstream processing
+        row_values["prompt"] = _sanitize_prompt_value(row_values.get("prompt"), cfg)
+        resolved_sample_id = _resolve_row_sample_id(row_values)
+        if resolved_sample_id is not None:
+            row_values["sample_id"] = resolved_sample_id
+
+        global _DEBUG_PREVIEW_COUNTER
+        if getattr(getattr(cfg, "runtime", None), "debug", False) and _DEBUG_PREVIEW_COUNTER < _DEBUG_PREVIEW_LIMIT:
+            _DEBUG_PREVIEW_COUNTER += 1
+            _debug_log(
+                "pre_row_input",
+                {
+                    key: row_values.get(key)
+                    for key in ("sample_id", "prompt", "image_path", "path")
+                },
+                cfg,
+            )
+        
         unified_result = unified_preprocess(
-            row, cfg, is_multimodal,
+            row_values, cfg, is_multimodal,
             hierarchical_enabled, decision_tree_enabled
         )
         
@@ -951,7 +1455,7 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
             # preprocess_simple will read from row["image"] but we don't include it in lightweight_row
             lightweight_row = {}
             excluded_cols = {"image", "image_array", "image_data", "path", "messages", "sampling_params"}
-            for k, v in row.items():
+            for k, v in row_values.items():
                 if k in excluded_cols:
                     continue
                 # Only include simple, serializable types (NO image column)
@@ -965,13 +1469,10 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
                         lightweight_row[k] = v
                 elif k in {"image_path", "image_url", "image_base64"} and isinstance(v, str):
                     lightweight_row[k] = v
-            lightweight_row["prompt"] = str(row.get("prompt", "")).strip()
-            # Pass original row to preprocess_simple so it can read image, but result won't include it
-            result = preprocess_simple(row, cfg, is_multimodal)
-            
-            # DEBUG: Log result
-            if result and "image" in result:
-                logging.error(f"[_pre] RESULT HAS IMAGE COLUMN! This should NOT happen!")
+            lightweight_row["prompt"] = str(row_values.get("prompt", "")).strip()
+            # preprocess_simple returns messages, sampling_params, and
+            # the "image" column (list of PIL Images) for vLLMEngineStage.
+            result = preprocess_simple(row_values, cfg, is_multimodal)
             return result
         
         # If unified preprocessing returns messages, use them
@@ -980,49 +1481,53 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
             sp_local = dict(unified_result.get("sampling_params", sampling_params_vqa))
             # Normalize sampling params to ensure stop is a list
             sp_local = _normalize_sampling_params(sp_local)
-            if structured_output_enabled and json_schema:
+            if guided_decoding_payload:
                 try:
-                    schema_json_str = json.dumps(json_schema, ensure_ascii=False)
-                    sp_local["guided_decoding"] = {"json": schema_json_str}
+                    sp_local["guided_decoding"] = copy.deepcopy(guided_decoding_payload)
                 except Exception:
-                    pass
+                    sp_local["guided_decoding"] = guided_decoding_payload
             
-            # BEST PRACTICE: Return ONLY messages, sampling_params, and lightweight metadata
-            # Ray Data LLM's preprocess function should completely replace the row
-            # PIL Images inside messages are handled specially by Ray Data LLM
+            # Return messages, sampling_params, the image column (for
+            # vLLMEngineStage), and lightweight metadata.
             result = {
                 "messages": unified_result["messages"],
                 "sampling_params": sp_local,
             }
-            
-            # Only include lightweight, serializable metadata (strings, numbers)
-            # These will be preserved through the pipeline and available in postprocess
-            for key in ["sample_id", "prompt"]:
-                if key in row and isinstance(row[key], (str, int, float, type(None))):
-                    result[key] = row[key]
+
+            # Carry through the image column from preprocess_simple.
+            # With PrepareImageStage disabled (prepare_image_stage=False), this is
+            # the ONLY path for PIL Images to reach vLLMEngineStage.
+            if "image" in unified_result:
+                result["image"] = unified_result["image"]
+
+            # Preserve ALL lightweight, serializable metadata (strings, numbers)
+            # These will be preserved through the pipeline and available in postprocess.
+            # This ensures columns like image_path, recording_id, face, latitude,
+            # longitude, etc. survive preprocessing and appear in the output
+            # DataFrame / wandb table.
+            _excluded_metadata = {"image", "image_array", "image_data", "path",
+                                  "messages", "sampling_params"}
+            for key, val in row_values.items():
+                if key in _excluded_metadata:
+                    continue
+                if isinstance(val, (str, int, float, type(None))):
+                    result[key] = val
+                elif isinstance(val, dict):
+                    if all(isinstance(vv, (str, int, float, type(None))) for vv in val.values()):
+                        result[key] = val
+                elif isinstance(val, list):
+                    if all(isinstance(vv, (str, int, float, type(None))) for vv in val):
+                        result[key] = val
             
             # Add timestamp as metadata
             result["ts_start"] = datetime.now().timestamp()
             
-            # DEBUG: Log result structure
-            result_keys = list(result.keys())
-            result_types = {k: type(v).__name__ for k, v in result.items()}
-            if "image" in result:
-                logging.error(f"[_pre] RESULT HAS IMAGE COLUMN! This should NOT happen! keys={result_keys}, types={result_types}")
-            else:
-                logging.info(f"[_pre] Result has no image column: keys={result_keys}, types={result_types}")
-            
             return result
         
-        # Fallback: use simple preprocessing
-        # CRITICAL: Do NOT filter or modify image column - pass original row but result won't include image
-        # preprocess_simple will read from row["image"] but won't include it in return value
-        result = preprocess_simple(row, cfg, is_multimodal)
-        
-        # DEBUG: Log result
-        if result and "image" in result:
-            logging.error(f"[_pre] RESULT HAS IMAGE COLUMN! This should NOT happen!")
-        
+        # Fallback: use simple preprocessing.
+        # preprocess_simple returns messages, sampling_params, and the
+        # "image" column (list of PIL Images) for vLLMEngineStage.
+        result = preprocess_simple(row_values, cfg, is_multimodal)
         return result
     
     # Postprocessing function - use unified framework
@@ -1034,6 +1539,17 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         unified_result = unified_postprocess(
             row, cfg, hierarchical_enabled, decision_tree_enabled
         )
+
+        if getattr(getattr(cfg, "runtime", None), "debug", False):
+            _debug_log(
+                "post_row_output",
+                {
+                    "sample_id": row.get("sample_id"),
+                    "generated_text": row.get("generated_text"),
+                    "usage": row.get("usage"),
+                },
+                cfg,
+            )
         
         # Merge with structured output parsing
         ts_end = datetime.now().timestamp()
@@ -1117,28 +1633,73 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         ds_results = _process_decision_tree_prompts(
             ds, cfg, engine_config, decision_tree_config,
             system_prompt, sampling_params_vqa, is_multimodal,
-            structured_output_enabled, json_schema
+            structured_output_enabled, json_schema, guided_decoding_payload
         )
     elif hierarchical_enabled and hierarchical_steps:
         # Use hierarchical processing
         ds_results = _process_hierarchical_prompts(
-            ds, cfg, engine_config, hierarchical_steps, 
+            ds, cfg, engine_config, hierarchical_steps,
             system_prompt, sampling_params_vqa, is_multimodal,
-            structured_output_enabled, json_schema
+            structured_output_enabled, json_schema, guided_decoding_payload
         )
     else:
         # Use standard processing
         # BEST PRACTICE: According to Ray Data LLM docs, preprocess should return ONLY messages and sampling_params
         # The preprocess function completely replaces the row - Ray Data LLM does NOT merge with original columns
-        processor = build_llm_processor(engine_config, preprocess=_pre, postprocess=_post)
+        #
+        # _pre converts the row's numpy image → PIL and builds messages.
+        # When images are already loaded via map_batches in the orchestrator,
+        # _pre is lightweight (~1 MB working set per row).  The fallback
+        # path loads from image_path on disk, which is heavier but still
+        # bounded by the block size from the upstream operator.
+        #
+        # preprocess_map_kwargs tells Ray Data how much memory each
+        # preprocess task uses, preventing the scheduler from launching
+        # too many concurrent tasks and causing OOM / spilling.
+        processor = build_processor(
+            engine_config,
+            preprocess=_pre,
+            postprocess=_post,
+            preprocess_map_kwargs={"num_cpus": 0.5},
+        )
+        _debug_log(
+            "processor_built",
+            {
+                "engine_has_image": False,  # PrepareImageStage disabled; images flow via result["image"]
+                "engine_concurrency": concurrency,
+                "engine_batch_size": batch_size,
+            },
+            cfg,
+            force=True,
+        )
         ds_results = processor(ds)
+        debug_enabled = getattr(getattr(cfg, "runtime", None), "debug", False)
+        if debug_enabled and not is_ray_ds:
+            try:
+                preview = ds_results.take(1)
+                sanitized = []
+                for item in preview:
+                    sanitized.append(
+                        {
+                            k: "<ndarray>" if isinstance(v, np.ndarray) else v
+                            for k, v in item.items()
+                        }
+                    )
+                _debug_log("post_processor_preview", {"preview": sanitized}, cfg)
+            except Exception as exc:
+                _debug_log("post_processor_preview_error", {"error": str(exc)}, cfg)
+        elif debug_enabled and is_ray_ds:
+            _debug_log("post_processor_preview_skipped_streaming", {}, cfg)
     
     # Convert back to pandas if needed
     if is_ray_ds:
+        if getattr(getattr(cfg, "runtime", None), "debug", False):
+            _debug_log("ray_results_count_skipped_streaming", {}, cfg, force=True)
         return ds_results
     
     # Materialize and convert to pandas
     df_results = ds_results.to_pandas()
+    _debug_log("final_dataframe", {"rows": len(df_results), "columns": list(df_results.columns)}, cfg, force=True)
     return df_results
 
 
@@ -1146,7 +1707,8 @@ def _process_hierarchical_prompts(
     ds, cfg: DictConfig, engine_config: vLLMEngineProcessorConfig,
     steps: List[Dict[str, Any]], system_prompt: str,
     sampling_params_vqa: Dict[str, Any], is_multimodal: bool,
-    structured_output_enabled: bool, json_schema: Optional[Dict[str, Any]]
+    structured_output_enabled: bool, json_schema: Optional[Dict[str, Any]],
+    guided_decoding_payload: Optional[Dict[str, Any]]
 ):
     """Process hierarchical prompts by executing steps sequentially."""
     # Group steps by execution order
@@ -1220,12 +1782,11 @@ def _process_hierarchical_prompts(
                 sp_local = dict(sampling_params_vqa)
                 # Normalize sampling params to ensure stop is a list
                 sp_local = _normalize_sampling_params(sp_local)
-                if structured_output_enabled and json_schema:
+                if guided_decoding_payload:
                     try:
-                        schema_json_str = json.dumps(json_schema, ensure_ascii=False)
-                        sp_local["guided_decoding"] = {"json": schema_json_str}
+                        sp_local["guided_decoding"] = copy.deepcopy(guided_decoding_payload)
                     except Exception:
-                        pass
+                        sp_local["guided_decoding"] = guided_decoding_payload
                 
                 # CRITICAL: Only return messages, sampling_params, and lightweight metadata
                 # Do NOT include image columns or complex objects
@@ -1316,10 +1877,10 @@ def _process_hierarchical_prompts(
                 return result
             
             # Process this step
-            step_processor = build_llm_processor(
+            step_processor = build_processor(
                 engine_config,
                 preprocess=_pre_hierarchical,
-                postprocess=_post_hierarchical
+                postprocess=_post_hierarchical,
             )
             current_ds = step_processor(current_ds)
         
@@ -1372,12 +1933,11 @@ def _process_hierarchical_prompts(
                     sp_local = dict(sampling_params_vqa)
                     # Normalize sampling params to ensure stop is a list
                     sp_local = _normalize_sampling_params(sp_local)
-                    if structured_output_enabled and json_schema:
+                    if guided_decoding_payload:
                         try:
-                            schema_json_str = json.dumps(json_schema, ensure_ascii=False)
-                            sp_local["guided_decoding"] = {"json": schema_json_str}
+                            sp_local["guided_decoding"] = copy.deepcopy(guided_decoding_payload)
                         except Exception:
-                            pass
+                            sp_local["guided_decoding"] = guided_decoding_payload
                     
                     # CRITICAL: Only return messages, sampling_params, and lightweight metadata
                     # Do NOT include image columns or complex objects
@@ -1465,10 +2025,10 @@ def _process_hierarchical_prompts(
                     
                     return result
                 
-                step_processor = build_llm_processor(
+                step_processor = build_processor(
                     engine_config,
                     preprocess=_pre_parallel,
-                    postprocess=_post_parallel
+                    postprocess=_post_parallel,
                 )
                 current_ds = step_processor(current_ds)
     
@@ -1528,7 +2088,8 @@ def _process_decision_tree_prompts(
     ds, cfg: DictConfig, engine_config: vLLMEngineProcessorConfig,
     tree_config: DictConfig, system_prompt: str,
     sampling_params_vqa: Dict[str, Any], is_multimodal: bool,
-    structured_output_enabled: bool, json_schema: Optional[Dict[str, Any]]
+    structured_output_enabled: bool, json_schema: Optional[Dict[str, Any]],
+    guided_decoding_payload: Optional[Dict[str, Any]]
 ):
     """Process decision tree prompts by traversing tree based on model responses."""
     from dagspaces.urbanvqa.prompts.decision_tree import DecisionTree
@@ -1703,12 +2264,11 @@ def _process_decision_tree_prompts(
             sp_local = dict(sampling_params_vqa)
             # Normalize sampling params to ensure stop is a list
             sp_local = _normalize_sampling_params(sp_local)
-            if structured_output_enabled and json_schema:
+            if guided_decoding_payload:
                 try:
-                    schema_json_str = json.dumps(json_schema, ensure_ascii=False)
-                    sp_local["guided_decoding"] = {"json": schema_json_str}
+                    sp_local["guided_decoding"] = copy.deepcopy(guided_decoding_payload)
                 except Exception:
-                    pass
+                    sp_local["guided_decoding"] = guided_decoding_payload
             
             # CRITICAL: Only return messages, sampling_params, and lightweight metadata
             # Do NOT include image columns or complex objects
@@ -1845,10 +2405,10 @@ def _process_decision_tree_prompts(
             return result
         
         # Process this depth level
-        step_processor = build_llm_processor(
+        step_processor = build_processor(
             engine_config,
             preprocess=_pre_tree_node,
-            postprocess=_post_tree_node
+            postprocess=_post_tree_node,
         )
         
         current_ds = step_processor(current_ds)

@@ -1,0 +1,24 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+# User prompt template (prompt from data column is inserted here)
+user_prompt: |-
+  Analyze and estimate the deepest floodwater level of the image. The estimated floodwater level should be one of the following:
+  - Level 0: 0 cm,
+  - Level 1: 1-15 cm,
+  - Level 2: 16-40 cm,
+  - Level 3: 41-60 cm,
+  - Level 4: 61-100 cm.
+  Give the answer with brief and reasonable explanations. If the floodwater level is Level 1 or higher, answer Yes. Otherwise, answer No.
+
+# Future: Support for hierarchical prompts
+# hierarchical:
+#   enabled: false
+#   steps:
+#     - type: "observation"
+#       prompt: "First, describe what you see in the image."
+#     - type: "reasoning"
+#       prompt: "Based on your observation, {{reasoning_prompt}}"
+#     - type: "answer"
+#       prompt: "Finally, answer: {{prompt}}"

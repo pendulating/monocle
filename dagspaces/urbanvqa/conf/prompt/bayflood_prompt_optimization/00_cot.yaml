@@ -1,0 +1,19 @@
+
+
+
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+user_prompt: |-
+  Examine the image and determine whether it shows standing water of at least one foot in depth.
+  To do this:
+
+  Identify visible water-covered areas.
+
+  Use contextual cues (e.g., submerged vehicles, curbs, steps, or people) to estimate water depth.
+
+  Identify whether the water depth is at least one foot.
+  Answer Yes or No.
+
+

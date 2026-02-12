@@ -1,0 +1,53 @@
+# Top-level Hydra config for Urban OCR
+# Text spotting pipeline using Qwen3-VL
+
+defaults:
+  - _self_
+  - data: cyclomedia
+  - model: qwen3_vl_30b_ocr
+  - prompt: text_spotting
+  - optional pipeline: ocr_batch
+
+experiment:
+  name: URBANOCR
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  max_errored_blocks: 0
+  streaming_io: true
+  job_memory_gb: 64
+  suppress_child_warnings: true
+
+# Tiling configuration for large images (e.g., 8192x8192 Cyclomedia faces)
+tiling:
+  enabled: true             # Enable automatic tiling
+  tile_size: 1024           # Size of each tile (square)
+  overlap: 64               # Overlap between tiles (catches text at boundaries)
+  max_dimension: 2048       # Tile images larger than this in any dimension
+
+# OCR-specific sampling parameters
+sampling_params_ocr:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 4096  # OCR can produce long outputs
+  stop: []
+
+wandb:
+  enabled: true
+  project: ${oc.env:WANDB_PROJECT,URBANOCR}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 1000
+  single_run: true
+
+hydra:
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+

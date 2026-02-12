@@ -1,5 +1,14 @@
 [project]
-name = "uair"
+name = "mllmsci"
 version = "0.1.0"
-requires-python = ">=3.12"
-dependencies = []
+requires-python = "==3.11.14"
+dependencies = [
+    "hydra-core>=1.3.2",
+    "ninja>=1.13.0",
+    "packaging>=26.0",
+    "psutil>=7.2.2",
+    "ray>=2.53.0",
+    "setuptools>=80.10.2",
+    "vllm>=0.15.1",
+]
+    

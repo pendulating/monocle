@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GEPA BayFlood Prompt Evolution (Dec 2, 2025)</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .diff-timeline {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e2e;
+            color: #cdd6f4;
+        }
+        .diff-timeline h1 {
+            color: #89b4fa;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .iteration-card {
+            background: #313244;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #89b4fa;
+        }
+        .iteration-card.improved {
+            border-left-color: #a6e3a1;
+        }
+        .iteration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .iteration-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #89b4fa;
+        }
+        .score-badge {
+            background: #45475a;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .score-badge.improved {
+            background: #a6e3a1;
+            color: #1e1e2e;
+        }
+        .prompt-text {
+            background: #45475a;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.6;
+        }
+        .diff-section {
+            margin-top: 15px;
+        }
+        .diff-label {
+            font-size: 0.85em;
+            color: #a6adc8;
+            margin-bottom: 8px;
+        }
+        .diff-content {
+            background: #11111b;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .diff-add {
+            background: rgba(166, 227, 161, 0.2);
+            color: #a6e3a1;
+        }
+        .diff-del {
+            background: rgba(243, 139, 168, 0.2);
+            color: #f38ba8;
+            text-decoration: line-through;
+        }
+        .diff-line {
+            display: block;
+            padding: 2px 5px;
+        }
+        .arrow-connector {
+            text-align: center;
+            font-size: 2em;
+            color: #6c7086;
+            margin: 10px 0;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #313244;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #89b4fa;
+        }
+        .stat-label {
+            color: #a6adc8;
+            font-size: 0.9em;
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #89b4fa, #a6e3a1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .dashboard-header .subtitle {
+            color: #6c7086;
+            margin-top: 10px;
+        }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .section {
+            background: #1e1e2e;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .section-title {
+            font-size: 1.5em;
+            color: #89b4fa;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #313244;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #313244;
+            border: none;
+            border-radius: 8px;
+            color: #cdd6f4;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            background: #45475a;
+        }
+        .tab.active {
+            background: #89b4fa;
+            color: #1e1e2e;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .best-prompt-box {
+            background: #313244;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .best-prompt-label {
+            color: #a6e3a1;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .best-prompt-text {
+            font-family: 'SF Mono', monospace;
+            background: #1e1e2e;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>GEPA BayFlood Prompt Evolution (Dec 2, 2025)</h1>
+        <div class="subtitle">
+            13 iterations | 
+            Best Score: 0.6215 |
+            Component: user_prompt
+        </div>
+    </div>
+    
+    <div class="dashboard-container">
+        <!-- Fitness Chart Section -->
+        <div class="section">
+            <div class="section-title">📈 Fitness Convergence</div>
+            <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="8a775998-41ce-413b-8bf1-e8df78776554" class="plotly-graph-div" style="height:700px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("8a775998-41ce-413b-8bf1-e8df78776554")) {                    Plotly.newPlot(                        "8a775998-41ce-413b-8bf1-e8df78776554",                        [{"customdata":["","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima...","You are a helpful assistant that answers questions about images accurately and concisely. Your prima..."],"hovertemplate":"\u003cb\u003eIteration %{x}\u003c\u002fb\u003e\u003cbr\u003eScore: %{y:.4f}\u003cbr\u003ePrompt: %{customdata}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#636EFA","width":2},"marker":{"size":8},"mode":"lines+markers","name":"Current Score","x":[0,1,2,3,4,5,6,7,8,9,10,11,12],"y":[0.0,0.6012145748987854,0.6093117408906883,null,null,0.6093117408906883,null,0.6214574898785425,0.6093117408906883,null,0.6093117408906883,null,null],"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003eIteration %{x}\u003c\u002fb\u003e\u003cbr\u003eBest Score: %{y:.4f}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#00CC96","dash":"dash","width":3},"mode":"lines","name":"Best So Far","x":[0,1,2,3,4,5,6,7,8,9,10,11,12],"y":[0.0,0.6012145748987854,0.6093117408906883,0.6093117408906883,0.6093117408906883,0.6093117408906883,0.6093117408906883,0.6214574898785425,0.6214574898785425,0.6214574898785425,0.6214574898785425,0.6214574898785425,0.6214574898785425],"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003eNew Best!\u003c\u002fb\u003e\u003cbr\u003eIteration %{x}\u003cbr\u003eScore: %{y:.4f}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#EF553B","size":14,"symbol":"star"},"mode":"markers","name":"New Best Found","x":[0,1,2,7],"y":[0.0,0.6012145748987854,0.6093117408906883,0.6214574898785425],"type":"scatter","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003eIteration %{x}\u003c\u002fb\u003e\u003cbr\u003eDelta: %{y:.4f}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":["#636EFA","#00CC96","#00CC96","#636EFA","#636EFA","#636EFA","#636EFA","#636EFA","#EF553B","#636EFA","#636EFA","#636EFA","#636EFA"]},"name":"Score Delta","x":[0,1,2,3,4,5,6,7,8,9,10,11,12],"y":[0,0.6012145748987854,0.00809716599190291,0,0,0,0,0,-0.012145748987854255,0,0,0,0],"type":"bar","xaxis":"x2","yaxis":"y2"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0]},"yaxis":{"anchor":"x","domain":[0.384,1.0],"title":{"text":"F1 Score"}},"xaxis2":{"anchor":"y2","domain":[0.0,1.0],"title":{"text":"Iteration"}},"yaxis2":{"anchor":"x2","domain":[0.0,0.264],"title":{"text":"\u0394 Score"}},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Validation Score","x":0.5,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Score Delta from Previous","x":0.5,"xanchor":"center","xref":"paper","y":0.264,"yanchor":"bottom","yref":"paper"},{"arrowcolor":"#00CC96","arrowhead":2,"font":{"color":"#00CC96","size":12},"showarrow":true,"text":"Best: 0.6215","x":12,"xref":"x","y":0.6214574898785425,"yref":"y"}],"shapes":[{"line":{"color":"gray","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x2 domain","y0":0,"y1":0,"yref":"y2"}],"title":{"text":"GEPA Prompt Evolution - Fitness Over Iterations","x":0.5,"xanchor":"center"},"legend":{"orientation":"h","yanchor":"bottom","y":1.02,"xanchor":"right","x":1},"height":700,"showlegend":true,"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+        </div>
+        
+        <!-- Sankey Flow Section -->
+        <div class="section">
+            <div class="section-title">🔀 Candidate Flow</div>
+            <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="d75e34c8-3327-425c-a8e0-b59425965e47" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("d75e34c8-3327-425c-a8e0-b59425965e47")) {                    Plotly.newPlot(                        "d75e34c8-3327-425c-a8e0-b59425965e47",                        [{"link":{"color":["rgba(166, 227, 161, 0.4)","rgba(166, 227, 161, 0.4)","rgba(166, 227, 161, 0.4)","rgba(137, 180, 250, 0.3)","rgba(137, 180, 250, 0.3)","rgba(166, 227, 161, 0.4)","rgba(137, 180, 250, 0.3)","rgba(166, 227, 161, 0.4)","rgba(166, 227, 161, 0.4)","rgba(137, 180, 250, 0.3)","rgba(166, 227, 161, 0.4)","rgba(137, 180, 250, 0.3)"],"source":[0,1,2,3,4,5,6,7,8,9,10,11],"target":[1,2,3,4,5,6,7,8,9,10,11,12],"value":[1,1,1,0.5,0.5,1,0.5,1,1,0.5,1,0.5]},"node":{"color":["rgba(166, 227, 161, 0.8)","rgba(166, 227, 161, 0.8)","rgba(166, 227, 161, 0.8)","rgba(137, 180, 250, 0.8)","rgba(137, 180, 250, 0.8)","rgba(166, 227, 161, 0.8)","rgba(137, 180, 250, 0.8)","rgba(166, 227, 161, 0.8)","rgba(166, 227, 161, 0.8)","rgba(137, 180, 250, 0.8)","rgba(166, 227, 161, 0.8)","rgba(137, 180, 250, 0.8)","rgba(137, 180, 250, 0.8)"],"label":["Iter 0\nImproved\n(0.000)","Iter 1\nImproved\n(0.601)","Iter 2\nImproved\n(0.609)","Iter 3\nMaintained","Iter 4\nMaintained","Iter 5\nImproved\n(0.609)","Iter 6\nMaintained","Iter 7\nImproved\n(0.621)","Iter 8\nImproved\n(0.609)","Iter 9\nMaintained","Iter 10\nImproved\n(0.609)","Iter 11\nMaintained","Iter 12\nMaintained"],"line":{"color":"white","width":1},"pad":20,"thickness":30,"x":[0.0,0.08333333333333333,0.16666666666666666,0.25,0.3333333333333333,0.4166666666666667,0.5,0.5833333333333334,0.6666666666666666,0.75,0.8333333333333334,0.9166666666666666,1.0],"y":[0.2,0.2,0.2,0.5,0.5,0.2,0.5,0.2,0.2,0.5,0.2,0.5,0.5]},"type":"sankey"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"Prompt Candidate Flow","x":0.5,"xanchor":"center"},"font":{"size":12,"family":"SF Mono, Consolas, monospace"},"height":500},                        {"responsive": true}                    )                };            </script>        </div>
+        </div>
+        
+        <!-- Prompt Evolution Section -->
+        <div class="section">
+            <div class="section-title">📝 Prompt Evolution Timeline</div>
+            <div class="diff-timeline">
+    <h1>Prompt Evolution Timeline</h1>
+    
+    <div class="summary-stats">
+        <div class="stat-card">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Prompt Versions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">13</div>
+            <div class="stat-label">Total Iterations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">0.6215</div>
+            <div class="stat-label">Best Score</div>
+        </div>
+    </div>
+
+
+    <div class="iteration-card">
+        <div class="iteration-header">
+            <span class="iteration-number">Seed Prompt</span>
+            <span class="score-badge">Score: N/A</span>
+        </div>
+        <div class="prompt-text"></div>
+
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="iteration-card improved">
+        <div class="iteration-header">
+            <span class="iteration-number">Iteration 1</span>
+            <span class="score-badge improved">Score: 0.6012</span>
+        </div>
+        <div class="prompt-text">You are a helpful assistant that answers questions about images accurately and concisely. Your primary task is to determine whether flooding is present in a given image based on visual evidence. However, if no image is provided, you must clearly and directly state that you cannot analyze the image due to its absence. 
+
+Key guidelines:
+- If an image is provided and you can visually confirm flooding (e.g., standing water, submerged areas, water covering roads or buildings), respond with &quot;Yes.&quot;
+- If an image is provided and there is no visible sign of flooding (e.g., dry ground, no water accumulation, normal weather conditions), respond with &quot;No.&quot;
+- If no image is attached or referenced in the query, respond with &quot;No&quot; — this is a critical rule, as the expected answer in all cases where no image is provided is &quot;No,&quot; regardless of the assistant&#x27;s inability to analyze it. Do not provide explanations, disclaimers, or requests for image upload. The response must be a single word: &quot;Yes&quot; or &quot;No.&quot;
+- Do not include any additional text, such as &quot;I&#x27;m sorry,&quot; &quot;please upload,&quot; or &quot;I cannot determine.&quot; The response must be strictly one of the two words: &quot;Yes&quot; or &quot;No.&quot;
+
+This task is strictly binary and image-dependent. The assistant must not speculate, describe potential signs of flooding, or offer general advice. The only acceptable outputs are &quot;Yes&quot; or &quot;No,&quot; based on the presence or absence of a provided image and the visual content within it.</div>
+
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="iteration-card improved">
+        <div class="iteration-header">
+            <span class="iteration-number">Iteration 2</span>
+            <span class="score-badge improved">Score: 0.6093 (+0.0081)</span>
+        </div>
+        <div class="prompt-text">You are a helpful assistant that answers questions about images accurately and concisely. Your primary task is to determine whether flooding is present in a given image based on visual evidence. 
+
+Key guidelines:
+- If an image is provided and you can visually confirm flooding (e.g., standing water, submerged areas, water covering roads or buildings), respond with &quot;Yes.&quot;
+- If an image is provided and there is no visible sign of flooding (e.g., dry ground, no water accumulation, normal weather conditions), respond with &quot;No.&quot;
+- If no image is attached or referenced in the query, respond with &quot;No&quot; — this is a critical rule, as the expected answer in all cases where no image is provided is &quot;No,&quot; regardless of the assistant&#x27;s inability to analyze it. Do not provide explanations, disclaimers, or requests for image upload. The response must be a single word: &quot;Yes&quot; or &quot;No.&quot;
+- Do not include any additional text, such as &quot;I&#x27;m sorry,&quot; &quot;please upload,&quot; or &quot;I cannot determine.&quot; The response must be strictly one of the two words: &quot;Yes&quot; or &quot;No.&quot;
+
+This task is strictly binary and image-dependent. The assistant must not speculate, describe potential signs of flooding, or offer general advice. The only acceptable outputs are &quot;Yes&quot; or &quot;No,&quot; based on the presence or absence of a provided image and the visual content within it.</div>
+
+
+        <div class="diff-section">
+            <div class="diff-label">Changes from previous:</div>
+            <div class="diff-content">You are a helpful assistant that answers questions about images accurately and concisely. Your primary task is to determine whether flooding is present in a given image based on visual evidence. <span class="diff-del">However, if no image is provided, you must clearly and directly state that you cannot analyze the image due to its absence.</span> Key guidelines: - If an image is provided and you can visually confirm flooding (e.g., standing water, submerged areas, water covering roads or buildings), respond with "Yes." - If an image is provided and there is no visible sign of flooding (e.g., dry ground, no water accumulation, normal weather conditions), respond with "No." - If no image is attached or referenced in the query, respond with "No" — this is a critical rule, as the expected answer in all cases where no image is provided is "No," regardless of the assistant's inability to analyze it. Do not provide explanations, disclaimers, or requests for image upload. The response must be a single word: "Yes" or "No." - Do not include any additional text, such as "I'm sorry," "please upload," or "I cannot determine." The response must be strictly one of the two words: "Yes" or "No." This task is strictly binary and image-dependent. The assistant must not speculate, describe potential signs of flooding, or offer general advice. The only acceptable outputs are "Yes" or "No," based on the presence or absence of a provided image and the visual content within it.</div>
+        </div>
+
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="iteration-card improved">
+        <div class="iteration-header">
+            <span class="iteration-number">Iteration 7</span>
+            <span class="score-badge improved">Score: 0.6215 (+0.0121)</span>
+        </div>
+        <div class="prompt-text">You are a helpful assistant that answers questions about images accurately and concisely. Your primary task is to determine whether flooding is present in a given image based on visual evidence. The response must be strictly one of two words: &quot;Yes&quot; or &quot;No&quot;, with no additional text, explanations, disclaimers, or requests for image upload.
+
+Key guidelines:
+- If an image is provided and you can visually confirm flooding (e.g., standing water, submerged areas, water covering roads or buildings), respond with &quot;Yes&quot;.
+- If an image is provided and there is no visible sign of flooding (e.g., dry ground, no water accumulation, normal weather conditions), respond with &quot;No&quot;.
+- If no image is attached or referenced in the query, respond with &quot;No&quot; — this is a critical rule. Regardless of the assistant&#x27;s inability to analyze the image, the expected answer in all cases where no image is provided is &quot;No&quot;. This rule takes absolute precedence over any other consideration.
+
+The task is strictly binary and image-dependent. The assistant must not speculate, describe potential signs of flooding, or offer general advice. The only acceptable outputs are &quot;Yes&quot; or &quot;No&quot;, based on the presence or absence of a provided image and the visual content within it. The response must be a single word, with no punctuation, capitalization, or extra characters. The assistant must not generate any text beyond the single word &quot;Yes&quot; or &quot;No&quot;.</div>
+
+
+        <div class="diff-section">
+            <div class="diff-label">Changes from previous:</div>
+            <div class="diff-content">You are a helpful assistant that answers questions about images accurately and concisely. Your primary task is to determine whether flooding is present in a given image based on visual evidence. <span class="diff-add">The response must be strictly one of two words: &quot;Yes&quot; or &quot;No&quot;, with no additional text, explanations, disclaimers, or requests for image upload.</span> Key guidelines: - If an image is provided and you can visually confirm flooding (e.g., standing water, submerged areas, water covering roads or buildings), respond with <span class="diff-del">&quot;Yes.&quot;</span> <span class="diff-add">&quot;Yes&quot;.</span> - If an image is provided and there is no visible sign of flooding (e.g., dry ground, no water accumulation, normal weather conditions), respond with <span class="diff-del">&quot;No.&quot;</span> <span class="diff-add">&quot;No&quot;.</span> - If no image is attached or referenced in the query, respond with "No" — this is a critical <span class="diff-del">rule, as</span> <span class="diff-add">rule. Regardless of the assistant&#x27;s inability to analyze the image,</span> the expected answer in all cases where no image is provided is <span class="diff-del">&quot;No,&quot; regardless of the assistant&#x27;s inability to analyze it. Do not provide explanations, disclaimers, or requests for image upload. The response must be a single word: &quot;Yes&quot; or &quot;No.&quot; - Do not include</span> <span class="diff-add">&quot;No&quot;. This rule takes absolute precedence over</span> any <span class="diff-del">additional text, such as &quot;I&#x27;m sorry,&quot; &quot;please upload,&quot; or &quot;I cannot determine.&quot; The response must be strictly one of the two words: &quot;Yes&quot; or &quot;No.&quot; This</span> <span class="diff-add">other consideration. The</span> task is strictly binary and image-dependent. The assistant must not speculate, describe potential signs of flooding, or offer general advice. The only acceptable outputs are "Yes" or <span class="diff-del">&quot;No,&quot;</span> <span class="diff-add">&quot;No&quot;,</span> based on the presence or absence of a provided image and the visual content within it. <span class="diff-add">The response must be a single word, with no punctuation, capitalization, or extra characters. The assistant must not generate any text beyond the single word &quot;Yes&quot; or &quot;No&quot;.</span></div>
+        </div>
+
+    </div>
+
+</div>
+
+        </div>
+        
+        <!-- Best Prompt Section -->
+        <div class="section">
+            <div class="section-title">🏆 Final Best Prompt</div>
+            <div class="best-prompt-box">
+                <div class="best-prompt-label">Score: 0.6215</div>
+                <div class="best-prompt-text">You are a helpful assistant that answers questions about images accurately and concisely. Your primary task is to determine whether flooding is present in a given image based on visual evidence. The response must be strictly one of two words: &quot;Yes&quot; or &quot;No&quot;, with no additional text, explanations, disclaimers, or requests for image upload.
+
+Key guidelines:
+- If an image is provided and you can visually confirm flooding (e.g., standing water, submerged areas, water covering roads or buildings), respond with &quot;Yes&quot;.
+- If an image is provided and there is no visible sign of flooding (e.g., dry ground, no water accumulation, normal weather conditions), respond with &quot;No&quot;.
+- If no image is attached or referenced in the query, respond with &quot;No&quot; — this is a critical rule. Regardless of the assistant&#x27;s inability to analyze the image, the expected answer in all cases where no image is provided is &quot;No&quot;. This rule takes absolute precedence over any other consideration.
+
+The task is strictly binary and image-dependent. The assistant must not speculate, describe potential signs of flooding, or offer general advice. The only acceptable outputs are &quot;Yes&quot; or &quot;No&quot;, based on the presence or absence of a provided image and the visual content within it. The response must be a single word, with no punctuation, capitalization, or extra characters. The assistant must not generate any text beyond the single word &quot;Yes&quot; or &quot;No&quot;.</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabGroup = tab.closest('.tabs').dataset.group;
+                document.querySelectorAll(`[data-group="${tabGroup}"] .tab`).forEach(t => t.classList.remove('active'));
+                document.querySelectorAll(`.tab-content[data-group="${tabGroup}"]`).forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelector(`.tab-content[data-tab="${tab.dataset.tab}"]`).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+# @package _global_
+#
+# GEPA Prompt Optimization for BayFlood dataset
+# Using Qwen3-VL-30B-A3B-Instruct (MoE Vision-Language Model)
+#
+# Key differences from gepa_bayflood.yaml:
+#   - Uses larger Qwen3-VL-30B model for better visual understanding
+#   - Adjusted batch sizes for MoE memory patterns
+#   - Higher context capacity for more detailed prompts
+
+defaults:
+  - _self_
+  - /data: bayflood
+  - /model: vllm_multimodal_qwen3_vl_30b
+  - /prompt: vqa
+  - override /hydra/launcher: g2_slurm_pierson
+
+seed: 20251109
+
+prompt:
+  system: ""
+  # Template ignores the dataset's {{prompt}} and uses evolved text instead.
+  template: ""
+  structured_output:
+    enabled: true
+    json_schema:
+      type: object
+      properties:
+        answer:
+          type: string
+          enum: ["Yes", "No"]
+      required: ["answer"]
+      additionalProperties: false
+
+
+gepa:
+  mode: optimize
+  wandb_suffix: gepa_bayflood_qwen3vl30b
+  components:
+    - name: user_prompt
+      target: prompt.template
+  dataset:
+    train:
+      parquet_path: ${data.processed_root}/train/metadata.parquet
+      image_path: ${data.processed_root}/train/images
+      prompt_column: ${data.columns.prompt}
+      answer_column: expected_answer
+      stratify_by: expected_answer
+      # null = use ALL training data (~1971 images)
+      # This ensures reflection sees full training distribution
+      limit: null
+    val:
+      parquet_path: ${data.processed_root}/test/metadata.parquet
+      image_path: ${data.processed_root}/test/images
+      prompt_column: ${data.columns.prompt}
+      answer_column: expected_answer
+      stratify_by: expected_answer
+      # null = use ALL validation data (~494 images)  
+      # Every prompt candidate is scored on the complete validation set
+      limit: null
+  sampler:
+    # Smaller batch size due to larger model memory footprint
+    batch_size: 16
+    cache_dir: ${hydra:runtime.output_dir}/dataset_cache
+  metrics:
+    # NPV (Negative Predictive Value) = 1 - FOR
+    # Maximizing NPV minimizes False Omission Rate
+    # This prioritizes not missing actual floods (critical for imbalanced data)
+    primary: npv
+    secondary:
+      - precision  # Secondary: minimize false alarms
+      - f1
+      - accuracy
+      - false_omission_rate  # Track FOR directly for monitoring
+    # NPV = P(y=0|ŷ=0) = TN / (TN + FN) = 1 - FOR
+    # High NPV means: when we predict "No flood", we're usually right
+    # Maximizing NPV = Minimizing FOR = Rarely missing actual floods
+    npv:
+      reference_column: expected_answer
+      prediction_column: answer
+      positive_class: "Yes"
+    # P(y=1|ŷ=1) - When model predicts flooding, how often is there actually flooding?
+    # High precision = few false alarms (secondary priority)
+    precision:
+      reference_column: expected_answer
+      prediction_column: answer
+      positive_class: "Yes"
+    f1:
+      reference_column: expected_answer
+      prediction_column: answer
+    accuracy:
+      reference_column: expected_answer
+      prediction_column: answer
+    # P(y=1|ŷ=0) - When model predicts NO flooding, how often is there actually flooding?
+    # Low FOR = rarely miss actual floods (this is what NPV optimizes)
+    false_omission_rate:
+      reference_column: expected_answer
+      prediction_column: answer
+      positive_class: "Yes"
+  optimization:
+    # Budget calculation for full-data optimization:
+    # - Initial val eval: ~494 calls
+    # - Per iteration: reflection minibatch + val eval if accepted
+    # - Qwen3-VL-30B is slower per call, so fewer total iterations expected
+    max_metric_calls: 50000
+    # Smaller minibatch for larger model context overhead
+    # Qwen3-30B reflection can handle more tokens but VQA context is simpler
+    reflection_minibatch_size: 64
+    # Enable persistent vLLM processor to eliminate model teardown between iterations
+    # Critical for large models - avoids expensive reloading
+    persistent_processor: true
+    # Early stopping: halt optimization after N iterations without F1 improvement
+    # This prevents wasting compute when the prompt has converged
+    patience: 250
+    
+    # ===== MULTIMODAL REFLECTION =====
+    # When enabled, the reflection LLM will see actual images from the samples,
+    # not just text prompts and answers. Requires a vision-language model.
+    multimodal_reflection: true
+    # Maximum images to include per reflection call (to avoid context overflow)
+    reflection_max_images: 4
+    # Ratio of incorrect predictions in selected images (0.7 = 70% incorrect, 30% correct)
+    # This helps the reflector focus on failure cases while still seeing successes
+    reflection_incorrect_ratio: 0.7
+  artifacts:
+    base_dir: outputs/gepa/bayflood_qwen3vl30b
+  debug:
+    # Log false negatives (missed floods) after each full validation round
+    log_false_negatives: true
+    # Max FN images to upload to WandB per validation (bandwidth limit)
+    max_fn_images: 10
+  validation:
+    prompt_path: null
+    split: val
+    # null = validate on ALL data
+    limit: null
+    expected_score: null
+    tolerance: 0.01
+
+ray:
+  # Qwen3-VL-30B needs both GPUs for tensor parallelism
+  num_gpus: 2
+  num_cpus: 8
+  dataset_cache_dir: ${gepa.sampler.cache_dir}
+
+runtime:
+  # Higher memory for MoE model overhead
+  job_memory_gb: 48
+  sample_n: null
+  streaming_io: true
+  suppress_child_warnings: true
+  debug: false
+  output_root: null
+  ray_skip_module_upload: true
+  # CRITICAL: Enable multimodal mode for VLM inference
+  multimodal_enabled: true
+  image_fallback: false  # Fail if images can't be loaded
+
+vllm:
+  model_config: ${model.model_source}
+  engine:
+    concurrency: ${model.concurrency}
+    batch_size: ${model.batch_size}
+    tensor_parallel_size: ${oc.select:model.engine_kwargs.tensor_parallel_size,2}
+    enable_chunked_prefill: ${oc.select:model.engine_kwargs.enable_chunked_prefill,true}
+
+llm:
+  reflection:
+    provider: vllm
+    # IMPORTANT: For multimodal_reflection=true, use a Vision-Language model
+    # This must match the --served-model-name in run_qwen3vl30b_vllm.sub
+    # Start the reflection server: sbatch scripts/run_qwen3vl30b_vllm.sub
+    model: qwen3-vl-30b-reflection
+    api_base: http://localhost:8000/v1
+    api_key_env: null
+    headers: {}
+    request_timeout_s: 180  # Longer timeout for larger model
+    max_tokens: 32768
+    # Deterministic reflection: temperature=0.0 ensures reproducible prompt mutations
+    temperature: 0.0
+    seed: ${seed}
+
+wandb:
+  enabled: true
+  project: URBANVQA
+  entity: urbanekg
+  group: gepa_bayflood_qwen3vl30b
+  table_sample_rows: 1000
+
+

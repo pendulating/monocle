@@ -1,0 +1,35 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+# User prompt template (prompt from data column is inserted here)
+user_prompt: |-
+  As an expert in assessing floodwater levels from images, utilize your expertise and the provided guidelines to evaluate the floodwater level for each image.
+  Considerations:
+  1. Account for distractions in images.
+  2. Employ vehicles (cars, SUVs, and taxis, excluding buses and trucks) and people as primary references for assessing floodwater levels. Utilize additional indicators (water lines, water color, light reflection, etc.) when primary references are insufficient.
+  3. Floodwater levels are categorized as follows:
+  • Level 0: No water presence on the road.
+  • Level 1: Water depth up to 15 cm, does not submerge vehicle chassis or covering half of the wheels, or does not reach ankles.
+  • Level 2: Water depth between 16-40 cm, exceeding Level 1 but not submerging fully wheels, below the vehicle's front license plate, exhaust pipes, or not reaching knees.
+  • Level 3: Water depth between 41-60 cm, exceeding Level 2 but not reaching above the car's headlights, door handle, or not mid-thigh of people.
+  • Level 4: Water depth between 61-100 cm, exceeding Level 3 but not full submersion half of vehicle windows, or the car's bonnet, or people's waist.
+  4. Determine the highest floodwater level referenced in the image and report it as the image's floodwater level.
+  Procedure:
+  1. Reference Floodwater Level: List each reference's floodwater level with a brief explanation.
+  2. Image Floodwater Level: Identify the image's floodwater level.
+  3. Answer: If the floodwater level is Level 1 or higher, answer Yes. Otherwise, answer No.
+  Notes:
+  1. Ensure a comprehensive understanding of the guidelines before proceeding.
+  2. Follow the procedure strictly and answer concisely.
+
+# Future: Support for hierarchical prompts
+# hierarchical:
+#   enabled: false
+#   steps:
+#     - type: "observation"
+#       prompt: "First, describe what you see in the image."
+#     - type: "reasoning"
+#       prompt: "Based on your observation, {{reasoning_prompt}}"
+#     - type: "answer"
+#       prompt: "Finally, answer: {{prompt}}"

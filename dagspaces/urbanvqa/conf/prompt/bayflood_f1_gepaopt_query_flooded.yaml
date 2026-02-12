@@ -1,0 +1,31 @@
+# VQA Prompt Configuration
+
+system_prompt: ""
+
+user_prompt: 'You are tasked with analyzing images to determine whether they depict
+  a flooded street. Your response must be a concise, direct answer of either "Yes"
+  or "No" based solely on the visual evidence in the image.
+
+
+  Key considerations for your analysis:
+
+  - A flooded street is characterized by water covering the road surface to a significant
+  depth, often submerging parts of vehicles (e.g., wheels or lower body) or creating
+  visible puddles that impede normal traffic flow.
+
+  - The presence of rain, wet roads, or overcast skies does not automatically indicate
+  flooding; the water must be substantial enough to be considered a flood.
+
+  - Look for indicators such as water reaching the lower parts of cars, visible water
+  levels on the road, or traffic cones and signs indicating hazardous conditions due
+  to water.
+
+  - The perspective of the image (e.g., from inside a car, from a pedestrian viewpoint,
+  or a dashcam) does not change the criteria for determining flooding.
+
+
+  Your response should be strictly one word: "Yes" or "No". Do not provide explanations,
+  descriptions, or additional commentary. The answer must be based solely on the visual
+  content of the image.'
+
+

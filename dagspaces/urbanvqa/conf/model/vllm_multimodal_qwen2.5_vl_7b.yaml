@@ -4,7 +4,7 @@
 model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-7B-Instruct
 
 engine_kwargs:
-  tensor_parallel_size: 2  # Split across 2 GPUs
+  tensor_parallel_size: 1  # No need to split across 2 GPUs
   max_model_len: 4096  # Typical for VL models
   max_num_seqs: 4  # RTX A6000 default
   enable_chunked_prefill: true
@@ -27,6 +27,6 @@ engine_kwargs:
   enforce_eager: true  # Disable CUDA graphs for stability with tensor parallelism
   disable_custom_all_reduce: false  # Use custom all-reduce (can set to true if issues persist)
 
-batch_size: 8  # Adjust based on GPU memory
-concurrency: 1  # Match number of model replicas (2 GPUs / 2 TP = 1 replica)
+batch_size: 16  # Adjust based on GPU memory
+concurrency: 2  # Match number of model replicas (2 GPUs / 2 TP = 1 replica)
 

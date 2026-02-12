@@ -9,6 +9,9 @@ columns:
   
   # Optional: sample identifier
   sample_id: sample_id
+
+  # Optional: supervised answer column
+  expected_answer: expected_answer
   
   # Required: at least one image source
   image_path: image_path      # Path to local image files

@@ -1,0 +1,102 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - /data: vqa_inputs
+  - /model: vllm_multimodal
+  - /prompt: vqa
+  - override /hydra/launcher: g2_slurm_pierson
+
+seed: 20251109
+
+gepa:
+  mode: optimize
+  wandb_suffix: gepa_vqa
+  components:
+    - name: system_prompt
+      target: prompt.system
+    - name: user_prompt
+      target: prompt.template
+  dataset:
+    train:
+      parquet_path: ${data.parquet_path}
+      image_path: ${oc.select:data.image_path,null}
+      prompt_column: ${data.columns.prompt}
+      answer_column: expected_answer
+      stratify_by: expected_answer
+      limit: null
+    val:
+      parquet_path: ${data.parquet_path}
+      image_path: ${oc.select:data.image_path,null}
+      prompt_column: ${data.columns.prompt}
+      answer_column: expected_answer
+      stratify_by: expected_answer
+      limit: null
+  sampler:
+    batch_size: 64
+    cache_dir: ${hydra:runtime.output_dir}/dataset_cache
+  metrics:
+    primary: exact_match
+    exact_match:
+      reference_column: expected_answer
+      prediction_column: answer
+  optimization:
+    # max_metric_calls must exceed: validation_set_size + (iterations * minibatch_size)
+    max_metric_calls: 5000
+    reflection_minibatch_size: 3
+    # Enable persistent vLLM processor to eliminate model teardown between iterations
+    persistent_processor: true
+    # Multimodal reflection: when enabled, reflector sees actual images (requires VL model)
+    # Default: false for backward compatibility
+    multimodal_reflection: false
+    # Max images per reflection call (only used when multimodal_reflection=true)
+    reflection_max_images: 5
+    # Ratio of incorrect predictions in selected images (0.7 = 70% incorrect, 30% correct)
+    reflection_incorrect_ratio: 0.7
+  artifacts:
+    base_dir: outputs/gepa
+  debug:
+    # Log false negatives after each full validation round
+    log_false_negatives: true
+    # Max FN images to upload to WandB per validation (bandwidth limit)
+    max_fn_images: 20
+  validation:
+    prompt_path: null
+    split: val
+    limit: 64
+    expected_score: null
+    tolerance: 0.01
+
+ray:
+  num_gpus: 1
+  num_cpus: 4
+  dataset_cache_dir: ${gepa.sampler.cache_dir}
+
+vllm:
+  model_config: ${model.model_source}
+  engine:
+    concurrency: ${model.concurrency}
+    batch_size: ${model.batch_size}
+    tensor_parallel_size: ${oc.select:model.engine_kwargs.tensor_parallel_size,1}
+    enable_chunked_prefill: ${oc.select:model.engine_kwargs.enable_chunked_prefill,true}
+
+llm:
+  # NOTE: llm.task is deprecated - VQA inference uses cfg.model directly
+  reflection:
+    provider: vllm
+    model: ${vllm.model_config}
+    api_base: http://localhost:8000/v1
+    api_key_env: null
+    headers: {}
+    request_timeout_s: 120
+    max_tokens: 2048
+
+runtime:
+  job_memory_gb: 32
+  sample_n: null
+  streaming_io: true
+  suppress_child_warnings: true
+  debug: false
+  output_root: null
+  ray_skip_module_upload: true
+
