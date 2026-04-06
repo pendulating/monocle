@@ -1,0 +1,52 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_pairwise_manhattan_2025_1
+  - override /prompt: pairwise_relative_ordinal
+  - override /model: vllm_multimodal_qwen3_vl_2b
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+pair_sampler:
+  pair_seed: 777
+  max_pairs: null
+  allow_replacement: false
+  counterbalance_mode: balanced
+  repeat_count: 0
+  repeat_fraction: 0.0
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/cyclomedia_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 24
+          model.concurrency: 1
+          sampling_params_vqa.max_tokens: 24
+        launcher: slurm_gpu_4x
+        wandb_suffix: pairwise_cyclomedia_ordinal
+

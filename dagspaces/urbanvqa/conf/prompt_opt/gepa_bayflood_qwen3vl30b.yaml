@@ -13,7 +13,7 @@ defaults:
   - /data: bayflood
   - /model: vllm_multimodal_qwen3_vl_30b
   - /prompt: vqa
-  - override /hydra/launcher: g2_slurm_pierson
+  - override /hydra/launcher: slurm_gpu_2x
 
 seed: 20251109
 

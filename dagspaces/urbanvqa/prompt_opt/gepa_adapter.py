@@ -535,7 +535,7 @@ class GEPAVQAAdapter(GEPAAdapter):
             
             # Log to wandb if available
             try:
-                from dagspaces.urbanvqa.wandb_logger import WandbLogger
+                from dagspaces.common.wandb_logger import WandbLogger
                 import wandb
                 if wandb.run is not None:
                     # Prefix metrics with gepa/ for wandb

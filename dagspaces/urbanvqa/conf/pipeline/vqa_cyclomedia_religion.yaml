@@ -1,0 +1,62 @@
+# @package _global_
+# VQA Pipeline Configuration for Cyclomedia Scaffolding Detection
+# High-throughput binary classification of sidewalk scaffolding in Manhattan
+# Uses Qwen3-VL-2B-GPTQ (W4A16) at 512x512 for maximum throughput on A6000 GPUs
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_manhattan_2025_1
+  - override /prompt: dominant_religion
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false  # VQA requires images; fail if missing
+  batch_inference: true
+  streaming_io: true  # Required for large dataset (~2.16M images)
+  job_memory_gb: 600
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/societal/dominant_religion_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          model.model_source: /share/pierson/matt/zoo/models/Qwen3-VL-2B-Instruct
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.engine_kwargs.max_model_len: 2496  # 324 visual + 162 prompt + 16 output ≈ 502
+          model.engine_kwargs.max_num_batched_tokens: 16384
+          model.engine_kwargs.max_num_seqs: 144
+          model.engine_kwargs.limit_mm_per_prompt.image: 1
+          model.engine_kwargs.mm_processor_kwargs.max_pixels: 1048576  # 1024*1024
+          model.engine_kwargs.trust_remote_code: true
+          model.engine_kwargs.enforce_eager: false
+          model.engine_kwargs.disable_custom_all_reduce: false
+          model.engine_kwargs.enable_chunked_prefill: true
+          model.engine_kwargs.enable_prefix_caching: true
+          model.engine_kwargs.guided_decoding_backend: auto
+          model.concurrency: 6   # 1 vLLM replica per GPU
+          model.batch_size: 16   # per-replica batch; 6 tasks × 16 = 96 in-flight = max_num_seqs
+          # Cap output tokens -- structured JSON "{"answer":"Yes"}" is ~6 tokens
+          sampling_params_vqa.max_tokens: 32
+        launcher: slurm_gpu_6x
+        wandb_suffix: vqa_cyclomedia_religion
+
+# To test with a small sample:
+#   python -m dagspaces.urbanvqa.cli -m \
+#       pipeline=vqa_cyclomedia_religion \
+#       runtime.debug=true runtime.sample_n=64
+#
+# Full run:
+#   python -m dagspaces.urbanvqa.cli -m \
+#       pipeline=vqa_cyclomedia_religion \
+#       runtime.debug=false

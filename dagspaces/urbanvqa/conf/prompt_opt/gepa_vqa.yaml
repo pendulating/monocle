@@ -5,7 +5,7 @@ defaults:
   - /data: vqa_inputs
   - /model: vllm_multimodal
   - /prompt: vqa
-  - override /hydra/launcher: g2_slurm_pierson
+  - override /hydra/launcher: slurm_gpu_2x
 
 seed: 20251109
 

@@ -1,0 +1,63 @@
+# Top-level Hydra config for URBANPAIRVQA
+
+defaults:
+  - _self_
+  - data: cyclomedia_pairwise_manhattan_2025_1
+  - prompt: pairwise_relative_ordinal
+  - model: vllm_multimodal_qwen3_vl_2b
+  - optional pipeline: pairwise_cyclomedia_ordinal
+
+experiment:
+  name: URBANPAIRVQA
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  job_memory_gb: 64
+  # Debug/smoke option to skip model inference and emit deterministic labels.
+  skip_inference: false
+
+pair_sampler:
+  pair_seed: 777
+  max_pairs: null
+  allow_replacement: false
+  counterbalance_mode: none  # none|random|balanced
+  repeat_count: 0
+  repeat_fraction: 0.0
+
+diagnostics:
+  enabled: true
+  warn_majority_ratio: 0.90
+  warn_missing_answer_rate: 0.05
+
+pairwise:
+  stitch_max_height: 512
+  prepare_batch_size: 16
+
+sampling_params_vqa:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 32
+  stop: []
+
+wandb:
+  enabled: true
+  name_prefix: null
+  project: ${oc.env:WANDB_PROJECT,URBANPAIRVQA}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 1000
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}_${experiment.name}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+

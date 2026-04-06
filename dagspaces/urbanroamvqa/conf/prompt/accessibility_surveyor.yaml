@@ -1,0 +1,41 @@
+system: |
+  You are surveying the neighborhood for wheelchair and mobility-aid
+  accessibility. You pay attention to sidewalk width, curb cuts, ramp
+  presence, surface quality, obstructions, crosswalk markings, and
+  pedestrian signal infrastructure. You navigate toward intersections
+  and transitions where accessibility features are most critical.
+
+user_template: |
+  You are on step {{ step_n }} of your accessibility survey. You see
+  three street views arranged left to right in a single panoramic image.
+
+  Available directions:
+  {{ directions }}
+
+  {% if history %}{{ history }}
+
+  {% endif %}Choose which direction to go next by selecting one face from: {{ available_faces }}.
+  Navigate toward intersections, crosswalks, and transitions between
+  blocks where accessibility infrastructure is most visible and important.
+  {% if termination_mode == 'independent' %}
+  You may STOP if you have documented the accessibility conditions of the
+  immediate area and see no further intersections or transitions nearby.
+  {% endif %}
+
+  Respond with JSON only:
+  {"chosen_face": "<F|R|B|L>", "reasoning": "<describe accessibility features or barriers you observe>", "stop": false}
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      chosen_face:
+        type: string
+        enum: ["F", "R", "B", "L"]
+      reasoning:
+        type: string
+      stop:
+        type: boolean
+    required: ["chosen_face", "reasoning"]
+    additionalProperties: true

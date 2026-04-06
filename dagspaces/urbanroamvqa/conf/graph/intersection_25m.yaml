@@ -1,0 +1,10 @@
+# OSM-backed intersection graph with 25m subsampling
+graph_type: intersection
+yaw_column: recorderDirection          # reliable heading source (degrees)
+target_spacing_m: 25                   # along-edge subsampling target
+bearing_tolerance_deg: 45              # used by resolve_face_to_neighbor at runtime
+osm_place: "Manhattan, New York, USA"  # osmnx place query
+osm_graphml: ${oc.env:OSM_GRAPHML,}   # cached graphml path (empty = re-fetch)
+osm_network_type: drive                # OSM network type
+precomputed_path: null
+subsample_seed: 42                     # reproducible random subsampling

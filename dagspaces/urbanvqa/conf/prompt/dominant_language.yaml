@@ -1,0 +1,10 @@
+# Dominant Language Detection Prompt Configuration
+# Binary classification: detect NYC sidewalk scaffolding in street-level images
+#
+# NOTE: The code reads `system` and `user_template`, NOT `system_prompt`/`user_prompt`.
+# Setting user_template to a static string (no {{variables}}) means it overrides
+# any prompt column in the input data -- the parquet does not need a prompt column.
+
+system: ""
+
+user_template: 'You are tasked with analyzing a street-level image to estimate the dominant language spoken by people living in the depicted neighborhood. Return the dominant language spoken by people living in the neighborhood. Answer with a single word.'

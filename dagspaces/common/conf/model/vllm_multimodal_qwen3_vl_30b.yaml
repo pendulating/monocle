@@ -1,0 +1,60 @@
+# Multimodal Model Configuration - Qwen3-VL-30B-A3B-Instruct
+# MoE Vision-Language Model: 30.5B total params, 3B active per token
+# Optimized for 2x RTX A6000 (48GB each) with tensor parallelism
+#
+# Model specs:
+#   - Architecture: Qwen3VLMoeForConditionalGeneration (MoE)
+#   - 128 experts, 8 experts active per token
+#   - Max context: 262,144 tokens
+#   - Vision: patch_size=16, spatial_merge_size=2
+#   - Size on disk: ~58GB
+
+model_source: /share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct
+
+engine_kwargs:
+  # Parallelism - MoE models need tensor parallelism for expert distribution
+  tensor_parallel_size: 2  # Required for 58GB model on 2x48GB GPUs
+  
+  # Context length - model supports up to 262k, but limit for memory efficiency
+  max_model_len: 8192  # Conservative for multimodal + MoE overhead
+  
+  # Batching - conservative for MoE memory patterns
+  max_num_seqs: 4  # MoE has higher memory variance per sequence
+  enable_chunked_prefill: true  # Essential for long contexts
+  max_num_batched_tokens: 4096  # Balance throughput and memory
+  
+  # Multimodal settings for Qwen3-VL
+  limit_mm_per_prompt:
+    image: 1  # Single image per prompt for VQA
+  mm_processor_kwargs:
+    min_pixels: 256  # 16*16 (single patch)
+    max_pixels: 1003520  # 980*1024 (reasonable resolution)
+    fps: 1  # Video support (if needed)
+  
+  # Memory management - lower utilization to prevent OOM over long runs
+  gpu_memory_utilization: 0.80  # Leave more headroom for MoE expert activation + Ray workers
+  
+  # Model loading
+  trust_remote_code: true  # Required for Qwen3-VL-MoE architecture
+  tokenizer_mode: auto
+  dtype: bfloat16  # Model native dtype
+  kv_cache_dtype: auto  # Let vLLM optimize KV cache
+  
+  # Performance optimizations
+  enable_prefix_caching: true  # Improves throughput for repeated prefixes
+  use_v2_block_manager: true  # Better memory management
+  disable_log_stats: true  # Reduce logging overhead
+  
+  # Stability - important for MoE + tensor parallelism
+  enforce_eager: true  # Disable CUDA graphs for MoE stability
+  disable_custom_all_reduce: false  # Use efficient all-reduce for TP
+  # Structured decoding backend (required for guided_decoding payloads)
+  guided_decoding_backend: auto
+
+# Inference settings
+batch_size: 8  # Conservative for MoE memory patterns
+concurrency: 1  # Single replica with TP=2 across both GPUs
+
+# CRITICAL: Explicitly mark as multimodal model for proper image handling
+has_image: true
+

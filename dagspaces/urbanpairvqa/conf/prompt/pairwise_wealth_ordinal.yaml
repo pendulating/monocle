@@ -1,0 +1,27 @@
+system: "You are an expert visual comparison assistant."
+
+user_template: |
+  Compare wealth between the two depicted areas.
+  Image A is shown on the LEFT and image B on the RIGHT.
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+  Interpret this as "Image A is <label> wealthy than Image B".
+  Use "Same" when they look about the same.
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    additionalProperties: true
+

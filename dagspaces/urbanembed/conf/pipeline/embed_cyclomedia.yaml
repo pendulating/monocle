@@ -1,0 +1,30 @@
+# @package _global_
+# Embedding Pipeline Configuration for Cyclomedia Images
+# Produces dense vector embeddings using Qwen3-VL-Embedding models
+
+defaults:
+  - _self_
+  - override /data: cyclomedia_manhattan_2025_1
+  - override /model: qwen3_vl_embedding_8b
+
+runtime:
+  streaming_io: true
+  job_memory_gb: 256
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      embed:
+        stage: embed
+        depends_on: []
+        outputs:
+          results: outputs/embed/cyclomedia_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          embedding.batch_size: ${embedding.batch_size}
+        launcher: slurm_gpu_4x
+        wandb_suffix: embed_cyclomedia

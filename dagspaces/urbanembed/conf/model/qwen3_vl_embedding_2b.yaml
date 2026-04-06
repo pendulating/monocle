@@ -1,0 +1,2 @@
+model_source: /share/pierson/matt/zoo/models/Qwen3-VL-Embedding-2B
+hidden_size: 2048

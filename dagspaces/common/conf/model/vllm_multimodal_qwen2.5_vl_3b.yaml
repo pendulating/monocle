@@ -1,0 +1,33 @@
+# Multimodal Model Configuration - Qwen2.5-VL-3B-Instruct
+# Optimized for single-GPU high-throughput binary classification
+# ~3B params fits comfortably on a single A6000 (48GB) with room for large batches
+
+model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-3B-Instruct
+
+engine_kwargs:
+  tensor_parallel_size: 1  # Single GPU -- model fits easily at 3B params
+  max_model_len: 2048  # Total context window (image tokens + prompt + output). 1024x1024
+                       # image ≈ 256-1024 visual tokens + ~200 prompt tokens + ~6 output tokens.
+                       # Keeping this tight saves KV cache memory, allowing more concurrent seqs.
+  max_num_seqs: 128  # 34GB free KV cache can handle ~483 concurrent seqs; fill more of it
+  enable_chunked_prefill: true
+  max_num_batched_tokens: 16384  # Aggressive batching -- prefill more images per iteration
+  limit_mm_per_prompt:
+    image: 1  # Single image per prompt
+  mm_processor_kwargs:
+    min_pixels: 784  # 28*28
+    max_pixels: 1048576  # 1024*1024 -- matches Cyclomedia face resolution
+    fps: 1
+  trust_remote_code: true  # Required for Qwen VL models
+  tokenizer_mode: auto
+  dtype: auto
+  kv_cache_dtype: auto
+  enable_prefix_caching: true  # Critical: same prompt repeated millions of times
+  use_v2_block_manager: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.90  # More aggressive -- small model leaves headroom
+  enforce_eager: false  # CUDAGraph enabled -- eliminates kernel launch overhead for small outputs
+  disable_custom_all_reduce: false
+
+batch_size: 64  # Higher batch size for throughput (3B model has low per-sample cost)
+concurrency: 1  # Single replica on single GPU

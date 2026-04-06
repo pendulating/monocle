@@ -50,7 +50,7 @@ pipeline:
           model.concurrency: 1
           model.batch_size: 8
           prompt.structured_output: true
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: ocr_manhattan_small
 
 # Manhattan Small test stats (W0E96 group):
