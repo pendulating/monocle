@@ -246,7 +246,7 @@ python -m dagspaces.uair.cli \
 # Submit to SLURM with GPU
 python -m dagspaces.uair.cli \
   pipeline=my_pipeline \
-  hydra/launcher=g2_slurm_gpu_4x
+  hydra/launcher=slurm_gpu_4x
 ```
 
 See [Configuration Guide - SLURM Launchers](docs/CONFIGURATION_GUIDE.md#slurm-launcher-configuration) for details.

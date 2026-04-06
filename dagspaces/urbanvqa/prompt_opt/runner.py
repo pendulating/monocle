@@ -12,7 +12,7 @@ from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, OmegaConf
 import yaml
 
-from dagspaces.urbanvqa.wandb_logger import WandbLogger
+from dagspaces.common.wandb_logger import WandbLogger
 
 from .dataset import materialize_supervised_frame
 from .gepa_adapter import GEPAVQAAdapter

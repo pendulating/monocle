@@ -1,0 +1,71 @@
+# Top-level Hydra config for URBANROAMVQA
+
+defaults:
+  - _self_
+  - data: cyclomedia_manhattan_2025
+  - prompt: tourist
+  - model: vllm_multimodal_qwen3_vl_2b
+  - graph: osmnx_knn_10
+  - optional pipeline: roam_tourist_fixed_10
+
+experiment:
+  name: URBANROAMVQA
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  job_memory_gb: 64
+  skip_inference: false
+
+roaming:
+  n_walks: 100
+  max_steps: 10
+  termination_mode: fixed        # fixed | independent
+  seed_strategy: random
+  initial_face: F
+  walk_seed: 42
+  allow_revisits: true
+  min_neighbors: 1
+  include_history_in_prompt: true
+  history_max_steps: 5
+  stitch_max_height: 512
+  checkpoint_dir: null           # defaults to runtime.output_dir; set to resume from a prior run
+  step_max_retries: 2            # retries per VLM inference step before deactivating walks
+  step_retry_backoff_s: 5.0      # initial backoff seconds (doubles each retry)
+
+graph:
+  metadata_parquet: ${data.parquet_path}
+  k_neighbors: 10
+  max_radius_m: 50.0
+  bearing_tolerance_deg: 45.0
+  precomputed_path: null
+
+diagnostics:
+  enabled: true
+
+sampling_params_vqa:
+  temperature: 0.7
+  top_p: 0.95
+  max_tokens: 128
+  stop: []
+
+wandb:
+  enabled: true
+  name_prefix: null
+  project: ${oc.env:WANDB_PROJECT,URBANROAMVQA}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 1000
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}_${experiment.name}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

@@ -1,0 +1,38 @@
+# Multimodal Model Configuration - Cambrian-13B (Optimized)
+# Optimized for 2-GPU setup with RTX A6000 (48GB each) using sidecar processor
+# Updated with best practices from Cambrian paper
+
+model_source: /share/pierson/matt/zoo/models/cambrian-13b
+
+# Cambrian-specific sidecar settings (not vLLM - Cambrian uses custom processor)
+cambrian:
+  use_flash_attn: true           # Flash Attention 2 for 2-3x speedup
+  inference_batch_size: 16       # True GPU batch size (A6000 48GB can handle 16-32)
+  gc_frequency: 10               # GC every N batches (reduce overhead)
+  vision_dtype: float16          # Vision encoder dtype
+
+engine_kwargs:
+  tensor_parallel_size: 1  # 1 = No tensor parallelism (1 instance per GPU)
+  max_model_len: 4096  # Typical for VL models
+  max_num_seqs: 4  # RTX A6000 default
+  enable_chunked_prefill: true
+  max_num_batched_tokens: 5120  # Higher for multimodal
+  limit_mm_per_prompt:
+    image: 1  # Single image per prompt
+  mm_processor_kwargs:
+    num_crops: 16  # 16 for single frame, 4 for multi-frame
+  trust_remote_code: true  # Required for Cambrian 1.13B
+  tokenizer_mode: auto
+  dtype: float16
+  kv_cache_dtype: auto
+  enable_prefix_caching: true
+  use_v2_block_manager: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.90  # Increased - Flash Attention is more memory efficient
+  # Fix CUDA custom_all_reduce error with tensor parallelism:
+  enforce_eager: true  # Disable CUDA graphs for stability with tensor parallelism
+  disable_custom_all_reduce: false  # Use custom all-reduce (can set to true if issues persist)
+
+batch_size: 16  # IPC chunk size (actors to sidecar)
+concurrency: 0  # 0 = auto-detect (1 replica per available GPU)
+

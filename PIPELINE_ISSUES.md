@@ -136,7 +136,7 @@ The fix is the same as Issue 2 — control object store growth.
 | `orchestrator.py` | Replaced `.map(_load_image_from_path)` with `.map_batches(_load_images_batch, batch_size=64)` | Working — separate operator in execution plan |
 | `stages/vqa.py` | Added `preprocess_map_kwargs={"num_cpus": 0.5}` to `build_processor()` | Applied |
 | `stages/vqa.py` | Set `ctx.override_object_store_memory_limit_fraction = 0.8` | Applied but NOT effective (budget still 37.3 GiB) |
-| `g2_slurm_pierson_4x.yaml` | `RAY_OBJECT_STORE_MEMORY=80000000000` (80 GB) | Applied |
+| `slurm_gpu_4x.yaml` | `RAY_OBJECT_STORE_MEMORY=80000000000` (80 GB) | Applied |
 | `prompts/unified.py` | Added `_resolve_pil_image()` fallback (loads from path if no in-memory image) | Applied |
 
 ## Recommended next steps (priority order)

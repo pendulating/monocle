@@ -39,6 +39,6 @@ pipeline:
           # Cambrian sidecar settings
           prompt.structured_output:
             enabled: false
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: vqa_bayflood_nearby_floodnet_cambrian
 

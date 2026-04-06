@@ -54,5 +54,5 @@ pipeline:
           model.cambrian.use_flash_attn: true
           model.cambrian.inference_batch_size: 6
           model.cambrian.gc_frequency: 10
-        launcher: g2_slurm_pierson_6x
+        launcher: slurm_gpu_6x
         wandb_suffix: vqa_bayflood_926k_lyu_advanced

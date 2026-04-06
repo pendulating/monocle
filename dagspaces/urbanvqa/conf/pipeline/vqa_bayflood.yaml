@@ -55,7 +55,7 @@ pipeline:
                   enum: ["Yes", "No"]
               required: ["answer"]
               additionalProperties: false
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: vqa_bayflood
 
 # To run on the test split, override data.split=test or set runtime.sample_n

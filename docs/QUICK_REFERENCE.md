@@ -39,7 +39,7 @@ python -m dagspaces.uair.cli data=flattened_rules
 python -m dagspaces.uair.cli model=vllm_qwen3-30b
 
 # Change launcher (execution environment)
-python -m dagspaces.uair.cli hydra/launcher=g2_slurm_gpu_4x
+python -m dagspaces.uair.cli hydra/launcher=slurm_gpu_4x
 
 # Change pipeline
 python -m dagspaces.uair.cli pipeline=topic_modeling_of_relevant_classifications
@@ -98,7 +98,7 @@ my_stage:
     runtime.sample_n: 500
     model.batch_size: 16
     model.engine_kwargs.max_model_len: 4096
-  launcher: g2_slurm_gpu_4x
+  launcher: slurm_gpu_4x
   wandb_suffix: my_stage
 ```
 
@@ -226,11 +226,11 @@ verify.device: cuda
 | Launcher | GPUs | CPUs | Mem | Use Case |
 |----------|------|------|-----|----------|
 | `null` | 0 | local | local | Local testing |
-| `g2_slurm_cpu` | 0 | 2 | 16GB | Light CPU |
-| `g2_slurm_cpu_beefy` | 0 | 8 | 64GB | Heavy CPU |
-| `g2_slurm_gpu_1x` | 1 | 8 | 32GB | Single GPU |
-| `g2_slurm_pierson` | 2 | 8 | 32GB | 2-GPU inference |
-| `g2_slurm_gpu_4x` | 4 | 8 | 32GB | 4-GPU inference |
+| `slurm_cpu` | 0 | 2 | 16GB | Light CPU |
+| `slurm_cpu_beefy` | 0 | 8 | 64GB | Heavy CPU |
+| `slurm_gpu_1x` | 1 | 8 | 32GB | Single GPU |
+| `slurm_gpu_2x` | 2 | 8 | 32GB | 2-GPU inference |
+| `slurm_gpu_4x` | 4 | 8 | 32GB | 4-GPU inference |
 | `slurm_monitor` | 0 | 2 | 8GB | Orchestrator |
 
 ---

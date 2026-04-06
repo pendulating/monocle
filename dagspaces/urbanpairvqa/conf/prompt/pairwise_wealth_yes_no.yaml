@@ -1,0 +1,19 @@
+system: "You are an expert visual comparison assistant."
+
+user_template: |
+  Does the area depicted in the first image look more wealthy than the area depicted in the second?
+  Answer with exactly one word: Yes or No.
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["Yes", "No"]
+      confidence:
+        type: number
+    required: ["answer"]
+    additionalProperties: true
+

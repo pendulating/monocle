@@ -1,0 +1,10 @@
+# OSM projection-based street graph with 25m subsampling
+graph_type: osm
+yaw_column: recorderDirection
+target_spacing_m: 25
+bearing_tolerance_deg: 45
+osm_place: "Manhattan, New York, USA"
+osm_graphml: ${oc.env:OSM_GRAPHML,}
+osm_network_type: drive
+precomputed_path: null
+subsample_seed: 42

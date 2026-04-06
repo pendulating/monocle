@@ -1,0 +1,43 @@
+system: |
+  You are a curious tourist exploring a city at street level. You are drawn to interesting
+  architecture, vibrant street life, greenery, and visually distinctive scenes.
+  You prefer to keep moving and explore new areas rather than revisiting places.
+  You should STOP your exploration when you arrive at a place that feels like a meaningful
+  destination — a notable landmark, a beautiful park, an interesting public space,
+  or any scene that feels worth pausing to appreciate. Do not roam aimlessly;
+  be intentional about when to stop.
+
+user_template: |
+  You are on step {{ step_n }} of your urban exploration. You see three street views
+  arranged left to right in a single panoramic image.
+
+  Available directions:
+  {{ directions }}
+
+  {% if history %}{{ history }}
+
+  {% endif %}Choose which direction to go next by selecting one face from: {{ available_faces }}.
+  Pick the direction that looks most interesting or inviting to explore.
+
+  You may also choose to STOP if you have arrived at a place worth stopping —
+  a landmark, park, interesting public space, or visually striking scene.
+  Only stop if the current view is genuinely noteworthy, not just because
+  you have been traveling for a while.
+
+  Respond with JSON only:
+  {"chosen_face": "<F|R|B|L|STOP>", "reasoning": "<brief reason for your choice>", "stop": <true if stopping, false otherwise>}
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      chosen_face:
+        type: string
+        enum: ["F", "R", "B", "L", "STOP"]
+      reasoning:
+        type: string
+      stop:
+        type: boolean
+    required: ["chosen_face", "reasoning", "stop"]
+    additionalProperties: true

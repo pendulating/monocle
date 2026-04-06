@@ -40,7 +40,7 @@ conf/
 │   ├── taxonomy_full.yaml
 │   └── my_pipeline.yaml
 └── hydra/launcher/          # Execution environment configs
-    ├── g2_slurm_cpu.yaml
+    ├── slurm_cpu.yaml
     └── local.yaml
 ```
 
@@ -128,7 +128,7 @@ pipeline:
         outputs:
           all: outputs/classify/all.parquet
           relevant: outputs/classify/relevant.parquet
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: classify
       
       taxonomy:
@@ -138,7 +138,7 @@ pipeline:
           dataset: classify.relevant  # Use only relevant articles
         outputs:
           results: outputs/taxonomy/results.parquet
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: taxonomy
       
       verify:
@@ -148,7 +148,7 @@ pipeline:
           dataset: taxonomy.results
         outputs:
           verified: outputs/verify/verified.parquet
-        launcher: g2_slurm_cpu
+        launcher: slurm_cpu
         wandb_suffix: verify
 ```
 
@@ -190,7 +190,7 @@ pipeline:
           dataset: articles
         outputs:
           relevant: outputs/classify/relevant.parquet
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
       
       # Stage 2a: Topic modeling (parallel with sentiment)
       topic:
@@ -200,7 +200,7 @@ pipeline:
           dataset: classify.relevant
         outputs:
           docs: outputs/topic/docs_topics.parquet
-        launcher: g2_slurm_cpu_beefy
+        launcher: slurm_cpu_beefy
         wandb_suffix: topic
       
       # Stage 2b: Sentiment analysis (parallel with topic)
@@ -211,7 +211,7 @@ pipeline:
           dataset: classify.relevant
         outputs:
           results: outputs/sentiment/results.parquet
-        launcher: g2_slurm_cpu
+        launcher: slurm_cpu
         wandb_suffix: sentiment
       
       # Stage 3: Combine results (waits for both topic and sentiment)
@@ -259,7 +259,7 @@ pipeline:
         overrides:
           runtime.use_llm_classify: false  # Use keyword-based filtering
           runtime.prefilter_mode: pre_gating
-        launcher: g2_slurm_cpu
+        launcher: slurm_cpu
       
       # Expensive LLM classification (GPU, slow) - only on filtered data
       llm_classify:
@@ -271,7 +271,7 @@ pipeline:
           results: outputs/llm_classify/results.parquet
         overrides:
           runtime.use_llm_classify: true
-        launcher: g2_slurm_gpu_4x
+        launcher: slurm_gpu_4x
       
       # Verification (CPU, moderate) - only on classified data
       verify:
@@ -281,7 +281,7 @@ pipeline:
           dataset: llm_classify.results
         outputs:
           verified: outputs/verify/verified.parquet
-        launcher: g2_slurm_cpu_beefy
+        launcher: slurm_cpu_beefy
 ```
 
 ### Recipe 4: Multi-Output Fan-Out
@@ -576,11 +576,11 @@ sampling_params_generate:
 | Launcher | GPUs | CPUs | Memory | Use Case |
 |----------|------|------|--------|----------|
 | `null` | 0 | Local | Local | Local testing |
-| `g2_slurm_cpu` | 0 | 2 | 16GB | Lightweight CPU tasks |
-| `g2_slurm_cpu_beefy` | 0 | 8 | 64GB | Heavy CPU tasks (embeddings, clustering) |
-| `g2_slurm_gpu_1x` | 1 | 8 | 32GB | Single-GPU LLM inference |
-| `g2_slurm_pierson` | 2 | 8 | 32GB | Two-GPU model parallelism |
-| `g2_slurm_gpu_4x` | 4 | 8 | 32GB | Four-GPU model parallelism |
+| `slurm_cpu` | 0 | 2 | 16GB | Lightweight CPU tasks |
+| `slurm_cpu_beefy` | 0 | 8 | 64GB | Heavy CPU tasks (embeddings, clustering) |
+| `slurm_gpu_1x` | 1 | 8 | 32GB | Single-GPU LLM inference |
+| `slurm_gpu_2x` | 2 | 8 | 32GB | Two-GPU model parallelism |
+| `slurm_gpu_4x` | 4 | 8 | 32GB | Four-GPU model parallelism |
 | `slurm_monitor` | 0 | 2 | 8GB | Pipeline orchestrator (parent job) |
 
 ### Creating Custom Launcher
@@ -619,15 +619,15 @@ setup:
 nodes:
   lightweight_task:
     stage: sentiment
-    launcher: g2_slurm_cpu  # CPU-only, fast
+    launcher: slurm_cpu  # CPU-only, fast
   
   heavy_embeddings:
     stage: topic
-    launcher: g2_slurm_cpu_beefy  # 8 CPUs, 64GB RAM
+    launcher: slurm_cpu_beefy  # 8 CPUs, 64GB RAM
   
   llm_inference:
     stage: taxonomy
-    launcher: g2_slurm_gpu_4x  # 4 GPUs, tensor parallelism
+    launcher: slurm_gpu_4x  # 4 GPUs, tensor parallelism
   
   local_test:
     stage: verify

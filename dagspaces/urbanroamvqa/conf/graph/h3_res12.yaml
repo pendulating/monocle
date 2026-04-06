@@ -1,0 +1,7 @@
+# H3 hexagonal grid graph, resolution 12
+graph_type: h3
+h3_resolution: 12
+yaw_column: recorderDirection
+bearing_tolerance_deg: 45
+precomputed_path: null
+subsample_seed: 42

@@ -63,6 +63,27 @@ from tqdm import tqdm
 ALL_FACES = {"F", "B", "L", "R", "U", "D"}
 HORIZONTAL_FACES = {"F", "B", "L", "R"}
 
+# Nominal bearing (degrees 0–360) of each cube face when F is 0° (forward).
+# U/D have no single horizontal direction → None.
+FACE_BEARING_DEG: dict[str, Optional[float]] = {
+    "F": 0.0,
+    "R": 90.0,
+    "B": 180.0,
+    "L": 270.0,
+    "U": None,
+    "D": None,
+}
+
+
+def _safe_float(value, /) -> Optional[float]:
+    """Return float(value) or None if invalid."""
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
 
 
 

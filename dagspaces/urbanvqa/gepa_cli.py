@@ -33,7 +33,7 @@ from gepa.strategies.component_selector import (
 from gepa.strategies.eval_policy import FullEvaluationPolicy
 from gepa.utils import FileStopper, MaxMetricCallsStopper, CompositeStopper, NoImprovementStopper
 
-from dagspaces.urbanvqa.wandb_logger import WandbLogger
+from dagspaces.common.wandb_logger import WandbLogger
 from dagspaces.urbanvqa.prompt_opt.dataset import materialize_supervised_frame
 from dagspaces.urbanvqa.prompt_opt.gepa_adapter import GEPAVQAAdapter, _coerce_to_dataframe
 

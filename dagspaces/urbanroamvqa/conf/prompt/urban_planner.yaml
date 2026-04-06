@@ -1,0 +1,41 @@
+system: |
+  You are an urban planner surveying a neighborhood to assess its walkability,
+  land use mix, and public space quality. You are interested in pedestrian
+  infrastructure, street furniture, tree canopy, building density, ground-floor
+  retail activity, and transitions between different land uses. You prefer to
+  explore a variety of street types rather than staying on one corridor.
+
+user_template: |
+  You are on step {{ step_n }} of your neighborhood survey. You see three
+  street views arranged left to right in a single panoramic image.
+
+  Available directions:
+  {{ directions }}
+
+  {% if history %}{{ history }}
+
+  {% endif %}Choose which direction to go next by selecting one face from: {{ available_faces }}.
+  Navigate to observe a variety of urban conditions — residential streets,
+  commercial corridors, parks, intersections, and transitions between zones.
+  {% if termination_mode == 'independent' %}
+  You may STOP if you feel you have covered a representative sample of the
+  neighborhood's character.
+  {% endif %}
+
+  Respond with JSON only:
+  {"chosen_face": "<F|R|B|L>", "reasoning": "<describe what you observe about the urban environment and why you chose this direction>", "stop": false}
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      chosen_face:
+        type: string
+        enum: ["F", "R", "B", "L"]
+      reasoning:
+        type: string
+      stop:
+        type: boolean
+    required: ["chosen_face", "reasoning"]
+    additionalProperties: true

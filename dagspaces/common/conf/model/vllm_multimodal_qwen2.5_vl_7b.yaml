@@ -1,0 +1,32 @@
+# Multimodal Model Configuration - Qwen2.5-VL-7B-Instruct
+# Optimized for 2-GPU setup with RTX A6000 (48GB each)
+
+model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-7B-Instruct
+
+engine_kwargs:
+  tensor_parallel_size: 1  # No need to split across 2 GPUs
+  max_model_len: 4096  # Typical for VL models
+  max_num_seqs: 4  # RTX A6000 default
+  enable_chunked_prefill: true
+  max_num_batched_tokens: 5120  # Higher for multimodal
+  limit_mm_per_prompt:
+    image: 1  # Single image per prompt
+  mm_processor_kwargs:
+    min_pixels: 784  # 28*28
+    max_pixels: 9830400  # 1280*28*28 (for Qwen2.5-VL)
+    fps: 1  # For video support (if needed)
+  trust_remote_code: true  # Required for Qwen VL models
+  tokenizer_mode: auto
+  dtype: auto
+  kv_cache_dtype: auto
+  enable_prefix_caching: true
+  use_v2_block_manager: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.85  # Leave room for image processing
+  # Fix CUDA custom_all_reduce error with tensor parallelism:
+  enforce_eager: true  # Disable CUDA graphs for stability with tensor parallelism
+  disable_custom_all_reduce: false  # Use custom all-reduce (can set to true if issues persist)
+
+batch_size: 16  # Adjust based on GPU memory
+concurrency: 2  # Match number of model replicas (2 GPUs / 2 TP = 1 replica)
+

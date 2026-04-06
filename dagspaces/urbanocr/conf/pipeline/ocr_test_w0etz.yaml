@@ -50,7 +50,7 @@ pipeline:
           model.concurrency: 1
           model.batch_size: 8
           prompt.structured_output: true
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: ocr_w0etz
 
 # W0ETZ location group stats:

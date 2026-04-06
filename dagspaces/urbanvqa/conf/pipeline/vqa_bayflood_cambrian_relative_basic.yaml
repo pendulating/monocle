@@ -39,7 +39,7 @@ pipeline:
           # Structured output config for binary verification if needed
           prompt.structured_output:
             enabled: false # Set to true if you want strictly Level 0-4 JSON parsing
-        launcher: g2_slurm_pierson
+        launcher: slurm_gpu_2x
         wandb_suffix: vqa_bayflood_cambrian
 
 # Usage:

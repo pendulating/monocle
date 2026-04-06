@@ -1,14 +1,60 @@
 [project]
 name = "mllmsci"
 version = "0.1.0"
-requires-python = "==3.11.14"
+requires-python = ">=3.12,<3.13"
 dependencies = [
+    "boto3>=1.42.47",
     "hydra-core>=1.3.2",
+    "hydra-submitit-launcher>=1.2.0",
+    "jinja2>=3.1.6",
     "ninja>=1.13.0",
     "packaging>=26.0",
+    "pandas>=1.3,<3",
     "psutil>=7.2.2",
-    "ray>=2.53.0",
+    "pyarrow>=23.0.0",
+    "python-dotenv>=1.0.0",
+    "vllm>=0.19.0",
+    "transformers>=5.5.0",
     "setuptools>=80.10.2",
-    "vllm>=0.15.1",
+    "torch>=2.9.1",
+    "wandb>=0.24.2",
+    "datasets>=4.0.0",
+    "ipykernel>=7.2.0",
+    "matplotlib>=3.10.8",
+    "geopandas>=1.1.2",
+    "flash-attn>=2.8.3",
+    "trueskill>=0.4.5",
+    "statsmodels>=0.14.6",
+    "osmnx>=2.0.0",
+    "scipy>=1.14.0",
 ]
-    
+
+[project.optional-dependencies]
+ray = [
+    "ray[data,llm,serve]>=2.53.0",
+]
+
+
+[tool.setuptools.packages.find]
+include = ["dagspaces*"]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+]
+torchvision = [
+  { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv]
+no-build-isolation-package = ['flash-attn', 'setuptools']
+# vllm 0.19.0 caps transformers<5 but we need >=5.5.0 for latest model support.
+# The cap is overly conservative — trawler runs this combination successfully.
+override-dependencies = [
+    "transformers>=5.5.0",
+]

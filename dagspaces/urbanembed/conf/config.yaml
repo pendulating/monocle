@@ -1,0 +1,49 @@
+# Top-level Hydra config for URBANEMBED
+
+defaults:
+  - _self_
+  - data: cyclomedia_manhattan_2025_1
+  - model: qwen3_vl_embedding_8b
+  - optional pipeline: null
+
+experiment:
+  name: URBANEMBED
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  output_path: outputs/embed/cyclomedia_${now:%Y%m%d_%H%M%S}.parquet
+  job_memory_gb: 256
+  streaming_io: false
+  suppress_child_warnings: true
+
+embedding:
+  instruction: "Represent the visual content of this street-level image."
+  normalize: true
+  output_dim: null          # null = full dimension. Set to e.g. 256 for MRL truncation.
+  batch_size: 16            # images per forward pass per GPU
+  max_pixels: 262144        # 512x512
+  min_pixels: 784           # 28x28
+  torch_dtype: bfloat16
+  output_column: embedding
+
+wandb:
+  enabled: true
+  name_prefix: null
+  project: ${oc.env:WANDB_PROJECT,URBANEMBED}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 1000
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}_${experiment.name}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

@@ -1,0 +1,5 @@
+# Street graph config: OSMNX-constrained KNN with k=10, 50m radius
+k_neighbors: 10
+max_radius_m: 50.0
+bearing_tolerance_deg: 45.0
+precomputed_path: null

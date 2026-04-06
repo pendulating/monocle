@@ -229,7 +229,7 @@ With a working pipeline, consider the following extensions:
 - **Add More Stages**: Chain topic modeling with classification
 - **Use GPU**: Set `topic.embed.device: cuda` for faster embeddings
 - **Scale Up**: Remove `sample_n` to process full dataset
-- **Deploy to SLURM**: Use `override /hydra/launcher: g2_slurm_cpu`
+- **Deploy to SLURM**: Use `override /hydra/launcher: slurm_cpu`
 - **Customize**: Adjust UMAP/HDBSCAN parameters in `topic` config
 
 Refer to [Core Concepts](#core-concepts) for detailed framework understanding, or [Complete Examples](#complete-examples) for more complex dagspaces.
@@ -345,8 +345,8 @@ dagspaces/uair/conf/
 │   └── weitz.yaml                # Domain taxonomies
 └── hydra/
     └── launcher/
-        ├── g2_slurm_cpu.yaml     # SLURM configs
-        └── g2_slurm_gpu_4x.yaml
+        ├── slurm_cpu.yaml     # SLURM configs
+        └── slurm_gpu_4x.yaml
 ```
 
 #### Config Composition with Defaults

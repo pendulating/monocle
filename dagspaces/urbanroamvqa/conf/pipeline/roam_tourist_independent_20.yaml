@@ -1,0 +1,54 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_gpu_4x
+  - override /data: cyclomedia_manhattan_2025
+  - override /prompt: tourist_independent
+  - override /model: vllm_multimodal_qwen3_vl_2b
+  - override /graph: osmnx_knn_10
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+roaming:
+  n_walks: 100
+  max_steps: 20
+  termination_mode: independent
+  seed_strategy: spatial_stratified
+  initial_face: F
+  walk_seed: 42
+  allow_revisits: false
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      roaming:
+        stage: roaming_vqa
+        depends_on: []
+        outputs:
+          traces: outputs/roaming/traces_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          roaming.n_walks: ${roaming.n_walks}
+          roaming.max_steps: ${roaming.max_steps}
+          roaming.termination_mode: ${roaming.termination_mode}
+          roaming.seed_strategy: ${roaming.seed_strategy}
+          roaming.walk_seed: ${roaming.walk_seed}
+          roaming.allow_revisits: ${roaming.allow_revisits}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 24
+          model.concurrency: 1
+          sampling_params_vqa.max_tokens: 192
+          sampling_params_vqa.temperature: 0.8
+        launcher: slurm_gpu_4x
+        wandb_suffix: roam_tourist_independent_20

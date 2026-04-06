@@ -1,0 +1,26 @@
+system: "You are an expert visual comparison assistant."
+
+user_template: |
+  Compare image A and image B for the requested attribute.
+  Image A is shown on the LEFT and image B on the RIGHT.
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+  Interpret this as "A is <label> than B" for the target attribute.
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    additionalProperties: true
+

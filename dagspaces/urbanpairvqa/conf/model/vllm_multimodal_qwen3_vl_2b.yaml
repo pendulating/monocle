@@ -1,0 +1,30 @@
+# Multimodal model config for pairwise relative comparison.
+
+model_source: /share/pierson/matt/zoo/models/Qwen3-VL-2B-Instruct
+
+engine_kwargs:
+  tensor_parallel_size: 1
+  max_model_len: 1024
+  max_num_seqs: 128
+  enable_chunked_prefill: false
+  max_num_batched_tokens: 16384
+  limit_mm_per_prompt:
+    image: 1
+  mm_processor_kwargs:
+    min_pixels: 784
+    max_pixels: 262144
+    fps: 1
+  trust_remote_code: true
+  tokenizer_mode: auto
+  dtype: auto
+  kv_cache_dtype: auto
+  enable_prefix_caching: true
+  use_v2_block_manager: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.9
+  enforce_eager: false
+  disable_custom_all_reduce: false
+
+batch_size: 32
+concurrency: 1
+
