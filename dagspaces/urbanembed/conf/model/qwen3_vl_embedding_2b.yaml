@@ -1,2 +1,20 @@
+# Qwen3-VL-Embedding-2B — multimodal embedding model via vLLM
+# Uses LLM.encode() for dense embeddings (not text generation)
+
 model_source: /share/pierson/matt/zoo/models/Qwen3-VL-Embedding-2B
-hidden_size: 2048
+
+engine_kwargs:
+  tensor_parallel_size: 1
+  max_model_len: 8192
+  max_num_seqs: 12       # 2B model uses ~4GB; much more KV cache headroom than 8B
+  limit_mm_per_prompt:
+    image: 1
+  mm_processor_kwargs:
+    min_pixels: 1049600      # 1024x1024
+    max_pixels: 1049600   # 1024x1024
+  trust_remote_code: true
+  dtype: auto
+  gpu_memory_utilization: 0.90
+  data_parallel_size: 1  # auto-detected from GPU count when unset; override: model.engine_kwargs.data_parallel_size=4
+
+batch_size: 0

@@ -47,7 +47,6 @@ pipeline:
           model.engine_kwargs.tensor_parallel_size: 1
           model.batch_size: 16
           model.concurrency: 1
-          sampling_params_vqa.max_tokens: 16
         launcher: slurm_gpu_2x
         wandb_suffix: pairwise_livability_large
 

@@ -2,7 +2,7 @@ system: "You are an expert visual comparison assistant."
 
 user_template: |
   Compare wealth between the two depicted areas.
-  Image A is shown on the LEFT and image B on the RIGHT.
+  Image A is the first image and Image B is the second image.
   Return exactly one label from:
   - MuchLess
   - Less

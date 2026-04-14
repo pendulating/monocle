@@ -1,7 +1,7 @@
 """UrbanVQA stage — multimodal VQA inference via direct vLLM.
 
-Replaces the former Ray Data LLM pipeline with a thin preprocess/postprocess
-callback pair that feeds into ``dagspaces.common.vllm_inference.run_vllm_inference``.
+Thin preprocess/postprocess callback pair that feeds into
+``dagspaces.common.vllm_inference.run_vllm_inference``.
 """
 
 from __future__ import annotations
@@ -261,7 +261,7 @@ def _make_preprocess(cfg: DictConfig):
                     else:
                         new_messages.append(msg)
                 result["messages"] = new_messages
-                # Remove the separate "image" key (Ray Data LLM artifact)
+                # Remove the separate "image" key to avoid serializing pixel data
                 result.pop("image", None)
 
         # Carry forward lightweight metadata
@@ -340,9 +340,7 @@ def run_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
     """
     from dagspaces.common.vllm_inference import run_vllm_inference
 
-    # Handle Ray Dataset input (backward compat)
     if hasattr(df, "to_pandas") and not isinstance(df, pd.DataFrame):
-        print("[run_vqa_stage] Converting input to pandas DataFrame...")
         df = df.to_pandas()
 
     if df is None or len(df) == 0:

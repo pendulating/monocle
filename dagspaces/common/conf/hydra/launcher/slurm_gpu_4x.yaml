@@ -1,10 +1,10 @@
 # Uses Hydra Submitit Slurm launcher
 _target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
 submitit_folder: ${hydra.sweep.dir}/.submitit/%j
-timeout_min: 2880
+timeout_min: 4320
 nodes: 1
 tasks_per_node: 1
-cpus_per_task: 8
+cpus_per_task: 12
 mem_gb: ${runtime.job_memory_gb}
 partition: ${oc.env:SLURM_PARTITION,pierson}
 array_parallelism: 1
@@ -12,6 +12,7 @@ gpus_per_node: 4
 name: ${experiment.name}
 additional_parameters:
   gres: gpu:4
+  wckey: ""
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
@@ -41,8 +42,6 @@ setup:
   - export TOKENIZERS_PARALLELISM=false
   # RTX A6000 = sm_86 -- avoid compiling for all architectures
   - export TORCH_CUDA_ARCH_LIST=8.6
-  # Explicit Ray object store cap (bytes)
-  - export RAY_OBJECT_STORE_MEMORY=100000000000
   - if [ -d /scratch ]; then export TMPDIR=/scratch/$USER; else export TMPDIR=/tmp/$USER; fi
   - mkdir -p $TMPDIR
   - export SLURM_CPU_BIND=none

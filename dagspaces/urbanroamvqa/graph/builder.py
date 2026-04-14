@@ -179,6 +179,8 @@ def build_street_graph(
         return build_h3_graph(metadata_parquet, graph_cfg)
     if graph_type == "intersection":
         return build_intersection_graph(metadata_parquet, graph_cfg)
+    if graph_type == "trajectory":
+        return build_trajectory_graph(metadata_parquet, graph_cfg)
 
     precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
     if precomputed_path and os.path.exists(precomputed_path):
@@ -1058,6 +1060,425 @@ def build_intersection_graph(
     if precomputed_path:
         os.makedirs(os.path.dirname(precomputed_path) or ".", exist_ok=True)
         print(f"[intersection_graph] Saving to {precomputed_path}", flush=True)
+        with open(precomputed_path, "wb") as f:
+            pickle.dump(graph, f)
+
+    return graph
+
+
+# ---------------------------------------------------------------------------
+# Trajectory-based graph builder (Street Smart-style)
+# ---------------------------------------------------------------------------
+
+def build_trajectory_graph(
+    metadata_parquet: str,
+    graph_cfg: Any,
+) -> StreetGraph:
+    """Build a street graph by reconstructing capture vehicle trajectories.
+
+    Reverse-engineers the Cyclomedia Street Smart viewer's dual navigation:
+
+    1. **Route-based** (LRS cruise mode): recordings within a vehicle pass are
+       chained sequentially by capture timestamp — this mirrors the Street Smart
+       LRS WFS that orders recordings by ``routeid``, ``direction``, ``frame``.
+
+    2. **Spatial scoring** (arrow-key navigation): nearby recordings are scored
+       using the actual Street Smart formula extracted from StreetSmartApi.js:
+           score(dist, angle) = angle > π/4 ? -1 : (1 - angle/π) / (1 + 0.1·√dist)
+       The highest-scoring candidate in each direction becomes the forward /
+       backward / turn target.
+
+    3. **Component bridging**: after phases 1-2, any disconnected components are
+       linked via nearest-pair spatial connections to ensure global traversability.
+
+    Required parquet columns: recording_id, latitude/lat, longitude/lon,
+                              recordedAt, recorderDirection
+    """
+    from collections import defaultdict
+    from scipy.spatial import cKDTree
+
+    TAG = "[trajectory_graph]"
+
+    precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
+    if precomputed_path and os.path.exists(precomputed_path):
+        print(f"{TAG} Loading precomputed graph from {precomputed_path}", flush=True)
+        with open(precomputed_path, "rb") as f:
+            return pickle.load(f)
+
+    # --- Config ---
+    pass_time_gap_s = float(getattr(graph_cfg, "pass_time_gap_s", 10.0))
+    pass_distance_gap_m = float(getattr(graph_cfg, "pass_distance_gap_m", 100.0))
+    pass_heading_gap_deg = float(getattr(graph_cfg, "pass_heading_gap_deg", 90.0))
+    spatial_radius_m = float(getattr(graph_cfg, "spatial_radius_m", 30.0))
+    max_spatial_neighbors = int(getattr(graph_cfg, "max_spatial_neighbors", 4))
+    max_along_pass_distance_m = float(getattr(graph_cfg, "max_along_pass_distance_m", 50.0))
+    subsample_spacing_m = float(getattr(graph_cfg, "subsample_spacing_m", 0.0))
+    bridge_components = bool(getattr(graph_cfg, "bridge_components", True))
+    bridge_radius_m = float(getattr(graph_cfg, "bridge_radius_m", 200.0))
+    yaw_column = str(getattr(graph_cfg, "yaw_column", "recorderDirection"))
+    # Legacy params (still accepted for backwards compat)
+    if hasattr(graph_cfg, "intersection_radius_m"):
+        spatial_radius_m = float(graph_cfg.intersection_radius_m)
+
+    # --- Load & normalize recordings ---
+    print(f"{TAG} Loading metadata from {metadata_parquet}", flush=True)
+    meta_df = pd.read_parquet(metadata_parquet)
+
+    col_aliases = {"lat": "latitude", "lon": "longitude", "lng": "longitude"}
+    for alias, canonical in col_aliases.items():
+        if alias not in meta_df.columns:
+            continue
+        if canonical not in meta_df.columns:
+            meta_df = meta_df.rename(columns={alias: canonical})
+        elif meta_df[canonical].isna().all() and not meta_df[alias].isna().all():
+            meta_df = meta_df.drop(columns=[canonical])
+            meta_df = meta_df.rename(columns={alias: canonical})
+
+    for col in ("recording_id", "latitude", "longitude", "recordedAt"):
+        if col not in meta_df.columns:
+            raise ValueError(f"{TAG} Metadata parquet missing required column: {col}")
+
+    recs = meta_df.drop_duplicates(subset=["recording_id"]).reset_index(drop=True)
+    recs["latitude"] = pd.to_numeric(recs["latitude"], errors="coerce")
+    recs["longitude"] = pd.to_numeric(recs["longitude"], errors="coerce")
+    recs = recs[recs["latitude"].notna() & recs["longitude"].notna()].reset_index(drop=True)
+
+    # Parse timestamps
+    recs["_ts"] = pd.to_datetime(recs["recordedAt"], utc=True)
+    recs = recs[recs["_ts"].notna()].reset_index(drop=True)
+
+    # Normalize yaw
+    yaw_all = _normalize_yaw_from_recorder_direction(recs, yaw_column)
+
+    # Sort by timestamp for pass segmentation
+    recs = recs.sort_values("_ts").reset_index(drop=True)
+
+    rec_ids = recs["recording_id"].values.astype(str)
+    lats = recs["latitude"].values.astype(float)
+    lons = recs["longitude"].values.astype(float)
+    timestamps = recs["_ts"].values  # numpy datetime64
+    yaws = yaw_all[recs.index.values] if len(yaw_all) == len(meta_df) else _normalize_yaw_from_recorder_direction(recs, yaw_column)
+
+    n_recs = len(rec_ids)
+    print(f"{TAG} {n_recs:,} unique recordings with timestamps", flush=True)
+
+    # --- Phase 1: Segment into vehicle passes ---
+    # A new pass starts when any of: time gap, distance gap, or heading change
+    # exceeds thresholds.
+    pass_ids = np.zeros(n_recs, dtype=np.int64)
+    current_pass = 0
+    for i in range(1, n_recs):
+        # Time gap
+        dt_s = (timestamps[i] - timestamps[i - 1]) / np.timedelta64(1, "s")
+
+        # Distance gap
+        dist_m = _haversine_m(lats[i - 1], lons[i - 1], lats[i], lons[i])
+
+        # Heading change
+        hdg_diff = abs(yaws[i] - yaws[i - 1])
+        hdg_diff = min(hdg_diff, 360.0 - hdg_diff)
+
+        if dt_s > pass_time_gap_s or dist_m > pass_distance_gap_m or hdg_diff > pass_heading_gap_deg:
+            current_pass += 1
+
+        pass_ids[i] = current_pass
+
+    n_passes = current_pass + 1
+    print(f"{TAG} Segmented into {n_passes:,} vehicle passes", flush=True)
+
+    # Pass size statistics
+    pass_sizes = np.bincount(pass_ids)
+    print(f"{TAG} Pass sizes: median={np.median(pass_sizes):.0f}, "
+          f"mean={np.mean(pass_sizes):.1f}, max={np.max(pass_sizes)}, "
+          f"single-recording passes={np.sum(pass_sizes == 1)}", flush=True)
+
+    # --- Phase 2: Along-pass edges (forward/backward navigation) ---
+    adjacency: Dict[str, List[Neighbor]] = defaultdict(list)
+    coords: Dict[str, Tuple[float, float]] = {}
+    yaw_degrees: Dict[str, float] = {}
+
+    # Build lookup structures
+    for i in range(n_recs):
+        rid = str(rec_ids[i])
+        coords[rid] = (float(lats[i]), float(lons[i]))
+        yaw_degrees[rid] = float(yaws[i])
+
+    n_along = 0
+    for i in range(1, n_recs):
+        if pass_ids[i] != pass_ids[i - 1]:
+            continue  # pass boundary
+
+        src_id = str(rec_ids[i - 1])
+        dst_id = str(rec_ids[i])
+        dist_m = _haversine_m(lats[i - 1], lons[i - 1], lats[i], lons[i])
+
+        if dist_m > max_along_pass_distance_m:
+            continue  # skip anomalous gaps within a pass
+
+        bearing_fwd = _bearing_deg(lats[i - 1], lons[i - 1], lats[i], lons[i])
+        bearing_rev = (bearing_fwd + 180.0) % 360.0
+
+        adjacency[src_id].append(Neighbor(
+            recording_id=dst_id, distance_m=dist_m, bearing_deg=bearing_fwd,
+        ))
+        adjacency[dst_id].append(Neighbor(
+            recording_id=src_id, distance_m=dist_m, bearing_deg=bearing_rev,
+        ))
+        n_along += 1
+
+    print(f"{TAG} Along-pass edges: {n_along:,} (bidirectional)", flush=True)
+
+    # --- Optional: subsample along-pass to reduce density ---
+    if subsample_spacing_m > 0:
+        # Within each pass, keep one recording per subsample_spacing_m interval
+        # measured as cumulative along-pass distance.
+        keep_mask = np.ones(n_recs, dtype=bool)
+        cum_dist = 0.0
+        last_kept_idx = 0
+        current_pass_id = pass_ids[0]
+
+        for i in range(1, n_recs):
+            if pass_ids[i] != current_pass_id:
+                # New pass: reset
+                current_pass_id = pass_ids[i]
+                cum_dist = 0.0
+                last_kept_idx = i
+                continue
+
+            cum_dist += _haversine_m(lats[i - 1], lons[i - 1], lats[i], lons[i])
+            if cum_dist < subsample_spacing_m:
+                keep_mask[i] = False
+            else:
+                cum_dist = 0.0
+                last_kept_idx = i
+
+        n_before = n_recs
+        kept_ids = set(str(rec_ids[i]) for i in range(n_recs) if keep_mask[i])
+
+        # Rebuild adjacency for kept nodes only, reconnecting chains
+        new_adjacency: Dict[str, List[Neighbor]] = defaultdict(list)
+        for pass_id in range(n_passes):
+            pass_mask = (pass_ids == pass_id) & keep_mask
+            pass_indices = np.where(pass_mask)[0]
+            for j in range(1, len(pass_indices)):
+                idx_prev, idx_curr = pass_indices[j - 1], pass_indices[j]
+                src = str(rec_ids[idx_prev])
+                dst = str(rec_ids[idx_curr])
+                dist = _haversine_m(lats[idx_prev], lons[idx_prev], lats[idx_curr], lons[idx_curr])
+                b_fwd = _bearing_deg(lats[idx_prev], lons[idx_prev], lats[idx_curr], lons[idx_curr])
+                b_rev = (b_fwd + 180.0) % 360.0
+                new_adjacency[src].append(Neighbor(recording_id=dst, distance_m=dist, bearing_deg=b_fwd))
+                new_adjacency[dst].append(Neighbor(recording_id=src, distance_m=dist, bearing_deg=b_rev))
+
+        adjacency = new_adjacency
+        # Remove non-kept nodes from coords/yaw
+        coords = {k: v for k, v in coords.items() if k in kept_ids}
+        yaw_degrees = {k: v for k, v in yaw_degrees.items() if k in kept_ids}
+
+        # Update arrays for intersection phase
+        keep_indices = np.where(keep_mask)[0]
+        rec_ids = rec_ids[keep_indices]
+        lats = lats[keep_indices]
+        lons = lons[keep_indices]
+        yaws = yaws[keep_indices]
+        pass_ids = pass_ids[keep_indices]
+        n_recs = len(rec_ids)
+
+        n_along_sub = sum(len(v) for v in adjacency.values()) // 2
+        print(f"{TAG} Subsampled {n_before:,} → {n_recs:,} recordings "
+              f"(spacing={subsample_spacing_m}m), {n_along_sub:,} along-pass edges", flush=True)
+
+    # --- Phase 3: Cross-pass spatial edges (Street Smart scoring) ---
+    # The Street Smart viewer scores nearby recordings using:
+    #   score(dist, angle) = angle > π/4 ? -1 : (1 - angle/π) / (1 + 0.1·√dist)
+    # where angle = abs difference between viewer yaw and bearing to candidate.
+    # We use this to connect pass endpoints and nearby cross-pass recordings.
+
+    def _streetsmart_score(distance_m: float, angle_rad: float) -> float:
+        """Street Smart navigation scoring function (from StreetSmartApi.js).
+
+        Returns >0 for viable forward/backward candidates, -1 for rejection.
+        Higher = better. Penalizes both distance and angular deviation.
+        """
+        if angle_rad > math.pi / 4:
+            return -1.0
+        return (1.0 - angle_rad / math.pi) / (1.0 + 0.1 * math.sqrt(distance_m))
+
+    xs, ys = _project_to_meters(lats, lons)
+    coords_m = np.column_stack([xs, ys])
+    tree = cKDTree(coords_m)
+
+    # Build existing-edge set for dedup
+    existing_edges: set = set()
+    for src_id, nbs in adjacency.items():
+        for nb in nbs:
+            edge = (src_id, nb.recording_id) if src_id < nb.recording_id else (nb.recording_id, src_id)
+            existing_edges.add(edge)
+
+    # For each recording, find nearby recordings from other passes and score
+    # them using the Street Smart formula. Keep the top max_spatial_neighbors.
+    k_query = min(max_spatial_neighbors * 5, n_recs)  # query more, filter to top k
+    dists_knn, indices_knn = tree.query(coords_m, k=min(k_query, n_recs))
+
+    n_spatial = 0
+    for i in range(n_recs):
+        src_id = str(rec_ids[i])
+        src_yaw_rad = math.radians(yaws[i])
+        candidates = []
+
+        for j_rank in range(1, dists_knn.shape[1]):  # skip self
+            j = indices_knn[i, j_rank]
+            if pass_ids[i] == pass_ids[j]:
+                continue  # same pass → already connected by along-pass edges
+
+            dst_id = str(rec_ids[j])
+            edge_key = (src_id, dst_id) if src_id < dst_id else (dst_id, src_id)
+            if edge_key in existing_edges:
+                continue
+
+            dist_m = _haversine_m(lats[i], lons[i], lats[j], lons[j])
+            if dist_m > spatial_radius_m:
+                break  # KNN results are distance-ordered
+
+            bearing = _bearing_deg(lats[i], lons[i], lats[j], lons[j])
+            bearing_rad = math.radians(bearing)
+
+            # Score as forward candidate (bearing vs yaw)
+            angle_fwd = abs(bearing_rad - src_yaw_rad)
+            if angle_fwd > math.pi:
+                angle_fwd = 2 * math.pi - angle_fwd
+            score_fwd = _streetsmart_score(dist_m, angle_fwd)
+
+            # Score as backward candidate (bearing vs yaw + π)
+            angle_bwd = abs(bearing_rad - (src_yaw_rad + math.pi))
+            if angle_bwd > math.pi:
+                angle_bwd = 2 * math.pi - angle_bwd
+            score_bwd = _streetsmart_score(dist_m, angle_bwd)
+
+            best_score = max(score_fwd, score_bwd)
+            if best_score > 0:
+                candidates.append((j, dst_id, dist_m, bearing, best_score))
+
+        # Keep top candidates by score
+        candidates.sort(key=lambda x: x[4], reverse=True)
+        for j, dst_id, dist_m, bearing, score in candidates[:max_spatial_neighbors]:
+            edge_key = (src_id, dst_id) if src_id < dst_id else (dst_id, src_id)
+            if edge_key in existing_edges:
+                continue
+            bearing_fwd = bearing
+            bearing_rev = (bearing_fwd + 180.0) % 360.0
+            adjacency[src_id].append(Neighbor(
+                recording_id=dst_id, distance_m=dist_m, bearing_deg=bearing_fwd,
+            ))
+            adjacency[dst_id].append(Neighbor(
+                recording_id=src_id, distance_m=dist_m, bearing_deg=bearing_rev,
+            ))
+            existing_edges.add(edge_key)
+            n_spatial += 1
+
+    print(f"{TAG} Cross-pass spatial edges (Street Smart scored): {n_spatial:,}", flush=True)
+
+    # --- Phase 4: Bridge disconnected components ---
+    if bridge_components:
+        # Find connected components
+        rid_to_idx_local = {str(rec_ids[i]): i for i in range(n_recs)}
+        comp = np.full(n_recs, -1, dtype=np.int64)
+        comp_id = 0
+        for start in range(n_recs):
+            if comp[start] >= 0:
+                continue
+            stack = [start]
+            while stack:
+                node = stack.pop()
+                if comp[node] >= 0:
+                    continue
+                comp[node] = comp_id
+                rid = str(rec_ids[node])
+                for nb in adjacency.get(rid, []):
+                    nb_idx = rid_to_idx_local.get(nb.recording_id)
+                    if nb_idx is not None and comp[nb_idx] < 0:
+                        stack.append(nb_idx)
+            comp_id += 1
+
+        n_components = comp_id
+        if n_components > 1:
+            print(f"{TAG} Found {n_components:,} disconnected components, bridging...", flush=True)
+
+            # For each component, find its spatially closest recording in another component
+            # using a larger search radius
+            n_bridge = 0
+            comp_sizes = np.bincount(comp)
+            # Sort components by size (largest first) — merge small into large
+            comp_order = np.argsort(-comp_sizes)
+            target_comp = comp_order[0]  # largest component
+
+            for c in comp_order[1:]:
+                c_mask = comp == c
+                c_indices = np.where(c_mask)[0]
+                if len(c_indices) == 0:
+                    continue
+
+                # Find nearest node in any other (already-connected) component
+                other_mask = comp != c
+                other_indices = np.where(other_mask)[0]
+                if len(other_indices) == 0:
+                    continue
+
+                # Build a tree of "other" nodes and query closest for each node in c
+                other_tree = cKDTree(coords_m[other_indices])
+                c_coords = coords_m[c_indices]
+                dists_bridge, idx_bridge = other_tree.query(c_coords, k=1)
+
+                # Pick the closest pair
+                best_local = np.argmin(dists_bridge)
+                best_dist_proj = dists_bridge[best_local]
+                i_idx = c_indices[best_local]
+                j_idx = other_indices[idx_bridge[best_local]]
+
+                dist_m = _haversine_m(lats[i_idx], lons[i_idx], lats[j_idx], lons[j_idx])
+                if dist_m > bridge_radius_m:
+                    continue  # too far, skip this component
+
+                src_id = str(rec_ids[i_idx])
+                dst_id = str(rec_ids[j_idx])
+                bearing_fwd = _bearing_deg(lats[i_idx], lons[i_idx], lats[j_idx], lons[j_idx])
+                bearing_rev = (bearing_fwd + 180.0) % 360.0
+
+                adjacency[src_id].append(Neighbor(
+                    recording_id=dst_id, distance_m=dist_m, bearing_deg=bearing_fwd,
+                ))
+                adjacency[dst_id].append(Neighbor(
+                    recording_id=src_id, distance_m=dist_m, bearing_deg=bearing_rev,
+                ))
+                n_bridge += 1
+
+                # Merge component labels so future bridges see the merged set
+                comp[c_mask] = comp[j_idx]
+
+            print(f"{TAG} Bridge edges: {n_bridge:,} (merged {n_components:,} → ~1 component)", flush=True)
+        else:
+            print(f"{TAG} Graph is already fully connected (1 component)", flush=True)
+
+    # --- Build final graph ---
+    graph = StreetGraph(
+        adjacency=dict(adjacency),
+        coords=coords,
+        yaw_degrees=yaw_degrees,
+    )
+
+    total_edges = sum(len(v) for v in adjacency.values())
+    avg_deg = total_edges / max(1, len(adjacency))
+    n_nodes_with_turns = sum(1 for v in adjacency.values() if len(v) > 2)
+    print(
+        f"{TAG} Built: {len(adjacency):,} nodes, {total_edges:,} edges "
+        f"(avg degree {avg_deg:.1f}), {n_along:,} along-pass + {n_spatial:,} spatial, "
+        f"{n_nodes_with_turns:,} nodes with turn options (degree > 2)",
+        flush=True,
+    )
+
+    if precomputed_path:
+        os.makedirs(os.path.dirname(precomputed_path) or ".", exist_ok=True)
+        print(f"{TAG} Saving to {precomputed_path}", flush=True)
         with open(precomputed_path, "wb") as f:
             pickle.dump(graph, f)
 

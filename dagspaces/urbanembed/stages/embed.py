@@ -1,292 +1,127 @@
-"""Batch image embedding using Qwen3-VL-Embedding models via Ray actors.
+"""Batch image embedding using vLLM's LLM.embed() API.
 
-Each EmbeddingActor loads the model on a single GPU and processes batches
-of images. The run_embed_stage() function distributes work across available
-GPUs using Ray Data map_batches with ActorPoolStrategy.
+Uses vLLM with ``runner="pooling"`` for dense embedding extraction.
+Multi-GPU scaling uses vLLM's native ``data_parallel_size`` — vLLM handles
+GPU slicing, process groups, and load balancing internally.
+
+Streaming output: when runtime.streaming_io is True, results are written
+to disk incrementally every batch — if the job dies at batch 500/1000,
+you still have 500 batches of embeddings on disk.
 """
 
 from __future__ import annotations
 
 import logging
 import os
-import time
 import unicodedata
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
-import torch
-import torch.nn.functional as F
+import numpy.linalg as la
+import pandas as pd
 from omegaconf import DictConfig
 from PIL import Image
-from transformers.cache_utils import Cache
-from transformers.modeling_outputs import ModelOutput
-from transformers.models.qwen3_vl.modeling_qwen3_vl import (
-    Qwen3VLConfig,
-    Qwen3VLModel,
-    Qwen3VLPreTrainedModel,
+
+from dagspaces.common.vllm_inference import (
+    _build_engine_kwargs,
+    _flatten_messages_for_template,
+    _shutdown_llm,
+    get_pcie_nccl_env_vars,
+    get_vllm_runtime_env_vars,
 )
-from transformers.models.qwen3_vl.processing_qwen3_vl import Qwen3VLProcessor
-from transformers.processing_utils import Unpack
-from transformers.utils import TransformersKwargs
 
 logger = logging.getLogger(__name__)
 
-MAX_LENGTH = 8192
-
 
 # ---------------------------------------------------------------------------
-# Vendored model class from Qwen3-VL-Embedding model scripts
+# Preprocess / postprocess factories
 # ---------------------------------------------------------------------------
 
-@dataclass
-class Qwen3VLForEmbeddingOutput(ModelOutput):
-    last_hidden_state: Optional[torch.FloatTensor] = None
-    attention_mask: Optional[torch.Tensor] = None
-
-
-class Qwen3VLForEmbedding(Qwen3VLPreTrainedModel):
-    _checkpoint_conversion_mapping = {}
-    accepts_loss_kwargs = False
-    config: Qwen3VLConfig
-
-    def __init__(self, config):
-        super().__init__(config)
-        self.model = Qwen3VLModel(config)
-        self.post_init()
-
-    def get_input_embeddings(self):
-        return self.model.get_input_embeddings()
-
-    def set_input_embeddings(self, value):
-        self.model.set_input_embeddings(value)
-
-    def get_video_features(self, pixel_values_videos, video_grid_thw=None):
-        return self.model.get_video_features(pixel_values_videos, video_grid_thw)
-
-    def get_image_features(self, pixel_values, image_grid_thw=None):
-        return self.model.get_image_features(pixel_values, image_grid_thw)
-
-    @property
-    def language_model(self):
-        return self.model.language_model
-
-    @property
-    def visual(self):
-        return self.model.visual
-
-    def forward(
-        self,
-        input_ids: torch.LongTensor = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        position_ids: Optional[torch.LongTensor] = None,
-        past_key_values: Optional[Cache] = None,
-        inputs_embeds: Optional[torch.FloatTensor] = None,
-        pixel_values: Optional[torch.Tensor] = None,
-        pixel_values_videos: Optional[torch.FloatTensor] = None,
-        image_grid_thw: Optional[torch.LongTensor] = None,
-        video_grid_thw: Optional[torch.LongTensor] = None,
-        cache_position: Optional[torch.LongTensor] = None,
-        logits_to_keep: Union[int, torch.Tensor] = 0,
-        **kwargs: Unpack[TransformersKwargs],
-    ) -> Union[tuple, Qwen3VLForEmbeddingOutput]:
-        outputs = self.model(
-            input_ids=input_ids,
-            pixel_values=pixel_values,
-            pixel_values_videos=pixel_values_videos,
-            image_grid_thw=image_grid_thw,
-            video_grid_thw=video_grid_thw,
-            position_ids=position_ids,
-            attention_mask=attention_mask,
-            past_key_values=past_key_values,
-            inputs_embeds=inputs_embeds,
-            cache_position=cache_position,
-            **kwargs,
-        )
-        return Qwen3VLForEmbeddingOutput(
-            last_hidden_state=outputs.last_hidden_state,
-            attention_mask=attention_mask,
-        )
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _pooling_last(
-    hidden_state: torch.Tensor, attention_mask: torch.Tensor
-) -> torch.Tensor:
-    """Extract the last non-padding token's hidden state per row."""
-    flipped = attention_mask.flip(dims=[1])
-    last_one_pos = flipped.argmax(dim=1)
-    col = attention_mask.shape[1] - last_one_pos - 1
-    row = torch.arange(hidden_state.shape[0], device=hidden_state.device)
-    return hidden_state[row, col]
-
-
-def _format_image_conversation(
-    image_path: str,
-    instruction: str,
-    min_pixels: int,
-    max_pixels: int,
-) -> List[Dict]:
-    """Build a conversation list for a single image embedding request."""
-    instruction = instruction.strip()
+def _make_preprocess(cfg: DictConfig) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
+    """Return a preprocess function that builds chat messages for embedding."""
+    instruction = str(getattr(cfg.embedding, "instruction", "")).strip()
     if instruction and not unicodedata.category(instruction[-1]).startswith("P"):
         instruction = instruction + "."
 
-    image_ref = image_path if image_path.startswith(("http", "oss")) else "file://" + image_path
+    min_pixels = int(getattr(cfg.embedding, "min_pixels", 784))
+    max_pixels = int(getattr(cfg.embedding, "max_pixels", 262144))
+    image_col = "image_path"
+    if hasattr(cfg.data, "columns"):
+        image_col = str(getattr(cfg.data.columns, "image_path", "image_path"))
 
-    return [
-        {
-            "role": "system",
-            "content": [{"type": "text", "text": instruction}],
-        },
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "image": image_ref,
-                    "min_pixels": min_pixels,
-                    "max_pixels": max_pixels,
-                }
-            ],
-        },
-    ]
+    def preprocess(row: Dict[str, Any]) -> Dict[str, Any]:
+        image_path = str(row.get(image_col, ""))
+        if not image_path:
+            raise ValueError(f"Missing image path in column '{image_col}'")
 
+        image_ref = image_path if image_path.startswith(("http", "oss")) else "file://" + image_path
 
-def _load_images_from_conversations(conversations: List[List[Dict]]) -> List[Image.Image]:
-    """Load PIL images from conversation dicts (one image per conversation)."""
-    images = []
-    for conv in conversations:
-        for msg in conv:
-            for item in msg.get("content", []):
-                if item.get("type") == "image":
-                    ref = item["image"]
-                    if isinstance(ref, Image.Image):
-                        images.append(ref)
-                    elif isinstance(ref, str):
-                        path = ref.removeprefix("file://")
-                        images.append(Image.open(path).convert("RGB"))
-    return images
-
-
-def _preprocess_batch(
-    processor: Qwen3VLProcessor,
-    conversations: List[List[Dict]],
-) -> Dict[str, torch.Tensor]:
-    """Tokenize + load images for a batch of conversations."""
-    text = processor.apply_chat_template(
-        conversations, add_generation_prompt=True, tokenize=False
-    )
-    images = _load_images_from_conversations(conversations)
-    inputs = processor(
-        text=text,
-        images=images if images else None,
-        truncation=True,
-        max_length=MAX_LENGTH,
-        padding=True,
-        return_tensors="pt",
-    )
-    return inputs
-
-
-# ---------------------------------------------------------------------------
-# Ray actor for distributed embedding
-# ---------------------------------------------------------------------------
-
-class EmbeddingActor:
-    """Stateful Ray actor that loads the model on a single GPU."""
-
-    def __init__(self, cfg: Dict[str, Any]):
-        import torch
-
-        self.instruction: str = cfg["instruction"]
-        self.normalize: bool = cfg["normalize"]
-        self.output_dim: Optional[int] = cfg.get("output_dim")
-        self.min_pixels: int = cfg["min_pixels"]
-        self.max_pixels: int = cfg["max_pixels"]
-        self.image_col: str = cfg.get("image_col", "image_path")
-        self.model_source: str = cfg["model_source"]
-
-        attn_impl = "flash_attention_2"
-        try:
-            self.model = Qwen3VLForEmbedding.from_pretrained(
-                self.model_source,
-                torch_dtype=torch.bfloat16,
-                attn_implementation=attn_impl,
-                trust_remote_code=True,
-            ).cuda().eval()
-        except (ImportError, ValueError):
-            attn_impl = "sdpa"
-            self.model = Qwen3VLForEmbedding.from_pretrained(
-                self.model_source,
-                torch_dtype=torch.bfloat16,
-                attn_implementation=attn_impl,
-                trust_remote_code=True,
-            ).cuda().eval()
-
-        self.processor = Qwen3VLProcessor.from_pretrained(
-            self.model_source, padding_side="right"
-        )
-        print(f"[EmbeddingActor] Model loaded from {self.model_source} (attn={attn_impl})", flush=True)
-
-    def __call__(self, batch: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
-        image_paths = batch[self.image_col]
-        batch_size = len(image_paths)
-
-        conversations = [
-            _format_image_conversation(
-                str(path), self.instruction, self.min_pixels, self.max_pixels
-            )
-            for path in image_paths
+        row["messages"] = [
+            {
+                "role": "system",
+                "content": [{"type": "text", "text": instruction}],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "image": image_ref,
+                        "min_pixels": min_pixels,
+                        "max_pixels": max_pixels,
+                    }
+                ],
+            },
         ]
+        return row
 
-        inputs = _preprocess_batch(self.processor, conversations)
-        inputs = {k: v.cuda() for k, v in inputs.items()}
+    return preprocess
 
-        with torch.no_grad():
-            outputs = self.model(**inputs)
 
-        embs = _pooling_last(outputs.last_hidden_state, inputs["attention_mask"])
-        if self.output_dim:
-            embs = embs[:, : int(self.output_dim)]
-        if self.normalize:
-            embs = F.normalize(embs, p=2, dim=-1)
+def _make_postprocess(cfg: DictConfig) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
+    """Return a postprocess function that normalizes and truncates embeddings."""
+    normalize = bool(getattr(cfg.embedding, "normalize", True))
+    output_dim = getattr(cfg.embedding, "output_dim", None)
+    if output_dim is not None:
+        output_dim = int(output_dim)
+    model_source = str(cfg.model.model_source)
 
-        embs_np = embs.cpu().float().numpy()
+    def postprocess(row: Dict[str, Any]) -> Dict[str, Any]:
+        emb = row.get("embedding")
+        if emb is None:
+            row["embedding"] = None
+            row["embedding_dim"] = 0
+            row["model_source"] = model_source
+            return row
 
-        result = {}
-        for col_name, col_data in batch.items():
-            result[col_name] = col_data
-        result["embedding"] = list(embs_np)
-        result["embedding_dim"] = np.full(batch_size, embs_np.shape[1], dtype=np.int32)
-        result["model_source"] = np.array(
-            [self.model_source] * batch_size, dtype=object
-        )
+        if not isinstance(emb, np.ndarray):
+            emb = np.array(emb, dtype=np.float32)
 
-        return result
+        if output_dim is not None:
+            emb = emb[:output_dim]
+
+        if normalize:
+            norm = la.norm(emb)
+            if norm > 0:
+                emb = emb / norm
+
+        row["embedding"] = emb
+        row["embedding_dim"] = len(emb)
+        row["model_source"] = model_source
+        return row
+
+    return postprocess
 
 
 # ---------------------------------------------------------------------------
 # Stage entry point
 # ---------------------------------------------------------------------------
 
-def _detect_gpu_count() -> int:
-    """Detect available GPUs from CUDA_VISIBLE_DEVICES or torch."""
-    cuda_vis = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-    if cuda_vis:
-        return len([d for d in cuda_vis.split(",") if d.strip()])
-    try:
-        import torch
-        return torch.cuda.device_count()
-    except Exception:
-        return 1
-
-
 def run_embed_stage(cfg: DictConfig) -> str:
-    """Run the embedding stage using Ray Data with actor pool.
+    """Run the embedding stage using vLLM with streaming output.
+
+    When streaming_io is True, results are flushed to parquet parts
+    every batch — providing incremental checkpoint-like behavior.
 
     Args:
         cfg: Hydra config with data, model, embedding, and runtime sections.
@@ -294,75 +129,300 @@ def run_embed_stage(cfg: DictConfig) -> str:
     Returns:
         Path to the output parquet file/directory.
     """
-    import ray
-    import ray.data
-    from ray.data import ActorPoolStrategy
-
-    from ..multiprocessing_utils import ensure_ray_init
-
-    ensure_ray_init(cfg, caller="run_embed_stage")
-
-    # Read input data
-    parquet_path = cfg.data.parquet_path
+    # Load input data
+    parquet_path = str(cfg.data.parquet_path)
     print(f"[run_embed_stage] Reading parquet: {parquet_path}", flush=True)
-    ds = ray.data.read_parquet(parquet_path)
+    df = pd.read_parquet(parquet_path)
 
     # Debug sampling
     sample_n = getattr(getattr(cfg, "runtime", {}), "sample_n", None)
     if sample_n:
         n = int(sample_n)
-        ds = ds.limit(n)
+        df = df.head(n)
         print(f"[run_embed_stage] Limited to {n} rows for debug", flush=True)
 
-    # Detect GPUs
-    num_gpus = _detect_gpu_count()
-    print(f"[run_embed_stage] Using {num_gpus} GPUs", flush=True)
-
-    # Build actor config dict (must be serializable)
-    image_col = str(getattr(getattr(cfg, "data", {}).get("columns", {}), "image_path", "image_path"))
-    if hasattr(cfg.data, "columns"):
-        image_col = str(getattr(cfg.data.columns, "image_path", "image_path"))
-
-    actor_cfg = {
-        "model_source": str(cfg.model.model_source),
-        "instruction": str(cfg.embedding.instruction),
-        "normalize": bool(cfg.embedding.normalize),
-        "output_dim": int(cfg.embedding.output_dim) if cfg.embedding.get("output_dim") else None,
-        "min_pixels": int(cfg.embedding.min_pixels),
-        "max_pixels": int(cfg.embedding.max_pixels),
-        "image_col": image_col,
-    }
-
-    batch_size = int(cfg.embedding.batch_size)
-
-    ds = ds.map_batches(
-        EmbeddingActor,
-        fn_constructor_kwargs={"cfg": actor_cfg},
-        compute=ActorPoolStrategy(size=num_gpus),
-        num_gpus=1,
-        batch_size=batch_size,
-    )
+    streaming_io = bool(getattr(getattr(cfg, "runtime", {}), "streaming_io", False))
+    total_rows = len(df)
+    print(f"[run_embed_stage] {total_rows} rows to embed (streaming={streaming_io})",
+          flush=True)
 
     # Determine output path
     output_path = str(getattr(cfg.runtime, "output_path", None) or "")
     if not output_path:
         output_path = os.path.join("outputs", "embed", "embeddings.parquet")
-
     output_path = os.path.abspath(output_path)
-    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
-    # Check if streaming_io — write directory of parquet parts
-    streaming_io = bool(getattr(getattr(cfg, "runtime", {}), "streaming_io", False))
     if streaming_io:
-        # Write partitioned parquet directory
         output_dir = output_path.replace(".parquet", "")
         os.makedirs(output_dir, exist_ok=True)
-        ds.write_parquet(output_dir)
-        print(f"[run_embed_stage] Wrote streaming parquet to: {output_dir}", flush=True)
-        return output_dir
     else:
-        # Materialize and write single file
-        result_df = ds.to_pandas()
-        result_df.to_parquet(output_path, index=False)
-        print(f"[run_embed_stage] Wrote {len(result_df)} rows to: {output_path}", flush=True)
-        return output_path
+        os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    preprocess = _make_preprocess(cfg)
+    postprocess = _make_postprocess(cfg)
+
+    # ── Initialize vLLM engine ────────────────────────────────────────────
+    for k, v in {**get_pcie_nccl_env_vars(), **get_vllm_runtime_env_vars()}.items():
+        os.environ.setdefault(k, v)
+
+    env_snapshot = {
+        "CUDA_VISIBLE_DEVICES": os.environ.get("CUDA_VISIBLE_DEVICES", "<unset>"),
+        "SLURM_GPUS_ON_NODE": os.environ.get("SLURM_GPUS_ON_NODE", "<unset>"),
+    }
+    print(f"[run_embed_stage] Runtime env: {env_snapshot}", flush=True)
+
+    from vllm import LLM
+
+    engine_kwargs = _build_engine_kwargs(cfg)
+    engine_kwargs["runner"] = "pooling"
+    # Pop data_parallel_size — vLLM 0.19 workers get DP config from env vars
+    dp_size = int(engine_kwargs.pop("data_parallel_size", 1) or 1)
+
+    print(f"[run_embed_stage] Model: {engine_kwargs.get('model')}", flush=True)
+    print(f"[run_embed_stage] Engine kwargs: "
+          f"{ {k: v for k, v in engine_kwargs.items() if k != 'model'} }", flush=True)
+    if dp_size > 1:
+        print(f"[run_embed_stage] Data parallelism: {dp_size} replicas "
+              f"x TP={engine_kwargs.get('tensor_parallel_size', 1)}", flush=True)
+
+    # For DP mode, load tokenizer standalone; for single-process, create LLM.
+    if dp_size > 1:
+        from transformers import AutoTokenizer
+        tokenizer = AutoTokenizer.from_pretrained(
+            engine_kwargs["model"], trust_remote_code=True
+        )
+        llm = None
+    else:
+        llm = LLM(**engine_kwargs)
+        tokenizer = llm.llm_engine.tokenizer
+
+    chat_template_kwargs = dict(
+        getattr(cfg.model, "chat_template_kwargs", {}) or {}
+    )
+
+    batch_size = int(getattr(cfg.model, "batch_size", 0) or 0)
+    if batch_size <= 0:
+        batch_size = 16
+
+    # ── Preprocess all rows (lightweight — no image loading) ──────────────
+    print(f"[run_embed_stage] Preprocessing {total_rows} rows...", flush=True)
+    rows = df.to_dict("records")
+    preprocessed: List[Dict[str, Any]] = []
+    for idx, row in enumerate(rows):
+        try:
+            preprocessed.append(preprocess(row))
+        except Exception as e:
+            row["__preprocess_error__"] = str(e)
+            preprocessed.append(row)
+
+    # Extract prompt texts and image refs (no PIL loading yet)
+    prompt_texts: List[str] = []
+    image_refs: List[Optional[str]] = []
+    valid_mask: List[bool] = []
+
+    for row in preprocessed:
+        if "__preprocess_error__" in row:
+            prompt_texts.append("")
+            image_refs.append(None)
+            valid_mask.append(False)
+            continue
+
+        messages = row.get("messages", [])
+        try:
+            prompt_text = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+                **chat_template_kwargs,
+            )
+        except Exception:
+            try:
+                flat = _flatten_messages_for_template(messages)
+                prompt_text = tokenizer.apply_chat_template(
+                    flat, tokenize=False, add_generation_prompt=True,
+                )
+            except Exception:
+                parts = []
+                for msg in messages:
+                    content = msg.get("content", "")
+                    if isinstance(content, list):
+                        content = " ".join(
+                            b.get("text", "") for b in content
+                            if isinstance(b, dict) and b.get("type") == "text"
+                        )
+                    parts.append(content)
+                prompt_text = "\n".join(parts)
+
+        img_ref = None
+        for msg in messages:
+            for item in (msg.get("content", []) if isinstance(msg.get("content"), list) else []):
+                if isinstance(item, dict) and item.get("type") == "image":
+                    ref = item.get("image")
+                    if isinstance(ref, str):
+                        img_ref = ref.removeprefix("file://")
+
+        prompt_texts.append(prompt_text)
+        image_refs.append(img_ref)
+        valid_mask.append(True)
+
+    valid_count = sum(valid_mask)
+    valid_indices = [i for i, v in enumerate(valid_mask) if v]
+    print(f"[run_embed_stage] {valid_count} valid rows (batch_size={batch_size})",
+          flush=True)
+
+    # ── Embed: data-parallel or single-process ───────────────────────────
+    checkpoint_interval = int(getattr(getattr(cfg, "embedding", {}), "checkpoint_interval", 50_000) or 50_000)
+    dp_errors: List[str] = []
+
+    try:
+        if dp_size > 1:
+            # DP path: dispatch to subprocess workers, collect embeddings.
+            # The DP helper returns a tuple — on partial failure some
+            # positions may be None; we still stream what we have to disk
+            # and raise AFTER the final flush so the caller can recover.
+            from dagspaces.common.vllm_inference import _run_data_parallel_embed
+
+            valid_prompt_texts = [prompt_texts[i] for i in valid_indices]
+            valid_image_refs = [image_refs[i] for i in valid_indices]
+
+            print(f"[run_embed_stage] Running data-parallel embedding: "
+                  f"{len(valid_prompt_texts)} inputs across {dp_size} replicas...",
+                  flush=True)
+            all_embeddings, dp_errors = _run_data_parallel_embed(
+                engine_kwargs=engine_kwargs,
+                dp_size=dp_size,
+                prompt_texts=valid_prompt_texts,
+                image_refs=valid_image_refs,
+                stage_name="embed",
+                batch_size=batch_size,
+            )
+            if dp_errors:
+                missing = sum(1 for e in all_embeddings if e is None)
+                print(f"[run_embed_stage] DP embed partial failure: "
+                      f"{missing}/{len(all_embeddings)} positions missing; "
+                      f"streaming recovered rows before re-raising.", flush=True)
+
+            # Build results: merge embeddings with preprocessed rows
+            pending_results: List[Dict[str, Any]] = []
+            part_idx = 0
+            rows_written = 0
+            emb_iter = iter(all_embeddings)
+            for i, row in enumerate(preprocessed):
+                row = row.copy()
+                row.pop("messages", None)
+                if valid_mask[i]:
+                    row["embedding"] = next(emb_iter)
+                else:
+                    row["embedding"] = None
+                row = postprocess(row)
+                pending_results.append(row)
+
+                # Stream to disk incrementally (same as single-process path)
+                if streaming_io and len(pending_results) >= checkpoint_interval:
+                    chunk_df = pd.DataFrame(pending_results)
+                    part_path = os.path.join(output_dir, f"part-{part_idx:05d}.parquet")
+                    chunk_df.to_parquet(part_path, index=False)
+                    rows_written += len(chunk_df)
+                    print(f"[run_embed_stage] Checkpoint {part_idx}: "
+                          f"{len(chunk_df)} rows → {part_path} "
+                          f"({rows_written}/{total_rows} total)", flush=True)
+                    part_idx += 1
+                    del chunk_df
+                    pending_results = []
+
+        else:
+            # Single-process path
+            total_batches = (valid_count + batch_size - 1) // batch_size
+            print(f"[run_embed_stage] {total_batches} batches", flush=True)
+
+            pending_results: List[Dict[str, Any]] = []
+            part_idx = 0
+            rows_written = 0
+            rows_embedded = 0
+
+            for batch_start in range(0, len(valid_indices), batch_size):
+                batch_end = min(batch_start + batch_size, len(valid_indices))
+                batch_indices = valid_indices[batch_start:batch_end]
+                batch_num = batch_start // batch_size + 1
+
+                if batch_num % 50 == 1 or batch_num == total_batches:
+                    print(f"[run_embed_stage] Batch {batch_num}/{total_batches}: "
+                          f"{rows_embedded}/{valid_count} embedded, "
+                          f"{rows_written} written to disk", flush=True)
+
+                batch_inputs = []
+                for i in batch_indices:
+                    embed_input: Dict[str, Any] = {"prompt": prompt_texts[i]}
+                    ref = image_refs[i]
+                    if ref is not None:
+                        embed_input["multi_modal_data"] = {
+                            "image": Image.open(ref).convert("RGB")
+                        }
+                    batch_inputs.append(embed_input)
+
+                batch_outputs = llm.embed(batch_inputs)
+                del batch_inputs
+
+                for j, output in enumerate(batch_outputs):
+                    row = preprocessed[batch_indices[j]].copy()
+                    row.pop("messages", None)
+
+                    emb_data = output.outputs.embedding
+                    if not isinstance(emb_data, np.ndarray):
+                        emb_data = np.array(emb_data, dtype=np.float32)
+                    row["embedding"] = emb_data
+                    row = postprocess(row)
+                    pending_results.append(row)
+
+                del batch_outputs
+                rows_embedded += len(batch_indices)
+
+                if streaming_io and len(pending_results) >= checkpoint_interval:
+                    chunk_df = pd.DataFrame(pending_results)
+                    part_path = os.path.join(output_dir, f"part-{part_idx:05d}.parquet")
+                    chunk_df.to_parquet(part_path, index=False)
+                    rows_written += len(chunk_df)
+                    print(f"[run_embed_stage] Checkpoint {part_idx}: "
+                          f"{len(chunk_df)} rows → {part_path} "
+                          f"({rows_written}/{valid_count} total)", flush=True)
+                    part_idx += 1
+                    del chunk_df
+                    pending_results = []
+
+            # Handle failed rows (single-process only — DP path handles inline)
+            for i, row in enumerate(preprocessed):
+                if not valid_mask[i]:
+                    row = row.copy()
+                    row.pop("messages", None)
+                    row["embedding"] = None
+                    row = postprocess(row)
+                    pending_results.append(row)
+
+        # ── Final flush ──────────────────────────────────────────────────
+        if streaming_io:
+            if pending_results:
+                chunk_df = pd.DataFrame(pending_results)
+                part_path = os.path.join(output_dir, f"part-{part_idx:05d}.parquet")
+                chunk_df.to_parquet(part_path, index=False)
+                rows_written += len(chunk_df)
+                part_idx += 1
+
+            print(f"[run_embed_stage] Done: {rows_written} rows "
+                  f"in {part_idx} parts → {output_dir}", flush=True)
+            result_location = output_dir
+        else:
+            result_df = pd.DataFrame(pending_results)
+            result_df.to_parquet(output_path, index=False)
+            print(f"[run_embed_stage] Wrote {len(result_df)} rows → {output_path}",
+                  flush=True)
+            result_location = output_path
+
+        # Raise AFTER persistence so partial results are always on disk.
+        if dp_errors:
+            raise RuntimeError(
+                f"[embed] Data-parallel embedding had errors "
+                f"(partial results persisted to {result_location}):\n"
+                + "\n".join(dp_errors)
+            )
+        return result_location
+
+    finally:
+        _shutdown_llm(llm, stage_name="embed")

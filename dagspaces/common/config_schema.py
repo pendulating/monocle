@@ -196,6 +196,17 @@ def resolve_output_root(graph_spec: PipelineGraphSpec, cfg: DictConfig) -> str:
     runtime_root = getattr(getattr(cfg, "runtime", object()), "output_root", None)
     if runtime_root:
         return os.path.abspath(os.path.expanduser(str(runtime_root)))
+    # In multirun mode, HydraConfig.runtime.output_dir resolves to the sweep
+    # subdir (e.g. multirun/2026-04-09_URBANPAIRVQA/18-31-27/0).  This keeps
+    # all pipeline outputs (.slurm_jobs, parquet, manifest) co-located with
+    # the Hydra logs instead of scattering them at the project root.
+    try:
+        from hydra.core.hydra_config import HydraConfig
+        hc = HydraConfig.get()
+        if hc.runtime and hc.runtime.output_dir:
+            return os.path.abspath(str(hc.runtime.output_dir))
+    except Exception:
+        pass
     hydra_cfg = getattr(cfg, "hydra", None)
     try:
         hydra_run_dir = getattr(getattr(hydra_cfg, "run", object()), "dir", None)

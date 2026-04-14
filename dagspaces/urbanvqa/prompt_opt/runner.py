@@ -26,7 +26,6 @@ def _teardown_persistent_processor() -> None:
     This ensures the Slurm job can terminate by:
     1. Shutting down the persistent vLLM processor
     2. Clearing any global processor caches
-    3. Shutting down Ray if it was started by vLLM
     """
     try:
         from dagspaces.urbanvqa.stages.persistent_vllm import clear_processor_cache
@@ -45,17 +44,6 @@ def _teardown_persistent_processor() -> None:
             gepa_adapter._PERSISTENT_PROCESSOR = None
     except Exception as e:
         LOG.warning(f"Error clearing global processor reference: {e}")
-    
-    # Shutdown Ray if it's running (vLLM may have started it)
-    try:
-        import ray
-        if ray.is_initialized():
-            LOG.info("Shutting down Ray to release GPU resources...")
-            ray.shutdown()
-    except ImportError:
-        pass
-    except Exception as e:
-        LOG.warning(f"Error shutting down Ray: {e}")
     
     # Force garbage collection and CUDA cache clear
     try:

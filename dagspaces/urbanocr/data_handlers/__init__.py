@@ -1,7 +1,7 @@
 """Data handlers for urbanocr dagspace.
 
-Data handlers are pluggable adapters that produce Ray Datasets
-compatible with the OCR stage.
+Data handlers are pluggable adapters that produce pandas DataFrames
+with image paths for the OCR stage.
 """
 
 from .base import OCRDataHandler

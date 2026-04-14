@@ -14,7 +14,7 @@ runtime:
   image_fallback: false
   batch_inference: true
   streaming_io: true
-  job_memory_gb: 64  # Increased for Ray Object Store management
+  job_memory_gb: 64
 
 pipeline:
   output_root: ${runtime.output_root}

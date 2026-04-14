@@ -67,11 +67,6 @@ gepa:
     expected_score: null
     tolerance: 0.01
 
-ray:
-  num_gpus: 1
-  num_cpus: 4
-  dataset_cache_dir: ${gepa.sampler.cache_dir}
-
 vllm:
   model_config: ${model.model_source}
   engine:
@@ -98,5 +93,4 @@ runtime:
   suppress_child_warnings: true
   debug: false
   output_root: null
-  ray_skip_module_upload: true
 

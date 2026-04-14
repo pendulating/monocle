@@ -205,7 +205,7 @@ def init_verification(
 ) -> None:
     """Initialize global models and configuration for verification.
 
-    Call once per Ray worker process.
+    Call once per worker process.
     """
     _ensure_imports()
     global _EMBED_TOKENIZER, _EMBED_MODEL, _NLI_TOKENIZER, _NLI_MODEL, _CONFIG, _DEVICE, _CLAIM_MAP, _DEBUG
@@ -361,7 +361,7 @@ def _verify_one(chunk_text: str, chunk_label: str) -> Dict[str, Any]:
 
 
 def verify_batch_pandas(df: pd.DataFrame) -> pd.DataFrame:
-    """Ray Data map_batches-compatible function (batch_format='pandas').
+    """Batch verification function (operates on pandas DataFrames).
 
     Requires init_verification() to have been called on the worker.
     """

@@ -8,12 +8,6 @@ from typing import Iterable, List, Optional, Tuple
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
-try:
-    import ray.data  # noqa: F401
-    from ray.data import Dataset
-except ImportError:  # pragma: no cover - ray is an optional dependency in some environments
-    Dataset = None  # type: ignore[assignment]
-
 from dagspaces.urbanvqa.orchestrator import prepare_stage_input
 
 
@@ -48,11 +42,9 @@ def _clone_with_dataset_overrides(cfg: DictConfig, split_cfg: DictConfig) -> Dic
     return local_cfg
 
 
-def _to_pandas(df: pd.DataFrame, ds: Optional["Dataset"]) -> pd.DataFrame:
-    if ds is not None:
-        # NOTE: we materialize before converting to pandas to respect Ray's caching semantics.
-        ds = ds.materialize()
-        return ds.to_pandas()
+def _to_pandas(df: pd.DataFrame) -> pd.DataFrame:
+    if hasattr(df, "to_pandas") and not isinstance(df, pd.DataFrame):
+        return df.to_pandas()
     return df
 
 
@@ -73,7 +65,7 @@ def materialize_supervised_frame(
     local_cfg = _clone_with_dataset_overrides(cfg, split_cfg)
     parquet_path = getattr(local_cfg.data, "parquet_path", "") or ""
     df, ds, use_streaming = prepare_stage_input(local_cfg, parquet_path, stage=f"gepa_{split}")
-    frame = _to_pandas(df, ds if use_streaming else None)
+    frame = _to_pandas(df)
 
     prompt_col = getattr(split_cfg, "prompt_column", "prompt")
     answer_col = getattr(split_cfg, "answer_column", "expected_answer")

@@ -27,11 +27,15 @@ dependencies = [
     "statsmodels>=0.14.6",
     "osmnx>=2.0.0",
     "scipy>=1.14.0",
+    "scikit-learn>=1.5.0",
+    "tqdm>=4.66.0",
+    "rasterio>=1.3.0",
 ]
 
 [project.optional-dependencies]
-ray = [
-    "ray[data,llm,serve]>=2.53.0",
+# Ray is only needed for the Cambrian-13B sidecar inference path
+cambrian = [
+    "ray>=2.53.0",
 ]
 
 

@@ -2,7 +2,7 @@ system: "You are an expert visual comparison assistant."
 
 user_template: |
   Compare parking desirability between the two depicted areas.
-  Image A is shown on the LEFT and image B on the RIGHT.
+  Image A is the first image and Image B is the second image.
   Ask yourself: "Would I rather park in image A or image B?"
   Return exactly one label from:
   - MuchLess

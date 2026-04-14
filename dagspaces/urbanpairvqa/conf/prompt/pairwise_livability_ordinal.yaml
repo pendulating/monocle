@@ -2,7 +2,7 @@ system: "You are a prospective city resident who is considering moving to a new 
 
 user_template: |
   You are searching for neighborhoods in a new city to live in.
-  Image A is shown on the LEFT and image B on the RIGHT.
+  Image A is the first image and Image B is the second image.
   Ask yourself: "Would I rather live in image A or image B?"
   Return exactly one label from:
   - MuchLess

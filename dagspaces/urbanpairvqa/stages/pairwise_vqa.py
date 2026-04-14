@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 import hashlib
 import os
 
-import numpy as np
 import pandas as pd
-from PIL import Image
 from omegaconf import DictConfig, OmegaConf
-
-from dagspaces.urbanvqa.stages.vqa import run_vqa_stage
 
 _ORDINAL_LABELS = ("MuchLess", "Less", "Same", "More", "MuchMore")
 _ORDINAL_SCORE = {
@@ -40,7 +36,6 @@ def _canonicalize_label(value: Any) -> str:
         "equal": "Same",
         "more": "More",
         "muchmore": "MuchMore",
-        # Support binary prompts like "is A more wealthy than B?"
         "yes": "More",
         "no": "Less",
         "true": "More",
@@ -60,40 +55,20 @@ def _deterministic_debug_label(pair_id: str, seed: int) -> str:
     return _ORDINAL_LABELS[idx]
 
 
-def _load_rgb(path: str) -> Image.Image:
-    with Image.open(path) as img:
-        return img.convert("RGB")
-
-
-def _stitch_pair(path_a: str, path_b: str, max_height: int) -> np.ndarray:
-    img_a = _load_rgb(path_a)
-    img_b = _load_rgb(path_b)
-    scale_a = max_height / float(max(1, img_a.height))
-    scale_b = max_height / float(max(1, img_b.height))
-    new_a = (max(1, int(img_a.width * scale_a)), max_height)
-    new_b = (max(1, int(img_b.width * scale_b)), max_height)
-    img_a = img_a.resize(new_a)
-    img_b = img_b.resize(new_b)
-
-    combined = Image.new("RGB", (img_a.width + img_b.width, max_height), color=(255, 255, 255))
-    combined.paste(img_a, (0, 0))
-    combined.paste(img_b, (img_a.width, 0))
-    return np.asarray(combined)
-
-
 def _render_pair_prompt(row: Dict[str, Any], cfg: DictConfig) -> str:
     template = str(
         getattr(
             getattr(cfg, "prompt", {}),
             "user_template",
-            "Compare image A (left) vs image B (right). Return one label: MuchLess, Less, Same, More, MuchMore.",
+            "Compare the first image (Image A) and the second image (Image B). "
+            "Return one label: MuchLess, Less, Same, More, MuchMore.",
         )
     )
     pair_id = str(row.get("pair_id", "unknown_pair"))
     return (
         f"{template}\n\n"
         f"Pair ID: {pair_id}\n"
-        "Interpret labels as LEFT image relative to RIGHT image."
+        "Interpret labels as Image A relative to Image B."
     )
 
 
@@ -121,28 +96,85 @@ def _derive_labels(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _prepare_pairwise_batch(batch: pd.DataFrame, cfg: DictConfig, max_height: int) -> pd.DataFrame:
-    rows = []
-    for record in batch.to_dict(orient="records"):
-        left_path = str(record.get("presented_left_path", "")).strip() or str(record.get("image_path_a", "")).strip()
-        right_path = str(record.get("presented_right_path", "")).strip() or str(record.get("image_path_b", "")).strip()
-        if not left_path or not right_path:
-            continue
-        if not os.path.exists(left_path) or not os.path.exists(right_path):
-            continue
-        stitched = _stitch_pair(left_path, right_path, max_height=max_height)
-        row = dict(record)
-        row["presented_left_path"] = left_path
-        row["presented_right_path"] = right_path
-        row["image"] = stitched
-        row["sample_id"] = str(record.get("pair_id"))
-        row["prompt"] = _render_pair_prompt(record, cfg)
-        rows.append(row)
-    return pd.DataFrame(rows)
+def _make_pairwise_preprocess(cfg: DictConfig):
+    """Build a preprocess callback that passes two separate images.
+
+    Each row carries paths to two images. The preprocess loads both as PIL
+    and places them as separate image content blocks in the message — Image A
+    (first) and Image B (second). The VLM sees both at full resolution.
+
+    Counterbalancing is already handled by the pair sampler:
+    ``presented_left_path`` and ``presented_right_path`` reflect the
+    (possibly swapped) presentation order.
+    """
+    system_prompt = str(getattr(getattr(cfg, "prompt", {}), "system", "You are a helpful assistant."))
+    sp_cfg = dict(getattr(cfg, "sampling_params_vqa", {}) or {})
+    stop_val = sp_cfg.get("stop")
+    if stop_val is None:
+        sp_cfg["stop"] = []
+    elif not isinstance(stop_val, list):
+        sp_cfg["stop"] = [str(stop_val)]
+
+    structured_cfg = getattr(getattr(cfg, "prompt", {}), "structured_output", None)
+    if structured_cfg and getattr(structured_cfg, "enabled", False):
+        schema = OmegaConf.to_container(structured_cfg.json_schema, resolve=True)
+        sp_cfg["guided_decoding"] = {"json": schema}
+
+    def _preprocess(row: Dict[str, Any]) -> Dict[str, Any]:
+        left_path = str(row.get("presented_left_path", "")).strip()
+        right_path = str(row.get("presented_right_path", "")).strip()
+        prompt = str(row.get("prompt", ""))
+
+        # Pass images as file:// URLs — vLLM loads them lazily during its
+        # internal rendering pipeline, so we don't hold all PIL images in
+        # memory at once.
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": [
+                {"type": "image_url", "image_url": {"url": f"file://{left_path}"}},
+                {"type": "image_url", "image_url": {"url": f"file://{right_path}"}},
+                {"type": "text", "text": prompt},
+            ]},
+        ]
+
+        result = dict(row)
+        result["messages"] = messages
+        result["sampling_params"] = dict(sp_cfg)
+        result["sample_id"] = str(row.get("pair_id", ""))
+        return result
+
+    return _preprocess
+
+
+def _make_pairwise_postprocess():
+    """Build a postprocess callback that extracts the answer."""
+    def _postprocess(row: Dict[str, Any]) -> Dict[str, Any]:
+        result = {}
+        for key in ["pair_id", "sample_id", "canonical_pair_id", "repeat_idx",
+                     "sample_id_a", "sample_id_b", "image_path_a", "image_path_b",
+                     "presented_left_path", "presented_right_path",
+                     "presented_order", "is_swapped"]:
+            if key in row:
+                result[key] = row[key]
+
+        result["answer"] = str(row.get("generated_text", "")).strip()
+        result["model_response"] = row.get("generated_text", "")
+        result["model_reasoning"] = row.get("generated_reasoning", "")
+        return result
+
+    return _postprocess
 
 
 def run_pairwise_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
-    """Execute pairwise relative comparison over two-image tuples."""
+    """Execute pairwise relative comparison over two-image tuples.
+
+    Each pair is presented as two separate images to the VLM (Image A first,
+    Image B second) at full resolution.  Counterbalancing (which image is A
+    vs B) is handled upstream by the pair sampler.  The full-pipeline DP
+    workers handle image loading and inference in parallel.
+    """
+    from dagspaces.common.vllm_inference import run_vllm_inference
+
     if df is None or df.empty:
         return pd.DataFrame(columns=["pair_id", "relative_label", "relative_score", "answer"])
 
@@ -160,33 +192,25 @@ def run_pairwise_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
         out["answer"] = out["pair_id"].apply(lambda x: _deterministic_debug_label(str(x), pair_seed))
         return _derive_labels(out)
 
-    max_height = int(getattr(getattr(cfg, "pairwise", {}), "stitch_max_height", 512))
-    model_cfg = OmegaConf.to_container(cfg, resolve=False)
-    local_cfg = OmegaConf.create(model_cfg)
-    # Stitched pair runs as one multimodal image through the existing VQA engine.
-    OmegaConf.update(local_cfg, "model.engine_kwargs.limit_mm_per_prompt.image", 1, merge=True)
+    local_cfg = OmegaConf.create(OmegaConf.to_container(cfg, resolve=False))
+    OmegaConf.update(local_cfg, "model.engine_kwargs.limit_mm_per_prompt.image", 2, merge=True)
 
-    inferred: Any
-    try:
-        import ray  # type: ignore
+    # Prepare lightweight DataFrame: render prompts, set sample_id (no image loading)
+    print(f"[pairwise_vqa] Preparing {len(df)} pairs...", flush=True)
+    df = df.copy()
+    df["sample_id"] = df["pair_id"].astype(str)
+    df["prompt"] = df.apply(lambda row: _render_pair_prompt(row.to_dict(), cfg), axis=1)
 
-        # Stream stitching in Ray batches to avoid materializing all image arrays in memory.
-        ds = ray.data.from_pandas(df)
-        prep_batch_size = int(getattr(getattr(cfg, "pairwise", {}), "prepare_batch_size", 16) or 16)
-        vqa_input = ds.map_batches(
-            _prepare_pairwise_batch,
-            batch_format="pandas",
-            fn_kwargs={"cfg": cfg, "max_height": max_height},
-            batch_size=prep_batch_size,
-        )
-        inferred = run_vqa_stage(vqa_input, local_cfg)
-        if hasattr(inferred, "map_batches"):
-            return inferred.map_batches(_derive_labels, batch_format="pandas")
-    except Exception:
-        rows = _prepare_pairwise_batch(df, cfg, max_height=max_height)
-        if rows.empty:
-            raise ValueError("No pair rows had readable presented/canonical image paths.")
-        inferred = run_vqa_stage(rows, local_cfg)
+    # Single inference call — DP workers load images and run inference in parallel
+    preprocess = _make_pairwise_preprocess(cfg)
+    postprocess = _make_pairwise_postprocess()
+
+    inferred = run_vllm_inference(
+        df=df,
+        cfg=local_cfg,
+        preprocess=preprocess,
+        postprocess=postprocess,
+        stage_name="urbanpairvqa_pairwise",
+    )
 
     return _derive_labels(inferred)
-

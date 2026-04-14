@@ -46,6 +46,18 @@ Usage:
         --image_dir /share/ju/cyclomedia/raw/manhattan_2025_1k \
         --output_path data/cyclomedia_manhattan_scaffolding.parquet \
         --workers 64
+
+    # Enrich with catalog metadata (timestamps, vehicle heading, etc.)
+    # Required for trajectory-based graph construction in urbanroamvqa.
+    # Catalog CSVs are at /share/ju/cyclomedia/pull/recordings_*_2025_*.csv
+    python scripts/create_cyclomedia_dataset.py \
+        --image_dir /share/ju/cyclomedia/raw/manhattan_2025_1k \
+        --output_path data/cyclomedia_manhattan_enriched.parquet \
+        --parse_manifests \
+        --catalog_csv /share/ju/cyclomedia/pull/recordings_manhattan_2025_chunks/manhattan_2025_part1of4.csv \
+        --catalog_csv /share/ju/cyclomedia/pull/recordings_manhattan_2025_chunks/manhattan_2025_part2of4.csv \
+        --catalog_csv /share/ju/cyclomedia/pull/recordings_manhattan_2025_chunks/manhattan_2025_part3of4.csv \
+        --catalog_csv /share/ju/cyclomedia/pull/recordings_manhattan_2025_chunks/manhattan_2025_part4of4.csv
 """
 
 import argparse
@@ -197,6 +209,54 @@ def _enumerate_recording_dirs(image_dir: str, workers: int) -> list[tuple[str, s
     return all_recordings
 
 
+def _load_catalog(catalog_paths: list[str]) -> pd.DataFrame:
+    """Load and concatenate Cyclomedia recording catalog CSVs.
+
+    These catalogs (from the Cyclomedia WFS API) contain temporal and vehicle
+    metadata: recordedAt, recorderDirection, yawDegrees, orientation, height, etc.
+    """
+    dfs = []
+    for path in catalog_paths:
+        print(f"  Loading catalog: {path}")
+        df = pd.read_csv(path)
+        dfs.append(df)
+    catalog = pd.concat(dfs, ignore_index=True)
+    # Normalize join key
+    if "imageId" in catalog.columns:
+        catalog = catalog.rename(columns={"imageId": "recording_id"})
+    catalog["recording_id"] = catalog["recording_id"].astype(str)
+    catalog = catalog.drop_duplicates(subset=["recording_id"])
+    print(f"  Catalog: {len(catalog):,} unique recordings")
+    return catalog
+
+
+# Columns to join from the catalog (skip columns already in the base dataset)
+CATALOG_JOIN_COLUMNS = [
+    "recording_id",
+    "recordedAt",
+    "recorderDirection",
+    "yawDegrees",
+    "orientation",
+    "orientationPrecision",
+    "yawPrecisionDegrees",
+    "statePlaneX",
+    "statePlaneY",
+    "locationSRS",
+    "height",
+    "heightSystem",
+    "groundLevelOffset",
+    "latitudePrecision",
+    "longitudePrecision",
+    "heightPrecision",
+    "year",
+    "panoramaTileSchema",
+    "tileSchema",
+    "hasDepthMap",
+    "isAuthorized",
+    "productType",
+]
+
+
 def create_cyclomedia_dataset(
     image_dir: str,
     output_path: str,
@@ -204,6 +264,7 @@ def create_cyclomedia_dataset(
     max_recordings: Optional[int] = None,
     workers: int = 32,
     parse_manifests: bool = False,
+    catalog_paths: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """Create a parquet dataset from Cyclomedia panoramic images.
 
@@ -225,10 +286,14 @@ def create_cyclomedia_dataset(
         workers: Number of threads for parallel scanning (default: 32).
         parse_manifests: If True, parse manifest.json for imageId and lat/lon.
             Adds ~97K file reads -- significantly slower. Default: False.
+        catalog_paths: Optional list of Cyclomedia recording catalog CSV paths.
+            When provided, enriches the dataset by joining temporal/vehicle metadata
+            (recordedAt, recorderDirection, yawDegrees, etc.) from the WFS catalog.
+            Required for trajectory-based graph construction in urbanroamvqa.
 
     Returns:
         DataFrame with columns: sample_id, image_path,
-        recording_id, face, latitude, longitude.
+        recording_id, face, latitude, longitude (+ catalog columns if enriched).
     """
     image_dir = os.path.abspath(image_dir)
     if not os.path.isdir(image_dir):
@@ -304,6 +369,31 @@ def create_cyclomedia_dataset(
     columns = ["sample_id", "image_path", "recording_id", "face", "latitude", "longitude"]
     df = pd.DataFrame(all_rows, columns=columns)
 
+    # --- Enrich with catalog metadata ---
+    if catalog_paths:
+        print(f"\nEnriching dataset with catalog metadata...")
+        catalog = _load_catalog(catalog_paths)
+        # Select only columns that exist in catalog and are in our join list
+        available = [c for c in CATALOG_JOIN_COLUMNS if c in catalog.columns]
+        catalog_subset = catalog[available]
+        n_before = len(df)
+        df = df.merge(catalog_subset, on="recording_id", how="left")
+        n_matched = df["recordedAt"].notna().sum() if "recordedAt" in df.columns else 0
+        n_unique_matched = df.loc[df["recordedAt"].notna(), "recording_id"].nunique() if "recordedAt" in df.columns else 0
+        print(f"  Joined {len(available) - 1} catalog columns")
+        print(f"  Matched: {n_unique_matched:,} / {df['recording_id'].nunique():,} unique recordings "
+              f"({n_matched:,} / {len(df):,} rows)")
+        # Fill lat/lon from catalog if missing from manifest
+        if "latitude" in df.columns and df["latitude"].isna().any():
+            for src, dst in [("lat", "latitude"), ("lon", "longitude")]:
+                if src in catalog.columns:
+                    cat_col = catalog.set_index("recording_id")[src]
+                    mask = df["latitude"].isna() if dst == "latitude" else df["longitude"].isna()
+                    df.loc[mask, dst] = df.loc[mask, "recording_id"].map(cat_col)
+            n_filled = df["latitude"].notna().sum() - (n_before - df["latitude"].isna().sum())
+            if n_filled > 0:
+                print(f"  Filled {n_filled:,} missing lat/lon from catalog")
+
     # Summary
     print(f"\nDataset summary:")
     print(f"  Recordings with faces: {recordings_with_faces}")
@@ -368,6 +458,15 @@ def main():
         default=False,
         help="Parse manifest.json for imageId and lat/lon (slower, adds ~97K file reads)",
     )
+    parser.add_argument(
+        "--catalog_csv",
+        type=str,
+        action="append",
+        default=None,
+        help="Path to Cyclomedia recording catalog CSV (from WFS API). "
+             "Can be specified multiple times to concatenate chunks. "
+             "Enriches dataset with recordedAt, recorderDirection, etc.",
+    )
 
     args = parser.parse_args()
 
@@ -380,6 +479,7 @@ def main():
         max_recordings=args.max_recordings,
         workers=args.workers,
         parse_manifests=args.parse_manifests,
+        catalog_paths=args.catalog_csv,
     )
 
     print("\nDataset preview:")

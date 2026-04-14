@@ -13,7 +13,7 @@ runtime:
   multimodal_enabled: true
   image_fallback: false
   batch_inference: true
-  streaming_io: false  # DISABLED to prevent Ray from loading 1M images into RAM
+  streaming_io: false  # DISABLED for large datasets to avoid loading 1M images into RAM
   auto_streaming_io: false # DISABLED to prevent automatic pixel loading
   job_memory_gb: 64
 
