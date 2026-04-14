@@ -127,7 +127,6 @@ class GEPAVQAAdapter(GEPAAdapter):
         # Check if persistent processor mode is enabled
         # NOTE: We do NOT initialize the processor here! Initialization must happen
         # lazily in evaluate() to avoid serialization issues when submitting to SLURM.
-        # Ray actors contain thread locks that cannot be pickled.
         optimization_cfg = getattr(base_cfg.gepa, "optimization", OmegaConf.create({}))
         self._use_persistent_processor = getattr(optimization_cfg, "persistent_processor", False)
         self._persistent_processor = None
@@ -141,7 +140,6 @@ class GEPAVQAAdapter(GEPAAdapter):
         """Lazily initialize the persistent vLLM or Cambrian processor for model reuse.
         
         This method is called on the first evaluate() call, NOT in __init__.
-        This is critical because Ray actors cannot be serialized for SLURM job submission.
         The initialization must happen inside the worker process.
         
         Returns:

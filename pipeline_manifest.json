@@ -3,51 +3,24 @@
   "nodes": {
     "pairwise": {
       "stage": "pairwise_vqa",
-      "inputs": {},
       "outputs": {
-        "results": "/share/pierson/matt/mllmsci/outputs/pairwise/livability_tester_large_20260305_165343.parquet"
+        "results": "/share/pierson/matt/mllmsci/outputs/pairwise/wealth_tester_25600_20260409_183134.parquet"
       },
       "metadata": {
-        "rows": 529466,
-        "pairs_sampled": 529466,
+        "rows": 282,
+        "pairs_sampled": 282,
         "seed": 777,
         "counterbalance_mode": "balanced",
-        "repeat_count": 10000,
-        "repeat_fraction": 0.0,
-        "timestamp_utc": "2026-03-06T06:19:07.497219",
         "diagnostics": {
-          "rows_total": 529466,
-          "label_count/MuchMore": 248841,
-          "label_prop/MuchMore": 0.46998485266287165,
-          "label_count/MuchLess": 248598,
-          "label_prop/MuchLess": 0.469525899680055,
-          "label_count/More": 16154,
-          "label_prop/More": 0.030509985532593216,
-          "label_count/Less": 15872,
-          "label_prop/Less": 0.029977373429077598,
-          "label_count/Same": 1,
-          "label_prop/Same": 1.888695402537651e-06,
-          "label_entropy_nats": 0.9214764850617246,
-          "majority_ratio": 0.46998485266287165,
-          "answer_missing_rate": 0.0,
-          "presented_order_prop/A_then_B/MuchLess": 0.7044305016752728,
-          "presented_order_prop/A_then_B/MuchMore": 0.23453064030551538,
-          "presented_order_prop/A_then_B/More": 0.06101619367438136,
-          "presented_order_prop/A_then_B/Less": 1.8886954025376512e-05,
-          "presented_order_prop/A_then_B/Same": 3.777390805075302e-06,
-          "presented_order_prop/B_then_A/MuchLess": 0.7054390650202279,
-          "presented_order_prop/B_then_A/MuchMore": 0.23462129768483717,
-          "presented_order_prop/B_then_A/More": 0.05993585990412982,
-          "presented_order_prop/B_then_A/Less": 3.777390805075302e-06,
-          "presented_order_score_mean/A_then_B": -0.8788024160191589,
-          "presented_order_score_mean/B_then_A": -0.8817034521574567,
-          "presented_order_score_gap": 0.002901036138297841,
-          "repeat_groups": 9900,
-          "repeat_exact_agreement_rate": 0.5802020202020202,
-          "repeat_weighted_agreement_mean": 0.6203030303030304
+          "rows_total": 282,
+          "label_count/Same": 282,
+          "label_prop/Same": 1.0,
+          "label_entropy_nats": -0.0,
+          "majority_ratio": 1.0,
+          "answer_missing_rate": 1.0
         }
       },
-      "duration_s": 30335.3074593544
+      "duration_s": 210.37913870811462
     }
   }
 }

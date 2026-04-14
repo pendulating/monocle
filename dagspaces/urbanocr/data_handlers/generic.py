@@ -10,169 +10,131 @@ import json
 from datetime import datetime
 from typing import Any, Dict
 
+import pandas as pd
 from omegaconf import DictConfig
 
 from .base import OCRDataHandler
 
-try:
-    import ray
-    _RAY_AVAILABLE = True
-except ImportError:
-    ray = None
-    _RAY_AVAILABLE = False
-
 
 class GenericImageHandler(OCRDataHandler):
     """Generic data handler for image directories.
-    
+
     Works with any directory containing images. Extracts minimal metadata:
     - sample_id: Derived from filename (without extension)
     - image_path: Full path to the image
     """
-    
+
     # Supported image extensions
     SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".tif"}
-    
-    def load_dataset(self, cfg: DictConfig) -> Any:
-        """Load images from a generic directory into a Ray Dataset.
-        
+
+    def load_dataset(self, cfg: DictConfig) -> pd.DataFrame:
+        """Load image paths from a generic directory into a DataFrame.
+
         Expects cfg.data to contain:
         - image_path: Path to directory containing images
         - recursive: Whether to search subdirectories (default: True)
         - extensions: List of file extensions to include (default: all supported)
-        
+
         Returns:
-            Ray Dataset with columns: image, image_path, sample_id
+            pd.DataFrame with columns: image_path, sample_id
         """
-        if not _RAY_AVAILABLE:
-            raise RuntimeError("Ray is required for image data loading")
-        
         data_cfg = getattr(cfg, "data", None)
         if data_cfg is None:
             raise ValueError("Configuration missing 'data' section")
-        
+
         image_path = getattr(data_cfg, "image_path", None)
         if not image_path:
             raise ValueError("data.image_path must be specified")
-        
+
         image_path = os.path.abspath(os.path.expanduser(str(image_path)))
-        
+
         if not os.path.exists(image_path):
             raise ValueError(f"Image path does not exist: {image_path}")
-        
+
         # Check if it's a single file or directory
         if os.path.isfile(image_path):
-            # Single file mode
             print(f"[generic] Loading single image: {image_path}", flush=True)
-            pattern = image_path
+            metadata = self.extract_metadata(image_path)
+            rows = [{"image_path": image_path, **metadata}]
         else:
-            # Directory mode
             recursive = getattr(data_cfg, "recursive", True)
             extensions = getattr(data_cfg, "extensions", None)
-            
+
             if extensions:
-                ext_list = list(extensions)
+                ext_set = {ext.lower() for ext in extensions}
             else:
-                ext_list = list(self.SUPPORTED_EXTENSIONS)
-            
-            # Build pattern
-            if recursive:
-                # Use ** for recursive glob
-                pattern = os.path.join(image_path, "**", "*")
-            else:
-                pattern = os.path.join(image_path, "*")
-            
+                ext_set = self.SUPPORTED_EXTENSIONS
+
             print(f"[generic] Loading images from: {image_path} (recursive={recursive})", flush=True)
-        
-        # Read images with paths
-        ds = ray.data.read_images(pattern, include_paths=True)
-        
-        # Filter by extension if specified (ray.data.read_images may include non-images)
-        if os.path.isdir(image_path):
-            extensions_lower = {ext.lower() for ext in ext_list}
-            
-            def _filter_by_extension(row: Dict[str, Any]) -> bool:
-                path = row.get("path", "")
-                if not path:
-                    return False
-                ext = os.path.splitext(path)[1].lower()
-                return ext in extensions_lower
-            
-            ds = ds.filter(_filter_by_extension)
-        
-        # Add metadata columns
-        def _enrich_generic_metadata(row: Dict[str, Any]) -> Dict[str, Any]:
-            """Add basic metadata columns."""
-            row_out = dict(row)
-            
-            path_val = row_out.get("path")
-            if path_val:
-                path_str = str(path_val)
-                row_out["image_path"] = path_str
-                
-                # Extract metadata
-                metadata = self.extract_metadata(path_str)
-                row_out.update(metadata)
+
+            rows = []
+            if recursive:
+                for dirpath, _, filenames in os.walk(image_path):
+                    for fname in filenames:
+                        ext = os.path.splitext(fname)[1].lower()
+                        if ext in ext_set:
+                            full_path = os.path.join(dirpath, fname)
+                            metadata = self.extract_metadata(full_path)
+                            rows.append({"image_path": full_path, **metadata})
             else:
-                row_out["image_path"] = None
-                row_out["sample_id"] = None
-            
-            return row_out
-        
-        ds = ds.map(_enrich_generic_metadata)
-        
-        # Log dataset info
-        try:
-            count = ds.count()
-            print(
-                json.dumps({
-                    "generic_handler": {
-                        "event": "dataset_loaded",
-                        "count": count,
-                        "path": image_path,
-                        "timestamp": datetime.utcnow().isoformat(),
-                    }
-                }),
-                flush=True,
-            )
-        except Exception:
-            print(f"[generic] Dataset loaded from {image_path}", flush=True)
-        
+                for fname in os.listdir(image_path):
+                    full_path = os.path.join(image_path, fname)
+                    if os.path.isfile(full_path):
+                        ext = os.path.splitext(fname)[1].lower()
+                        if ext in ext_set:
+                            metadata = self.extract_metadata(full_path)
+                            rows.append({"image_path": full_path, **metadata})
+
+        df = pd.DataFrame(rows)
+        if df.empty:
+            df = pd.DataFrame(columns=["image_path", "sample_id"])
+
+        print(
+            json.dumps({
+                "generic_handler": {
+                    "event": "dataset_loaded",
+                    "count": len(df),
+                    "path": image_path,
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            }),
+            flush=True,
+        )
+
         # Apply sample limit if configured
         sample_n = getattr(getattr(cfg, "runtime", None), "sample_n", None)
         if isinstance(sample_n, int) and sample_n > 0:
-            ds = ds.limit(sample_n)
+            df = df.head(sample_n)
             print(f"[generic] Applied sample limit: {sample_n}", flush=True)
-        
-        return ds
-    
+
+        return df
+
     def extract_metadata(self, path: str) -> Dict[str, Any]:
         """Extract basic metadata from image path.
-        
+
         Args:
             path: Full path to the image file
-            
+
         Returns:
             Dictionary with sample_id derived from filename
         """
         metadata = {
             "sample_id": None,
         }
-        
+
         if not path:
             return metadata
-        
+
         try:
             # Get filename without extension
             basename = os.path.basename(path)
             stem = os.path.splitext(basename)[0]
-            
+
             # Sanitize to create valid sample_id
             sample_id = re.sub(r"[^a-zA-Z0-9_-]", "_", stem)
             metadata["sample_id"] = sample_id
-            
+
         except Exception:
             pass
-        
-        return metadata
 
+        return metadata

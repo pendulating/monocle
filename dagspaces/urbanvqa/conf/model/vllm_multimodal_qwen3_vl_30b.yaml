@@ -32,7 +32,7 @@ engine_kwargs:
     fps: 1  # Video support (if needed)
   
   # Memory management - lower utilization to prevent OOM over long runs
-  gpu_memory_utilization: 0.80  # Leave more headroom for MoE expert activation + Ray workers
+  gpu_memory_utilization: 0.80  # Leave more headroom for MoE expert activation
   
   # Model loading
   trust_remote_code: true  # Required for Qwen3-VL-MoE architecture

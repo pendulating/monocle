@@ -10,9 +10,7 @@ Key Design Principles:
 - Prompts/configs can be updated between evaluations
 - Thread-safe context management for parallel evaluations
 
-CRITICAL: This uses vllm.LLM directly (not Ray Data LLM's build_llm_processor)
-because build_llm_processor creates new workers on each dataset invocation,
-causing the model to reload every time. vllm.LLM keeps the model in GPU memory.
+Uses vllm.LLM directly so the model stays in GPU memory across evaluations.
 """
 
 from __future__ import annotations
@@ -111,11 +109,7 @@ def evaluation_context(
 class PersistentVLLMProcessor:
     """Persistent vLLM processor that caches the model across evaluations.
     
-    CRITICAL: This class uses vllm.LLM directly instead of Ray Data LLM's
-    build_llm_processor. The Ray Data approach creates new workers on each
-    dataset invocation, causing the model to be reloaded every time.
-    
-    By using vllm.LLM directly, the model stays loaded in GPU memory and
+    Uses vllm.LLM directly so the model stays loaded in GPU memory and
     subsequent evaluate() calls reuse the same engine.
     
     Usage:
@@ -684,8 +678,8 @@ class PersistentVLLMProcessor:
 
 
 def clear_processor_cache() -> None:
-    """Clear all cached processors and shut down Ray if needed.
-    
+    """Clear all cached processors and release GPU memory.
+
     Call this to release all GPU memory held by cached processors
     and allow Slurm jobs to terminate cleanly.
     """
@@ -697,20 +691,9 @@ def clear_processor_cache() -> None:
             except Exception as e:
                 LOG.warning(f"Error shutting down processor: {e}")
         _PROCESSOR_CACHE.clear()
-    
-    # Shutdown Ray if it's running (vLLM may have started it internally)
-    try:
-        import ray
-        if ray.is_initialized():
-            LOG.info("Shutting down Ray to release resources...")
-            ray.shutdown()
-    except ImportError:
-        pass
-    except Exception as e:
-        LOG.warning(f"Error shutting down Ray: {e}")
-    
+
     # Final garbage collection
     import gc
     gc.collect()
-    
+
     LOG.info("Cleared all cached PersistentVLLMProcessors")

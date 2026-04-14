@@ -34,8 +34,6 @@ engine_kwargs:
   
 batch_size: 16  # May need to reduce for large images
 concurrency: 1
-# Note: has_image is automatically set based on model detection
-# accelerator_type: "L4"  # Optional: GPU type hint for Ray
 
 # Runtime environment (if HuggingFace token needed)
 # Note: HF_TOKEN is automatically included from environment if available

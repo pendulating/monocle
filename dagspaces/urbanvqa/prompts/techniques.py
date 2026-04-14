@@ -393,13 +393,7 @@ def preprocess_contextual(row: Dict[str, Any], cfg: DictConfig) -> Dict[str, Any
     contextual_config = cfg.prompt.contextual
     adaptation_rules = getattr(contextual_config, "adaptation_rules", [])
     
-    # Get context history (would use Ray actor in real implementation)
-    context = []  # Placeholder
-    # try:
-    #     tracker = ray.get_actor("context_tracker")
-    #     context = ray.get(tracker.get_context.remote(row.get("sample_id")))
-    # except (ValueError, ray.exceptions.GetTimeoutError):
-    #     context = []
+    context = []  # Placeholder for context history
     
     # Adapt prompt based on context
     base_prompt = row.get("prompt", "")

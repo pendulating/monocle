@@ -16,17 +16,44 @@ runtime:
   output_path: outputs/embed/cyclomedia_${now:%Y%m%d_%H%M%S}.parquet
   job_memory_gb: 256
   streaming_io: false
-  suppress_child_warnings: true
 
 embedding:
-  instruction: "Represent the visual content of this street-level image."
+  instruction: "Represent the visual content of this street-view urban scene city image."
   normalize: true
   output_dim: null          # null = full dimension. Set to e.g. 256 for MRL truncation.
   batch_size: 16            # images per forward pass per GPU
-  max_pixels: 262144        # 512x512
-  min_pixels: 784           # 28x28
+  max_pixels: 1049600        # 1024x1024
+  min_pixels: 1049600           # 1024x1024
   torch_dtype: bfloat16
   output_column: embedding
+
+reranking:
+  query_text: ""
+  query_image_path: null
+  instruction: "Given a search query, retrieve relevant images that match the query description."
+  top_k: 1000                      # candidates from Phase 1 embedding retrieval
+  rerank_top_n: null               # final output limit (null = all top_k)
+  rerank_batch_size: 10            # documents per llm.score() batch
+  embeddings_input_path: null      # path to embed output (parquet dir or file)
+  query_embedding_path: null       # .npy file with pre-computed query embedding
+  embedding_model_source: null     # model for inline query embedding (null = Qwen3-VL-Embedding-8B)
+  score_threshold: null            # minimum rerank score to include
+  min_pixels: 2048
+  max_pixels: 1310720
+
+browser_index:
+  embeddings_input_path: null      # path to embed output (parquet dir or file)
+  n_components: 256                # PCA target dimensionality
+  image_root: null                 # image path prefix to strip (null = use data.image_path)
+
+query_projection:
+  pca_input_path: null             # path to build_browser_index output (with PCA artifacts)
+  n_texts: 30000                   # number of training texts to generate (~35K max from templates)
+  pca_dim: 256                     # must match browser_index.n_components
+  qwen_model_path: null            # Qwen model for text encoding (null = use model.model_source)
+  bge_model: "BAAI/bge-small-en-v1.5"
+  alpha: 1.0                       # Ridge regression regularization
+  seed: 42
 
 wandb:
   enabled: true

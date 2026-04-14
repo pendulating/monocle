@@ -137,12 +137,6 @@ gepa:
     expected_score: null
     tolerance: 0.01
 
-ray:
-  # Qwen3-VL-30B needs both GPUs for tensor parallelism
-  num_gpus: 2
-  num_cpus: 8
-  dataset_cache_dir: ${gepa.sampler.cache_dir}
-
 runtime:
   # Higher memory for MoE model overhead
   job_memory_gb: 48
@@ -151,7 +145,6 @@ runtime:
   suppress_child_warnings: true
   debug: false
   output_root: null
-  ray_skip_module_upload: true
   # CRITICAL: Enable multimodal mode for VLM inference
   multimodal_enabled: true
   image_fallback: false  # Fail if images can't be loaded

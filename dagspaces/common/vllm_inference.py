@@ -1,7 +1,6 @@
 """Shared vLLM direct inference utility with multimodal support.
 
-Replaces the Ray-based build_llm_processor + vLLMEngineProcessorConfig pattern
-with direct vLLM LLM.generate() calls. Designed for single-machine multi-GPU setups.
+Direct vLLM LLM.generate() calls. Designed for single-machine multi-GPU setups.
 
 Multimodal extension: when messages contain image content blocks
 (``{"type": "image", "image": pil_img}``), images are extracted and passed
@@ -13,11 +12,9 @@ from __future__ import annotations
 import json
 import logging
 import os
-import pickle
 import re
 import subprocess
 import sys
-import tempfile
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -524,6 +521,15 @@ def _build_engine_kwargs(cfg) -> Dict[str, Any]:
     if "awq" in model_source.lower() and "quantization" not in ek:
         ek["quantization"] = "awq"
 
+    # Multimodal cache + vision encoder DP defaults.  These are only applied
+    # if the user has not set them explicitly. Reduces the chance of the
+    # mm_processor LRU cache leaking RAM during very large multimodal jobs
+    # (see vllm GH issues #15294, #35191) and enables batch-level vision
+    # data parallelism when supported by the installed vLLM.
+    if _is_multimodal_model(model_source, cfg):
+        ek.setdefault("mm_processor_cache_gb", 2)
+        ek.setdefault("mm_encoder_tp_mode", "data")
+
     # Convert nested hf_overrides dicts to a callable that does deep updates.
     # vLLM's config.update() with a dict like {"text_config": {"vocab_size": X}}
     # replaces text_config entirely instead of merging.  A callable gets the
@@ -543,15 +549,28 @@ def _build_engine_kwargs(cfg) -> Dict[str, Any]:
             return _fn
         ek["hf_overrides"] = _make_hf_override_fn(_hf_ov)
 
-    # Preserve data_parallel_size (our key, not a vLLM LLM kwarg) before filtering
+    # Preserve data_parallel_size — it's consumed by run_vllm_inference() to
+    # decide whether to spawn DP workers.  Not passed to LLM() directly
+    # (vLLM 0.19 workers get DP config from VLLM_DP_* env vars instead).
     dp_size = ek.pop("data_parallel_size", None)
 
     # Filter to accepted kwargs
     ek = filter_vllm_engine_kwargs(ek)
 
-    # Re-attach data_parallel_size for run_vllm_inference to consume
+    # Re-attach for run_vllm_inference / run_vllm_embed to consume
     if dp_size is not None:
         ek["data_parallel_size"] = dp_size
+
+    # Auto-detect: when not explicitly configured and there are more GPUs
+    # than tensor_parallel_size needs, use the surplus for data parallelism.
+    if "data_parallel_size" not in ek or int(ek.get("data_parallel_size", 1) or 1) <= 1:
+        tp_size = int(ek.get("tensor_parallel_size", 1) or 1)
+        total_gpus = detect_num_gpus()
+        if total_gpus > tp_size and total_gpus % tp_size == 0:
+            auto_dp = total_gpus // tp_size
+            ek["data_parallel_size"] = auto_dp
+            print(f"[vllm_inference] Auto-detected data_parallel_size={auto_dp} "
+                  f"({total_gpus} GPUs / TP={tp_size})")
 
     return ek
 
@@ -837,17 +856,20 @@ def _build_sampling_params(sp_dict: Dict[str, Any]):
 
 
 # ---------------------------------------------------------------------------
-# Data-parallel worker
+# Data-parallel inference via multiprocessing (vLLM 0.19+ pattern)
 # ---------------------------------------------------------------------------
 
 _DP_WORKER_SCRIPT = r'''
-"""Standalone DP worker script — executed as a fresh subprocess.
+"""Standalone DP worker — spawned as a fresh subprocess per rank.
 
-Reads task from a pickle file, runs vLLM inference, writes results to a
-pickle file.  Completely isolated from the parent process (no shared CUDA
-context, no inherited NCCL state).
+Each worker is a completely independent LLM instance with its own
+CUDA_VISIBLE_DEVICES slice.  No vLLM DP coordination (VLLM_DP_* env vars)
+is used — vLLM 0.19 blocks DP for dense (non-MoE) models via ParallelConfig.
+
+Supports multimodal: image file paths are passed alongside prompts and
+loaded lazily in the worker process.
 """
-import json, os, pickle, sys, time, traceback
+import os, pickle, sys, time, traceback
 
 def main():
     task_path = sys.argv[1]
@@ -860,16 +882,19 @@ def main():
     dp_size     = task["dp_size"]
     engine_kwargs = task["engine_kwargs"]
     prompts     = task["prompts"]
+    image_refs  = task["image_refs"]
     sp_dict     = task["sp_dict"]
     stage_name  = task["stage_name"]
     pcie_env    = task["pcie_env"]
     runtime_env = task["runtime_env"]
+    is_multimodal  = task["is_multimodal"]
 
-    # Apply env vars (set before any CUDA/torch import)
+    # Apply env vars BEFORE any CUDA/torch import
     for k, v in {**pcie_env, **runtime_env}.items():
         os.environ.setdefault(k, v)
 
-    # Clear any inherited vLLM DP coordination vars
+    # Clear any inherited vLLM DP coordination vars — each worker is
+    # fully independent with its own CUDA_VISIBLE_DEVICES slice.
     for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
                 "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
         os.environ.pop(var, None)
@@ -877,7 +902,7 @@ def main():
     print(f"[{stage_name}] DP rank {rank}/{dp_size}: starting "
           f"(pid={os.getpid()}, CUDA_VISIBLE_DEVICES="
           f"{os.environ.get('CUDA_VISIBLE_DEVICES', '<unset>')}, "
-          f"prompts={len(prompts)})", flush=True)
+          f"prompts={len(prompts)}, multimodal={is_multimodal})", flush=True)
 
     try:
         t0 = time.time()
@@ -888,10 +913,11 @@ def main():
 
         t1 = time.time()
         llm = LLM(**engine_kwargs)
+        tokenizer = llm.get_tokenizer()
         print(f"[{stage_name}] DP rank {rank}/{dp_size}: LLM created in "
               f"{time.time() - t1:.1f}s, starting generation...", flush=True)
 
-        # Build SamplingParams (inline to avoid import from parent package)
+        # Build SamplingParams
         sp = dict(sp_dict or {})
         guided = sp.pop("guided_decoding", None) or sp.pop("structured_output", None)
         for k in ("early_stopping", "length_penalty", "response_format", "detokenize"):
@@ -909,7 +935,25 @@ def main():
         sampling_params = SamplingParams(**sp)
 
         t2 = time.time()
-        outputs = llm.generate(prompts, sampling_params)
+        if is_multimodal:
+            from vllm import TokensPrompt
+            from PIL import Image
+            mm_prompts = []
+            for i, prompt in enumerate(prompts):
+                ref = image_refs[i] if image_refs else None
+                if ref is not None:
+                    token_ids = tokenizer.encode(prompt)
+                    img = Image.open(ref).convert("RGB")
+                    mm_prompts.append(TokensPrompt(
+                        prompt_token_ids=token_ids,
+                        multi_modal_data={"image": img},
+                    ))
+                else:
+                    mm_prompts.append(prompt)
+            outputs = llm.generate(mm_prompts, sampling_params)
+        else:
+            outputs = llm.generate(prompts, sampling_params)
+
         print(f"[{stage_name}] DP rank {rank}/{dp_size}: generation done in "
               f"{time.time() - t2:.1f}s ({len(outputs)} outputs)", flush=True)
 
@@ -941,7 +985,6 @@ def main():
             pickle.dump({"rank": rank, "outputs": None, "error": tb}, f)
         sys.exit(1)
     finally:
-        # Shut down vLLM engine workers so the subprocess can exit cleanly.
         try:
             if llm is not None:
                 engine = getattr(llm, "llm_engine", None)
@@ -957,23 +1000,701 @@ if __name__ == "__main__":
 '''
 
 
+_DP_FULL_WORKER_SCRIPT = r'''
+"""Full-pipeline DP worker — preprocess + infer + postprocess in-worker.
+
+Processes rows in fixed-size chunks. For each chunk:
+  1. preprocess_fn is called per row (cheap — builds the message dict)
+  2. images are decoded + resized in parallel CPU threads
+  3. llm.chat() is called once on the chunk
+  4. results are postprocessed and accumulated
+  5. chunk-local objects are dropped before the next iteration
+
+This bounds engine-core memory (no big pre-rendered prompt buffer) and gives
+us streaming progress + ETA every ~``log_every`` rows. Critical for large
+multimodal jobs (e.g. ~120k pairs per worker) where the previous unbounded
+``llm.chat(big_list)`` path spent hours in single-threaded HF processor work
+and OOM-killed the engine core.
+
+Each worker receives raw row dicts and cloudpickled preprocess/postprocess
+callables. Preprocessing happens locally in the worker, co-located with
+the GPU.
+"""
+import os, pickle, sys, time, traceback
+
+def main():
+    task_path = sys.argv[1]
+    result_path = sys.argv[2]
+
+    with open(task_path, "rb") as f:
+        task = pickle.load(f)
+
+    rank        = task["rank"]
+    dp_size     = task["dp_size"]
+    engine_kwargs = task["engine_kwargs"]
+    rows        = task["rows"]
+    stage_name  = task["stage_name"]
+    pcie_env    = task["pcie_env"]
+    runtime_env = task["runtime_env"]
+    model_source = task["model_source"]
+    thinking_enabled = task["thinking_enabled"]
+    chunk_size  = int(task.get("chunk_size", 64) or 64)
+    log_every   = int(task.get("log_every", 1000) or 1000)
+    image_max_pixels = task.get("image_max_pixels")  # Optional[int]
+    image_load_workers = int(task.get("image_load_workers", 16) or 16)
+    flush_every = int(task.get("flush_every", 1000) or 1000)
+    streaming_output_dir = task.get("streaming_output_dir")  # Optional[str]
+    row_offset  = int(task.get("row_offset", 0) or 0)
+
+    # Deserialize preprocess/postprocess via cloudpickle
+    import cloudpickle
+    preprocess_fn = cloudpickle.loads(task["preprocess_bytes"])
+    postprocess_fn = cloudpickle.loads(task["postprocess_bytes"])
+
+    # Apply env vars BEFORE any CUDA/torch import
+    for k, v in {**pcie_env, **runtime_env}.items():
+        os.environ.setdefault(k, v)
+
+    for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
+                "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
+        os.environ.pop(var, None)
+
+    print(f"[{stage_name}] DP rank {rank}/{dp_size}: starting "
+          f"(pid={os.getpid()}, CUDA_VISIBLE_DEVICES="
+          f"{os.environ.get('CUDA_VISIBLE_DEVICES', '<unset>')}, "
+          f"rows={len(rows)}, chunk_size={chunk_size}, "
+          f"flush_every={flush_every}, "
+          f"image_max_pixels={image_max_pixels}, "
+          f"image_load_workers={image_load_workers}, "
+          f"streaming_output_dir={streaming_output_dir})", flush=True)
+
+    if streaming_output_dir:
+        os.makedirs(streaming_output_dir, exist_ok=True)
+
+    llm = None
+    try:
+        t0 = time.time()
+        from vllm import LLM, SamplingParams
+        from PIL import Image
+        from concurrent.futures import ThreadPoolExecutor
+        import re
+        import math
+
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: vLLM imported in "
+              f"{time.time() - t0:.1f}s, creating LLM engine...", flush=True)
+
+        t1 = time.time()
+        # Allow loading local images via file:// URLs in llm.chat() (still
+        # needed when callers pass image_url blocks; we usually rewrite
+        # them to image_pil blocks below).
+        engine_kwargs.setdefault("allowed_local_media_path", "/")
+        llm = LLM(**engine_kwargs)
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: LLM created in "
+              f"{time.time() - t1:.1f}s, processing {len(rows)} rows in "
+              f"chunks of {chunk_size}...", flush=True)
+
+        # ─── Helpers ────────────────────────────────────────────────────
+        def _strip_thinking(text):
+            text = re.sub(r"<think>[\s\S]*?</think>", "", text)
+            text = re.sub(r"<think>[\s\S]*$", "", text)
+            return text.strip()
+
+        def _extract_reasoning(raw_text):
+            reasoning, content = "", raw_text
+            if not thinking_enabled:
+                return reasoning, content
+            if "<think>" in raw_text:
+                m = re.search(r"<think>([\s\S]*?)</think>([\s\S]*)", raw_text)
+                if m:
+                    reasoning = m.group(1).strip()
+                    content = m.group(2).strip()
+                else:
+                    content = _strip_thinking(raw_text)
+            elif "</think>" in raw_text:
+                parts = raw_text.split("</think>", 1)
+                reasoning = parts[0].strip()
+                content = parts[1].strip() if len(parts) > 1 else ""
+            return reasoning, content
+
+        def _resize_to_max_pixels(img, max_pixels):
+            """Downscale a PIL image so width*height <= max_pixels."""
+            if max_pixels is None or max_pixels <= 0:
+                return img
+            w, h = img.size
+            cur = w * h
+            if cur <= max_pixels:
+                return img
+            scale = math.sqrt(max_pixels / cur)
+            new_w = max(1, int(w * scale))
+            new_h = max(1, int(h * scale))
+            return img.resize((new_w, new_h), Image.Resampling.BILINEAR)
+
+        def _load_one_image(path):
+            try:
+                with Image.open(path) as im:
+                    im.load()
+                    img = im.convert("RGB")
+                if image_max_pixels:
+                    img = _resize_to_max_pixels(img, image_max_pixels)
+                return img
+            except Exception as e:
+                return e  # caller treats Exception as a load failure
+
+        # Collect (msg_block, path) tuples that need lazy loading. The
+        # block is the dict we'll mutate in-place to attach the loaded
+        # PIL Image. Supports image_url (file://), image (with str path
+        # or PIL), and image_pil blocks.
+        def _collect_image_blocks(messages):
+            tasks = []  # list of (block_dict, str_path)
+            for msg in messages:
+                content = msg.get("content")
+                if not isinstance(content, list):
+                    continue
+                for block in content:
+                    if not isinstance(block, dict):
+                        continue
+                    btype = block.get("type")
+                    if btype == "image_url":
+                        url = (block.get("image_url") or {}).get("url", "")
+                        path = url.removeprefix("file://") if isinstance(url, str) else ""
+                        if path:
+                            tasks.append((block, path))
+                    elif btype == "image":
+                        val = block.get("image")
+                        if isinstance(val, str):
+                            path = val.removeprefix("file://")
+                            tasks.append((block, path))
+                        # if it's already a PIL.Image, leave it; the
+                        # _convert_image_blocks pass below will rename
+                        # type → image_pil for vLLM.
+                    elif btype == "image_pil":
+                        pass  # already loaded
+            return tasks
+
+        def _convert_image_blocks(messages):
+            """Normalize image blocks to vLLM's image_pil format."""
+            for msg in messages:
+                content = msg.get("content")
+                if not isinstance(content, list):
+                    continue
+                for block in content:
+                    if not isinstance(block, dict):
+                        continue
+                    btype = block.get("type")
+                    if btype == "image" and "image" in block:
+                        val = block["image"]
+                        if hasattr(val, "size"):  # PIL.Image
+                            block["type"] = "image_pil"
+                            block["image_pil"] = block.pop("image")
+            return messages
+
+        thread_pool = ThreadPoolExecutor(max_workers=image_load_workers)
+
+        def _hydrate_chunk_images(chunk_messages):
+            """Decode + resize all image paths for a chunk in parallel."""
+            all_tasks = []  # list of (block, path)
+            for msgs in chunk_messages:
+                all_tasks.extend(_collect_image_blocks(msgs))
+            if not all_tasks:
+                return 0
+            paths = [p for _, p in all_tasks]
+            blocks = [b for b, _ in all_tasks]
+            results = list(thread_pool.map(_load_one_image, paths))
+            n_failed = 0
+            for block, img in zip(blocks, results):
+                if isinstance(img, Exception):
+                    block["__image_load_error__"] = str(img)
+                    n_failed += 1
+                    continue
+                # Replace whatever was here with image_pil
+                block.pop("image_url", None)
+                block.pop("image", None)
+                block["type"] = "image_pil"
+                block["image_pil"] = img
+            return n_failed
+
+        # ─── First pass: build SamplingParams from the first valid row ──
+        # We need a sampling params object before generation. Peek at
+        # the first row to extract sampling_params dict — assumes uniform
+        # sampling per stage, which is the existing convention.
+        sampling_params = None
+        first_pp_row = None
+        peek_idx = 0
+        while peek_idx < len(rows) and first_pp_row is None:
+            try:
+                first_pp_row = preprocess_fn(rows[peek_idx])
+            except Exception:
+                first_pp_row = None
+            peek_idx += 1
+        if first_pp_row is not None:
+            _first_sp = first_pp_row.get("sampling_params") or {}
+            sp = dict(_first_sp)
+            guided = sp.pop("guided_decoding", None) or sp.pop("structured_output", None)
+            for k in ("early_stopping", "length_penalty", "response_format", "detokenize"):
+                sp.pop(k, None)
+            if guided and isinstance(guided, dict):
+                try:
+                    from vllm.sampling_params import StructuredOutputsParams
+                    sp["structured_outputs"] = StructuredOutputsParams(**guided)
+                except ImportError:
+                    try:
+                        from vllm.sampling_params import GuidedDecodingParams
+                        sp["guided_decoding"] = GuidedDecodingParams(**guided)
+                    except ImportError:
+                        pass
+            sampling_params = SamplingParams(**sp)
+        else:
+            sampling_params = SamplingParams()
+
+        chat_kwargs = {}
+        if thinking_enabled:
+            chat_kwargs["chat_template_kwargs"] = {"enable_thinking": True}
+
+        # ─── Chunked main loop ──────────────────────────────────────────
+        total = len(rows)
+        results = [None] * total  # filled in original order
+        processed = 0
+        last_log_at = 0
+        n_failed_preprocess = 0
+        n_failed_image_load = 0
+
+        # Streaming parquet flushing.  We track the next row index that
+        # has not yet been written to a shard.  Each chunk's results are
+        # always contiguous from chunk_start..chunk_end, so a flush boundary
+        # is reached whenever (processed - flushed_upto) >= flush_every.
+        flushed_upto = 0
+        flush_part_idx = 0
+        try:
+            import pandas as _pd
+        except Exception:
+            _pd = None  # parquet shards become a no-op if pandas missing
+
+        def _flush_shard(end_idx):
+            """Write results[flushed_upto:end_idx] to a parquet shard."""
+            nonlocal flushed_upto, flush_part_idx
+            if not streaming_output_dir or _pd is None:
+                flushed_upto = end_idx
+                return
+            slab = results[flushed_upto:end_idx]
+            slab = [r for r in slab if r is not None]
+            if not slab:
+                flushed_upto = end_idx
+                return
+            shard_name = (
+                f"rank{rank:02d}_part{flush_part_idx:04d}_"
+                f"rows{flushed_upto + row_offset:08d}-"
+                f"{end_idx + row_offset:08d}.parquet"
+            )
+            shard_path = os.path.join(streaming_output_dir, shard_name)
+            try:
+                df_shard = _pd.DataFrame(slab)
+                df_shard.to_parquet(shard_path, index=False, compression="snappy")
+                print(
+                    f"[{stage_name}] DP rank {rank}/{dp_size}: "
+                    f"flushed {len(slab)} rows → {shard_path}",
+                    flush=True,
+                )
+            except Exception as e:
+                print(
+                    f"[{stage_name}] DP rank {rank}/{dp_size}: "
+                    f"streaming flush FAILED ({type(e).__name__}: {e})",
+                    flush=True,
+                )
+            flush_part_idx += 1
+            flushed_upto = end_idx
+
+        for chunk_start in range(0, total, chunk_size):
+            chunk_end = min(chunk_start + chunk_size, total)
+            chunk_rows = rows[chunk_start:chunk_end]
+
+            t_chunk = time.time()
+            # Pre-chunk heartbeat: appears immediately so the user can see
+            # the worker is alive even on the cold-start chunk (where vLLM's
+            # first llm.chat() does extra one-time work).
+            print(
+                f"[{stage_name}] DP rank {rank}/{dp_size}: "
+                f"starting chunk {chunk_start // chunk_size + 1}"
+                f"/{(total + chunk_size - 1) // chunk_size} "
+                f"(rows {chunk_start}–{chunk_end - 1})",
+                flush=True,
+            )
+
+            # Preprocess (build messages for each row)
+            chunk_pp_rows = []         # parallel to chunk_rows
+            chunk_messages = []        # parallel to a subset of valid rows
+            valid_indices_local = []   # indices into chunk_rows
+
+            for ci, row in enumerate(chunk_rows):
+                try:
+                    pp = preprocess_fn(row)
+                except Exception as e:
+                    row["__preprocess_error__"] = str(e)
+                    row["generated_text"] = ""
+                    row["generated_reasoning"] = ""
+                    chunk_pp_rows.append(row)
+                    n_failed_preprocess += 1
+                    continue
+                chunk_pp_rows.append(pp)
+                msgs = pp.get("messages")
+                if not msgs:
+                    pp["generated_text"] = ""
+                    pp["generated_reasoning"] = ""
+                    n_failed_preprocess += 1
+                    continue
+                _convert_image_blocks(msgs)
+                chunk_messages.append(msgs)
+                valid_indices_local.append(ci)
+
+            # Parallel image decode + resize for the chunk
+            t_img = time.time()
+            n_img_fail = _hydrate_chunk_images(chunk_messages)
+            n_failed_image_load += n_img_fail
+            img_secs = time.time() - t_img
+
+            # Drop conversations whose image loads failed (any block in
+            # the conversation got tagged with __image_load_error__)
+            ok_messages = []
+            ok_local_indices = []
+            for ci, msgs in zip(valid_indices_local, chunk_messages):
+                bad = False
+                for m in msgs:
+                    cnt = m.get("content")
+                    if not isinstance(cnt, list):
+                        continue
+                    for blk in cnt:
+                        if isinstance(blk, dict) and "__image_load_error__" in blk:
+                            bad = True
+                            break
+                    if bad:
+                        break
+                if bad:
+                    chunk_pp_rows[ci]["__image_load_error__"] = "image decode failed"
+                    chunk_pp_rows[ci]["generated_text"] = ""
+                    chunk_pp_rows[ci]["generated_reasoning"] = ""
+                else:
+                    ok_messages.append(msgs)
+                    ok_local_indices.append(ci)
+
+            # Generate. tqdm is disabled because vLLM's per-conversation
+            # progress bar floods stderr at multi-line-per-row cadence on
+            # SLURM (no carriage-return collapsing).  Our per-chunk and
+            # per-flush log lines + the pre-chunk "starting chunk N" line
+            # provide enough visibility.
+            t_gen = time.time()
+            if ok_messages:
+                outputs = llm.chat(
+                    ok_messages,
+                    sampling_params=sampling_params,
+                    use_tqdm=False,
+                    **chat_kwargs,
+                )
+            else:
+                outputs = []
+            gen_secs = time.time() - t_gen
+
+            # Postprocess this chunk and place into the results array
+            ok_local_set = set(ok_local_indices)
+            out_iter = iter(outputs)
+            for ci, pp_row in enumerate(chunk_pp_rows):
+                if ci in ok_local_set:
+                    out = next(out_iter)
+                    raw_text = out.outputs[0].text if out.outputs else ""
+                    reasoning, content = _extract_reasoning(raw_text)
+                    pp_row["generated_text"] = content
+                    pp_row["generated_reasoning"] = reasoning
+                    pt = len(out.prompt_token_ids) if out.prompt_token_ids else 0
+                    ct = (len(out.outputs[0].token_ids)
+                          if out.outputs and out.outputs[0].token_ids else 0)
+                    pp_row["usage"] = {
+                        "prompt_tokens": pt,
+                        "completion_tokens": ct,
+                        "total_tokens": pt + ct,
+                    }
+                try:
+                    results[chunk_start + ci] = postprocess_fn(pp_row)
+                except Exception as e:
+                    pp_row["__postprocess_error__"] = str(e)
+                    results[chunk_start + ci] = pp_row
+
+            # Free chunk-local objects so RSS does not grow
+            del chunk_rows, chunk_pp_rows, chunk_messages, ok_messages, outputs
+            processed = chunk_end
+
+            # Streaming progress: log every chunk so users always see
+            # forward motion. log_every is only used as a hint for the
+            # default chunk_size — actual reporting cadence is per-chunk.
+            chunk_secs = time.time() - t_chunk
+            elapsed = time.time() - t1
+            rate = processed / max(elapsed, 1e-6)
+            eta = (total - processed) / max(rate, 1e-6)
+            print(
+                f"[{stage_name}] DP rank {rank}/{dp_size}: "
+                f"{processed}/{total} ({100.0 * processed / total:.1f}%) "
+                f"| chunk {chunk_secs:.1f}s "
+                f"(img {img_secs:.1f}s, gen {gen_secs:.1f}s) "
+                f"| {rate:.2f} rows/s | elapsed {elapsed:.0f}s "
+                f"| ETA {eta:.0f}s",
+                flush=True,
+            )
+            last_log_at = processed
+
+            # Streaming parquet flush whenever we have at least
+            # flush_every newly-completed rows since the last shard.
+            if processed - flushed_upto >= flush_every:
+                _flush_shard(processed)
+
+        thread_pool.shutdown(wait=False)
+
+        # Sanity: every slot should be filled
+        for i, r in enumerate(results):
+            if r is None:
+                results[i] = rows[i]
+
+        # Final flush of any rows that did not cross the flush_every boundary
+        if flushed_upto < total:
+            _flush_shard(total)
+
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: done, "
+              f"{len(results)} results, "
+              f"preprocess_failed={n_failed_preprocess}, "
+              f"image_load_failed={n_failed_image_load}, "
+              f"total elapsed {time.time() - t0:.1f}s", flush=True)
+
+        with open(result_path, "wb") as f:
+            pickle.dump({"rank": rank, "results": results, "error": None}, f)
+        return
+
+    except Exception:
+        tb = traceback.format_exc()
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: FAILED\n{tb}",
+              flush=True, file=sys.stderr)
+        with open(result_path, "wb") as f:
+            pickle.dump({"rank": rank, "results": None, "error": tb}, f)
+        sys.exit(1)
+    finally:
+        try:
+            if llm is not None:
+                engine = getattr(llm, "llm_engine", None)
+                core = getattr(engine, "engine_core", None) if engine else None
+                if core is not None and hasattr(core, "shutdown"):
+                    core.shutdown()
+                del llm
+        except Exception:
+            pass
+
+if __name__ == "__main__":
+    main()
+'''
+
+
+def _run_data_parallel_full(
+    engine_kwargs: Dict[str, Any],
+    dp_size: int,
+    rows: List[Dict[str, Any]],
+    preprocess: Callable,
+    postprocess: Callable,
+    stage_name: str,
+    model_source: str,
+    thinking_enabled: bool,
+    timeout: int = 86400,
+    chunk_size: int = 64,
+    log_every: int = 1000,
+    image_max_pixels: Optional[int] = None,
+    image_load_workers: int = 16,
+    flush_every: int = 1000,
+    streaming_output_dir: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Full-pipeline DP: preprocess + infer + postprocess inside each worker.
+
+    Each worker processes its row shard in fixed-size chunks. Per chunk it
+    decodes/resizes images in parallel CPU threads, runs ``llm.chat()``, and
+    drops the chunk's intermediate state before moving on. This bounds
+    engine-core memory and gives streaming progress every ``log_every`` rows.
+
+    Returns a flat list of postprocessed result dicts in input order.
+    """
+    import pickle
+    import tempfile
+    import cloudpickle
+
+    if len(rows) < dp_size:
+        raise RuntimeError(
+            f"[{stage_name}] Too few rows ({len(rows)}) for data_parallel_size={dp_size}."
+        )
+
+    tp_size = engine_kwargs.get("tensor_parallel_size", 1)
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    all_devices = [d.strip() for d in visible.split(",") if d.strip()] if visible else []
+
+    # Shard rows across DP ranks
+    floor_n = len(rows) // dp_size
+    remainder = len(rows) % dp_size
+    shards = []
+    shard_offsets = []  # absolute row offset of each shard within the full df
+    for r in range(dp_size):
+        start = r * floor_n + min(r, remainder)
+        end = (r + 1) * floor_n + min(r + 1, remainder)
+        shards.append(rows[start:end])
+        shard_offsets.append(start)
+
+    # Streaming parquet shard directory.  Callers (run_vllm_inference)
+    # resolve this from HydraConfig.sweep.dir and pass it in fully-qualified.
+    # If None, fall back to a subdirectory under cwd (Hydra's chdir=null
+    # means this lands at the project root, which is wrong for multirun —
+    # callers should always provide one).
+    if streaming_output_dir is None:
+        streaming_output_dir = os.path.join(os.getcwd(), "streaming", stage_name)
+    try:
+        os.makedirs(streaming_output_dir, exist_ok=True)
+        print(f"[{stage_name}] Streaming parquet shards → {streaming_output_dir}",
+              flush=True)
+    except Exception as e:
+        print(f"[{stage_name}] Could not create streaming dir "
+              f"{streaming_output_dir}: {e}", flush=True)
+        streaming_output_dir = None
+
+    pcie_env = get_pcie_nccl_env_vars()
+    runtime_env = get_vllm_runtime_env_vars()
+
+    # Serialize preprocess/postprocess via cloudpickle
+    preprocess_bytes = cloudpickle.dumps(preprocess)
+    postprocess_bytes = cloudpickle.dumps(postprocess)
+
+    tmpdir = os.environ.get("TMPDIR", "/tmp")
+    worker_engine_kwargs = {k: v for k, v in engine_kwargs.items() if k != "data_parallel_size"}
+
+    # Write worker script
+    worker_script = tempfile.NamedTemporaryFile(
+        mode="w", suffix="_dp_full_worker.py", dir=tmpdir, delete=False,
+    )
+    worker_script.write(_DP_FULL_WORKER_SCRIPT)
+    worker_script.close()
+
+    print(f"[{stage_name}] Launching {dp_size} full-pipeline DP workers "
+          f"(TP={tp_size}, {len(rows)} total rows)...", flush=True)
+
+    task_files = []
+    result_files = []
+    procs: List[subprocess.Popen] = []
+
+    for rank in range(dp_size):
+        if all_devices:
+            rank_devices = all_devices[rank * tp_size:(rank + 1) * tp_size]
+        else:
+            rank_devices = []
+
+        task = {
+            "rank": rank,
+            "dp_size": dp_size,
+            "engine_kwargs": worker_engine_kwargs,
+            "rows": shards[rank],
+            "stage_name": stage_name,
+            "pcie_env": pcie_env,
+            "runtime_env": runtime_env,
+            "preprocess_bytes": preprocess_bytes,
+            "postprocess_bytes": postprocess_bytes,
+            "model_source": model_source,
+            "thinking_enabled": thinking_enabled,
+            "chunk_size": chunk_size,
+            "log_every": log_every,
+            "image_max_pixels": image_max_pixels,
+            "image_load_workers": image_load_workers,
+            "flush_every": flush_every,
+            "streaming_output_dir": streaming_output_dir,
+            "row_offset": shard_offsets[rank],
+        }
+
+        task_path = os.path.join(tmpdir, f"{stage_name}_dpfull{rank}_task.pkl")
+        result_path = os.path.join(tmpdir, f"{stage_name}_dpfull{rank}_result.pkl")
+        with open(task_path, "wb") as pickle_f:
+            pickle.dump(task, pickle_f)
+        task_files.append(task_path)
+        result_files.append(result_path)
+
+        child_env = dict(os.environ)
+        if rank_devices:
+            child_env["CUDA_VISIBLE_DEVICES"] = ",".join(rank_devices)
+        for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
+                     "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
+            child_env.pop(var, None)
+
+        devices_str = child_env.get("CUDA_VISIBLE_DEVICES", "<unset>")
+        print(f"[{stage_name}] DP rank {rank}: {len(shards[rank])} rows, "
+              f"CUDA_VISIBLE_DEVICES={devices_str}", flush=True)
+
+        proc = subprocess.Popen(
+            [sys.executable, worker_script.name, task_path, result_path],
+            env=child_env, stdout=sys.stdout, stderr=sys.stderr,
+        )
+        procs.append(proc)
+
+    # Wait for all workers
+    print(f"[{stage_name}] Waiting for {dp_size} full-pipeline DP workers "
+          f"(timeout={timeout}s)...", flush=True)
+    errors = []
+    for rank, proc in enumerate(procs):
+        try:
+            retcode = proc.wait(timeout=timeout)
+            if retcode != 0:
+                errors.append(f"DP rank {rank} (pid={proc.pid}) exited with code {retcode}")
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            errors.append(f"DP rank {rank} (pid={proc.pid}) timed out after {timeout}s, killed")
+
+    # Collect results
+    all_results = []
+    for rank in range(dp_size):
+        rpath = result_files[rank]
+        if not os.path.exists(rpath):
+            errors.append(f"DP rank {rank}: no result file at {rpath}")
+            continue
+        with open(rpath, "rb") as pickle_f:
+            result = pickle.load(pickle_f)
+        if result.get("error"):
+            errors.append(f"DP rank {rank} failed:\n{result['error']}")
+        else:
+            all_results.extend(result["results"])
+
+    # Cleanup temp files
+    for p in [worker_script.name, *task_files, *result_files]:
+        try:
+            os.unlink(p)
+        except OSError:
+            pass
+
+    if errors:
+        raise RuntimeError(
+            f"[{stage_name}] Full-pipeline DP inference failed:\n" + "\n".join(errors)
+        )
+
+    return all_results
+
+
 def _run_data_parallel(
     engine_kwargs: Dict[str, Any],
     dp_size: int,
     prompts: List[str],
     sp_dict: Dict[str, Any],
     stage_name: str,
+    image_refs: Optional[List[Optional[str]]] = None,
+    is_multimodal: bool = False,
     timeout: int = 86400,
 ) -> List[Dict[str, Any]]:
-    """Spawn dp_size fully-isolated subprocess workers for vLLM inference.
+    """Spawn dp_size subprocess workers for vLLM data-parallel inference.
 
-    Each worker is a fresh Python interpreter (subprocess.Popen) with its own
-    CUDA_VISIBLE_DEVICES slice.  This avoids the NCCL deadlocks that occur
-    when multiprocessing.Process is used with vLLM's ``mp`` executor backend
-    (inherited CUDA context + competing NCCL process groups).
+    Follows vLLM 0.19's DP pattern: each worker is a fresh Python process
+    with ``VLLM_DP_*`` env vars set.  vLLM handles GPU assignment and NCCL
+    coordination internally.
+
+    Multimodal support: ``image_refs`` carries file paths (strings) alongside
+    ``prompts``.  Workers load images lazily via PIL, avoiding serialization
+    of large PIL objects across process boundaries.
 
     Returns a list of output dicts in the same order as ``prompts``.
     """
+    import pickle
+    import tempfile
+
     if len(prompts) < dp_size:
         raise RuntimeError(
             f"[{stage_name}] Too few prompts ({len(prompts)}) for "
@@ -981,17 +1702,17 @@ def _run_data_parallel(
         )
 
     tp_size = engine_kwargs.get("tensor_parallel_size", 1)
+    total_gpus_needed = dp_size * tp_size
     visible = os.environ.get("CUDA_VISIBLE_DEVICES", "")
     all_devices = [d.strip() for d in visible.split(",") if d.strip()] if visible else []
-    needed = dp_size * tp_size
-    if all_devices and len(all_devices) < needed:
+    if all_devices and len(all_devices) < total_gpus_needed:
         raise RuntimeError(
             f"[{stage_name}] data_parallel_size={dp_size} x "
-            f"tensor_parallel_size={tp_size} = {needed} GPUs required, "
+            f"tensor_parallel_size={tp_size} = {total_gpus_needed} GPUs required, "
             f"but only {len(all_devices)} visible: {all_devices}"
         )
 
-    # Split prompts across DP ranks
+    # Split prompts (and image refs) across DP ranks
     floor_n = len(prompts) // dp_size
     remainder = len(prompts) % dp_size
 
@@ -1000,12 +1721,13 @@ def _run_data_parallel(
         end = (rank + 1) * floor_n + min(rank + 1, remainder)
         return start, end
 
-    shards = []
+    prompt_shards = []
+    image_ref_shards = []
     for r in range(dp_size):
         s, e = shard_range(r)
-        shards.append(prompts[s:e])
+        prompt_shards.append(prompts[s:e])
+        image_ref_shards.append(image_refs[s:e] if image_refs else [])
 
-    # Prepare per-rank env and task files
     pcie_env = get_pcie_nccl_env_vars()
     runtime_env = get_vllm_runtime_env_vars()
 
@@ -1021,8 +1743,13 @@ def _run_data_parallel(
     worker_script.write(_DP_WORKER_SCRIPT)
     worker_script.close()
 
+    # Workers are fully independent — no data_parallel_size in kwargs
+    worker_engine_kwargs = {k: v for k, v in engine_kwargs.items()
+                           if k != "data_parallel_size"}
+
     print(f"[{stage_name}] Launching {dp_size} DP workers "
-          f"(TP={tp_size}, {len(prompts)} total prompts)...", flush=True)
+          f"(TP={tp_size}, {len(prompts)} total prompts, "
+          f"multimodal={is_multimodal})...", flush=True)
 
     for rank in range(dp_size):
         # GPU slice for this rank
@@ -1034,23 +1761,24 @@ def _run_data_parallel(
         task = {
             "rank": rank,
             "dp_size": dp_size,
-            "engine_kwargs": engine_kwargs,
-            "prompts": shards[rank],
+            "engine_kwargs": worker_engine_kwargs,
+            "prompts": prompt_shards[rank],
+            "image_refs": image_ref_shards[rank],
             "sp_dict": sp_dict,
             "stage_name": stage_name,
             "pcie_env": pcie_env,
             "runtime_env": runtime_env,
+            "is_multimodal": is_multimodal,
         }
 
         task_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_task.pkl")
         result_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_result.pkl")
-        with open(task_path, "wb") as f:
-            pickle.dump(task, f)
+        with open(task_path, "wb") as pickle_f:
+            pickle.dump(task, pickle_f)
         task_files.append(task_path)
         result_files.append(result_path)
 
-        # Build a clean env: inherit parent env, override GPU assignment,
-        # and strip any vLLM DP coordination vars.
+        # Build clean env: assign GPU slice, clear stale DP vars
         child_env = dict(os.environ)
         if rank_devices:
             child_env["CUDA_VISIBLE_DEVICES"] = ",".join(rank_devices)
@@ -1059,7 +1787,7 @@ def _run_data_parallel(
             child_env.pop(var, None)
 
         devices_str = child_env.get("CUDA_VISIBLE_DEVICES", "<unset>")
-        print(f"[{stage_name}] DP rank {rank}: {len(shards[rank])} prompts, "
+        print(f"[{stage_name}] DP rank {rank}: {len(prompt_shards[rank])} prompts, "
               f"CUDA_VISIBLE_DEVICES={devices_str}", flush=True)
 
         proc = subprocess.Popen(
@@ -1090,12 +1818,12 @@ def _run_data_parallel(
     # Collect results
     rank_results: Dict[int, List[Dict[str, Any]]] = {}
     for rank in range(dp_size):
-        result_path = result_files[rank]
-        if not os.path.exists(result_path):
-            errors.append(f"DP rank {rank}: no result file at {result_path}")
+        rpath = result_files[rank]
+        if not os.path.exists(rpath):
+            errors.append(f"DP rank {rank}: no result file at {rpath}")
             continue
-        with open(result_path, "rb") as f:
-            result = pickle.load(f)
+        with open(rpath, "rb") as pickle_f:
+            result = pickle.load(pickle_f)
         if result.get("error"):
             errors.append(f"DP rank {rank} failed:\n{result['error']}")
         else:
@@ -1118,14 +1846,447 @@ def _run_data_parallel(
     all_outputs = []
     for rank in range(dp_size):
         results = rank_results[rank]
-        if len(results) != len(shards[rank]):
+        if len(results) != len(prompt_shards[rank]):
             raise RuntimeError(
                 f"[{stage_name}] DP rank {rank} output count mismatch: "
-                f"expected {len(shards[rank])}, got {len(results)}"
+                f"expected {len(prompt_shards[rank])}, got {len(results)}"
             )
         all_outputs.extend(results)
 
     return all_outputs
+
+
+# ---------------------------------------------------------------------------
+# Data-parallel embedding inference
+# ---------------------------------------------------------------------------
+
+_DP_EMBED_WORKER_SCRIPT = r'''
+"""Standalone DP embedding worker — fresh subprocess per rank.
+
+Each worker is a completely independent LLM instance with its own
+CUDA_VISIBLE_DEVICES slice.  Uses LLM(runner="pooling") and llm.embed().
+
+Streams incremental chunk pickles into ``{result_path}.chunks/`` every
+CHUNK_BATCHES batches, using atomic temp+fsync+rename, so partial data
+survives a timeout or SIGKILL. Writes ``{result_path}`` as a completion
+marker (or error report) once all inputs are processed.
+"""
+import os, pickle, sys, time, traceback
+import numpy as np
+
+# Flush a chunk every CHUNK_BATCHES batches.  At batch_size=16 this is
+# ~800 embeddings per chunk; losing one chunk on timeout costs a few
+# minutes, not hours.
+CHUNK_BATCHES = 50
+
+
+def _atomic_write_pickle(path, data):
+    tmp = path + ".tmp"
+    with open(tmp, "wb") as f:
+        pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+
+def _flush_chunk(chunk_dir, rank, chunk_idx, start_offset, embeddings):
+    path = os.path.join(chunk_dir, f"chunk{chunk_idx:05d}.pkl")
+    _atomic_write_pickle(path, {
+        "rank": rank,
+        "chunk_idx": chunk_idx,
+        "start": start_offset,
+        "count": len(embeddings),
+        "embeddings": embeddings,
+    })
+
+
+def main():
+    task_path = sys.argv[1]
+    result_path = sys.argv[2]
+    chunk_dir = result_path + ".chunks"
+    os.makedirs(chunk_dir, exist_ok=True)
+
+    with open(task_path, "rb") as f:
+        task = pickle.load(f)
+
+    rank           = task["rank"]
+    dp_size        = task["dp_size"]
+    engine_kwargs  = task["engine_kwargs"]
+    prompt_texts   = task["prompt_texts"]
+    image_refs     = task["image_refs"]
+    stage_name     = task["stage_name"]
+    pcie_env       = task["pcie_env"]
+    runtime_env    = task["runtime_env"]
+    batch_size     = task["batch_size"]
+
+    for k, v in {**pcie_env, **runtime_env}.items():
+        os.environ.setdefault(k, v)
+
+    # Clear any inherited vLLM DP coordination vars
+    for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
+                "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
+        os.environ.pop(var, None)
+
+    print(f"[{stage_name}] DP rank {rank}/{dp_size}: starting embed worker "
+          f"(pid={os.getpid()}, CUDA_VISIBLE_DEVICES="
+          f"{os.environ.get('CUDA_VISIBLE_DEVICES', '<unset>')}, "
+          f"prompts={len(prompt_texts)}, chunk_dir={chunk_dir})", flush=True)
+
+    llm = None
+    chunk_idx = 0
+    flushed_count = 0
+    try:
+        t0 = time.time()
+        from vllm import LLM
+        from PIL import Image
+
+        t1 = time.time()
+        llm = LLM(**engine_kwargs)
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: LLM created in "
+              f"{time.time() - t1:.1f}s", flush=True)
+
+        total = len(prompt_texts)
+        pending = []
+        batches_since_flush = 0
+
+        for start in range(0, total, batch_size):
+            end = min(start + batch_size, total)
+            batch_inputs = []
+            for j in range(start, end):
+                inp = {"prompt": prompt_texts[j]}
+                ref = image_refs[j] if image_refs else None
+                if ref is not None:
+                    inp["multi_modal_data"] = {
+                        "image": Image.open(ref).convert("RGB")
+                    }
+                batch_inputs.append(inp)
+
+            outputs = llm.embed(batch_inputs)
+            for out in outputs:
+                emb = out.outputs.embedding
+                if not isinstance(emb, np.ndarray):
+                    emb = np.array(emb, dtype=np.float32)
+                pending.append(emb)
+            del batch_inputs, outputs
+            batches_since_flush += 1
+
+            if batches_since_flush >= CHUNK_BATCHES:
+                _flush_chunk(chunk_dir, rank, chunk_idx, flushed_count, pending)
+                flushed_count += len(pending)
+                chunk_idx += 1
+                pending = []
+                batches_since_flush = 0
+                print(f"[{stage_name}] DP rank {rank}/{dp_size}: "
+                      f"{flushed_count}/{total} embedded "
+                      f"(chunk {chunk_idx} flushed)", flush=True)
+            elif (start // batch_size) % 20 == 0 or end == total:
+                print(f"[{stage_name}] DP rank {rank}/{dp_size}: "
+                      f"{flushed_count + len(pending)}/{total} embedded",
+                      flush=True)
+
+        # Final chunk flush for remaining pending
+        if pending:
+            _flush_chunk(chunk_dir, rank, chunk_idx, flushed_count, pending)
+            flushed_count += len(pending)
+            chunk_idx += 1
+            pending = []
+
+        # Completion marker (chunks are authoritative for data)
+        _atomic_write_pickle(result_path, {
+            "rank": rank,
+            "num_chunks": chunk_idx,
+            "total": flushed_count,
+            "error": None,
+        })
+
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: done, "
+              f"{flushed_count} embeddings in {chunk_idx} chunks, "
+              f"elapsed {time.time() - t0:.1f}s", flush=True)
+
+    except Exception:
+        tb = traceback.format_exc()
+        print(f"[{stage_name}] DP rank {rank}/{dp_size}: FAILED\n{tb}",
+              flush=True, file=sys.stderr)
+        try:
+            _atomic_write_pickle(result_path, {
+                "rank": rank,
+                "num_chunks": chunk_idx,
+                "total": flushed_count,
+                "error": tb,
+            })
+        except Exception:
+            pass
+        sys.exit(1)
+    finally:
+        try:
+            if llm is not None:
+                engine = getattr(llm, "llm_engine", None)
+                core = getattr(engine, "engine_core", None) if engine else None
+                if core is not None and hasattr(core, "shutdown"):
+                    core.shutdown()
+                del llm
+        except Exception:
+            pass
+
+if __name__ == "__main__":
+    main()
+'''
+
+
+def _run_data_parallel_embed(
+    engine_kwargs: Dict[str, Any],
+    dp_size: int,
+    prompt_texts: List[str],
+    image_refs: List[Optional[str]],
+    stage_name: str,
+    batch_size: int = 16,
+    timeout: int = 255600,
+) -> Tuple[List[Any], List[str]]:
+    """Spawn dp_size subprocess workers for vLLM embedding inference.
+
+    Same pattern as ``_run_data_parallel`` but uses ``LLM(runner="pooling")``
+    and ``llm.embed()``.
+
+    Workers stream incremental chunk pickles to
+    ``{tmpdir}/{stage_name}_dp{rank}_result.pkl.chunks/``, so even if a rank
+    is killed by the watchdog (or SLURM) the already-embedded rows survive.
+
+    The default 255600s (~71h) watchdog leaves ~1h of SLURM headroom for
+    cleanup and parquet flushing before the job's hard limit (slurm_gpu_4x
+    is 72h).
+
+    Returns:
+        A tuple ``(all_embeddings, errors)`` where ``all_embeddings`` has
+        length ``len(prompt_texts)`` with ``None`` placeholders for any
+        positions a worker never produced. ``errors`` lists human-readable
+        failure reasons — empty on full success.  When non-empty, chunk
+        directories for the failing ranks are left on disk for manual
+        recovery (their paths are printed in stdout).
+    """
+    import glob
+    import pickle
+    import tempfile
+
+    if len(prompt_texts) < dp_size:
+        raise RuntimeError(
+            f"[{stage_name}] Too few inputs ({len(prompt_texts)}) for "
+            f"data_parallel_size={dp_size}."
+        )
+
+    tp_size = engine_kwargs.get("tensor_parallel_size", 1)
+    total_gpus_needed = dp_size * tp_size
+    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    all_devices = [d.strip() for d in visible.split(",") if d.strip()] if visible else []
+    if all_devices and len(all_devices) < total_gpus_needed:
+        raise RuntimeError(
+            f"[{stage_name}] data_parallel_size={dp_size} x "
+            f"tensor_parallel_size={tp_size} = {total_gpus_needed} GPUs required, "
+            f"but only {len(all_devices)} visible: {all_devices}"
+        )
+
+    # Shard inputs across DP ranks
+    floor_n = len(prompt_texts) // dp_size
+    remainder = len(prompt_texts) % dp_size
+
+    def shard_range(rank: int) -> tuple:
+        start = rank * floor_n + min(rank, remainder)
+        end = (rank + 1) * floor_n + min(rank + 1, remainder)
+        return start, end
+
+    prompt_shards = []
+    image_ref_shards = []
+    for r in range(dp_size):
+        s, e = shard_range(r)
+        prompt_shards.append(prompt_texts[s:e])
+        image_ref_shards.append(image_refs[s:e] if image_refs else [])
+
+    pcie_env = get_pcie_nccl_env_vars()
+    runtime_env = get_vllm_runtime_env_vars()
+
+    tmpdir = os.environ.get("TMPDIR", "/tmp")
+    task_files = []
+    result_files = []
+    procs: List[subprocess.Popen] = []
+
+    worker_script = tempfile.NamedTemporaryFile(
+        mode="w", suffix="_dp_embed_worker.py", dir=tmpdir, delete=False,
+    )
+    worker_script.write(_DP_EMBED_WORKER_SCRIPT)
+    worker_script.close()
+
+    # Workers are fully independent — no data_parallel_size in kwargs
+    worker_engine_kwargs = {k: v for k, v in engine_kwargs.items()
+                           if k != "data_parallel_size"}
+
+    print(f"[{stage_name}] Launching {dp_size} DP embed workers "
+          f"(TP={tp_size}, {len(prompt_texts)} total inputs)...", flush=True)
+
+    for rank in range(dp_size):
+        # GPU slice for this rank
+        if all_devices:
+            rank_devices = all_devices[rank * tp_size:(rank + 1) * tp_size]
+        else:
+            rank_devices = []
+
+        task = {
+            "rank": rank,
+            "dp_size": dp_size,
+            "engine_kwargs": worker_engine_kwargs,
+            "prompt_texts": prompt_shards[rank],
+            "image_refs": image_ref_shards[rank],
+            "stage_name": stage_name,
+            "pcie_env": pcie_env,
+            "runtime_env": runtime_env,
+            "batch_size": batch_size,
+        }
+
+        task_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_task.pkl")
+        result_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_result.pkl")
+        with open(task_path, "wb") as pickle_f:
+            pickle.dump(task, pickle_f)
+        task_files.append(task_path)
+        result_files.append(result_path)
+
+        # Build clean env: assign GPU slice, clear stale DP vars
+        child_env = dict(os.environ)
+        if rank_devices:
+            child_env["CUDA_VISIBLE_DEVICES"] = ",".join(rank_devices)
+        for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
+                     "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
+            child_env.pop(var, None)
+
+        devices_str = child_env.get("CUDA_VISIBLE_DEVICES", "<unset>")
+        print(f"[{stage_name}] DP rank {rank}: {len(prompt_shards[rank])} inputs, "
+              f"CUDA_VISIBLE_DEVICES={devices_str}", flush=True)
+
+        proc = subprocess.Popen(
+            [sys.executable, worker_script.name, task_path, result_path],
+            env=child_env,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+        procs.append(proc)
+
+    # Wait for all workers — per-rank errors collected so we can still
+    # recover chunks from ranks that succeeded or partially completed.
+    print(f"[{stage_name}] Waiting for {dp_size} DP embed workers "
+          f"(timeout={timeout}s)...", flush=True)
+    rank_errors: Dict[int, List[str]] = {rank: [] for rank in range(dp_size)}
+    for rank, proc in enumerate(procs):
+        try:
+            retcode = proc.wait(timeout=timeout)
+            if retcode != 0:
+                rank_errors[rank].append(
+                    f"process (pid={proc.pid}) exited with code {retcode}"
+                )
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            rank_errors[rank].append(
+                f"process (pid={proc.pid}) timed out after {timeout}s, killed"
+            )
+
+    # Collect results per rank from chunk dirs + marker files
+    rank_results: Dict[int, List[Any]] = {}
+    chunk_dirs: Dict[int, str] = {}
+    for rank in range(dp_size):
+        rpath = result_files[rank]
+        chunk_dir = rpath + ".chunks"
+        chunk_dirs[rank] = chunk_dir
+
+        # Load whatever chunks exist (ordered by filename)
+        rank_embeddings: List[Any] = []
+        if os.path.isdir(chunk_dir):
+            chunk_paths = sorted(glob.glob(os.path.join(chunk_dir, "chunk*.pkl")))
+            for cpath in chunk_paths:
+                try:
+                    with open(cpath, "rb") as cf:
+                        cdata = pickle.load(cf)
+                    rank_embeddings.extend(cdata.get("embeddings") or [])
+                except Exception as e:
+                    rank_errors[rank].append(
+                        f"failed to read chunk {os.path.basename(cpath)}: {e}"
+                    )
+
+        # Inspect completion marker (may or may not exist)
+        if os.path.exists(rpath):
+            try:
+                with open(rpath, "rb") as mf:
+                    marker = pickle.load(mf)
+            except Exception as e:
+                rank_errors[rank].append(f"corrupt marker {rpath}: {e}")
+                marker = None
+            if marker and marker.get("error"):
+                rank_errors[rank].append(
+                    f"worker raised:\n{marker['error']}"
+                )
+
+        expected = len(prompt_shards[rank])
+        if len(rank_embeddings) < expected:
+            rank_errors[rank].append(
+                f"incomplete: {len(rank_embeddings)}/{expected} embeddings "
+                f"(partial chunks preserved at {chunk_dir})"
+            )
+
+        rank_results[rank] = rank_embeddings
+
+    # Flatten per-rank errors for caller
+    errors: List[str] = []
+    for rank in range(dp_size):
+        for msg in rank_errors[rank]:
+            errors.append(f"DP rank {rank}: {msg}")
+
+    # Cleanup: always remove worker script + task pickles. For each rank,
+    # only remove chunk files + marker if the rank had no errors; otherwise
+    # leave the chunk directory intact for manual recovery.
+    cleanup_paths: List[str] = [worker_script.name, *task_files]
+    recoverable_chunk_dirs: List[str] = []
+    for rank in range(dp_size):
+        rpath = result_files[rank]
+        chunk_dir = chunk_dirs[rank]
+        if rank_errors[rank]:
+            if os.path.isdir(chunk_dir):
+                recoverable_chunk_dirs.append(chunk_dir)
+            continue
+        if os.path.isdir(chunk_dir):
+            # Sweep every file (chunks AND any leftover atomic-write .tmp)
+            # so rmdir at the end succeeds.
+            for name in os.listdir(chunk_dir):
+                cleanup_paths.append(os.path.join(chunk_dir, name))
+            cleanup_paths.append(chunk_dir)  # rmdir last
+        if os.path.exists(rpath):
+            cleanup_paths.append(rpath)
+
+    for p in cleanup_paths:
+        try:
+            if os.path.isdir(p):
+                os.rmdir(p)
+            else:
+                os.unlink(p)
+        except OSError:
+            pass
+
+    if errors:
+        print(f"[{stage_name}] DP embed completed with {len(errors)} error(s):",
+              flush=True)
+        for err in errors:
+            print(f"  - {err}", flush=True)
+        if recoverable_chunk_dirs:
+            print(f"[{stage_name}] Recoverable chunk dirs (NOT deleted):",
+                  flush=True)
+            for p in recoverable_chunk_dirs:
+                print(f"  - {p}", flush=True)
+
+    # Reassemble in original order; insert None placeholders for any gaps
+    # so the caller can still stream partial results to disk.
+    all_embeddings: List[Any] = []
+    for rank in range(dp_size):
+        got = rank_results[rank]
+        expected = len(prompt_shards[rank])
+        all_embeddings.extend(got)
+        if len(got) < expected:
+            all_embeddings.extend([None] * (expected - len(got)))
+
+    return all_embeddings, errors
 
 
 # ---------------------------------------------------------------------------
@@ -1306,9 +2467,7 @@ def run_vllm_inference(
     Returns:
         pd.DataFrame of postprocessed results.
     """
-    # Handle Ray Dataset or other non-pandas inputs
     if hasattr(df, "to_pandas") and not isinstance(df, pd.DataFrame):
-        print(f"[{stage_name}] Converting input to pandas DataFrame...")
         df = df.to_pandas()
 
     if df is None or len(df) == 0:
@@ -1385,7 +2544,8 @@ def run_vllm_inference(
     print(f"[{stage_name}] Reasoning extraction: parser={_parser_name or 'regex-fallback'}, "
           f"thinking_enabled={_thinking_enabled}")
 
-    # Check for data parallelism
+    # Check for data parallelism (pop before passing to LLM — vLLM 0.19
+    # workers get DP config from VLLM_DP_* env vars, not LLM kwargs).
     dp_size = int(engine_kwargs.pop("data_parallel_size", 1) or 1)
 
     print(
@@ -1397,18 +2557,103 @@ def run_vllm_inference(
         print(f"[{stage_name}] Data parallelism enabled: {dp_size} replicas "
               f"x TP={engine_kwargs.get('tensor_parallel_size', 1)}")
 
-    # Load tokenizer without full LLM for prompt templating.
-    # For DP mode we can't create the LLM in the parent process; for
-    # single-process mode we create LLM first and reuse its tokenizer.
+    # For DP mode, use full-pipeline workers: preprocess + infer + postprocess
+    # all happen inside each worker subprocess.  This avoids the bottleneck
+    # of sequentially preprocessing all rows in the main process (especially
+    # expensive for pairwise image stitching or OCR tiling).
     if dp_size > 1:
-        from transformers import AutoTokenizer
-        tokenizer = AutoTokenizer.from_pretrained(
-            engine_kwargs["model"], trust_remote_code=True
+        # Chunked execution + parallel image hydration knobs.  These default
+        # to values that work for multimodal jobs at ~1M-pixel images on
+        # A6000-class GPUs; tune via cfg.model.* if needed.  Smaller
+        # chunk_size = more frequent progress, slightly more Python overhead;
+        # 64 is the sweet spot for cold-start visibility.
+        chunk_size = int(getattr(cfg.model, "chunk_size", 0) or 64)
+        log_every = int(getattr(cfg.model, "log_every", 0) or 1000)
+        flush_every = int(getattr(cfg.model, "flush_every", 0) or 1000)
+        image_load_workers = int(getattr(cfg.model, "image_load_workers", 0) or 16)
+
+        # Where to drop streaming parquet shards.  Preference order:
+        #   1. cfg.model.streaming_output_dir (explicit override)
+        #   2. HydraConfig.sweep.dir (the multirun sweep root, e.g.
+        #      multirun/2026-04-10_URBANPAIRVQA/11-28-27)
+        #   3. HydraConfig.runtime.output_dir (per-job dir)
+        #   4. cfg.runtime.output_dir (set by the orchestrator)
+        #   5. os.getcwd() fallback (pre-Hydra behaviour)
+        # Hydra's chdir=null means os.getcwd() is the project root, which is
+        # the wrong place — we have to ask HydraConfig explicitly.
+        _streaming_root = None
+        _override = getattr(cfg.model, "streaming_output_dir", None)
+        if _override:
+            _streaming_root = str(_override)
+        if _streaming_root is None:
+            try:
+                from hydra.core.hydra_config import HydraConfig as _HC
+                _hc = _HC.get()
+                _sweep = getattr(getattr(_hc, "sweep", None), "dir", None)
+                if _sweep:
+                    _streaming_root = os.path.abspath(str(_sweep))
+                if _streaming_root is None:
+                    _rt = getattr(getattr(_hc, "runtime", None), "output_dir", None)
+                    if _rt:
+                        _streaming_root = os.path.abspath(str(_rt))
+            except Exception:
+                pass
+        if _streaming_root is None:
+            _rt_out = None
+            try:
+                _rt_out = getattr(
+                    getattr(cfg, "runtime", object()), "output_dir", None
+                )
+            except Exception:
+                pass
+            if _rt_out:
+                _streaming_root = os.path.abspath(str(_rt_out))
+        if _streaming_root is None:
+            _streaming_root = os.getcwd()
+        streaming_output_dir = os.path.join(
+            _streaming_root, "streaming", stage_name
         )
-        llm = None  # LLM created in worker processes
-    else:
-        llm = LLM(**engine_kwargs)
-        tokenizer = llm.get_tokenizer()
+        # Use the same max_pixels vLLM's HF processor would have applied.
+        try:
+            _mm_pk = OmegaConf.to_container(
+                cfg.model.engine_kwargs.mm_processor_kwargs, resolve=True
+            ) or {}
+        except Exception:
+            _mm_pk = {}
+        image_max_pixels = _mm_pk.get("max_pixels") if isinstance(_mm_pk, dict) else None
+        try:
+            image_max_pixels = int(image_max_pixels) if image_max_pixels else None
+        except Exception:
+            image_max_pixels = None
+
+        print(f"[{stage_name}] Using full-pipeline DP workers "
+              f"(chunk_size={chunk_size}, log_every={log_every}, "
+              f"flush_every={flush_every}, "
+              f"image_max_pixels={image_max_pixels}, "
+              f"image_load_workers={image_load_workers}, "
+              f"streaming_output_dir={streaming_output_dir})")
+        raw_rows = df.to_dict("records")
+        dp_results = _run_data_parallel_full(
+            engine_kwargs=engine_kwargs,
+            dp_size=dp_size,
+            rows=raw_rows,
+            preprocess=preprocess,
+            postprocess=postprocess,
+            stage_name=stage_name,
+            model_source=_model_source,
+            thinking_enabled=_thinking_enabled,
+            chunk_size=chunk_size,
+            log_every=log_every,
+            image_max_pixels=image_max_pixels,
+            image_load_workers=image_load_workers,
+            flush_every=flush_every,
+            streaming_output_dir=streaming_output_dir,
+        )
+        print(f"[{stage_name}] Completed inference, {len(dp_results)} results")
+        return pd.DataFrame(dp_results)
+
+    llm = LLM(**engine_kwargs)
+    tokenizer = llm.get_tokenizer()
 
     try:
         # Preprocess all rows
@@ -1455,7 +2700,8 @@ def run_vllm_inference(
 
         # Build prompts and sampling params dicts for valid rows only.
         prompts: List[str] = []
-        row_images: List[Optional[List[Any]]] = []  # per-row image lists for multimodal
+        row_images: List[Optional[List[Any]]] = []  # per-row PIL image lists for single-process
+        row_image_refs: List[Optional[str]] = []  # per-row file path refs for DP serialization
         sp_dicts: List[Dict[str, Any]] = []
         valid_indices: List[int] = []
         _oversized_count = 0
@@ -1523,6 +2769,9 @@ def run_vllm_inference(
 
             prompts.append(prompt)
             row_images.append(images if images else None)
+            # Collect serializable image path for DP mode (PIL objects can't cross process boundaries)
+            _img_ref = row.get("image_path") or preprocessed_rows[i].get("image_path")
+            row_image_refs.append(str(_img_ref) if _img_ref else None)
             sp_dicts.append(row.get("sampling_params", {}))
             valid_indices.append(i)
 
@@ -1533,65 +2782,9 @@ def run_vllm_inference(
             )
 
         # -----------------------------------------------------------------------
-        # Inference: data-parallel or single-process
+        # Inference: single-process path (DP handled via early return above)
         # -----------------------------------------------------------------------
-        if dp_size > 1:
-            # All rows share the same sampling_params in our pipeline stages
-            sp_dict = sp_dicts[0] if sp_dicts else {}
-            print(f"[{stage_name}] Running data-parallel inference: "
-                  f"{len(prompts)} prompts across {dp_size} replicas...")
-            dp_outputs = _run_data_parallel(
-                engine_kwargs=engine_kwargs,
-                dp_size=dp_size,
-                prompts=prompts,
-                sp_dict=sp_dict,
-                stage_name=stage_name,
-            )
-
-            # Verify output count
-            if len(dp_outputs) != len(prompts):
-                raise RuntimeError(
-                    f"[{stage_name}] DP output count mismatch: "
-                    f"expected {len(prompts)}, got {len(dp_outputs)}"
-                )
-
-            # Postprocess — merge DP outputs back with failed rows
-            print(f"[{stage_name}] Postprocessing {len(dp_outputs)} outputs...")
-            results: List[Dict[str, Any]] = []
-            output_iter = iter(dp_outputs)
-            for idx, row in enumerate(preprocessed_rows):
-                if idx in failed_set:
-                    row["generated_text"] = ""
-                    row["generated_reasoning"] = ""
-                    try:
-                        result = postprocess(row)
-                    except Exception as e:
-                        row["__postprocess_error__"] = str(e)
-                        result = row
-                    results.append(result)
-                    continue
-
-                out = next(output_iter)
-                raw_text = out.get("generated_text", "")
-                reasoning, content = _split_reasoning(
-                    raw_text, _model_source, _thinking_enabled, tokenizer,
-                )
-                row["generated_text"] = content
-                row["generated_reasoning"] = reasoning
-                row["usage"] = {
-                    "prompt_tokens": out.get("prompt_tokens", 0),
-                    "completion_tokens": out.get("completion_tokens", 0),
-                    "total_tokens": out.get("prompt_tokens", 0) + out.get("completion_tokens", 0),
-                }
-                try:
-                    result = postprocess(row)
-                except Exception as e:
-                    row["__postprocess_error__"] = str(e)
-                    result = row
-                results.append(result)
-
-        else:
-            # Single-process path (original behaviour)
+        if True:  # noqa: SIM108 — preserves indentation after DP branch removal
             # Build SamplingParams objects with dedup optimization
             sp_objects: List[Any] = []
             _sp_cache: Dict[int, Any] = {}  # id(dict) -> SamplingParams
@@ -1709,6 +2902,267 @@ def run_vllm_inference(
                 results.append(result)
 
         print(f"[{stage_name}] Completed inference, {len(results)} results")
+        return pd.DataFrame(results)
+    finally:
+        _shutdown_llm(llm, stage_name=stage_name)
+
+
+# ---------------------------------------------------------------------------
+# Embedding inference via LLM.encode()
+# ---------------------------------------------------------------------------
+
+def run_vllm_embed(
+    df: pd.DataFrame,
+    cfg,
+    preprocess: Callable[[Dict[str, Any]], Dict[str, Any]],
+    postprocess: Callable[[Dict[str, Any]], Dict[str, Any]],
+    stage_name: str = "vllm_embed",
+) -> pd.DataFrame:
+    """Run vLLM embedding inference on a DataFrame.
+
+    Uses ``LLM(runner="pooling")`` and ``llm.embed()`` per the vLLM pooling
+    model API.  See: https://docs.vllm.ai/en/latest/models/pooling_models/embed/
+
+    The preprocess function must set ``row["messages"]`` (list of chat dicts).
+    The postprocess function receives ``row["embedding"]`` (numpy ndarray).
+
+    Args:
+        df: Input DataFrame.
+        cfg: Hydra config with model.model_source, model.engine_kwargs, etc.
+        preprocess: Row dict -> row dict with "messages".
+        postprocess: Row dict (with "embedding") -> final row dict.
+        stage_name: Label for log messages.
+
+    Returns:
+        pd.DataFrame of postprocessed results.
+    """
+    import numpy as np
+    from PIL import Image
+
+    if hasattr(df, "to_pandas") and not isinstance(df, pd.DataFrame):
+        df = df.to_pandas()
+
+    if df is None or len(df) == 0:
+        print(f"[{stage_name}] Empty input, returning empty DataFrame")
+        return pd.DataFrame()
+
+    # Set runtime env vars before importing vLLM
+    for k, v in {**get_pcie_nccl_env_vars(), **get_vllm_runtime_env_vars()}.items():
+        os.environ.setdefault(k, v)
+
+    env_snapshot = {
+        "CUDA_VISIBLE_DEVICES": os.environ.get("CUDA_VISIBLE_DEVICES", "<unset>"),
+        "SLURM_GPUS_ON_NODE": os.environ.get("SLURM_GPUS_ON_NODE", "<unset>"),
+    }
+    print(f"[{stage_name}] Runtime env: {env_snapshot}")
+
+    from vllm import LLM
+
+    engine_kwargs = _build_engine_kwargs(cfg)
+
+    # runner="pooling" tells vLLM to use the pooling/embedding pipeline.
+    engine_kwargs["runner"] = "pooling"
+
+    # Pop data_parallel_size — vLLM 0.19 workers get DP config from env vars
+    dp_size = int(engine_kwargs.pop("data_parallel_size", 1) or 1)
+
+    print(f"[{stage_name}] Initializing vLLM embedding engine: "
+          f"{ {k: v for k, v in engine_kwargs.items() if k != 'model'} }")
+    print(f"[{stage_name}] Model: {engine_kwargs.get('model')}")
+    if dp_size > 1:
+        print(f"[{stage_name}] Data parallelism enabled: {dp_size} replicas "
+              f"x TP={engine_kwargs.get('tensor_parallel_size', 1)}")
+
+    # For DP mode, load tokenizer standalone; for single-process, create LLM.
+    if dp_size > 1:
+        from transformers import AutoTokenizer
+        tokenizer = AutoTokenizer.from_pretrained(
+            engine_kwargs["model"], trust_remote_code=True
+        )
+        llm = None
+    else:
+        llm = LLM(**engine_kwargs)
+        tokenizer = llm.llm_engine.tokenizer
+
+    try:
+        # ── Phase 1: Preprocess rows into messages (no image loading) ─────
+        print(f"[{stage_name}] Preprocessing {len(df)} rows...")
+        preprocessed_rows: List[Dict[str, Any]] = []
+        failed_indices: List[int] = []
+        for idx, row in enumerate(df.to_dict("records")):
+            try:
+                preprocessed_rows.append(preprocess(row))
+            except Exception as e:
+                row["__preprocess_error__"] = str(e)
+                print(f"[{stage_name}] Preprocess error on row {idx}: {e}")
+                preprocessed_rows.append(row)
+                failed_indices.append(idx)
+
+        failed_set = set(failed_indices)
+
+        # ── Phase 2: Build prompt texts + image paths (lightweight) ───────
+        chat_template_kwargs = dict(
+            getattr(cfg.model, "chat_template_kwargs", {}) or {}
+        )
+
+        prompt_texts: List[str] = []
+        image_refs: List[Optional[str]] = []
+        valid_indices: List[int] = []
+
+        for i in range(len(preprocessed_rows)):
+            if i in failed_set:
+                continue
+            row = preprocessed_rows[i]
+            messages = row.get("messages")
+            if not messages:
+                continue
+
+            try:
+                prompt_text = tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True,
+                    **chat_template_kwargs,
+                )
+            except Exception:
+                try:
+                    flat = _flatten_messages_for_template(messages)
+                    prompt_text = tokenizer.apply_chat_template(
+                        flat, tokenize=False, add_generation_prompt=True,
+                    )
+                except Exception:
+                    parts = []
+                    for msg in messages:
+                        content = msg.get("content", "")
+                        if isinstance(content, list):
+                            content = " ".join(
+                                b.get("text", "") for b in content
+                                if isinstance(b, dict) and b.get("type") == "text"
+                            )
+                        parts.append(content)
+                    prompt_text = "\n".join(parts)
+
+            img_ref = None
+            for msg in messages:
+                for item in (msg.get("content", []) if isinstance(msg.get("content"), list) else []):
+                    if isinstance(item, dict) and item.get("type") == "image":
+                        ref = item.get("image")
+                        if isinstance(ref, str):
+                            img_ref = ref.removeprefix("file://")
+                        elif isinstance(ref, Image.Image):
+                            img_ref = ref
+
+            prompt_texts.append(prompt_text)
+            image_refs.append(img_ref)
+            valid_indices.append(i)
+
+        batch_size = int(getattr(cfg.model, "batch_size", 0) or 0)
+        if batch_size <= 0:
+            batch_size = max(len(prompt_texts), 1)
+
+        # ── Phase 3: Embed — data-parallel or single-process ─────────────
+        if dp_size > 1:
+            print(f"[{stage_name}] Running data-parallel embedding: "
+                  f"{len(prompt_texts)} inputs across {dp_size} replicas...")
+            all_embeddings = _run_data_parallel_embed(
+                engine_kwargs=engine_kwargs,
+                dp_size=dp_size,
+                prompt_texts=prompt_texts,
+                image_refs=image_refs,
+                stage_name=stage_name,
+                batch_size=batch_size,
+            )
+
+            if len(all_embeddings) != len(prompt_texts):
+                raise RuntimeError(
+                    f"[{stage_name}] DP embed output count mismatch: "
+                    f"expected {len(prompt_texts)}, got {len(all_embeddings)}"
+                )
+
+            # Postprocess
+            print(f"[{stage_name}] Postprocessing {len(all_embeddings)} embeddings...")
+            results: List[Dict[str, Any]] = []
+            emb_iter = iter(all_embeddings)
+            for idx, row in enumerate(preprocessed_rows):
+                if idx in failed_set:
+                    row["embedding"] = None
+                    try:
+                        result = postprocess(row)
+                    except Exception as e:
+                        row["__postprocess_error__"] = str(e)
+                        result = row
+                    results.append(result)
+                    continue
+
+                row["embedding"] = next(emb_iter)
+                try:
+                    result = postprocess(row)
+                except Exception as e:
+                    row["__postprocess_error__"] = str(e)
+                    result = row
+                results.append(result)
+
+        else:
+            # Single-process path
+            total_batches = (len(prompt_texts) + batch_size - 1) // batch_size
+            print(f"[{stage_name}] Embedding {len(prompt_texts)} inputs "
+                  f"(batch_size={batch_size}, {total_batches} batches)...")
+
+            all_outputs = []
+            for start in range(0, len(prompt_texts), batch_size):
+                end = min(start + batch_size, len(prompt_texts))
+                print(f"[{stage_name}] Embedding batch {start // batch_size + 1}/{total_batches}: "
+                      f"rows {start}-{end - 1}")
+
+                batch_inputs = []
+                for j in range(start, end):
+                    embed_input: Dict[str, Any] = {"prompt": prompt_texts[j]}
+                    ref = image_refs[j]
+                    if ref is not None:
+                        if isinstance(ref, Image.Image):
+                            embed_input["multi_modal_data"] = {"image": ref}
+                        else:
+                            embed_input["multi_modal_data"] = {
+                                "image": Image.open(ref).convert("RGB")
+                            }
+                    batch_inputs.append(embed_input)
+
+                batch_outputs = llm.embed(batch_inputs)
+                all_outputs.extend(batch_outputs)
+                del batch_inputs
+
+            if len(all_outputs) != len(prompt_texts):
+                raise RuntimeError(
+                    f"[{stage_name}] vLLM embed output count mismatch: "
+                    f"expected {len(prompt_texts)}, got {len(all_outputs)}"
+                )
+
+            # Postprocess
+            print(f"[{stage_name}] Postprocessing {len(all_outputs)} embeddings...")
+            results: List[Dict[str, Any]] = []
+            output_iter = iter(all_outputs)
+            for idx, row in enumerate(preprocessed_rows):
+                if idx in failed_set:
+                    row["embedding"] = None
+                    try:
+                        result = postprocess(row)
+                    except Exception as e:
+                        row["__postprocess_error__"] = str(e)
+                        result = row
+                    results.append(result)
+                    continue
+
+                output = next(output_iter)
+                emb_data = output.outputs.embedding
+                if not isinstance(emb_data, np.ndarray):
+                    emb_data = np.array(emb_data, dtype=np.float32)
+                row["embedding"] = emb_data
+                try:
+                    result = postprocess(row)
+                except Exception as e:
+                    row["__postprocess_error__"] = str(e)
+                    result = row
+                results.append(result)
+
+        print(f"[{stage_name}] Completed embedding, {len(results)} results")
         return pd.DataFrame(results)
     finally:
         _shutdown_llm(llm, stage_name=stage_name)

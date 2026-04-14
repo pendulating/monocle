@@ -69,9 +69,9 @@ class OCRRunner(StageRunner):
 
         handler_name = getattr(getattr(cfg, "data", None), "handler", "generic")
         handler = OCRDataHandler.get_handler(handler_name)
-        ds = handler.load_dataset(cfg)
+        df = handler.load_dataset(cfg)
 
-        out = run_ocr_stage(ds, cfg)
+        out = run_ocr_stage(df, cfg)
 
         row_count = len(out) if isinstance(out, pd.DataFrame) else 0
         unique_images = 0

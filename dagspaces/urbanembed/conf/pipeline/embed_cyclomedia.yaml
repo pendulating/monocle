@@ -4,6 +4,7 @@
 
 defaults:
   - _self_
+  - override /hydra/launcher: slurm_monitor
   - override /data: cyclomedia_manhattan_2025_1
   - override /model: qwen3_vl_embedding_8b
 

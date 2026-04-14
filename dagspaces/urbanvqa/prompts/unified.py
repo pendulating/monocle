@@ -13,7 +13,7 @@ try:
 except ImportError:
     np = None
 
-# Import PIL for direct image passthrough to Ray Data LLM's PrepareImageStage
+# Import PIL for direct image passthrough to vLLM
 try:
     from PIL import Image as PILImage
     _PIL_AVAILABLE = True
@@ -24,10 +24,9 @@ except ImportError:
 def _numpy_to_pil(image_source: Any) -> Optional["PILImage.Image"]:
     """Convert a numpy array (or PIL Image) to a PIL Image for direct passthrough.
 
-    Ray Data LLM's PrepareImageStage natively accepts PIL Images inside
-    messages (``{"type": "image", "image": pil_img}``).  Passing PIL directly
-    eliminates the expensive base64 ↔ JPEG round-trip that was previously
-    required for Arrow serialization.
+    vLLM natively accepts PIL Images inside messages
+    (``{"type": "image", "image": pil_img}``).  Passing PIL directly
+    eliminates the expensive base64 round-trip.
 
     Args:
         image_source: numpy array (H×W×C uint8) or PIL Image.
@@ -55,13 +54,8 @@ def _numpy_to_pil(image_source: Any) -> Optional["PILImage.Image"]:
 def _load_pil_from_path(image_path: Any) -> Optional["PILImage.Image"]:
     """Load a PIL Image directly from a file path on disk.
 
-    This is the lazy-loading counterpart to the old eager
-    ``_load_image_from_path`` that decoded every image into a numpy array
-    inside the Ray Data pipeline.  By deferring the load to the per-row
-    preprocess function, images are decoded just-in-time — immediately
-    before ChatTemplateUDF / vLLMEngineStageUDF consume them — instead of
-    sitting as ~786 KB numpy arrays in the Ray object store for the
-    duration of the vLLM warmup phase.
+    Lazy-loads a PIL Image from disk.  Images are decoded just-in-time
+    during preprocessing rather than eagerly loaded into memory.
 
     Args:
         image_path: Filesystem path (str) to a JPEG/PNG image.
@@ -109,8 +103,7 @@ def preprocess_simple(row: Dict[str, Any], cfg: DictConfig, is_multimodal: bool 
     """Simple preprocessing without any dynamic techniques.
 
     Converts images to PIL and passes them directly in the OpenAI-style
-    message structure so that Ray Data LLM's PrepareImageStage can forward
-    them to vLLM without any encode/decode overhead.
+    message structure for vLLM without any encode/decode overhead.
 
     Args:
         row: Input row with prompt and image (numpy array or PIL Image)
@@ -140,9 +133,8 @@ def preprocess_simple(row: Dict[str, Any], cfg: DictConfig, is_multimodal: bool 
     # ── Image handling ──────────────────────────────────────────────────
     # Resolve the image lazily: try in-memory first (numpy / PIL from
     # read_images path), then fall back to loading from image_path on disk
-    # (parquet-manifest path).  This avoids decoding images eagerly in the
-    # Ray Data pipeline, which was the primary cause of object-store
-    # spilling during the vLLM warmup phase.
+    # (parquet-manifest path).  This avoids decoding images eagerly,
+    # which prevents excessive memory usage during the vLLM warmup phase.
     #
     # PrepareImageStage is DISABLED (has_image=False) to avoid fusing the
     # CPU-bound map operators with a concurrency-capped actor pool, which
@@ -387,7 +379,7 @@ def unified_preprocess(
     # Build standard messages with updated prompt
     # CRITICAL: Do NOT include image column in any data structures
     # Pass original row to preprocess_simple so it can read image, but result won't include it
-    # We must NOT touch the dataset created by ray.data.read_images()
+    # Do not modify image column in preprocessing
     return preprocess_simple(current_row, cfg, is_multimodal)
 
 
