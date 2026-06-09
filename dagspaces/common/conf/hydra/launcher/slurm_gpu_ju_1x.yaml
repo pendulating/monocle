@@ -1,0 +1,53 @@
+# Uses Hydra Submitit Slurm launcher
+# JU partition, RTX A5000 (24 GB, sm_86, PCIe-only)
+_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
+submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+timeout_min: 14400
+nodes: 1
+tasks_per_node: 1
+# ju-compute-01 (32 CPUs / 4 GPUs) is shared with other groups' CPU-heavy jobs;
+# keep GPU-job CPU requests minimal so jobs still schedule when it is CPU-busy.
+cpus_per_task: 4
+mem_gb: ${runtime.job_memory_gb}
+partition: ju
+array_parallelism: 1
+gpus_per_node: 1
+name: ${experiment.name}
+additional_parameters:
+  # Untyped gres: the ju nodes are a5000-only, so `gpu:1` is unambiguous.
+  # A *typed* gres (gpu:nvidia_rtx_a5000:1) conflicts with submitit's untyped
+  # `--gpus-per-node`, which SLURM rejects (same as the klara launchers).
+  gres: gpu:1
+  wckey: ""
+setup:
+  - export HYDRA_FULL_ERROR=1
+  - source ~/.bashrc
+  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv/bin/activate}
+  - if [ -n "$SLURM_GPUS_ON_NODE" ] && [ "$SLURM_GPUS_ON_NODE" -gt 0 ]; then export CUDA_VISIBLE_DEVICES=$(seq -s, 0 $((SLURM_GPUS_ON_NODE - 1))); else unset CUDA_VISIBLE_DEVICES; fi
+  - export PYTHONUNBUFFERED=1
+  - echo "=== GPU sanity (pre-job) ==="
+  - echo "HOST=$(hostname) DATE=$(date)"
+  - echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES SLURM_JOB_GPUS=$SLURM_JOB_GPUS SLURM_STEP_GPUS=$SLURM_STEP_GPUS SLURM_GPUS_ON_NODE=$SLURM_GPUS_ON_NODE"
+  - nvidia-smi -L || true
+  - python -c 'import torch; print("torch.cuda.is_available=", torch.cuda.is_available()); print("torch.cuda.device_count=", torch.cuda.device_count()); [print(f"torch device {i}=", torch.cuda.get_device_name(i)) for i in range(torch.cuda.device_count())]' || true
+  - unset WANDB_DISABLED
+  - if [ -n "$WANDB_MODE" ]; then export WANDB_MODE="$WANDB_MODE"; fi
+  - if [ -n "$WANDB_BASE_URL" ]; then export WANDB_BASE_URL="$WANDB_BASE_URL"; fi
+  - if [ -n "$WANDB_GROUP" ]; then export WANDB_GROUP="$WANDB_GROUP"; fi
+  - export WANDB_SILENT=true
+  - export WANDB_DISABLE_SERVICE=true
+  # NCCL configuration for A5000 (PCIe-only, no NVLink)
+  - export NCCL_DEBUG=WARN
+  - export NCCL_P2P_DISABLE=1
+  - export NCCL_IB_DISABLE=1
+  - export NCCL_CUMEM_HOST_ENABLE=0
+  - export NCCL_SHM_DISABLE=1
+  - export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512,expandable_segments:True
+  - export CUDA_LAUNCH_BLOCKING=0
+  - export TOKENIZERS_PARALLELISM=false
+  # A5000 = sm_86 -- avoid compiling for all architectures
+  - export TORCH_CUDA_ARCH_LIST=8.6
+  - export VLLM_WORKER_MULTIPROC_METHOD=spawn
+  - if [ -d /scratch ]; then export TMPDIR=/scratch/$USER; else export TMPDIR=/tmp/$USER; fi
+  - mkdir -p $TMPDIR
+  - export SLURM_CPU_BIND=none

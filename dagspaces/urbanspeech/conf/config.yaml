@@ -1,0 +1,57 @@
+# Top-level Hydra config for URBANSPEECH
+
+defaults:
+  - _self_
+  - data: generic_videos
+  - model: granite_speech_3_3_2b
+  - optional pipeline: null
+
+experiment:
+  name: URBANSPEECH
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  output_path: outputs/asr/transcripts_${now:%Y%m%d_%H%M%S}.parquet
+  # ju-compute-01 has ~251 GB total; keep stage jobs well under that so
+  # GPU jobs can pack alongside each other.
+  job_memory_gb: 64
+  streaming_io: false
+
+audio_extraction:
+  sample_rate: 16000        # granite-speech expects 16 kHz mono
+  num_workers: 8            # parallel ffmpeg subprocesses
+  skip_existing: true       # reuse WAVs from a previous (partial) run
+  audio_dir: null           # null = <manifest dir>/audio/
+
+asr:
+  question: "can you transcribe the speech into a written format?"
+  audio_manifest_path: null   # extract_audio output; wired by the pipeline
+  chunk_seconds: 30.0         # split long clips into windows of this size
+  chunk_overlap_seconds: 0.0
+  min_chunk_seconds: 0.2      # drop trailing slivers shorter than this
+  batch_size: 64              # audio chunks per llm.generate() call
+  temperature: 0.0            # greedy decoding for ASR
+  max_tokens: 256             # per 30 s chunk; speech is ~2-3 words/s
+  output_column: transcript
+
+wandb:
+  enabled: true
+  name_prefix: null
+  project: ${oc.env:WANDB_PROJECT,URBANSPEECH}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 1000
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}_${experiment.name}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

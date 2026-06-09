@@ -1,0 +1,66 @@
+# @package _global_
+# granite-speech 2b vs 8b ablation: extract audio once, then transcribe the
+# same clips with both model sizes. Outputs land side by side for WER /
+# quality comparison.
+#
+# Usage:
+#   python -m dagspaces.urbanspeech.cli -m pipeline=asr_videos_granite_ablation \
+#     data.video_dir=/path/to/clips
+#
+# The 2b run takes one A5000; the 8b run takes two (TP=2) — together they fit
+# on ju-compute-01 (4x A5000), though the orchestrator runs them sequentially.
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: generic_videos
+  - override /model: granite_speech_3_3_2b
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      extract_audio:
+        stage: extract_audio
+        depends_on: []
+        outputs:
+          audio_manifest: outputs/extract_audio/audio_manifest.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          audio_extraction.num_workers: ${audio_extraction.num_workers}
+        launcher: slurm_cpu_ju
+        wandb_suffix: extract_audio
+
+      asr_granite_2b:
+        stage: asr
+        depends_on: [extract_audio]
+        inputs:
+          audio_manifest: extract_audio.audio_manifest
+        outputs:
+          results: outputs/asr/transcripts_granite_2b.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.streaming_io: ${runtime.streaming_io}
+          asr.chunk_seconds: ${asr.chunk_seconds}
+          asr.batch_size: ${asr.batch_size}
+        launcher: slurm_gpu_ju_1x
+        wandb_suffix: asr_granite_2b
+
+      asr_granite_8b:
+        stage: asr
+        depends_on: [extract_audio]
+        inputs:
+          audio_manifest: extract_audio.audio_manifest
+        outputs:
+          results: outputs/asr/transcripts_granite_8b.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.streaming_io: ${runtime.streaming_io}
+          asr.chunk_seconds: ${asr.chunk_seconds}
+          asr.batch_size: ${asr.batch_size}
+          model.model_source: /share/pierson/matt/zoo/models/granite-speech-3.3-8b
+          model.engine_kwargs.tensor_parallel_size: 2
+        launcher: slurm_gpu_ju_2x
+        wandb_suffix: asr_granite_8b

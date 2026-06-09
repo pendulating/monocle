@@ -1,0 +1,19 @@
+# Generic video inputs for speech recognition.
+#
+# Two ways to point at videos (parquet wins when both are set):
+#   1. parquet_path — a parquet with one row per clip. Metadata columns are
+#      carried through the manifest and the final transcript parquet.
+#   2. video_dir + video_glob — discover clips on disk; sample_id is derived
+#      from the path relative to video_dir.
+
+parquet_path: ""
+
+# Directory scan (used when parquet_path is empty)
+video_dir: null
+video_glob: "**/*.mp4"
+
+columns:
+  # Required: path to the video file
+  video_path: video_path
+  # Optional: unique clip identifier (derived from filename when absent)
+  sample_id: sample_id
