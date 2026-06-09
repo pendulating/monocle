@@ -1,0 +1,48 @@
+# @package _global_
+# Speech recognition pipeline: extract audio from video clips, then
+# transcribe with granite-speech via vLLM on the JU partition (RTX A5000).
+#
+# Usage:
+#   python -m dagspaces.urbanspeech.cli -m pipeline=asr_videos \
+#     data.video_dir=/path/to/clips
+#
+# Swap the model with `model=granite_speech_3_3_8b` (pair the asr node with
+# launcher slurm_gpu_ju_2x — see asr_videos_granite_ablation for both at once).
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: generic_videos
+  - override /model: granite_speech_3_3_2b
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      extract_audio:
+        stage: extract_audio
+        depends_on: []
+        outputs:
+          audio_manifest: outputs/extract_audio/audio_manifest.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          audio_extraction.num_workers: ${audio_extraction.num_workers}
+        launcher: slurm_cpu_ju
+        wandb_suffix: extract_audio
+
+      asr:
+        stage: asr
+        depends_on: [extract_audio]
+        inputs:
+          audio_manifest: extract_audio.audio_manifest
+        outputs:
+          results: outputs/asr/transcripts.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.streaming_io: ${runtime.streaming_io}
+          asr.chunk_seconds: ${asr.chunk_seconds}
+          asr.batch_size: ${asr.batch_size}
+        launcher: slurm_gpu_ju_1x
+        wandb_suffix: asr_granite_2b

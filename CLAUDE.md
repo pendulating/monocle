@@ -61,6 +61,7 @@ Each dagspace has its own CLI entry point:
 - `python -m dagspaces.urbanpairvqa.cli` — Pairwise comparison VQA
 - `python -m dagspaces.urbanroamvqa.cli` — Multi-step street traversal VQA
 - `python -m dagspaces.urbanembed.cli` — Embedding inference
+- `python -m dagspaces.urbanspeech.cli` — Speech recognition over video clips
 
 All accept Hydra overrides: `model.batch_size=32 runtime.debug=true data.parquet_path=/path/to/data.parquet`
 
@@ -70,7 +71,7 @@ All accept Hydra overrides: `model.batch_size=32 runtime.debug=true data.parquet
 
 ### Dagspaces
 
-Five independent pipeline systems under `dagspaces/`, each following the same structure:
+Six independent pipeline systems under `dagspaces/`, each following the same structure:
 
 | Dagspace | Purpose |
 |----------|---------|
@@ -79,6 +80,7 @@ Five independent pipeline systems under `dagspaces/`, each following the same st
 | `urbanpairvqa` | Pairwise relative comparison of image pairs |
 | `urbanroamvqa` | Multi-step street traversal VQA |
 | `urbanembed` | Embedding inference |
+| `urbanspeech` | Speech recognition over video clips (ffmpeg audio isolation + granite-speech via vLLM, JU partition) |
 
 Each dagspace contains:
 - `cli.py` — Entry point; cleans SLURM env vars before Hydra init

@@ -1,0 +1,22 @@
+# IBM granite-speech-3.3-2b — speech-to-text via vLLM
+# (GraniteSpeechForConditionalGeneration; audio encoder wired in through a
+# LoRA adapter that ships inside the model repo — hence enable_lora below
+# and the LoRARequest("speech", ...) the asr stage attaches per request.)
+
+model_source: /share/pierson/matt/zoo/models/granite-speech-3.3-2b
+model_family: granite_speech
+speech_lora: true
+
+engine_kwargs:
+  tensor_parallel_size: 1
+  max_model_len: 2048        # model-card default; ~30 s audio + transcript fits
+  max_num_seqs: 8
+  limit_mm_per_prompt:
+    audio: 1
+  enable_lora: true
+  max_lora_rank: 64
+  trust_remote_code: true
+  dtype: auto
+  gpu_memory_utilization: 0.90
+
+batch_size: 0

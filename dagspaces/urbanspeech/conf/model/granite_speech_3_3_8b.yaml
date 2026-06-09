@@ -1,0 +1,24 @@
+# IBM granite-speech-3.3-8b — speech-to-text via vLLM (8B ablation variant)
+# Same architecture/LoRA arrangement as the 2b config.
+#
+# bf16 weights are ~17 GB — too tight for one 24 GB RTX A5000 once the
+# audio encoder, LoRA, and KV cache are loaded. Default to TP=2 on the JU
+# partition (pair with launcher slurm_gpu_ju_2x).
+
+model_source: /share/pierson/matt/zoo/models/granite-speech-3.3-8b
+model_family: granite_speech
+speech_lora: true
+
+engine_kwargs:
+  tensor_parallel_size: 2
+  max_model_len: 2048
+  max_num_seqs: 8
+  limit_mm_per_prompt:
+    audio: 1
+  enable_lora: true
+  max_lora_rank: 64
+  trust_remote_code: true
+  dtype: auto
+  gpu_memory_utilization: 0.90
+
+batch_size: 0
