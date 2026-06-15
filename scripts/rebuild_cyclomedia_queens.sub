@@ -1,0 +1,60 @@
+#!/bin/bash
+#SBATCH -J cyclo-queens
+#SBATCH -o /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog/%j.out
+#SBATCH -e /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog/%j.err
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=mwf62@cornell.edu
+#SBATCH -N 1
+#SBATCH -n 16
+#SBATCH --get-user-env
+#SBATCH --mem=64gb
+#SBATCH -t 12:00:00
+#SBATCH --partition=ju
+
+# Rebuild the queens_2025_1k partition after flattening a stray nested
+# queens_2025_1k/queens_2025_1k/ directory. `build_catalog` now rmtrees the
+# target dataset dir before writing (see indexer._dataset_rmtree), and merges
+# instead of overwriting manifest.json — so the other four boroughs' metadata
+# is preserved.
+#
+# Follow with a full-catalog validate to surface the cross-dataset overlap
+# count against the fresh queens rows.
+
+set -euo pipefail
+
+mkdir -p /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog
+
+echo "=== job info ==="
+echo "HOST=$(hostname) DATE=$(date)"
+echo "SLURM_JOB_ID=${SLURM_JOB_ID:-?} SLURM_CPUS_ON_NODE=${SLURM_CPUS_ON_NODE:-?}"
+echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
+
+source ~/.bashrc
+cd /share/pierson/matt/mllmsci
+source .venv/bin/activate
+
+export PATH="/share/ju/matt/.cargo/bin:${PATH}"
+echo "fd: $(which fd) $(fd --version)"
+
+export OMP_NUM_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export POLARS_MAX_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export PYTHONUNBUFFERED=1
+
+OUTPUT_ROOT="${OUTPUT_ROOT:-/share/ju/cyclomedia/catalog/v1}"
+RAW_ROOT="${RAW_ROOT:-/share/ju/cyclomedia/raw}"
+
+echo "=== build params ==="
+echo "RAW_ROOT=${RAW_ROOT}"
+echo "OUTPUT_ROOT=${OUTPUT_ROOT}"
+echo "top-level group dirs in queens_2025_1k: $(ls ${RAW_ROOT}/queens_2025_1k | wc -l)"
+
+echo "=== rebuilding queens_2025_1k ==="
+python -m dagspaces.common.cyclomedia_catalog.cli -v build \
+    --raw-root "${RAW_ROOT}" \
+    --output "${OUTPUT_ROOT}" \
+    --datasets queens_2025_1k
+
+echo "=== full-catalog validation ==="
+python -m dagspaces.common.cyclomedia_catalog.cli -v validate --output "${OUTPUT_ROOT}"
+
+echo "=== done: $(date) ==="

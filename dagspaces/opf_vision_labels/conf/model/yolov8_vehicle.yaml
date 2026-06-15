@@ -1,0 +1,27 @@
+# YOLOv8 COCO-pretrained, filtered to vehicle classes. Used by the
+# `vehicle` stage to derive license-plate candidate bboxes via a
+# position prior (lower-center of the vehicle bbox). Vehicle bboxes
+# themselves are NOT emitted as a class.
+
+name: yolov8_vehicle
+backend: ultralytics
+model_source: yolov8s.pt
+device: auto
+imgsz: 1024
+conf: 0.30
+iou: 0.50
+max_det: 64
+
+# COCO class indices: 2=car, 3=motorcycle, 5=bus, 7=truck
+classes: [2, 3, 5, 7]
+
+# Plate-region position prior on the vehicle bbox.
+# - lower_frac: vertical extent measured from the BOTTOM of the vehicle bbox.
+# - center_frac: horizontal width centered on the vehicle's horizontal center.
+# Defaults are loose enough to cover most front/rear-view plate positions; the
+# region is wider than a tight plate bbox, which is fine for 16x16-patch labels.
+plate_lower_frac: 0.30
+plate_center_frac: 0.35
+
+teacher_model: yolov8s-coco
+teacher_version: ultralytics-8.x

@@ -1,0 +1,59 @@
+# @package _global_
+# Embedding Pipeline — scaffolding_permits_2020_through_2025 (facing-filtered)
+#
+# Produces dense Qwen3-VL-Embedding-8B vectors over the ~3.58M F/B/L/R cube
+# faces that (a) sit inside the 80-ft buffer around any NYC DOB scaffold/shed
+# permit issued 2020-01-01 through 2025-12-31 AND (b) actually point toward
+# a permitted building (30-m forward-ray intersects coverage). See the data
+# config docstring + vault/context/wiki/scaffolding-permits-curation.md.
+#
+# Submit:
+#   python -m dagspaces.urbanembed.cli -m pipeline=embed_scaffolding_permits_2020_facing
+#
+# Streaming output: the DP workers write parquet parts live under the
+# output_path dir throughout the run, so a timeout / SIGTERM leaves every
+# completed part recoverable on disk.
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: scaffolding_permits_2020_through_2025_facing
+  - override /model: qwen3_vl_embedding_8b
+
+runtime:
+  # Streaming is always effectively on in DP mode (workers write parts
+  # directly); set True here so the single-process fallback also streams.
+  streaming_io: true
+  # Orchestrator/monitor node is CPU-bound; GPU node gets its own mem
+  # from slurm_gpu_4x.  ~3.58M rows × small row dicts fit easily in 256 GB
+  # even before embedding is appended.
+  job_memory_gb: 256
+  # Output dir is timestamped so repeated runs don't clobber each other.
+  output_path: outputs/embed/scaffolding_permits_2020_facing_${now:%Y%m%d_%H%M%S}.parquet
+
+embedding:
+  # Slightly tuned vs the default cyclomedia pipeline: the permit sub-dataset
+  # has 5× fewer rows than a full-borough pull so we can afford to be careful
+  # and keep the default batch_size of 16 per DP rank. Raise via CLI override
+  # if GPU utilization comes back underfilled.
+  batch_size: 16
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      embed:
+        stage: embed
+        depends_on: []
+        outputs:
+          # Same naming convention as embed_cyclomedia.yaml — the orchestrator
+          # will re-root this under runtime.output_root at resolution time.
+          results: outputs/embed/scaffolding_permits_2020_facing_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          embedding.batch_size: ${embedding.batch_size}
+        launcher: slurm_gpu_2x
+        wandb_suffix: embed_scaffolding_permits_2020_facing

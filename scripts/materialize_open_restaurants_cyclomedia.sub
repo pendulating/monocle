@@ -1,0 +1,74 @@
+#!/bin/bash
+#SBATCH -J cyclo-openrest-materialize
+#SBATCH -o /share/pierson/matt/mllmsci/.slurm_jobs/curation_open_restaurants/%j.out
+#SBATCH -e /share/pierson/matt/mllmsci/.slurm_jobs/curation_open_restaurants/%j.err
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=mwf62@cornell.edu
+#SBATCH -N 1
+#SBATCH -n 16
+#SBATCH --get-user-env
+#SBATCH --mem=128gb
+#SBATCH -t 04:00:00
+#SBATCH --partition=pierson
+
+# Materialize the Cyclomedia sub-dataset near NYC Open Restaurants / Dining Out
+# NYC outdoor-dining licenses (DCWP fpeh-f7ci).
+#
+# Reads curation/open_restaurants_all/coverage.geojson (a MultiPolygon
+# FeatureCollection of 80-ft-buffered restaurant building footprints) and runs
+# a per-unit spatial join against the full ~31M-row Cyclomedia catalog, then
+# writes the filtered parquet plus a facing-filtered sibling.
+#
+# The job is chunked by dataset (one borough at a time); each chunk emits a log
+# line and atomically updates curation/.../materialize_progress.json, so you can
+# tail progress mid-run.
+#
+# Resources mirror the scaffolding materialize: the cost is dominated by the
+# catalog scan (31M rows × ~52 cols), not the coverage size — Open Restaurants'
+# coverage (~4 km², 1.3k units) is much smaller than scaffolding's, so the
+# spatial join itself is quick. 16 CPUs / 128 GB / 4 h is generous slack.
+#
+# Usage:
+#   sbatch scripts/materialize_open_restaurants_cyclomedia.sub
+#   sbatch scripts/materialize_open_restaurants_cyclomedia.sub curation/open_restaurants_all
+
+set -euo pipefail
+
+mkdir -p /share/pierson/matt/mllmsci/.slurm_jobs/curation_open_restaurants
+
+echo "=== job info ==="
+echo "HOST=$(hostname) DATE=$(date)"
+echo "SLURM_JOB_ID=${SLURM_JOB_ID:-?} SLURM_CPUS_ON_NODE=${SLURM_CPUS_ON_NODE:-?}"
+echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
+
+source ~/.bashrc
+cd /share/pierson/matt/mllmsci
+source .venv/bin/activate
+
+export OMP_NUM_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export POLARS_MAX_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export PYTHONUNBUFFERED=1
+
+CURATION_ROOT="${1:-${CURATION_ROOT:-curation/open_restaurants_all}}"
+CATALOG_ROOT="${CATALOG_ROOT:-/share/ju/cyclomedia/catalog/v1}"
+FACES="${FACES:-F B L R}"
+OUTPUT_FILENAME="${OUTPUT_FILENAME:-cyclomedia_near_open_restaurants.parquet}"
+
+echo "=== materialize params ==="
+echo "CURATION_ROOT=${CURATION_ROOT}"
+echo "CATALOG_ROOT=${CATALOG_ROOT}"
+echo "FACES=${FACES}"
+echo "OUTPUT_FILENAME=${OUTPUT_FILENAME}"
+
+if [ ! -f "${CURATION_ROOT}/coverage.geojson" ]; then
+    echo "ERROR: ${CURATION_ROOT}/coverage.geojson not found" >&2
+    exit 1
+fi
+
+python -m dagspaces.common.curation -v materialize-cyclomedia \
+    --curation-root "${CURATION_ROOT}" \
+    --catalog-root "${CATALOG_ROOT}" \
+    --faces ${FACES} \
+    --output-filename "${OUTPUT_FILENAME}"
+
+echo "=== done: $(date) ==="

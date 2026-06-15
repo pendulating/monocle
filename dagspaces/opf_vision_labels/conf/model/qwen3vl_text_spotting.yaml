@@ -1,0 +1,77 @@
+# Multimodal VLM used as a text-spotting teacher for house numbers.
+#
+# Default: Qwen3.5-9B — natively multimodal (Qwen3_5ForConditionalGeneration
+# with a unified vision_config + text_config). This is the newest VLM
+# available on cluster as of 2026-04-24. The filename is kept as
+# qwen3vl_text_spotting.yaml for back-compat with pipeline references;
+# rename later if needed.
+#
+# Layout: 2x A6000 with TP=1 + concurrency=2 (one replica per GPU,
+# data-parallel). 9B in BF16 ≈ 18GB, fits comfortably in 48GB with
+# room for KV cache and image preprocessing buffers.
+
+name: qwen3_5_9b_text_spotting
+backend: vllm
+model_source: /share/pierson/matt/zoo/models/Qwen3.5-9B
+model_family: qwen3.5
+concurrency: 2
+batch_size: 8
+
+engine_kwargs:
+  gpu_memory_utilization: 0.85
+  tensor_parallel_size: 1
+  # Text-spotting prompts are short; 8k window leaves plenty of room for
+  # the image tokens (a 1024² Cyclomedia frame at patch=16/merge=2 is
+  # ~1024 image tokens) plus a structured-JSON output (≤ 512 tokens).
+  max_model_len: 8192
+  max_num_batched_tokens: 8192
+  max_num_seqs: 8
+  limit_mm_per_prompt:
+    image: 1
+  mm_processor_kwargs:
+    # Qwen3.5 uses patch_size=16, merge_size=2 (different from Qwen2.5-VL).
+    # min_pixels / max_pixels gate the model's internal resize. Cyclomedia
+    # _1k frames are 1024² = 1,048,576 pixels — pass through unchanged.
+    min_pixels: 65536       # 256 × 256
+    max_pixels: 1048576     # 1024 × 1024
+  trust_remote_code: true
+  enforce_eager: false
+  disable_custom_all_reduce: false
+  enable_chunked_prefill: true
+  enable_prefix_caching: true
+  guided_decoding_backend: auto
+  dtype: auto
+
+# Disable thinking-mode prompts for text spotting (we want a direct JSON
+# response, not a chain-of-thought prelude).
+thinking_mode: off
+chat_template_kwargs:
+  enable_thinking: false
+
+# Structured-output schema for text detections with bbox_2d. The stage
+# applies the numeric-pattern + size/aspect filters to whatever the
+# model returns; this schema just enforces the wire shape.
+structured_output:
+  type: object
+  required: [detections]
+  properties:
+    detections:
+      type: array
+      items:
+        type: object
+        required: [text, bbox_2d]
+        properties:
+          text: { type: string }
+          bbox_2d:
+            type: array
+            minItems: 4
+            maxItems: 4
+            items: { type: integer }
+
+sampling_params:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 512
+
+teacher_model: qwen3.5-9b
+teacher_version: cyclomedia-text-spotting-2026-04-24

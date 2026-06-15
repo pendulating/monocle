@@ -1,0 +1,87 @@
+# @package _global_
+# MVP pipeline: school-level pairwise VQA on "which school would you rather
+# send your child to" using the FacDB K-12 schools cyclomedia facing manifest.
+#
+# Mirrors `pairwise_restaurants_mvp.yaml` with three changes:
+#   1. data         — cyclomedia_near_restaurants_facing → cyclomedia_near_schools_facing
+#   2. prompt       — pairwise_restaurant_eat_at_ordinal → pairwise_school_send_child_ordinal
+#   3. max_pairs    — 50,000 → 100,000. The facing-filtered manifest has 2,287
+#      unique schools (out of 3,103 publishable; 816 had no facing-confident
+#      shot). C(2287, 2) ≈ 2.6M canonical pairs available without replacement,
+#      so 100k fits comfortably (~3.8% of the canonical budget).
+#
+# Default model is qwen3.5-4b/instruct — same as restaurants/libraries. For the
+# full sweep, override via Hydra multirun:
+#
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=schools_all_models \
+#       pipeline=pairwise_schools_mvp
+#
+# Single-model submit:
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_schools_mvp
+#
+# Dry-run (no GPU):
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_schools_mvp \
+#       runtime.debug=true runtime.sample_n=1000 runtime.skip_inference=true
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_near_schools_facing
+  - override /prompt: pairwise_school_send_child_ordinal
+  - override /model: qwen3.5-4b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+pair_sampler:
+  mode: unit                  # school ↔ school, not face ↔ face
+  unit_column: unit_uid
+  unit_name_column: unit_name
+  pair_seed: 777
+  max_pairs: 100000
+  allow_replacement: false    # 2,287 unique schools after facing filter →
+                              # ~2.6M canonical pairs without replacement;
+                              # fixed sampler in cyclomedia_pairs.py honors
+                              # max_pairs up to C(n_units, 2).
+  counterbalance_mode: balanced
+  repeat_count: 0
+  repeat_fraction: 0.10
+  # Bias within-school image selection toward confidently-facing shots
+  # (see [[concept-facing-filter]]).
+  weight_column: attribution_confidence
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/schools_mvp_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          pair_sampler.mode: ${pair_sampler.mode}
+          pair_sampler.unit_column: ${pair_sampler.unit_column}
+          pair_sampler.unit_name_column: ${pair_sampler.unit_name_column}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.weight_column: ${pair_sampler.weight_column}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 0
+          model.concurrency: 1
+        launcher: slurm_gpu_1x
+        wandb_suffix: pairwise_schools_mvp

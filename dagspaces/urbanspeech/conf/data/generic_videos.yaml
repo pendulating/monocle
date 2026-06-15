@@ -9,8 +9,17 @@
 parquet_path: ""
 
 # Directory scan (used when parquet_path is empty)
+# video_glob finds candidate files recursively; the extract_audio stage then
+# keeps only recognised video formats (.mp4/.mov/.mkv/.avi/.webm/.ts/.m4v/.insv).
+# Narrow the glob (e.g. "**/*.mp4") only if you want to scan fewer files.
 video_dir: null
-video_glob: "**/*.mp4"
+video_glob: "**/*"
+
+# Blacklist: skip any video whose path contains one of these substrings
+# (case-insensitive, matched against the path relative to video_dir).
+# Useful for excluding whole subfolders, e.g. ["Interview"].
+# Pass on the CLI as: 'data.video_exclude=[Interview]'
+video_exclude: []
 
 columns:
   # Required: path to the video file

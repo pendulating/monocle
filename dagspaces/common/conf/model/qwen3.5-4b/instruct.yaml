@@ -1,0 +1,18 @@
+# @package _global_
+model:
+  model_source: /share/pierson/matt/zoo/models/Qwen3.5-4B
+  model_family: qwen3.5
+  chat_template_kwargs:
+    enable_thinking: false
+  engine_kwargs:
+    # Sized for pairwise VQA: 2x 1024x1024 images = ~2,220 prompt tokens; with
+    # max_tokens=2048 generation budget the worst case is ~4,300 tokens.
+    max_model_len: 6144
+    max_num_seqs: 32
+    tensor_parallel_size: 1
+    trust_remote_code: true
+    mm_processor_kwargs:
+      min_pixels: 784         # 28*28
+      max_pixels: 1048576     # 1024*1024; cap defends against full-res cube faces
+  batch_size: 0
+  concurrency: 1

@@ -274,59 +274,93 @@ def run_embed_stage(cfg: DictConfig) -> str:
 
     try:
         if dp_size > 1:
-            # DP path: dispatch to subprocess workers, collect embeddings.
-            # The DP helper returns a tuple — on partial failure some
-            # positions may be None; we still stream what we have to disk
-            # and raise AFTER the final flush so the caller can recover.
+            # DP path: workers stream parquet parts directly into output_dir
+            # as they embed.  Each rank writes
+            # ``part-rank{rr:02d}-{chunk:05d}.parquet`` every 50 batches,
+            # so the stage output dir fills up live during the run and a
+            # timeout/kill leaves every completed part on disk.  No
+            # stage-level merge step — the DP helper IS the stream.
             from dagspaces.common.vllm_inference import _run_data_parallel_embed
 
             valid_prompt_texts = [prompt_texts[i] for i in valid_indices]
             valid_image_refs = [image_refs[i] for i in valid_indices]
+            # Metadata shard aligned with valid_prompt_texts. Drop the heavy
+            # ``messages`` field so the task pickle sent to /scratch stays
+            # small — workers only need the columns that postprocess + the
+            # final parquet will keep.
+            valid_shard_rows = [
+                {k: v for k, v in preprocessed[i].items() if k != "messages"}
+                for i in valid_indices
+            ]
+
+            if not streaming_io:
+                print(f"[run_embed_stage] WARN: streaming_io=False is ignored "
+                      f"for dp_size>1; DP workers always write parquet parts.",
+                      flush=True)
+
+            # output_dir is always defined in the DP path because we force
+            # streaming-like part output.
+            dp_output_dir = output_dir if streaming_io else (
+                output_path.replace(".parquet", "") or output_path + ".parts"
+            )
+            os.makedirs(dp_output_dir, exist_ok=True)
 
             print(f"[run_embed_stage] Running data-parallel embedding: "
-                  f"{len(valid_prompt_texts)} inputs across {dp_size} replicas...",
+                  f"{len(valid_prompt_texts)} inputs across {dp_size} replicas "
+                  f"(live parquet streaming to {dp_output_dir})...",
                   flush=True)
-            all_embeddings, dp_errors = _run_data_parallel_embed(
+            part_paths, dp_errors = _run_data_parallel_embed(
                 engine_kwargs=engine_kwargs,
                 dp_size=dp_size,
                 prompt_texts=valid_prompt_texts,
                 image_refs=valid_image_refs,
+                shard_rows=valid_shard_rows,
+                postprocess_fn=postprocess,
+                output_dir=dp_output_dir,
                 stage_name="embed",
                 batch_size=batch_size,
             )
-            if dp_errors:
-                missing = sum(1 for e in all_embeddings if e is None)
-                print(f"[run_embed_stage] DP embed partial failure: "
-                      f"{missing}/{len(all_embeddings)} positions missing; "
-                      f"streaming recovered rows before re-raising.", flush=True)
 
-            # Build results: merge embeddings with preprocessed rows
-            pending_results: List[Dict[str, Any]] = []
-            part_idx = 0
-            rows_written = 0
-            emb_iter = iter(all_embeddings)
+            # Append invalid rows as a dedicated part (outside the DP flow).
+            # They were never sent to a worker, so we emit them here.
+            invalid_rows: List[Dict[str, Any]] = []
             for i, row in enumerate(preprocessed):
-                row = row.copy()
-                row.pop("messages", None)
-                if valid_mask[i]:
-                    row["embedding"] = next(emb_iter)
-                else:
+                if not valid_mask[i]:
+                    row = row.copy()
+                    row.pop("messages", None)
                     row["embedding"] = None
-                row = postprocess(row)
-                pending_results.append(row)
+                    row = postprocess(row)
+                    invalid_rows.append(row)
+            if invalid_rows:
+                invalid_part = os.path.join(dp_output_dir, "part-invalid-00000.parquet")
+                pd.DataFrame(invalid_rows).to_parquet(invalid_part, index=False)
+                part_paths.append(invalid_part)
+                print(f"[run_embed_stage] Wrote {len(invalid_rows)} invalid rows → "
+                      f"{invalid_part}", flush=True)
 
-                # Stream to disk incrementally (same as single-process path)
-                if streaming_io and len(pending_results) >= checkpoint_interval:
-                    chunk_df = pd.DataFrame(pending_results)
-                    part_path = os.path.join(output_dir, f"part-{part_idx:05d}.parquet")
-                    chunk_df.to_parquet(part_path, index=False)
-                    rows_written += len(chunk_df)
-                    print(f"[run_embed_stage] Checkpoint {part_idx}: "
-                          f"{len(chunk_df)} rows → {part_path} "
-                          f"({rows_written}/{total_rows} total)", flush=True)
-                    part_idx += 1
-                    del chunk_df
-                    pending_results = []
+            rows_written = 0
+            try:
+                import pyarrow.parquet as pq
+                for p in part_paths:
+                    try:
+                        rows_written += pq.ParquetFile(p).metadata.num_rows
+                    except Exception:
+                        pass
+            except ImportError:
+                rows_written = -1  # pyarrow not available; skip count
+
+            print(f"[run_embed_stage] DP done: {rows_written} rows in "
+                  f"{len(part_paths)} parts → {dp_output_dir}", flush=True)
+
+            # Raise AFTER parts are on disk so partial recovery is always
+            # possible. Failed ranks' parts are preserved in-place.
+            if dp_errors:
+                raise RuntimeError(
+                    f"[embed] Data-parallel embedding had errors "
+                    f"(partial parts persisted to {dp_output_dir}):\n"
+                    + "\n".join(dp_errors)
+                )
+            return dp_output_dir
 
         else:
             # Single-process path
@@ -396,7 +430,7 @@ def run_embed_stage(cfg: DictConfig) -> str:
                     row = postprocess(row)
                     pending_results.append(row)
 
-        # ── Final flush ──────────────────────────────────────────────────
+        # ── Final flush (single-process path only; DP early-returns) ────
         if streaming_io:
             if pending_results:
                 chunk_df = pd.DataFrame(pending_results)
@@ -407,22 +441,13 @@ def run_embed_stage(cfg: DictConfig) -> str:
 
             print(f"[run_embed_stage] Done: {rows_written} rows "
                   f"in {part_idx} parts → {output_dir}", flush=True)
-            result_location = output_dir
+            return output_dir
         else:
             result_df = pd.DataFrame(pending_results)
             result_df.to_parquet(output_path, index=False)
             print(f"[run_embed_stage] Wrote {len(result_df)} rows → {output_path}",
                   flush=True)
-            result_location = output_path
-
-        # Raise AFTER persistence so partial results are always on disk.
-        if dp_errors:
-            raise RuntimeError(
-                f"[embed] Data-parallel embedding had errors "
-                f"(partial results persisted to {result_location}):\n"
-                + "\n".join(dp_errors)
-            )
-        return result_location
+            return output_path
 
     finally:
         _shutdown_llm(llm, stage_name="embed")

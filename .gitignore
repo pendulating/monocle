@@ -219,3 +219,21 @@ server.env
 **/logs/
 **/.deprecated/
 data/
+
+# Pipeline artifacts & outputs (data, not source)
+/curation/
+/reports/
+/streaming/
+/machine-beholder/
+/viz/
+/cache/
+.slurm_jobs/
+.serena/
+.vault/
+notebooks/**/results/
+
+# Model weights / checkpoints
+*.pt
+*.pth
+*.ckpt
+*.safetensors

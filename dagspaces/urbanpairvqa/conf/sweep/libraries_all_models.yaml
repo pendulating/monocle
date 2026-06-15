@@ -1,0 +1,38 @@
+# @package _global_
+# Hydra sweep: run pairwise_libraries_mvp across the natively-multimodal
+# instruction-tuned open-weights lineup for the libraries / well-maintained
+# task.
+#
+# Model group paths (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
+#   - gemma-4-e2b/instruct       → common/conf/model/gemma-4-e2b/instruct.yaml
+#   - gemma-4-e4b/instruct       → common/conf/model/gemma-4-e4b/instruct.yaml
+#   - phi-4/multimodal-instruct  → common/conf/model/phi-4/multimodal-instruct.yaml
+#   - qwen3.5-2b/instruct        → common/conf/model/qwen3.5-2b/instruct.yaml
+#   - qwen3.5-4b/instruct        → common/conf/model/qwen3.5-4b/instruct.yaml
+#   - qwen3.5-9b/instruct        → common/conf/model/qwen3.5-9b/instruct.yaml
+#
+# (Replaces the earlier qwen3-vl-8b-thinking run from the 2026-04-22 report;
+# we're pivoting to qwen3.5's natively-multimodal instruction-tuned variants.)
+#
+# Max 2 inference runs in flight at once (`array_parallelism: 2` throttles the
+# monitor job array; each monitor dispatches its own 2-GPU stage sub-job, so
+# peak consumption is 2 monitor CPUs + 4 GPUs).
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=libraries_all_models \
+#       pipeline=pairwise_libraries_mvp
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        gemma-4-e4b/instruct,
+        phi-4/multimodal-instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct,
+        qwen3.5-9b/instruct

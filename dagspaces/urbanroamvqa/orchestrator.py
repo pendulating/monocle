@@ -46,6 +46,7 @@ _apply_resource_tracker_patch()
 
 # -- Dagspace-local imports -------------------------------------------------
 from .graph.builder import build_street_graph
+from .graph.street_graph import compute_graph_diagnostics
 from .samplers.seed_sampler import sample_walk_seeds
 from .stages.roaming_vqa import run_roaming_vqa_stage
 
@@ -63,6 +64,44 @@ _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
 
 def _safe_ratio(num: float, den: float) -> float:
     return float(num) / float(den) if den > 0 else 0.0
+
+
+def _validate_config(cfg: Any, parquet_override: Optional[str] = None) -> None:
+    """Fail fast on invalid roaming configs before any expensive work.
+
+    parquet_override skips the data.parquet_path lookup when the metadata
+    parquet comes from a pipeline input instead.
+    """
+    data_cfg = getattr(cfg, "data", None)
+    if data_cfg is None:
+        raise ValueError("Missing 'data' config section")
+    roaming_cfg = getattr(cfg, "roaming", None)
+    if roaming_cfg is None:
+        raise ValueError("Missing 'roaming' config section")
+
+    parquet_path = parquet_override or str(getattr(data_cfg, "parquet_path", "") or "")
+    if not parquet_path:
+        raise ValueError("data.parquet_path is not set")
+    if not os.path.exists(parquet_path):
+        raise ValueError(f"Metadata parquet does not exist: {parquet_path}")
+
+    termination_mode = str(getattr(roaming_cfg, "termination_mode", "fixed"))
+    if termination_mode not in ("fixed", "independent"):
+        raise ValueError(
+            f"roaming.termination_mode must be 'fixed' or 'independent', got '{termination_mode}'"
+        )
+
+    max_steps = int(getattr(roaming_cfg, "max_steps", 10))
+    if max_steps < 1:
+        raise ValueError(f"roaming.max_steps must be >= 1, got {max_steps}")
+
+    graph_cfg = getattr(cfg, "graph", None)
+    if graph_cfg is not None:
+        tolerance = float(getattr(graph_cfg, "bearing_tolerance_deg", 45.0))
+        if not (5.0 <= tolerance <= 170.0):
+            raise ValueError(
+                f"graph.bearing_tolerance_deg must be within [5, 170], got {tolerance}"
+            )
 
 
 def _roaming_diagnostics(traces_df: pd.DataFrame) -> Dict[str, Any]:
@@ -130,12 +169,17 @@ class RoamingVQARunner(StageRunner):
             or str(getattr(data_cfg, "parquet_path", "") or "")
         )
 
+        _validate_config(cfg, parquet_override=metadata_parquet)
+
         graph = build_street_graph(metadata_parquet, graph_cfg)
+        graph_diagnostics = compute_graph_diagnostics(graph)
+        print(f"[roaming_runner] Graph diagnostics: "
+              f"{json.dumps(graph_diagnostics, sort_keys=True)}", flush=True)
 
         n_walks = int(getattr(roaming_cfg, "n_walks", 100))
         walk_seed = int(getattr(roaming_cfg, "walk_seed", 42))
         seed_strategy = str(getattr(roaming_cfg, "seed_strategy", "random"))
-        initial_face = str(getattr(roaming_cfg, "initial_face", "F"))
+        initial_face = str(getattr(roaming_cfg, "initial_face", "") or "")
         min_neighbors = int(getattr(roaming_cfg, "min_neighbors", 1))
 
         sample_n = getattr(getattr(cfg, "runtime", {}), "sample_n", None)
@@ -151,6 +195,7 @@ class RoamingVQARunner(StageRunner):
 
         traces_df = run_roaming_vqa_stage(seeds_df, cfg, graph=graph)
         diagnostics = _roaming_diagnostics(traces_df)
+        diagnostics.update(graph_diagnostics)
 
         if "traces" in context.output_paths:
             traces_df.to_parquet(context.output_paths["traces"], index=False)

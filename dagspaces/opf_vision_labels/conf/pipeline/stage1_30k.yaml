@@ -1,0 +1,73 @@
+# @package _global_
+# Stage 1 scale-up pipeline: 30k Cyclomedia images stratified across all
+# five borough datasets and F/B/L/R faces. Same DAG as sanity_2k (person
+# + vehicle + house_number + unify), no shape changes — only more data.
+#
+# Built to test whether the encoder-transfer signal seen at 2k
+# (license_plate F1 0.037 vs random 0.000) holds and gets stronger when
+# the rare classes (face, house_number) finally have enough patches to
+# learn from.
+#
+# Launch:
+#   python -m dagspaces.opf_vision_labels.cli -m pipeline=stage1_30k
+
+defaults:
+  - _self_
+  - /model@person_model: yolov8_person
+  - /model@vehicle_model: yolov8_vehicle
+  - /model@house_number_model: qwen3vl_text_spotting
+  - override /data: cyclomedia_all_2025_30k
+  - override /hydra/launcher: slurm_monitor
+
+runtime:
+  debug: false
+  # null = use the entire input manifest (the manifest is already exactly
+  # 30k rows; sample_n is reserved for further sub-sampling at runtime).
+  sample_n: null
+  streaming_io: false
+  job_memory_gb: 64
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      person:
+        stage: person
+        depends_on: []
+        outputs:
+          detections: outputs/person/detections.parquet
+        overrides:
+          model: ${person_model}
+        launcher: slurm_gpu_1x
+        wandb_suffix: s30k_person
+      vehicle:
+        stage: vehicle
+        depends_on: []
+        outputs:
+          detections: outputs/vehicle/detections.parquet
+        overrides:
+          model: ${vehicle_model}
+        launcher: slurm_gpu_1x
+        wandb_suffix: s30k_vehicle
+      house_number:
+        stage: house_number
+        depends_on: []
+        outputs:
+          detections: outputs/house_number/detections.parquet
+        overrides:
+          model: ${house_number_model}
+          model.concurrency: 2
+          model.batch_size: 16
+        launcher: slurm_gpu_2x
+        wandb_suffix: s30k_house
+      unify:
+        stage: unify
+        depends_on: [person, vehicle, house_number]
+        inputs:
+          person: person.detections
+          vehicle: vehicle.detections
+          house_number: house_number.detections
+        outputs:
+          detections: ${runtime.pseudo_label_root}/stage1_30k/detections.parquet
+        wandb_suffix: s30k_unify

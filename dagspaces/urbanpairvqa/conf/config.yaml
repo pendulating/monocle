@@ -19,12 +19,27 @@ runtime:
   skip_inference: false
 
 pair_sampler:
+  # Pair construction strategy.
+  #   image: pair random images directly (legacy default; works against any
+  #          parquet with image_path + sample_id).
+  #   unit:  pair at a higher abstraction — sample 2 distinct units from
+  #          ``unit_column``, then draw 1 image from each unit's pool.
+  #          Needs a pre-attached unit column (materialize-cyclomedia
+  #          populates unit_uid / unit_name by default).
+  mode: image
+  unit_column: unit_uid
+  unit_name_column: unit_name
   pair_seed: 777
   max_pairs: null
   allow_replacement: false
   counterbalance_mode: none  # none|random|balanced
   repeat_count: 0
   repeat_fraction: 0.0
+  # Optional column to bias **within-unit** image selection (unit mode only).
+  # Set to e.g. "attribution_confidence" — emitted by the per-unit facing
+  # filter — to prefer confidently-facing shots. `null` = uniform.
+  # Missing column falls back to uniform with a one-line warning.
+  weight_column: null
 
 diagnostics:
   enabled: true

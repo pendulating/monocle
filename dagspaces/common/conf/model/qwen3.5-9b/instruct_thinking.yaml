@@ -1,0 +1,36 @@
+# @package _global_
+# Qwen3.5-9B-Instruct with reasoning ("thinking") enabled.
+#
+# Mirrors `instruct.yaml` but flips the thinking mode on and enlarges the
+# context window to fit a reasoning trace before the structured-output JSON.
+# `reasoning_parser: qwen3` makes vLLM hold off applying the JSON grammar
+# until the closing `</think>` tag — without it, guided decoding would force
+# JSON inside the reasoning block.
+model:
+  model_source: /share/pierson/matt/zoo/models/Qwen3.5-9B
+  model_family: qwen3.5
+  # Qwen3.5-9B is a vision model (config.json has vision_config) but its name
+  # lacks the "-VL" the name heuristic looks for. Force multimodal so the
+  # pairwise/VQA images are actually attached — without this the inference
+  # path runs text-only and the model describes the scene blind.
+  multimodal: true
+  thinking_mode: on
+  chat_template_kwargs:
+    enable_thinking: true
+  engine_kwargs:
+    # 2x 1024x1024 images = ~2,220 prompt tokens; thinking traces routinely
+    # consume 4-8k generation tokens. 12288 leaves comfortable headroom.
+    max_model_len: 12288
+    # Lower than instruct.yaml's 32 because thinking grows per-seq KV usage.
+    max_num_seqs: 16
+    tensor_parallel_size: 1
+    trust_remote_code: true
+    limit_mm_per_prompt:
+      image: 2
+    mm_processor_kwargs:
+      min_pixels: 784         # 28*28
+      max_pixels: 1048576     # 1024*1024; cap defends against full-res cube faces
+    structured_outputs_config:
+      reasoning_parser: qwen3
+  batch_size: 0
+  concurrency: 1

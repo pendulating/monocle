@@ -1,0 +1,82 @@
+#!/bin/bash
+#SBATCH -J cyclo-scaffold-materialize
+#SBATCH -o /share/pierson/matt/mllmsci/.slurm_jobs/curation_scaffolding/%j.out
+#SBATCH -e /share/pierson/matt/mllmsci/.slurm_jobs/curation_scaffolding/%j.err
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=mwf62@cornell.edu
+#SBATCH -N 1
+#SBATCH -n 16
+#SBATCH --get-user-env
+#SBATCH --mem=128gb
+#SBATCH -t 04:00:00
+#SBATCH --partition=pierson
+
+# Materialize the Cyclomedia sub-dataset near scaffolding permits.
+#
+# Reads curation/scaffolding_permits_through_2025/coverage.geojson (a MultiPolygon
+# FeatureCollection of 80-ft-buffered building footprints near issued DOB
+# scaffold/shed permits) and runs CyclomediaCatalog.query(within=coverage)
+# against the full 31.5M-row catalog, then writes the filtered parquet.
+#
+# The call is chunked by dataset (one borough at a time) — each chunk emits
+# a log line and updates curation/.../materialize_progress.json atomically,
+# so operators can tail progress mid-run rather than waiting for the single
+# monolithic collect() to finish.
+#
+# Resources:
+#   - 16 CPUs: polars-st spatial filter + polars scan_parquet are both parallel.
+#   - 128 GB mem: 31.5M-row catalog × 52 cols + geom_wkb + spatial index is
+#     memory-heavy; 128 GB gives generous headroom.
+#   - 4 h wall: PIP over 31.5M points against ~5500 buffered building polygons
+#     should run in 15-60 min total across 5 borough chunks; 4 h is slack.
+#
+# Usage:
+#   sbatch scripts/materialize_scaffolding_cyclomedia.sub
+#   sbatch scripts/materialize_scaffolding_cyclomedia.sub curation/scaffolding_permits_2020_through_2025
+#
+# Pass the curation root as a positional arg. Inline env vars like
+#   CURATION_ROOT=x sbatch ...
+# do NOT propagate into the batch script (sbatch uses --export=ALL by default
+# but picks up the user's login environment, not the caller's inline vars).
+# Use --export=CURATION_ROOT=x if you must go through env.
+
+set -euo pipefail
+
+mkdir -p /share/pierson/matt/mllmsci/.slurm_jobs/curation_scaffolding
+
+echo "=== job info ==="
+echo "HOST=$(hostname) DATE=$(date)"
+echo "SLURM_JOB_ID=${SLURM_JOB_ID:-?} SLURM_CPUS_ON_NODE=${SLURM_CPUS_ON_NODE:-?}"
+echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
+
+source ~/.bashrc
+cd /share/pierson/matt/mllmsci
+source .venv/bin/activate
+
+export OMP_NUM_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export POLARS_MAX_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export PYTHONUNBUFFERED=1
+
+CURATION_ROOT="${1:-${CURATION_ROOT:-curation/scaffolding_permits_through_2025}}"
+CATALOG_ROOT="${CATALOG_ROOT:-/share/ju/cyclomedia/catalog/v1}"
+FACES="${FACES:-F B L R}"
+OUTPUT_FILENAME="${OUTPUT_FILENAME:-cyclomedia_near_permits.parquet}"
+
+echo "=== materialize params ==="
+echo "CURATION_ROOT=${CURATION_ROOT}"
+echo "CATALOG_ROOT=${CATALOG_ROOT}"
+echo "FACES=${FACES}"
+echo "OUTPUT_FILENAME=${OUTPUT_FILENAME}"
+
+if [ ! -f "${CURATION_ROOT}/coverage.geojson" ]; then
+    echo "ERROR: ${CURATION_ROOT}/coverage.geojson not found" >&2
+    exit 1
+fi
+
+python -m dagspaces.common.curation -v materialize-cyclomedia \
+    --curation-root "${CURATION_ROOT}" \
+    --catalog-root "${CATALOG_ROOT}" \
+    --faces ${FACES} \
+    --output-filename "${OUTPUT_FILENAME}"
+
+echo "=== done: $(date) ==="

@@ -247,30 +247,97 @@ def _is_multimodal_model(model_source: str, cfg=None) -> bool:
         r"gemma.*it.*vision", r"gemma-4",
         r"multimodal",
     ]
-    return any(re.search(pattern, model_lower, re.IGNORECASE) for pattern in multimodal_patterns)
+    if any(re.search(pattern, model_lower, re.IGNORECASE) for pattern in multimodal_patterns):
+        return True
+
+    # 3. Inspect the model's config.json for vision-tower indicators. Catches
+    #    VLMs whose name doesn't advertise vision (e.g. Qwen3.5-9B, which is a
+    #    vision model but is NOT named "...-VL"). Without this, such models are
+    #    silently treated as text-only and the images are dropped from the
+    #    prompt — the model then hallucinates a description blind.
+    try:
+        config_path = os.path.join(model_source, "config.json")
+        if os.path.isfile(config_path):
+            with open(config_path) as _cf:
+                _mc = json.load(_cf)
+            if any(k in _mc for k in ("vision_config", "image_token_id",
+                                      "vision_start_token_id")):
+                return True
+            _arch = " ".join(_mc.get("architectures", []) or []).lower()
+            if "vl" in _arch or "vision" in _arch:
+                return True
+    except Exception:
+        pass
+
+    return False
+
+
+def _load_pil_from_url(url: str) -> Any:
+    """Load a PIL image from a ``file://`` / local-path / base64 ``data:`` URL.
+
+    ``http(s)://`` URLs are not fetched here (cluster images are local); they
+    are skipped with a warning so a stray remote URL can't stall a batch job.
+    """
+    from io import BytesIO
+    import base64
+    from PIL import Image
+
+    if not url:
+        return None
+    if url.startswith("data:"):
+        # data:image/jpeg;base64,<payload>
+        try:
+            payload = url.split(",", 1)[1]
+            return Image.open(BytesIO(base64.b64decode(payload))).convert("RGB")
+        except Exception:
+            return None
+    if url.startswith(("http://", "https://")):
+        print(f"[vllm_inference] WARNING: skipping remote image URL (not fetched): {url[:80]}")
+        return None
+    path = url[len("file://"):] if url.startswith("file://") else url
+    try:
+        return Image.open(path).convert("RGB")
+    except Exception:
+        return None
 
 
 def _extract_images_from_messages(messages: List[Dict[str, Any]]) -> List[Any]:
     """Extract PIL images from chat message content blocks.
 
-    Messages may contain multimodal content blocks like::
+    Handles both the inline-PIL form and the lazy ``image_url`` form that the
+    pairwise / VQA preprocess emits::
 
-        {"role": "user", "content": [
-            {"type": "image", "image": <PIL.Image>},
-            {"type": "text", "text": "What do you see?"}
-        ]}
+        {"type": "image", "image": <PIL.Image>}                       # inline
+        {"type": "image_url", "image_url": {"url": "file:///path.jpg"}}  # lazy
+        {"type": "image", "image": "/path.jpg"}                       # path str
+
+    The ``image_url`` blocks are loaded to PIL here so the images are actually
+    attached via ``multi_modal_data`` — without this they are silently dropped
+    and the model runs text-only (see ``_is_multimodal_model``).
 
     Returns a list of PIL Image objects found across all messages.
     """
     images = []
     for msg in messages:
         content = msg.get("content")
-        if isinstance(content, list):
-            for block in content:
-                if isinstance(block, dict) and block.get("type") == "image":
-                    img = block.get("image")
-                    if img is not None:
-                        images.append(img)
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            btype = block.get("type")
+            if btype == "image":
+                img = block.get("image")
+                if isinstance(img, str):
+                    img = _load_pil_from_url(img)
+                if img is not None:
+                    images.append(img)
+            elif btype == "image_url":
+                iu = block.get("image_url")
+                url = iu.get("url") if isinstance(iu, dict) else iu
+                img = _load_pil_from_url(str(url)) if url else None
+                if img is not None:
+                    images.append(img)
     return images
 
 
@@ -1217,6 +1284,9 @@ def main():
         # We need a sampling params object before generation. Peek at
         # the first row to extract sampling_params dict — assumes uniform
         # sampling per stage, which is the existing convention.
+        # NOTE: per-row sampling_params (e.g. row-level "guided_decoding"
+        # payloads, see urbanvqa preprocess) are honored only on the
+        # single-process path; here the first row's params win.
         sampling_params = None
         first_pp_row = None
         peek_idx = 0
@@ -1514,6 +1584,7 @@ def _run_data_parallel_full(
     Returns a flat list of postprocessed result dicts in input order.
     """
     import pickle
+    import shutil
     import tempfile
     import cloudpickle
 
@@ -1570,6 +1641,12 @@ def _run_data_parallel_full(
     worker_script.write(_DP_FULL_WORKER_SCRIPT)
     worker_script.close()
 
+    # Per-invocation work dir for task/result pickles. MUST be unique: the
+    # filenames are keyed only by (stage_name, rank), so concurrent sweep jobs
+    # sharing a TMPDIR (e.g. several models on one klara node) would otherwise
+    # clobber each other's task pickles and load the wrong model/shard/dir.
+    dp_workdir = tempfile.mkdtemp(prefix=f"{stage_name}_dpfull_", dir=tmpdir)
+
     print(f"[{stage_name}] Launching {dp_size} full-pipeline DP workers "
           f"(TP={tp_size}, {len(rows)} total rows)...", flush=True)
 
@@ -1604,8 +1681,8 @@ def _run_data_parallel_full(
             "row_offset": shard_offsets[rank],
         }
 
-        task_path = os.path.join(tmpdir, f"{stage_name}_dpfull{rank}_task.pkl")
-        result_path = os.path.join(tmpdir, f"{stage_name}_dpfull{rank}_result.pkl")
+        task_path = os.path.join(dp_workdir, f"rank{rank}_task.pkl")
+        result_path = os.path.join(dp_workdir, f"rank{rank}_result.pkl")
         with open(task_path, "wb") as pickle_f:
             pickle.dump(task, pickle_f)
         task_files.append(task_path)
@@ -1661,6 +1738,7 @@ def _run_data_parallel_full(
             os.unlink(p)
         except OSError:
             pass
+    shutil.rmtree(dp_workdir, ignore_errors=True)
 
     if errors:
         raise RuntimeError(
@@ -1693,6 +1771,7 @@ def _run_data_parallel(
     Returns a list of output dicts in the same order as ``prompts``.
     """
     import pickle
+    import shutil
     import tempfile
 
     if len(prompts) < dp_size:
@@ -1743,6 +1822,10 @@ def _run_data_parallel(
     worker_script.write(_DP_WORKER_SCRIPT)
     worker_script.close()
 
+    # Per-invocation work dir for task/result pickles — unique so concurrent
+    # sweep jobs sharing a TMPDIR don't clobber each other's task pickles.
+    dp_workdir = tempfile.mkdtemp(prefix=f"{stage_name}_dp_", dir=tmpdir)
+
     # Workers are fully independent — no data_parallel_size in kwargs
     worker_engine_kwargs = {k: v for k, v in engine_kwargs.items()
                            if k != "data_parallel_size"}
@@ -1771,8 +1854,8 @@ def _run_data_parallel(
             "is_multimodal": is_multimodal,
         }
 
-        task_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_task.pkl")
-        result_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_result.pkl")
+        task_path = os.path.join(dp_workdir, f"rank{rank}_task.pkl")
+        result_path = os.path.join(dp_workdir, f"rank{rank}_result.pkl")
         with open(task_path, "wb") as pickle_f:
             pickle.dump(task, pickle_f)
         task_files.append(task_path)
@@ -1835,6 +1918,7 @@ def _run_data_parallel(
             os.unlink(p)
         except OSError:
             pass
+    shutil.rmtree(dp_workdir, ignore_errors=True)
 
     if errors:
         raise RuntimeError(
@@ -1866,18 +1950,33 @@ _DP_EMBED_WORKER_SCRIPT = r'''
 Each worker is a completely independent LLM instance with its own
 CUDA_VISIBLE_DEVICES slice.  Uses LLM(runner="pooling") and llm.embed().
 
-Streams incremental chunk pickles into ``{result_path}.chunks/`` every
-CHUNK_BATCHES batches, using atomic temp+fsync+rename, so partial data
-survives a timeout or SIGKILL. Writes ``{result_path}`` as a completion
-marker (or error report) once all inputs are processed.
+Streams parquet parts **directly into ``output_dir``** on the shared
+filesystem every CHUNK_BATCHES batches, using atomic temp+rename. The
+worker merges each embedding with the row's metadata (``shard_rows``),
+applies the stage-provided ``postprocess_fn`` (cloudpickled), and writes
+``part-rank{rr:02d}-{chunk:05d}.parquet``. A timeout or SIGKILL mid-run
+leaves every completed part on disk as the final stage output — no
+post-hoc merge step.
+
+``result_path`` is used only as a small completion marker so the parent
+can distinguish "rank finished cleanly" from "rank died with N parts
+already written".
 """
 import os, pickle, sys, time, traceback
 import numpy as np
+import pandas as pd
 
-# Flush a chunk every CHUNK_BATCHES batches.  At batch_size=16 this is
-# ~800 embeddings per chunk; losing one chunk on timeout costs a few
-# minutes, not hours.
+# Flush a parquet part every CHUNK_BATCHES batches.  At batch_size=16
+# this is ~800 rows per part; on /share NFS that's ~6 MB of parquet per
+# write and ~1 write per rank per ~20s at observed rates — low overhead,
+# fine-grained enough for live visibility.
 CHUNK_BATCHES = 50
+
+
+def _atomic_write_parquet(path, df):
+    tmp = path + ".tmp"
+    df.to_parquet(tmp, index=False)
+    os.replace(tmp, path)
 
 
 def _atomic_write_pickle(path, data):
@@ -1889,35 +1988,30 @@ def _atomic_write_pickle(path, data):
     os.replace(tmp, path)
 
 
-def _flush_chunk(chunk_dir, rank, chunk_idx, start_offset, embeddings):
-    path = os.path.join(chunk_dir, f"chunk{chunk_idx:05d}.pkl")
-    _atomic_write_pickle(path, {
-        "rank": rank,
-        "chunk_idx": chunk_idx,
-        "start": start_offset,
-        "count": len(embeddings),
-        "embeddings": embeddings,
-    })
-
-
 def main():
     task_path = sys.argv[1]
     result_path = sys.argv[2]
-    chunk_dir = result_path + ".chunks"
-    os.makedirs(chunk_dir, exist_ok=True)
 
     with open(task_path, "rb") as f:
         task = pickle.load(f)
 
-    rank           = task["rank"]
-    dp_size        = task["dp_size"]
-    engine_kwargs  = task["engine_kwargs"]
-    prompt_texts   = task["prompt_texts"]
-    image_refs     = task["image_refs"]
-    stage_name     = task["stage_name"]
-    pcie_env       = task["pcie_env"]
-    runtime_env    = task["runtime_env"]
-    batch_size     = task["batch_size"]
+    rank                   = task["rank"]
+    dp_size                = task["dp_size"]
+    engine_kwargs          = task["engine_kwargs"]
+    prompt_texts           = task["prompt_texts"]
+    image_refs             = task["image_refs"]
+    shard_rows             = task["shard_rows"]
+    postprocess_fn_bytes   = task["postprocess_fn_bytes"]
+    output_dir             = task["output_dir"]
+    stage_name             = task["stage_name"]
+    pcie_env               = task["pcie_env"]
+    runtime_env            = task["runtime_env"]
+    batch_size             = task["batch_size"]
+
+    import cloudpickle
+    postprocess_fn = cloudpickle.loads(postprocess_fn_bytes)
+
+    os.makedirs(output_dir, exist_ok=True)
 
     for k, v in {**pcie_env, **runtime_env}.items():
         os.environ.setdefault(k, v)
@@ -1930,10 +2024,10 @@ def main():
     print(f"[{stage_name}] DP rank {rank}/{dp_size}: starting embed worker "
           f"(pid={os.getpid()}, CUDA_VISIBLE_DEVICES="
           f"{os.environ.get('CUDA_VISIBLE_DEVICES', '<unset>')}, "
-          f"prompts={len(prompt_texts)}, chunk_dir={chunk_dir})", flush=True)
+          f"prompts={len(prompt_texts)}, output_dir={output_dir})", flush=True)
 
     llm = None
-    chunk_idx = 0
+    part_idx = 0
     flushed_count = 0
     try:
         t0 = time.time()
@@ -1946,7 +2040,7 @@ def main():
               f"{time.time() - t1:.1f}s", flush=True)
 
         total = len(prompt_texts)
-        pending = []
+        pending_rows = []  # list of postprocessed dicts ready to write
         batches_since_flush = 0
 
         for start in range(0, total, batch_size):
@@ -1962,45 +2056,56 @@ def main():
                 batch_inputs.append(inp)
 
             outputs = llm.embed(batch_inputs)
-            for out in outputs:
+            for k_local, out in enumerate(outputs):
                 emb = out.outputs.embedding
                 if not isinstance(emb, np.ndarray):
                     emb = np.array(emb, dtype=np.float32)
-                pending.append(emb)
+                # Merge embedding into row metadata, run postprocess
+                row = dict(shard_rows[start + k_local])
+                row["embedding"] = emb
+                row = postprocess_fn(row)
+                pending_rows.append(row)
             del batch_inputs, outputs
             batches_since_flush += 1
 
             if batches_since_flush >= CHUNK_BATCHES:
-                _flush_chunk(chunk_dir, rank, chunk_idx, flushed_count, pending)
-                flushed_count += len(pending)
-                chunk_idx += 1
-                pending = []
+                part_path = os.path.join(
+                    output_dir, f"part-rank{rank:02d}-{part_idx:05d}.parquet"
+                )
+                _atomic_write_parquet(part_path, pd.DataFrame(pending_rows))
+                flushed_count += len(pending_rows)
+                part_idx += 1
+                pending_rows = []
                 batches_since_flush = 0
                 print(f"[{stage_name}] DP rank {rank}/{dp_size}: "
                       f"{flushed_count}/{total} embedded "
-                      f"(chunk {chunk_idx} flushed)", flush=True)
+                      f"(part {part_idx} -> {os.path.basename(part_path)})",
+                      flush=True)
             elif (start // batch_size) % 20 == 0 or end == total:
                 print(f"[{stage_name}] DP rank {rank}/{dp_size}: "
-                      f"{flushed_count + len(pending)}/{total} embedded",
+                      f"{flushed_count + len(pending_rows)}/{total} embedded",
                       flush=True)
 
-        # Final chunk flush for remaining pending
-        if pending:
-            _flush_chunk(chunk_dir, rank, chunk_idx, flushed_count, pending)
-            flushed_count += len(pending)
-            chunk_idx += 1
-            pending = []
+        # Final flush for remaining pending rows
+        if pending_rows:
+            part_path = os.path.join(
+                output_dir, f"part-rank{rank:02d}-{part_idx:05d}.parquet"
+            )
+            _atomic_write_parquet(part_path, pd.DataFrame(pending_rows))
+            flushed_count += len(pending_rows)
+            part_idx += 1
+            pending_rows = []
 
-        # Completion marker (chunks are authoritative for data)
+        # Completion marker (parts on /share are authoritative)
         _atomic_write_pickle(result_path, {
             "rank": rank,
-            "num_chunks": chunk_idx,
+            "num_parts": part_idx,
             "total": flushed_count,
             "error": None,
         })
 
         print(f"[{stage_name}] DP rank {rank}/{dp_size}: done, "
-              f"{flushed_count} embeddings in {chunk_idx} chunks, "
+              f"{flushed_count} embeddings in {part_idx} parts, "
               f"elapsed {time.time() - t0:.1f}s", flush=True)
 
     except Exception:
@@ -2010,7 +2115,7 @@ def main():
         try:
             _atomic_write_pickle(result_path, {
                 "rank": rank,
-                "num_chunks": chunk_idx,
+                "num_parts": part_idx,
                 "total": flushed_count,
                 "error": tb,
             })
@@ -2038,39 +2143,53 @@ def _run_data_parallel_embed(
     dp_size: int,
     prompt_texts: List[str],
     image_refs: List[Optional[str]],
+    shard_rows: List[Dict[str, Any]],
+    postprocess_fn: Callable[[Dict[str, Any]], Dict[str, Any]],
+    output_dir: str,
     stage_name: str,
     batch_size: int = 16,
     timeout: int = 255600,
-) -> Tuple[List[Any], List[str]]:
-    """Spawn dp_size subprocess workers for vLLM embedding inference.
+) -> Tuple[List[str], List[str]]:
+    """Spawn dp_size subprocess workers that stream parquet parts directly.
 
-    Same pattern as ``_run_data_parallel`` but uses ``LLM(runner="pooling")``
-    and ``llm.embed()``.
+    Each worker owns a contiguous shard of ``(prompt_texts, image_refs,
+    shard_rows)``. Workers merge each embedding with its row metadata, run
+    ``postprocess_fn`` on the result, and write
+    ``part-rank{rr:02d}-{chunk:05d}.parquet`` into ``output_dir`` every 50
+    batches via atomic temp+rename.  Parquet parts on ``output_dir`` ARE
+    the final stage output — there is no post-hoc merge step.
 
-    Workers stream incremental chunk pickles to
-    ``{tmpdir}/{stage_name}_dp{rank}_result.pkl.chunks/``, so even if a rank
-    is killed by the watchdog (or SLURM) the already-embedded rows survive.
+    ``postprocess_fn`` is cloudpickled into each worker's task dict so the
+    stage's normalize/output_dim/model_source logic runs inside the worker
+    process, not the parent.
 
     The default 255600s (~71h) watchdog leaves ~1h of SLURM headroom for
-    cleanup and parquet flushing before the job's hard limit (slurm_gpu_4x
-    is 72h).
+    cleanup before ``slurm_gpu_4x``'s 72h hard limit.
 
     Returns:
-        A tuple ``(all_embeddings, errors)`` where ``all_embeddings`` has
-        length ``len(prompt_texts)`` with ``None`` placeholders for any
-        positions a worker never produced. ``errors`` lists human-readable
-        failure reasons — empty on full success.  When non-empty, chunk
-        directories for the failing ranks are left on disk for manual
-        recovery (their paths are printed in stdout).
+        A tuple ``(part_paths, errors)``.  ``part_paths`` is the sorted
+        list of every ``part-rank*.parquet`` file that exists in
+        ``output_dir`` when the function returns — i.e. whatever the
+        workers managed to persist, regardless of whether any rank failed.
+        ``errors`` lists per-rank failure reasons (empty on full success);
+        when non-empty the failed ranks' partial parts are still on disk
+        under the same output_dir.
     """
+    import cloudpickle
     import glob
     import pickle
+    import shutil
     import tempfile
 
     if len(prompt_texts) < dp_size:
         raise RuntimeError(
             f"[{stage_name}] Too few inputs ({len(prompt_texts)}) for "
             f"data_parallel_size={dp_size}."
+        )
+    if len(shard_rows) != len(prompt_texts):
+        raise RuntimeError(
+            f"[{stage_name}] shard_rows length ({len(shard_rows)}) does "
+            f"not match prompt_texts length ({len(prompt_texts)})."
         )
 
     tp_size = engine_kwargs.get("tensor_parallel_size", 1)
@@ -2084,6 +2203,8 @@ def _run_data_parallel_embed(
             f"but only {len(all_devices)} visible: {all_devices}"
         )
 
+    os.makedirs(output_dir, exist_ok=True)
+
     # Shard inputs across DP ranks
     floor_n = len(prompt_texts) // dp_size
     remainder = len(prompt_texts) % dp_size
@@ -2093,19 +2214,24 @@ def _run_data_parallel_embed(
         end = (rank + 1) * floor_n + min(rank + 1, remainder)
         return start, end
 
-    prompt_shards = []
-    image_ref_shards = []
+    prompt_shards: List[List[str]] = []
+    image_ref_shards: List[List[Optional[str]]] = []
+    shard_rows_shards: List[List[Dict[str, Any]]] = []
     for r in range(dp_size):
         s, e = shard_range(r)
         prompt_shards.append(prompt_texts[s:e])
         image_ref_shards.append(image_refs[s:e] if image_refs else [])
+        shard_rows_shards.append(shard_rows[s:e])
 
     pcie_env = get_pcie_nccl_env_vars()
     runtime_env = get_vllm_runtime_env_vars()
 
+    # cloudpickle postprocess_fn once; same bytes go into every task pickle
+    postprocess_fn_bytes = cloudpickle.dumps(postprocess_fn)
+
     tmpdir = os.environ.get("TMPDIR", "/tmp")
-    task_files = []
-    result_files = []
+    task_files: List[str] = []
+    result_files: List[str] = []
     procs: List[subprocess.Popen] = []
 
     worker_script = tempfile.NamedTemporaryFile(
@@ -2114,12 +2240,17 @@ def _run_data_parallel_embed(
     worker_script.write(_DP_EMBED_WORKER_SCRIPT)
     worker_script.close()
 
+    # Per-invocation work dir for task/result pickles — unique so concurrent
+    # sweep jobs sharing a TMPDIR don't clobber each other's task pickles.
+    dp_workdir = tempfile.mkdtemp(prefix=f"{stage_name}_dpembed_", dir=tmpdir)
+
     # Workers are fully independent — no data_parallel_size in kwargs
     worker_engine_kwargs = {k: v for k, v in engine_kwargs.items()
                            if k != "data_parallel_size"}
 
     print(f"[{stage_name}] Launching {dp_size} DP embed workers "
-          f"(TP={tp_size}, {len(prompt_texts)} total inputs)...", flush=True)
+          f"(TP={tp_size}, {len(prompt_texts)} total inputs, "
+          f"output_dir={output_dir})...", flush=True)
 
     for rank in range(dp_size):
         # GPU slice for this rank
@@ -2134,14 +2265,17 @@ def _run_data_parallel_embed(
             "engine_kwargs": worker_engine_kwargs,
             "prompt_texts": prompt_shards[rank],
             "image_refs": image_ref_shards[rank],
+            "shard_rows": shard_rows_shards[rank],
+            "postprocess_fn_bytes": postprocess_fn_bytes,
+            "output_dir": output_dir,
             "stage_name": stage_name,
             "pcie_env": pcie_env,
             "runtime_env": runtime_env,
             "batch_size": batch_size,
         }
 
-        task_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_task.pkl")
-        result_path = os.path.join(tmpdir, f"{stage_name}_dp{rank}_result.pkl")
+        task_path = os.path.join(dp_workdir, f"rank{rank}_task.pkl")
+        result_path = os.path.join(dp_workdir, f"rank{rank}_result.pkl")
         with open(task_path, "wb") as pickle_f:
             pickle.dump(task, pickle_f)
         task_files.append(task_path)
@@ -2167,8 +2301,8 @@ def _run_data_parallel_embed(
         )
         procs.append(proc)
 
-    # Wait for all workers — per-rank errors collected so we can still
-    # recover chunks from ranks that succeeded or partially completed.
+    # Wait for all workers — per-rank errors collected so parquet parts
+    # from ranks that succeeded or partially completed remain usable.
     print(f"[{stage_name}] Waiting for {dp_size} DP embed workers "
           f"(timeout={timeout}s)...", flush=True)
     rank_errors: Dict[int, List[str]] = {rank: [] for rank in range(dp_size)}
@@ -2185,29 +2319,18 @@ def _run_data_parallel_embed(
                 f"process (pid={proc.pid}) timed out after {timeout}s, killed"
             )
 
-    # Collect results per rank from chunk dirs + marker files
-    rank_results: Dict[int, List[Any]] = {}
-    chunk_dirs: Dict[int, str] = {}
+    # Collect: scan output_dir for part files per rank + inspect marker
+    rank_part_counts: Dict[int, int] = {}
     for rank in range(dp_size):
         rpath = result_files[rank]
-        chunk_dir = rpath + ".chunks"
-        chunk_dirs[rank] = chunk_dir
+        rank_parts = sorted(glob.glob(
+            os.path.join(output_dir, f"part-rank{rank:02d}-*.parquet")
+        ))
+        rank_part_counts[rank] = len(rank_parts)
+        expected = len(prompt_shards[rank])
 
-        # Load whatever chunks exist (ordered by filename)
-        rank_embeddings: List[Any] = []
-        if os.path.isdir(chunk_dir):
-            chunk_paths = sorted(glob.glob(os.path.join(chunk_dir, "chunk*.pkl")))
-            for cpath in chunk_paths:
-                try:
-                    with open(cpath, "rb") as cf:
-                        cdata = pickle.load(cf)
-                    rank_embeddings.extend(cdata.get("embeddings") or [])
-                except Exception as e:
-                    rank_errors[rank].append(
-                        f"failed to read chunk {os.path.basename(cpath)}: {e}"
-                    )
-
-        # Inspect completion marker (may or may not exist)
+        # Inspect completion marker if present
+        marker: Optional[Dict[str, Any]] = None
         if os.path.exists(rpath):
             try:
                 with open(rpath, "rb") as mf:
@@ -2220,14 +2343,21 @@ def _run_data_parallel_embed(
                     f"worker raised:\n{marker['error']}"
                 )
 
-        expected = len(prompt_shards[rank])
-        if len(rank_embeddings) < expected:
+        # Incompleteness check: prefer marker's row count, fall back to
+        # "no marker at all" meaning the rank died mid-run.
+        if marker and marker.get("error") is None:
+            got = int(marker.get("total", 0))
+            if got < expected:
+                rank_errors[rank].append(
+                    f"incomplete: {got}/{expected} rows "
+                    f"({len(rank_parts)} parts written to {output_dir})"
+                )
+        elif marker is None and not rank_errors[rank]:
+            # No marker + no earlier error: rank vanished silently
             rank_errors[rank].append(
-                f"incomplete: {len(rank_embeddings)}/{expected} embeddings "
-                f"(partial chunks preserved at {chunk_dir})"
+                f"no completion marker at {rpath} "
+                f"({len(rank_parts)} parts written to {output_dir})"
             )
-
-        rank_results[rank] = rank_embeddings
 
     # Flatten per-rank errors for caller
     errors: List[str] = []
@@ -2235,58 +2365,45 @@ def _run_data_parallel_embed(
         for msg in rank_errors[rank]:
             errors.append(f"DP rank {rank}: {msg}")
 
-    # Cleanup: always remove worker script + task pickles. For each rank,
-    # only remove chunk files + marker if the rank had no errors; otherwise
-    # leave the chunk directory intact for manual recovery.
+    # Cleanup: always remove worker script + task pickles. Only remove
+    # the completion marker for ranks that fully succeeded — failing
+    # ranks' markers stay so the user can inspect them. Parquet parts
+    # are NEVER deleted; they are the stage's actual output.
     cleanup_paths: List[str] = [worker_script.name, *task_files]
-    recoverable_chunk_dirs: List[str] = []
     for rank in range(dp_size):
-        rpath = result_files[rank]
-        chunk_dir = chunk_dirs[rank]
         if rank_errors[rank]:
-            if os.path.isdir(chunk_dir):
-                recoverable_chunk_dirs.append(chunk_dir)
             continue
-        if os.path.isdir(chunk_dir):
-            # Sweep every file (chunks AND any leftover atomic-write .tmp)
-            # so rmdir at the end succeeds.
-            for name in os.listdir(chunk_dir):
-                cleanup_paths.append(os.path.join(chunk_dir, name))
-            cleanup_paths.append(chunk_dir)  # rmdir last
+        rpath = result_files[rank]
         if os.path.exists(rpath):
             cleanup_paths.append(rpath)
 
     for p in cleanup_paths:
         try:
-            if os.path.isdir(p):
-                os.rmdir(p)
-            else:
-                os.unlink(p)
+            os.unlink(p)
         except OSError:
             pass
+    # Only drop the work dir when every rank succeeded; otherwise leave it so
+    # failing ranks' result pickles remain inspectable.
+    if not errors:
+        shutil.rmtree(dp_workdir, ignore_errors=True)
 
     if errors:
         print(f"[{stage_name}] DP embed completed with {len(errors)} error(s):",
               flush=True)
         for err in errors:
             print(f"  - {err}", flush=True)
-        if recoverable_chunk_dirs:
-            print(f"[{stage_name}] Recoverable chunk dirs (NOT deleted):",
-                  flush=True)
-            for p in recoverable_chunk_dirs:
-                print(f"  - {p}", flush=True)
+        print(f"[{stage_name}] Partial parquet parts preserved at {output_dir}:",
+              flush=True)
+        for rank in range(dp_size):
+            if rank_errors[rank]:
+                print(f"  - rank {rank}: {rank_part_counts[rank]} parts",
+                      flush=True)
 
-    # Reassemble in original order; insert None placeholders for any gaps
-    # so the caller can still stream partial results to disk.
-    all_embeddings: List[Any] = []
-    for rank in range(dp_size):
-        got = rank_results[rank]
-        expected = len(prompt_shards[rank])
-        all_embeddings.extend(got)
-        if len(got) < expected:
-            all_embeddings.extend([None] * (expected - len(got)))
-
-    return all_embeddings, errors
+    # Collect the full list of parquet parts written by any rank.
+    all_part_paths = sorted(glob.glob(
+        os.path.join(output_dir, "part-rank*-*.parquet")
+    ))
+    return all_part_paths, errors
 
 
 # ---------------------------------------------------------------------------
@@ -2700,8 +2817,6 @@ def run_vllm_inference(
 
         # Build prompts and sampling params dicts for valid rows only.
         prompts: List[str] = []
-        row_images: List[Optional[List[Any]]] = []  # per-row PIL image lists for single-process
-        row_image_refs: List[Optional[str]] = []  # per-row file path refs for DP serialization
         sp_dicts: List[Dict[str, Any]] = []
         valid_indices: List[int] = []
         _oversized_count = 0
@@ -2709,19 +2824,13 @@ def run_vllm_inference(
         for i in preliminary_valid:
             row = preprocessed_rows[i]
             messages = row.get("messages")
-            images = None
             if messages:
-                # Extract images from multimodal content blocks
-                if _is_mm:
-                    images = _extract_images_from_messages(messages)
-                    if images:
-                        # For multimodal models, pass messages with image
-                        # placeholders — the tokenizer handles the rest
-                        template_messages = messages
-                    else:
-                        template_messages = messages
-                else:
-                    template_messages = messages
+                # Image decoding is DEFERRED to the batch loop below. Decoding
+                # every image up front holds all decoded PIL objects in memory
+                # simultaneously, which OOM-kills large multimodal sweeps
+                # (e.g. 10k pairs x 2 images x ~3 MB ≈ 60 GB). The chat template
+                # only needs the text/placeholder structure, not the pixels.
+                template_messages = messages
 
                 try:
                     chat_template_kwargs = dict(
@@ -2768,10 +2877,6 @@ def run_vllm_inference(
                     continue
 
             prompts.append(prompt)
-            row_images.append(images if images else None)
-            # Collect serializable image path for DP mode (PIL objects can't cross process boundaries)
-            _img_ref = row.get("image_path") or preprocessed_rows[i].get("image_path")
-            row_image_refs.append(str(_img_ref) if _img_ref else None)
             sp_dicts.append(row.get("sampling_params", {}))
             valid_indices.append(i)
 
@@ -2804,11 +2909,20 @@ def run_vllm_inference(
                 batch_size = int(getattr(cfg.model, "batch_size", 0) or 0)
             except Exception:
                 batch_size = 0
-            if batch_size <= 0:
-                batch_size = max(len(prompts), 1)
+            # Whether to attempt attaching images. We decode lazily per batch
+            # below, so this is gated on the model being multimodal rather than
+            # on a pre-decoded image list.
+            _has_any_images = _is_mm
 
-            # Check if any rows have multimodal data
-            _has_any_images = any(imgs is not None for imgs in row_images)
+            if batch_size <= 0:
+                if _has_any_images:
+                    # Multimodal: cap the batch so at most this many images are
+                    # decoded (and held in memory) at once. Without a cap the
+                    # whole sweep is one batch and every image is materialized
+                    # simultaneously — which OOM-kills large runs.
+                    batch_size = min(len(prompts), 256) or 1
+                else:
+                    batch_size = max(len(prompts), 1)
 
             # Run inference in batches
             print(
@@ -2827,12 +2941,19 @@ def run_vllm_inference(
                 )
 
                 if _has_any_images:
-                    # Multimodal path: build per-prompt dicts with multi_modal_data
+                    # Multimodal path: decode this batch's images on demand and
+                    # build per-prompt dicts with multi_modal_data. Decoding here
+                    # (rather than up front) bounds peak image memory to one
+                    # batch — see batch_size cap above.
+                    import gc
                     from vllm import TokensPrompt
                     mm_prompts = []
+                    _batch_imgs: List[Any] = []  # keep refs alive until generate() returns
                     for j in range(start, end):
-                        imgs = row_images[j]
+                        msgs_j = preprocessed_rows[valid_indices[j]].get("messages")
+                        imgs = _extract_images_from_messages(msgs_j) if msgs_j else None
                         if imgs:
+                            _batch_imgs.extend(imgs)
                             # Tokenize with image placeholders to get token IDs
                             token_ids = tokenizer.encode(prompt_batch[j - start])
                             mm_prompts.append(TokensPrompt(
@@ -2842,6 +2963,9 @@ def run_vllm_inference(
                         else:
                             mm_prompts.append(prompt_batch[j - start])
                     outputs.extend(llm.generate(mm_prompts, sampling_batch, lora_request=lora_request))
+                    # Free this batch's decoded images before decoding the next.
+                    del mm_prompts, _batch_imgs
+                    gc.collect()
                 else:
                     outputs.extend(llm.generate(prompt_batch, sampling_batch, lora_request=lora_request))
 
@@ -3060,45 +3184,78 @@ def run_vllm_embed(
 
         # ── Phase 3: Embed — data-parallel or single-process ─────────────
         if dp_size > 1:
-            print(f"[{stage_name}] Running data-parallel embedding: "
-                  f"{len(prompt_texts)} inputs across {dp_size} replicas...")
-            all_embeddings = _run_data_parallel_embed(
-                engine_kwargs=engine_kwargs,
-                dp_size=dp_size,
-                prompt_texts=prompt_texts,
-                image_refs=image_refs,
-                stage_name=stage_name,
-                batch_size=batch_size,
-            )
+            # The DP helper now streams parquet parts directly to an
+            # output_dir. For the DataFrame-returning API, route through
+            # a temp dir, let the workers postprocess inline, then read
+            # the parts back into a DataFrame.
+            import glob
+            import shutil
+            import tempfile
 
-            if len(all_embeddings) != len(prompt_texts):
-                raise RuntimeError(
-                    f"[{stage_name}] DP embed output count mismatch: "
-                    f"expected {len(prompt_texts)}, got {len(all_embeddings)}"
+            valid_shard_rows = [
+                {k: v for k, v in preprocessed_rows[i].items() if k != "messages"}
+                for i in valid_indices
+            ]
+
+            tmp_parts_dir = tempfile.mkdtemp(
+                prefix=f"{stage_name}_dp_parts_",
+                dir=os.environ.get("TMPDIR", "/tmp"),
+            )
+            print(f"[{stage_name}] Running data-parallel embedding: "
+                  f"{len(prompt_texts)} inputs across {dp_size} replicas "
+                  f"(streaming to {tmp_parts_dir})...")
+            try:
+                part_paths, dp_errors = _run_data_parallel_embed(
+                    engine_kwargs=engine_kwargs,
+                    dp_size=dp_size,
+                    prompt_texts=prompt_texts,
+                    image_refs=image_refs,
+                    shard_rows=valid_shard_rows,
+                    postprocess_fn=postprocess,
+                    output_dir=tmp_parts_dir,
+                    stage_name=stage_name,
+                    batch_size=batch_size,
                 )
 
-            # Postprocess
-            print(f"[{stage_name}] Postprocessing {len(all_embeddings)} embeddings...")
-            results: List[Dict[str, Any]] = []
-            emb_iter = iter(all_embeddings)
-            for idx, row in enumerate(preprocessed_rows):
-                if idx in failed_set:
-                    row["embedding"] = None
+                # Read all successful parquet parts back into memory
+                valid_dfs: List[pd.DataFrame] = []
+                for p in sorted(part_paths):
                     try:
-                        result = postprocess(row)
+                        valid_dfs.append(pd.read_parquet(p))
                     except Exception as e:
-                        row["__postprocess_error__"] = str(e)
-                        result = row
-                    results.append(result)
-                    continue
+                        dp_errors.append(
+                            f"failed to read back part {os.path.basename(p)}: {e}"
+                        )
 
-                row["embedding"] = next(emb_iter)
+                if dp_errors:
+                    raise RuntimeError(
+                        f"[{stage_name}] Data-parallel embedding had errors:\n"
+                        + "\n".join(dp_errors)
+                    )
+            finally:
                 try:
-                    result = postprocess(row)
+                    shutil.rmtree(tmp_parts_dir, ignore_errors=True)
+                except OSError:
+                    pass
+
+            # Invalid rows (preprocess failures) — route through postprocess
+            # with embedding=None. Workers never saw them.
+            invalid_results: List[Dict[str, Any]] = []
+            for idx in sorted(failed_set):
+                row = dict(preprocessed_rows[idx])
+                row.pop("messages", None)
+                row["embedding"] = None
+                try:
+                    invalid_results.append(postprocess(row))
                 except Exception as e:
                     row["__postprocess_error__"] = str(e)
-                    result = row
-                results.append(result)
+                    invalid_results.append(row)
+
+            valid_df = pd.concat(valid_dfs, ignore_index=True) if valid_dfs else pd.DataFrame()
+            invalid_df = pd.DataFrame(invalid_results)
+            results_df = pd.concat([valid_df, invalid_df], ignore_index=True) if len(invalid_df) else valid_df
+            print(f"[{stage_name}] Completed embedding, {len(results_df)} results")
+            return results_df
 
         else:
             # Single-process path

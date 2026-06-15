@@ -1,0 +1,49 @@
+# @package _global_
+# Generate a GeoTIFF raster from pre-computed embeddings + text query
+#
+# Usage:
+#   python -m dagspaces.artifact_gen.cli -m pipeline=raster_from_embeddings \
+#     raster.query_text="construction scaffolding" \
+#     raster.embeddings_input_path=/path/to/embed/output \
+#     raster.pca_artifacts_path=/path/to/browser_index/output \
+#     raster.projection_matrix_path=/path/to/query_projection/output
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  sources:
+    embeddings:
+      path: ${raster.embeddings_input_path}
+      type: dir
+    pca_artifacts:
+      path: ${raster.pca_artifacts_path}
+      type: dir
+    query_projection:
+      path: ${raster.projection_matrix_path}
+      type: dir
+  graph:
+    nodes:
+      raster:
+        stage: raster
+        depends_on: []
+        inputs:
+          embeddings: embeddings
+          pca_artifacts: pca_artifacts
+          query_projection: query_projection
+        outputs:
+          results: outputs/raster/query_${now:%Y%m%d_%H%M%S}
+        overrides:
+          raster.query_text: ${raster.query_text}
+          raster.interpolation: ${raster.interpolation}
+          raster.resolution_m: ${raster.resolution_m}
+          raster.idw_power: ${raster.idw_power}
+          raster.max_distance_m: ${raster.max_distance_m}
+          raster.ray_length_m: ${raster.ray_length_m}
+          raster.ray_decay: ${raster.ray_decay}
+          raster.ray_normalize_by_count: ${raster.ray_normalize_by_count}
+        launcher: slurm_cpu_beefy
+        wandb_suffix: raster

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -15,7 +16,7 @@ import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 from PIL import Image
 
-from ..graph.street_graph import FACE_BEARING_DEG, HORIZONTAL_FACES, StreetGraph, _normalize_bearing
+from ..graph.street_graph import FACE_BEARING_DEG, HORIZONTAL_FACES, StreetGraph
 from ..graph.builder import build_street_graph
 from ..samplers.seed_sampler import sample_walk_seeds
 from dagspaces.urbanvqa.stages.vqa import run_vqa_stage
@@ -23,7 +24,10 @@ from dagspaces.urbanvqa.stages.vqa import run_vqa_stage
 
 # --- Image stitching (adapted from urbanpairvqa) ---
 
-_COMPASS_LABELS = {"F": "Forward", "R": "Right", "B": "Behind", "L": "Left"}
+# Face labels depend on the graph's face frame: Cyclomedia NYC cube faces are
+# compass-fixed (F=North...), not vehicle-relative (F=Forward...).
+_FACE_LABELS_ABSOLUTE = {"F": "North", "R": "East", "B": "South", "L": "West"}
+_FACE_LABELS_RELATIVE = {"F": "Forward", "R": "Right", "B": "Behind", "L": "Left"}
 
 
 def _load_rgb(path: str) -> Image.Image:
@@ -31,16 +35,16 @@ def _load_rgb(path: str) -> Image.Image:
         return img.convert("RGB")
 
 
-def _stitch_three(
+def _stitch_faces(
     paths: List[str],
     labels: List[str],
     max_height: int = 512,
 ) -> np.ndarray:
-    """Stitch 3 face images horizontally with direction labels.
+    """Stitch face images horizontally with direction labels.
 
     Args:
-        paths: List of 3 image file paths.
-        labels: List of 3 compass direction labels (e.g. ["Left", "Forward", "Right"]).
+        paths: Image file paths (one per legal face, 1-4 panels).
+        labels: Compass direction labels (e.g. ["Left", "Forward", "Right"]).
         max_height: Target height for all images.
 
     Returns:
@@ -236,6 +240,34 @@ class RoamingStepper:
 
         graph_cfg = getattr(cfg, "graph", {})
         self.bearing_tolerance = float(getattr(graph_cfg, "bearing_tolerance_deg", 45.0))
+        self.face_labels = (
+            _FACE_LABELS_ABSOLUTE
+            if getattr(graph, "face_frame", "absolute") == "absolute"
+            else _FACE_LABELS_RELATIVE
+        )
+
+        # Base structured-output schema (per-row narrowed to the legal faces)
+        self.structured_base: Optional[Dict[str, Any]] = None
+        structured_cfg = getattr(getattr(cfg, "prompt", {}), "structured_output", None)
+        if structured_cfg is not None and bool(getattr(structured_cfg, "enabled", False)):
+            schema = getattr(structured_cfg, "json_schema", None)
+            if schema is not None:
+                self.structured_base = (
+                    OmegaConf.to_container(schema, resolve=True)
+                    if OmegaConf.is_config(schema) else dict(schema)
+                )
+
+    def _guided_payload_for_faces(self, available_faces: List[str]) -> Optional[Dict[str, Any]]:
+        """Per-row guided decoding payload: the prompt's JSON schema with
+        chosen_face narrowed to this step's legal faces, so an illegal move
+        is unrepresentable in the model output."""
+        if not self.structured_base:
+            return None
+        schema = copy.deepcopy(self.structured_base)
+        chosen = schema.get("properties", {}).get("chosen_face")
+        if isinstance(chosen, dict):
+            chosen["enum"] = list(available_faces)
+        return {"json": schema}
 
     @property
     def active_walks(self) -> List[WalkState]:
@@ -247,40 +279,49 @@ class RoamingStepper:
         Each row has: walk_id, image (stitched 3-face composite), prompt, sample_id.
         """
         rows = []
-        metadata_parquet = str(getattr(data_cfg, "parquet_path", ""))
 
         for walk in self.active_walks:
             rid = walk.current_recording_id
-            arrival_face = walk.current_arrival_face
-            available_faces = self.graph.available_faces(arrival_face)
+            backtrack_face = walk.current_arrival_face  # "" at walk seeds
 
-            if not available_faces:
+            # Legal moves only: faces that resolve to a neighbor, excluding
+            # the backtrack face (unless it's the only way out of a dead end)
+            # and, when revisits are disallowed, already-visited neighbors.
+            exclude_ids = walk.visited if not self.allow_revisits else None
+            legal = self.graph.legal_faces(
+                rid,
+                exclude_face=backtrack_face,
+                bearing_tolerance_deg=self.bearing_tolerance,
+                exclude_ids=exclude_ids,
+            )
+            if not legal:
                 walk.active = False
                 if walk.history:
-                    walk.history[-1].termination_reason = "dead_end"
+                    walk.history[-1].termination_reason = (
+                        "dead_end" if self.allow_revisits else "no_unvisited_moves"
+                    )
                 continue
 
-            # Build face image paths
+            # Drop faces whose imagery is missing rather than killing the walk
+            available_faces = []
             face_paths = []
             face_labels = []
-            valid = True
-            for face in available_faces:
-                # Construct image path from recording_id + face
+            for face in legal:
                 img_path = self._resolve_face_image_path(rid, face, data_cfg)
                 if not img_path or not os.path.exists(img_path):
-                    valid = False
-                    break
+                    continue
+                available_faces.append(face)
                 face_paths.append(img_path)
-                face_labels.append(_COMPASS_LABELS.get(face, face))
+                face_labels.append(self.face_labels.get(face, face))
 
-            if not valid:
+            if not available_faces:
                 walk.active = False
                 if walk.history:
                     walk.history[-1].termination_reason = "missing_images"
                 continue
 
             # Stitch images
-            stitched = _stitch_three(face_paths, face_labels, self.stitch_max_height)
+            stitched = _stitch_faces(face_paths, face_labels, self.stitch_max_height)
 
             # Build prompt
             prompt = self._render_prompt(walk, available_faces)
@@ -290,7 +331,7 @@ class RoamingStepper:
             step = WalkStep(
                 step_n=walk.step_n,
                 recording_id=rid,
-                arrival_face=arrival_face,
+                arrival_face=backtrack_face,
                 faces_shown=available_faces,
                 lat=coords[0],
                 lon=coords[1],
@@ -298,12 +339,16 @@ class RoamingStepper:
             walk.history.append(step)
             walk.visited.add(rid)
 
-            rows.append({
+            row = {
                 "walk_id": walk.walk_id,
                 "sample_id": f"{walk.walk_id}_step{walk.step_n}",
                 "image": stitched,
                 "prompt": prompt,
-            })
+            }
+            guided = self._guided_payload_for_faces(available_faces)
+            if guided is not None:
+                row["guided_decoding"] = guided
+            rows.append(row)
 
         return pd.DataFrame(rows)
 
@@ -458,14 +503,20 @@ class RoamingStepper:
             user_template = self._default_prompt_template()
 
         # Build compass direction descriptions
-        yaw = self.graph.yaw_degrees.get(walk.current_recording_id, 0.0)
+        panel_names = {
+            1: ["only panel"],
+            2: ["left panel", "right panel"],
+            3: ["left panel", "center panel", "right panel"],
+            4: ["far-left panel", "center-left panel", "center-right panel", "far-right panel"],
+        }.get(len(available_faces), [f"panel {i + 1}" for i in range(len(available_faces))])
         directions = []
         for i, face in enumerate(available_faces):
-            abs_bearing = _normalize_bearing(yaw + FACE_BEARING_DEG[face])
+            abs_bearing = self.graph.face_bearing(walk.current_recording_id, face)
+            if abs_bearing is None:
+                abs_bearing = FACE_BEARING_DEG[face]
             compass = self._bearing_to_compass(abs_bearing)
-            label = _COMPASS_LABELS.get(face, face)
-            panel = ["left panel", "center panel", "right panel"][i] if i < 3 else f"panel {i+1}"
-            directions.append(f"- {face} ({label}, {compass}, {panel})")
+            label = self.face_labels.get(face, face)
+            directions.append(f"- {face} ({label}, {compass}, {panel_names[i]})")
 
         direction_text = "\n".join(directions)
 
@@ -503,7 +554,7 @@ class RoamingStepper:
     @staticmethod
     def _default_prompt_template() -> str:
         return (
-            "You are exploring a city on foot. You see three street views arranged left to right.\n\n"
+            "You are exploring a city on foot. You see one or more street views arranged left to right.\n\n"
             "Available directions:\n{{ directions }}\n\n"
             "{% if history %}{{ history }}\n\n{% endif %}"
             "Choose which direction to walk by selecting one face ({{ available_faces }}).\n"
@@ -676,10 +727,12 @@ def run_roaming_vqa_stage(
         # Initialize walk states from seeds
         walks = []
         for _, row in seeds_df.iterrows():
+            # seed_face is the backtrack face to exclude on the first step;
+            # "" (the default) means no exclusion — all legal faces are shown.
             ws = WalkState(
                 walk_id=str(row["walk_id"]),
                 current_recording_id=str(row["seed_recording_id"]),
-                current_arrival_face=str(row.get("seed_face", "F")),
+                current_arrival_face=str(row.get("seed_face", "") or ""),
             )
             walks.append(ws)
 

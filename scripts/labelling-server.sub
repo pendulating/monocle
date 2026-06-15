@@ -1,0 +1,26 @@
+#!/bin/bash 
+#SBATCH -J labelling
+#SBATCH -o /share/pierson/matt/mllmsci/.slurm_jobs/labelling-server/%j.out
+#SBATCH -e /share/pierson/matt/mllmsci/.slurm_jobs/labelling-server/%j.err
+#SBATCH --mail-type=ALL 
+#SBATCH --mail-user=mwf62@cornell.edu 
+#SBATCH -N 1
+#SBATCH -n 4
+#SBATCH --get-user-env 
+#SBATCH --mem=32gb
+#SBATCH -t 240:00:00
+#SBATCH --partition=ju
+
+pwd
+source /home/mwf62/.bashrc
+
+cd /share/pierson/matt/mllmsci
+source .venv/bin/activate
+
+export LABEL_STUDIO_BASE_DATA_DIR=/share/pierson/matt_ai/usr_data/label-studio
+export LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true
+export LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT=/
+
+label-studio --port 8925 \
+    --database "${LABEL_STUDIO_BASE_DATA_DIR}/label_studio.sqlite3" \
+    --data-dir "${LABEL_STUDIO_BASE_DATA_DIR}"

@@ -1,0 +1,80 @@
+# Multimodal Model Configuration - NVIDIA LocateAnything-3B
+# Grounding / detection / localization VLM.
+#   LM backbone:    Qwen2.5-3B-Instruct (qwen2, hidden 2048, 36 layers, ctx 32768)
+#   Vision encoder: MoonViT-SO-400M (patch 14, 2x2 merge), image_token_index 151665
+#   Arch:           LocateAnythingForConditionalGeneration  (model_type: locateanything)
+#   Task:           visual grounding, object/dense/open-set detection, GUI grounding,
+#                   scene-text detection, pointing, layout grounding.
+#   Output format:  bounding boxes <box><x1><y1><x2><y2></box> and points <box><x><y></box>,
+#                   coordinates normalized as integers in [0, 1000].
+#   Prompt templates (set these in a prompt/ config, not here):
+#     Detection:        "Locate all the instances that matches the following description: [CATEGORIES]."
+#     Phrase grounding: "Locate a single instance that matches the following description: [PHRASE]."
+#     Text detection:   "Detect all the text in box format."
+#     Pointing:         "Point to: [PHRASE]."
+#   Chat template uses custom <image-N> placeholders (NOT the standard Qwen <|vision_*|> tokens).
+# ~4B params BF16, 7.3 GB weights (2 safetensors shards). Fits a single A6000 (48 GB).
+#
+# ============================== READ BEFORE USING ==============================
+# This model is NOT runnable through the dagspace's standard vLLM path.
+# vLLM 0.19.0 does not register the `LocateAnythingForConditionalGeneration` architecture
+# (verified against ModelRegistry.get_supported_archs()), and the model ships custom
+# modeling code (modeling_locateanything.py / generate_utils.py), a custom MoonViT encoder,
+# a custom image processor, and a `magi` attention impl + Parallel Box Decoding that vLLM
+# cannot execute. trust_remote_code lets vLLM read the *config*, but vLLM reimplements model
+# forwards from its own registry -- it will NOT load the custom forward pass.
+#
+# The repo's text-only transformers fallback (_TRANSFORMERS_FALLBACK_FAMILIES, "llama-vision")
+# is also unsuitable -- it is text-only and would drop the image entirely.
+#
+# To actually run inference you need ONE of:
+#   (a) a bespoke transformers sidecar like dagspaces/urbanvqa/stages/persistent_cambrian.py,
+#       driving the HF reference path (AutoModel + AutoProcessor, trust_remote_code=True,
+#       model.generate(..., generation_mode="hybrid"|"slow")), or
+#   (b) a future vLLM plugin / version that registers the locateanything architecture.
+# This YAML is the zoo entry + reference config for that integration; the engine_kwargs below
+# document intended settings and are forward-compatible with option (b).
+# ===============================================================================
+
+model_source: /share/pierson/matt/zoo/models/LocateAnything-3B
+
+# Reference / intended engine settings. Consumed only once an engine that supports the
+# architecture exists (see header). Left here so the config is complete and forward-compatible.
+engine_kwargs:
+  tensor_parallel_size: 1  # Single GPU -- 3B LM fits easily
+  max_model_len: 8192  # Grounding outputs are long (many boxes); generous output budget.
+                       # LM context is 32768; keep tight to bound KV unless detecting densely.
+  max_num_seqs: 64
+  enable_chunked_prefill: true
+  max_num_batched_tokens: 16384
+  limit_mm_per_prompt:
+    image: 1
+  mm_processor_kwargs:
+    # MoonViT: image_mean/std = 0.5, patch_size 14, in_token_limit 25600. Pixel budget below
+    # is a placeholder mirroring the Qwen-VL configs; the real processor is the custom
+    # LocateAnythingImageProcessor (see preprocessor_config.json).
+    min_pixels: 784  # 28*28
+    max_pixels: 1048576  # 1024*1024 -- matches Cyclomedia face resolution; model supports ~2.5K
+  trust_remote_code: true  # Required: custom modeling code + MoonViT encoder + custom processor
+  tokenizer_mode: auto
+  dtype: bfloat16
+  kv_cache_dtype: auto
+  enable_prefix_caching: true  # Same task prompt repeated across many images
+  use_v2_block_manager: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.90
+  enforce_eager: false
+  disable_custom_all_reduce: false
+
+# Placeholder block for a future HF-transformers sidecar (cf. the `cambrian:` block consumed by
+# persistent_cambrian.py). Unused until such a sidecar is wired into the vqa stage.
+locateanything:
+  generation_mode: hybrid   # "fast" (MTP) | "slow" (AR) | "hybrid" (default). vLLM would only do "slow".
+  max_new_tokens: 8192
+  temperature: 0.7
+  top_p: 0.9
+  repetition_penalty: 1.1
+  inference_batch_size: 8
+
+batch_size: 32  # Lower than classification VQA -- grounding outputs are long
+concurrency: 1

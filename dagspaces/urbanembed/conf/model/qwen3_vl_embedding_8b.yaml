@@ -6,7 +6,7 @@ model_source: /share/pierson/matt/zoo/models/Qwen3-VL-Embedding-8B
 engine_kwargs:
   tensor_parallel_size: 1
   max_model_len: 8192
-  max_num_seqs: 6       # KV cache supports ~23x concurrency; leave headroom
+  max_num_seqs: 16       # KV cache supports ~23x concurrency; leave headroom
   limit_mm_per_prompt:
     image: 1
   mm_processor_kwargs:

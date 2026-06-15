@@ -1,0 +1,62 @@
+# @package _global_
+# Large-scale pipeline: random Cyclomedia image-pair sampling with
+# monotony/sterility-comparison prompt. Pairs are drawn directly from the
+# manhattan_2025_1k parquet (mode=image, the dagspace default), no
+# unit-based materialization.
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_pairwise_manhattan_2025_1
+  - override /prompt: pairwise_sterility_ordinal
+  - override /model: qwen3.5-9b/instruct_thinking
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 128
+
+pair_sampler:
+  pair_seed: 777
+  max_pairs: 50000
+  allow_replacement: false
+  counterbalance_mode: balanced
+  repeat_count: 5000
+  repeat_fraction: 0.0
+
+# Thinking traces routinely consume 4-8k tokens before emitting the JSON
+# answer; the dagspace default of 2048 truncates mid-reasoning.
+sampling_params_vqa:
+  temperature: 0.6
+  top_p: 0.95
+  max_tokens: 6144
+  stop: []
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/sterility_large_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 0
+          model.concurrency: 1
+        launcher: slurm_gpu_4x
+        wandb_suffix: pairwise_sterility_large

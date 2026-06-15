@@ -15,7 +15,7 @@ def sample_walk_seeds(
     n_walks: int,
     seed: int,
     strategy: str = "random",
-    initial_face: str = "F",
+    initial_face: str = "",
     min_neighbors: int = 1,
     manual_seeds: Optional[List[str]] = None,
 ) -> pd.DataFrame:
@@ -26,7 +26,8 @@ def sample_walk_seeds(
         n_walks: Number of walks to seed.
         seed: Random seed.
         strategy: "random", "spatial_stratified", or "manual".
-        initial_face: Starting face direction (typically "F").
+        initial_face: Backtrack face excluded on the first step;
+            "" (default) shows all legal faces at the seed.
         min_neighbors: Minimum neighbor count for eligible seeds.
         manual_seeds: Explicit recording_ids for "manual" strategy.
 

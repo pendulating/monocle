@@ -1,0 +1,14 @@
+# @package _global_
+model:
+  model_source: /share/pierson/matt/zoo/models/Phi-4-multimodal-instruct
+  model_family: phi-4
+  engine_kwargs:
+    # Phi-4-MM expands a single 1024x1024 image to ~2,625 tokens via HD tiling,
+    # so the pairwise prompt (2 images) is already ~5,409 tokens. Keep the 8192
+    # cap — worst case (prompt + 2048 generation) is ~7,460 tokens, ~9% slack.
+    max_model_len: 8192
+    max_num_seqs: 16
+    tensor_parallel_size: 1
+    trust_remote_code: true
+  batch_size: 0
+  concurrency: 1

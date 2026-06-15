@@ -1,0 +1,15 @@
+# SCRFD face detector (P1, not run on Cyclomedia).
+#
+# Kept for non-pre-blurred image sources and for validating the
+# blur_region + classify_blur pipeline. Weights fetched from the
+# ``public-data/insightface`` HuggingFace repo or a pinned local mirror.
+
+name: scrfd
+backend: insightface
+model_source: scrfd_10g_bnkps      # 10G FLOPs variant; swap to scrfd_500m for speed
+device: auto
+det_size: [1024, 1024]
+det_thresh: 0.5
+nms_thresh: 0.45
+teacher_model: scrfd-10g-bnkps
+teacher_version: insightface-0.7.x

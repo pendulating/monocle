@@ -1,0 +1,37 @@
+# Board-first street graph: the board comes from the OSM street network
+# (uniform 25m pitch, consolidated intersections, guaranteed single connected
+# component); imagery is attached to board positions afterwards. This is the
+# canonical graph for roaming — the other graph configs build the network
+# from image coordinates and are kept for comparison experiments only.
+graph_type: board
+
+# Board geometry
+spacing_m: 25                          # target pitch between board nodes
+osm_place: "Manhattan, New York, USA"  # osmnx place query
+osm_graphml: ${oc.env:OSM_GRAPHML,/share/pierson/matt/mllmsci/data/osm/manhattan_2025_drive.graphml}
+osm_network_type: drive                # imagery is captured from the roadway;
+                                       # consolidation merges divided roads
+consolidate_tolerance_m: 15            # merge intersection clusters within 15m
+
+# Face frame: Cyclomedia NYC cube faces are compass-fixed (F=North, R=East,
+# B=South, L=West) regardless of vehicle heading — verified 2026-04-22, see
+# cyclomedia_catalog. Set to "relative" only for vehicle-oriented panoramas.
+face_frame: absolute
+
+# Imagery attachment
+yaw_column: recorderDirection          # vehicle heading; used only to align
+                                       # recordings with streets when snapping
+max_snap_dist_m: 30                    # max recording-to-board-node distance
+heading_penalty_m: 10                  # prefer recordings aligned with the street
+
+# Coverage-gap handling
+max_contracted_edge_m: 100             # never reconnect through gaps longer than
+                                       # this (no teleport steps); fragments are
+                                       # trimmed to the largest component
+min_main_component_frac: 0.9           # QA gate: fail the build if the final
+                                       # board keeps < 90% of imaged nodes
+
+# Runtime
+bearing_tolerance_deg: 45              # used by resolve_face_to_neighbor
+# Config-fingerprinted pickle cache; built by scripts/build_roam_board_graph.py
+precomputed_path: /share/pierson/matt/mllmsci/data/graphs/roamvqa_board_25m_manhattan_2025_1.pkl

@@ -1,0 +1,41 @@
+# Classical-CV blur-region detector parameters.
+#
+# Recipe (see stages/blur_region.py for the implementation contract):
+#   1. Compute per-pixel gradient magnitude (Sobel or Scharr) and a
+#      smoothed internal-gradient map (e.g., box-filter in 8x8 windows).
+#   2. Candidate pixels are those with low internal gradient AND high
+#      gradient immediately outside a small neighborhood — the mask-edge
+#      discontinuity that distinguishes Cyclomedia blur from naturally
+#      smooth surfaces like sky or walls.
+#   3. Extract connected components of the candidate map (axis-aligned
+#      bounding rect), apply shape filters, and emit surviving bboxes.
+
+name: blur_region_classical
+backend: classical
+
+# Gradient operator: 'sobel' | 'scharr'
+gradient: sobel
+gradient_ksize: 3
+
+# Window (pixels) over which to average the internal gradient magnitude
+# when deciding whether a region is "smooth enough to be blurred".
+internal_window_px: 8
+
+# Width (pixels) of the annulus just outside a candidate region used to
+# measure boundary-gradient strength.
+boundary_annulus_px: 3
+
+# Thresholds (backed by ${thresholds.*} in config.yaml — override here
+# when tuning classical-detector-specific knobs only).
+internal_gradient_max: ${thresholds.blur_internal_gradient_max}
+boundary_gradient_min: ${thresholds.blur_boundary_gradient_min}
+aspect_min: ${thresholds.blur_aspect_min}
+aspect_max: ${thresholds.blur_aspect_max}
+min_side_px: ${thresholds.blur_min_side_px}
+max_side_px: ${thresholds.blur_max_side_px}
+
+# If the classical approach is too noisy, swap this config for a
+# learned variant (e.g., blur_region_unet.yaml) without changing the
+# stage code.
+teacher_model: classical_gradient_v1
+teacher_version: 2026-04-24

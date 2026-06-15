@@ -1,0 +1,88 @@
+# @package _global_
+# Generate rasters for two scaffolding types and combine them.
+#
+# Three-node DAG:
+#   raster_green → ─┐
+#                    ├→ combine
+#   raster_white → ─┘
+#
+# Uses qwen_raw mode (native 4096-dim embeddings, no PCA).
+# Requires GPU for Qwen query encoding (slurm_gpu_1x per raster node).
+#
+# Usage:
+#   python -m dagspaces.artifact_gen.cli -m pipeline=scaffolding_types \
+#     raster.embeddings_input_path=/path/to/embed/output
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+
+model:
+  model_source: /share/pierson/matt/zoo/models/Qwen3-VL-Embedding-8B
+
+raster:
+  query_mode: qwen_raw
+  interpolation: rays
+  resolution_m: 10.0
+  normalization: minmax
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  sources:
+    embeddings:
+      path: ${raster.embeddings_input_path}
+      type: dir
+  graph:
+    nodes:
+      raster_green:
+        stage: raster
+        depends_on: []
+        inputs:
+          embeddings: embeddings
+        outputs:
+          results: outputs/raster/green_scaffolding_${now:%Y%m%d_%H%M%S}
+        overrides:
+          raster.query_text: "green scaffolding"
+          raster.query_mode: qwen_raw
+          raster.interpolation: ${raster.interpolation}
+          raster.resolution_m: ${raster.resolution_m}
+          raster.ray_length_m: ${raster.ray_length_m}
+          raster.ray_decay: ${raster.ray_decay}
+          raster.ray_normalize_by_count: ${raster.ray_normalize_by_count}
+        launcher: slurm_gpu_1x
+        wandb_suffix: raster_green
+
+      raster_white:
+        stage: raster
+        depends_on: []
+        inputs:
+          embeddings: embeddings
+        outputs:
+          results: outputs/raster/white_scaffolding_${now:%Y%m%d_%H%M%S}
+        overrides:
+          raster.query_text: "white arched fancy light scaffolding"
+          raster.query_mode: qwen_raw
+          raster.interpolation: ${raster.interpolation}
+          raster.resolution_m: ${raster.resolution_m}
+          raster.ray_length_m: ${raster.ray_length_m}
+          raster.ray_decay: ${raster.ray_decay}
+          raster.ray_normalize_by_count: ${raster.ray_normalize_by_count}
+        launcher: slurm_gpu_1x
+        wandb_suffix: raster_white
+
+      combine:
+        stage: combine
+        depends_on: [raster_green, raster_white]
+        inputs:
+          raster_a: raster_green.results
+          raster_b: raster_white.results
+        outputs:
+          results: outputs/raster/scaffolding_combined_${now:%Y%m%d_%H%M%S}
+        overrides:
+          combine.label_a: green_scaffolding
+          combine.label_b: white_scaffolding
+          combine.operations: [signed_diff, abs_diff]
+          combine.output_name: scaffolding_types
+        launcher: slurm_cpu_beefy
+        wandb_suffix: combine

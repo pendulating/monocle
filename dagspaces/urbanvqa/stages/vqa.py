@@ -206,10 +206,17 @@ def _make_preprocess(cfg: DictConfig):
                 decision_tree_enabled=decision_tree_enabled,
             )
             if result is not None:
-                # Add guided decoding if not already present
-                if guided_decoding_payload and "sampling_params" in result:
+                # Add guided decoding if not already present. A per-row
+                # "guided_decoding" payload dict (e.g. {"json": schema} or
+                # {"choice": [...]}) overrides the cfg-level schema for that
+                # row — used by callers whose constraint varies per sample
+                # (e.g. roaming's legal-face menus).
+                row_guided = row.get("guided_decoding")
+                if "sampling_params" in result:
                     sp = dict(result.get("sampling_params", {}))
-                    if "guided_decoding" not in sp:
+                    if isinstance(row_guided, dict) and row_guided:
+                        sp["guided_decoding"] = copy.deepcopy(row_guided)
+                    elif guided_decoding_payload and "guided_decoding" not in sp:
                         sp["guided_decoding"] = copy.deepcopy(guided_decoding_payload)
                     result["sampling_params"] = sp
                 return result
@@ -217,9 +224,14 @@ def _make_preprocess(cfg: DictConfig):
         # Default: simple preprocessing
         result = preprocess_simple(row, cfg, is_multimodal=is_multimodal)
 
-        # Override sampling params with VQA-specific values
+        # Override sampling params with VQA-specific values. A per-row
+        # "guided_decoding" payload dict takes precedence over the cfg-level
+        # schema (see note in the unified branch above).
         sp_local = dict(sp_base)
-        if guided_decoding_payload:
+        row_guided = row.get("guided_decoding")
+        if isinstance(row_guided, dict) and row_guided:
+            sp_local["guided_decoding"] = copy.deepcopy(row_guided)
+        elif guided_decoding_payload:
             sp_local["guided_decoding"] = copy.deepcopy(guided_decoding_payload)
         result["sampling_params"] = sp_local
 

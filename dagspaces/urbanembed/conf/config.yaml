@@ -21,7 +21,7 @@ embedding:
   instruction: "Represent the visual content of this street-view urban scene city image."
   normalize: true
   output_dim: null          # null = full dimension. Set to e.g. 256 for MRL truncation.
-  batch_size: 16            # images per forward pass per GPU
+  batch_size: 16       # images per forward pass per GPU
   max_pixels: 1049600        # 1024x1024
   min_pixels: 1049600           # 1024x1024
   torch_dtype: bfloat16

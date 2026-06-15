@@ -1,0 +1,25 @@
+# DINOv3 ViT-L/16 — Meta DINOv3 pretrained via the native HuggingFace
+# DINOv3ViTModel class (transformers >= 4.56 / DINOv3ViTConfig).
+#
+# Loaded with AutoModel.from_pretrained — no trust_remote_code, no timm
+# kludging. ~304M params, 1024-dim features, 24-layer ViT-L/16 @ 224².
+
+backbone_kind: dinov3_hf
+checkpoint_path: /share/pierson/matt/zoo/models/dinov3-vitl16-pretrain-lvd1689m
+
+image_size: 224
+feature_dim: 1024
+patch_size: 16
+
+# ImageNet mean/std (matches preprocessor_config.json in the HF checkpoint)
+mean: [0.485, 0.456, 0.406]
+std: [0.229, 0.224, 0.225]
+
+# LoRA target modules for DINOv3ViTModel attention projections.
+# Names confirmed from the loaded module tree:
+#   model.layer.{N}.attention.{q_proj, k_proj, v_proj, o_proj}
+# PEFT's substring matching applies these to every matching Linear across
+# all 24 layers. Add "o_proj" if you want to LoRA the attention output
+# projection too (more params, usually marginal gain for linear-probe-ish
+# downstream tasks).
+lora_target_modules: ["q_proj", "k_proj", "v_proj"]

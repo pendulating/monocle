@@ -5,7 +5,7 @@ defaults:
   - data: cyclomedia_manhattan_2025
   - prompt: tourist
   - model: vllm_multimodal_qwen3_vl_2b
-  - graph: osmnx_knn_10
+  - graph: board_25m
   - optional pipeline: roam_tourist_fixed_10
 
 experiment:
@@ -23,7 +23,7 @@ roaming:
   max_steps: 10
   termination_mode: fixed        # fixed | independent
   seed_strategy: random
-  initial_face: F
+  initial_face: ""               # backtrack face excluded at seed; "" = show all legal faces
   walk_seed: 42
   allow_revisits: true
   min_neighbors: 1
@@ -34,12 +34,10 @@ roaming:
   step_max_retries: 2            # retries per VLM inference step before deactivating walks
   step_retry_backoff_s: 5.0      # initial backoff seconds (doubles each retry)
 
+# Graph-group configs (conf/graph/*) merge over this block; only keys shared
+# by every graph type belong here.
 graph:
   metadata_parquet: ${data.parquet_path}
-  k_neighbors: 10
-  max_radius_m: 50.0
-  bearing_tolerance_deg: 45.0
-  precomputed_path: null
 
 diagnostics:
   enabled: true

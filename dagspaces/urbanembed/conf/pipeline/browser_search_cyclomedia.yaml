@@ -1,0 +1,63 @@
+# @package _global_
+# Full browser search index pipeline: embed → build index → train projection
+#
+# Usage:
+#   python -m dagspaces.urbanembed.cli pipeline=browser_search_cyclomedia
+#
+# Or with pre-computed embeddings (skip embed stage):
+#   python -m dagspaces.urbanembed.cli pipeline=browser_search_cyclomedia \
+#     browser_index.embeddings_input_path=/path/to/embed/output
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_manhattan_2025_1
+  - override /model: qwen3_vl_embedding_8b
+
+runtime:
+  streaming_io: true
+  job_memory_gb: 256
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      embed:
+        stage: embed
+        depends_on: []
+        outputs:
+          results: outputs/embed/cyclomedia_${now:%Y%m%d_%H%M%S}
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          embedding.batch_size: ${embedding.batch_size}
+        launcher: slurm_gpu_4x
+        wandb_suffix: embed_cyclomedia
+
+      build_browser_index:
+        stage: build_browser_index
+        depends_on: [embed]
+        inputs:
+          embeddings: embed.results
+        outputs:
+          results: outputs/browser_index/cyclomedia_${now:%Y%m%d_%H%M%S}
+        overrides:
+          browser_index.n_components: ${browser_index.n_components}
+        launcher: slurm_cpu_beefy
+        wandb_suffix: build_browser_index
+
+      train_query_projection:
+        stage: train_query_projection
+        depends_on: [build_browser_index]
+        inputs:
+          pca_artifacts: build_browser_index.results
+        outputs:
+          results: outputs/query_projection/cyclomedia_${now:%Y%m%d_%H%M%S}
+        overrides:
+          query_projection.n_texts: ${query_projection.n_texts}
+          query_projection.pca_dim: ${query_projection.pca_dim}
+          query_projection.alpha: ${query_projection.alpha}
+        launcher: slurm_gpu_2x
+        wandb_suffix: train_query_projection
