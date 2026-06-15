@@ -1,0 +1,72 @@
+#!/bin/bash
+#SBATCH -J cyclo-catalog
+#SBATCH -o /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog/%j.out
+#SBATCH -e /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog/%j.err
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=mwf62@cornell.edu
+#SBATCH -N 1
+#SBATCH -n 16
+#SBATCH --get-user-env
+#SBATCH --mem=64gb
+#SBATCH -t 72:00:00
+#SBATCH --partition=ju
+
+# Full-borough build of the Cyclomedia catalog.
+#
+# Resources:
+#   - 16 CPUs: fd walk is parallel on readdir; manifest parse uses a 32-thread
+#     pool (NFS-bound, so more threads than CPUs is fine).
+#   - 64 GB mem: WFS catalog is ~3.3M rows; join materializes ~3-4M-row frames
+#     per borough. Headroom for the final validation concat.
+#   - 8h wall: plazas_sample indexed 4,737 rows in ~6s (~790 rows/s). Projected
+#     3-4M rows across 5 boroughs ≈ 60-90 min, 8h is generous headroom.
+#
+# Usage:
+#   sbatch scripts/build_cyclomedia_catalog.sub
+#   sbatch scripts/build_cyclomedia_catalog.sub manhattan_2025_1k brooklyn_2025_1k  # subset
+#
+# Override output root with OUTPUT_ROOT env if needed.
+
+set -euo pipefail
+
+mkdir -p /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog
+
+echo "=== job info ==="
+echo "HOST=$(hostname) DATE=$(date)"
+echo "SLURM_JOB_ID=${SLURM_JOB_ID:-?} SLURM_CPUS_ON_NODE=${SLURM_CPUS_ON_NODE:-?}"
+echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
+
+source ~/.bashrc
+cd /share/pierson/matt/mllmsci
+source .venv/bin/activate
+
+# fd/cargo live under /share/ju/matt; prepend so subprocess PATH lookups work.
+export PATH="/share/ju/matt/.cargo/bin:${PATH}"
+echo "fd: $(which fd) $(fd --version)"
+
+# Respect the SLURM CPU allocation for threaded libs.
+export OMP_NUM_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export POLARS_MAX_THREADS="${SLURM_CPUS_ON_NODE:-16}"
+export PYTHONUNBUFFERED=1
+
+OUTPUT_ROOT="${OUTPUT_ROOT:-/share/ju/cyclomedia/catalog/v1}"
+RAW_ROOT="${RAW_ROOT:-/share/ju/cyclomedia/raw}"
+
+# Default borough set; override via positional args.
+if [ "$#" -gt 0 ]; then
+    DATASETS=("$@")
+else
+    DATASETS=(manhattan_2025_1k brooklyn_2025_1k queens_2025_1k bronx_2025_1k si_2025_1k)
+fi
+
+echo "=== build params ==="
+echo "RAW_ROOT=${RAW_ROOT}"
+echo "OUTPUT_ROOT=${OUTPUT_ROOT}"
+echo "DATASETS=${DATASETS[*]}"
+
+python -m dagspaces.common.cyclomedia_catalog.cli -v build \
+    --raw-root "${RAW_ROOT}" \
+    --output "${OUTPUT_ROOT}" \
+    --datasets "${DATASETS[@]}"
+
+echo "=== done: $(date) ==="

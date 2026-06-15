@@ -1,0 +1,54 @@
+# @package _global_
+# Training pipeline: shard → train → eval
+#
+# Example invocation:
+#   python -m dagspaces.urbanvit.cli -m pipeline=train_scaffolding
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+
+runtime:
+  job_memory_gb: 64
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      shard:
+        stage: shard
+        depends_on: []
+        outputs:
+          shards_dir: ${shard.scratch_root}/${experiment.name}
+          manifest: ${shard.scratch_root}/${experiment.name}/manifest.json
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+        launcher: slurm_gpu_klara_1x
+        wandb_suffix: shard_scaffolding
+      train:
+        stage: train
+        depends_on: [shard]
+        inputs:
+          shards_dir: ${pipeline.graph.nodes.shard.outputs.shards_dir}
+        outputs:
+          checkpoint: outputs/urbanvit/${experiment.name}/checkpoint
+        overrides:
+          training.epochs: ${training.epochs}
+          training.per_device_batch_size: ${training.per_device_batch_size}
+          training.learning_rate: ${training.learning_rate}
+        launcher: slurm_gpu_klara_4x
+        wandb_suffix: train_scaffolding
+      eval:
+        stage: eval
+        depends_on: [train]
+        inputs:
+          shards_dir: ${pipeline.graph.nodes.shard.outputs.shards_dir}
+          checkpoint: ${pipeline.graph.nodes.train.outputs.checkpoint}
+        outputs:
+          metrics: outputs/urbanvit/${experiment.name}/eval_metrics.parquet
+        overrides:
+          eval.split: val
+        launcher: slurm_gpu_klara_1x
+        wandb_suffix: eval_scaffolding

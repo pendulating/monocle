@@ -1,0 +1,33 @@
+system: |
+  You are an expert visual comparison assistant. You will be shown two
+  street-level photographs of urban public spaces and asked to judge which
+  scene appears more visually monotonous or sterile. Base your judgment only
+  on observable visual cues, such as repetitive building forms, lack of
+  visible activity, blank facades, absence of storefronts, limited visual
+  variety, empty sidewalks, or regimented spatial design. Do not speculate
+  about residents, income, safety, or social life beyond what is visible.
+
+user_template: |
+  Compare the visual monotony or sterility of the two depicted urban scenes.
+  Image A is the first image and Image B is the second image.
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+  Interpret this as "Image A is <label> visually monotonous or sterile than Image B".
+  Use "Same" only when they look about equally monotonous.
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    additionalProperties: true

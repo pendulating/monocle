@@ -1,0 +1,33 @@
+# @package _global_
+# Hydra sweep: run pairwise_restaurants_mvp across the natively-multimodal
+# instruction-tuned open-weights lineup, capped at ≤4B effective parameters.
+#
+# Selection — multimodal, instruction-tuned, ≤4B effective:
+#   - gemma-4-e2b/instruct  → ~2B effective (~5B total) | common/conf/model/gemma-4-e2b/instruct.yaml
+#   - qwen3.5-2b/instruct   → 2B                         | common/conf/model/qwen3.5-2b/instruct.yaml
+#   - qwen3.5-4b/instruct   → 4B                         | common/conf/model/qwen3.5-4b/instruct.yaml
+#
+# Excluded vs `libraries_all_models.yaml`:
+#   - gemma-4-e4b/instruct       (~4B effective / ~8B total — soft >4B; dropped per user direction)
+#   - phi-4/multimodal-instruct  (~5.6B, exceeds the 4B cap)
+#   - qwen3.5-9b/instruct        (9B, exceeds the 4B cap)
+#
+# Max 2 inference runs in flight at once (`array_parallelism: 2` throttles the
+# monitor job array; each monitor dispatches its own 2-GPU stage sub-job, so
+# peak consumption is 2 monitor CPUs + 4 GPUs).
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=restaurants_all_models_4b \
+#       pipeline=pairwise_restaurants_mvp
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct

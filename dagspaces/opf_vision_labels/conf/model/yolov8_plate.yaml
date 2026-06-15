@@ -1,0 +1,17 @@
+# YOLOv8 license-plate detector (P1, not run on Cyclomedia).
+#
+# Weights: morsetechlab/yolov11-license-plate-detection on HuggingFace
+# (AGPLv3 — note redistribution implications before publishing models
+# trained with this as the teacher).
+
+name: yolov8_plate
+backend: ultralytics
+model_source: morsetechlab/yolov11-license-plate-detection
+model_file: yolov11x-license-plate.pt   # variants: n, s, m, l, x
+device: auto
+imgsz: 640                              # model was trained at 640; downscale at inference
+conf: 0.35
+iou: 0.45
+max_det: 32
+teacher_model: yolov11x-license-plate
+teacher_version: morsetechlab-2025

@@ -1,0 +1,86 @@
+# @package _global_
+# MVP pipeline: restaurant-level pairwise VQA on "which restaurant would you
+# rather eat at" using the DOHMH (camis-aggregated) cyclomedia facing manifest.
+#
+# Mirrors `pairwise_libraries_mvp.yaml` with three changes:
+#   1. data         — cyclomedia_near_libraries_facing → cyclomedia_near_restaurants_facing
+#   2. prompt       — pairwise_library_maintained_ordinal → pairwise_restaurant_eat_at_ordinal
+#   3. allow_replacement — flipped to false: the restaurants manifest has 18,488 unique
+#      camis (vs 247 libraries), so without-replacement pairing easily fits any reasonable
+#      pair budget and avoids re-presenting the same unit.
+#
+# Default model is qwen3.5-4b/instruct — the largest of the ≤4B sweep set
+# (gemma-4-e4b is excluded as a soft >4B model). For the full ≤4B sweep,
+# override via Hydra multirun:
+#
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=restaurants_all_models_4b \
+#       pipeline=pairwise_restaurants_mvp
+#
+# Single-model submit:
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_restaurants_mvp
+#
+# Dry-run (no GPU):
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_restaurants_mvp \
+#       runtime.debug=true runtime.sample_n=1000 runtime.skip_inference=true
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_near_restaurants_facing
+  - override /prompt: pairwise_restaurant_eat_at_ordinal
+  - override /model: qwen3.5-4b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+pair_sampler:
+  mode: unit                  # restaurant ↔ restaurant, not face ↔ face
+  unit_column: unit_uid
+  unit_name_column: unit_name
+  pair_seed: 777
+  max_pairs: 50000
+  allow_replacement: true    # 18,488 unique restaurants → ~170M canonical pairs
+                              # available without replacement; no need to reuse units.
+  counterbalance_mode: balanced
+  repeat_count: 0
+  repeat_fraction: 0.10
+  # Bias within-restaurant image selection toward confidently-facing shots
+  # (see [[concept-facing-filter]]). Mean attribution_confidence on this
+  # manifest is 0.15, max 0.66 — meaningful weighting headroom.
+  weight_column: attribution_confidence
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/restaurants_mvp_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          pair_sampler.mode: ${pair_sampler.mode}
+          pair_sampler.unit_column: ${pair_sampler.unit_column}
+          pair_sampler.unit_name_column: ${pair_sampler.unit_name_column}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.weight_column: ${pair_sampler.weight_column}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 0
+          model.concurrency: 1
+        launcher: slurm_gpu_1x
+        wandb_suffix: pairwise_restaurants_mvp

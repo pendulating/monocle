@@ -83,7 +83,17 @@ def _make_stepper_cfg(
     user_template: str = "",
     bearing_tolerance: float = 45.0,
     include_history: bool = False,
+    structured_schema: dict | None = None,
 ) -> "OmegaConf":
+    prompt_cfg = {
+        "system": system_prompt,
+        "user_template": user_template,
+    }
+    if structured_schema is not None:
+        prompt_cfg["structured_output"] = {
+            "enabled": True,
+            "json_schema": structured_schema,
+        }
     return OmegaConf.create({
         "roaming": {
             "max_steps": max_steps,
@@ -96,14 +106,23 @@ def _make_stepper_cfg(
         "graph": {
             "bearing_tolerance_deg": bearing_tolerance,
         },
-        "prompt": {
-            "system": system_prompt,
-            "user_template": user_template,
-        },
+        "prompt": prompt_cfg,
     })
 
 
-def _make_walks(recording_id: str = "N0", arrival_face: str = "F") -> List[WalkState]:
+_ROAM_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "chosen_face": {"type": "string", "enum": ["F", "R", "B", "L"]},
+        "reasoning": {"type": "string"},
+        "stop": {"type": "boolean"},
+    },
+    "required": ["chosen_face", "reasoning"],
+    "additionalProperties": True,
+}
+
+
+def _make_walks(recording_id: str = "N0", arrival_face: str = "") -> List[WalkState]:
     return [WalkState(walk_id="w0", current_recording_id=recording_id, current_arrival_face=arrival_face)]
 
 
@@ -247,8 +266,50 @@ class TestStreetGraphResolveFace:
         assert result.recording_id == "N1"
 
 
+class TestFaceFrame:
+    """Cyclomedia NYC faces are compass-fixed (absolute frame); yaw-relative
+    resolution remains available via face_frame='relative'."""
+
+    def _graph(self, face_frame: str) -> StreetGraph:
+        adjacency = {
+            "X": [
+                Neighbor(recording_id="NORTH", distance_m=20.0, bearing_deg=0.0),
+                Neighbor(recording_id="EAST", distance_m=20.0, bearing_deg=90.0),
+            ],
+        }
+        coords = {"X": (40.0, -74.0), "NORTH": (40.0002, -74.0), "EAST": (40.0, -73.9998)}
+        # Vehicle was driving east (yaw=90) — must not affect absolute faces
+        return StreetGraph(adjacency=adjacency, coords=coords,
+                           yaw_degrees={"X": 90.0, "NORTH": 90.0, "EAST": 90.0},
+                           face_frame=face_frame)
+
+    def test_absolute_frame_ignores_yaw(self):
+        graph = self._graph("absolute")
+        result = graph.resolve_face_to_neighbor("X", "F")
+        assert result is not None and result.recording_id == "NORTH"
+        result = graph.resolve_face_to_neighbor("X", "R")
+        assert result is not None and result.recording_id == "EAST"
+
+    def test_relative_frame_applies_yaw(self):
+        graph = self._graph("relative")
+        # yaw=90: Forward points east
+        result = graph.resolve_face_to_neighbor("X", "F")
+        assert result is not None and result.recording_id == "EAST"
+        # Left (270 offset) points north
+        result = graph.resolve_face_to_neighbor("X", "L")
+        assert result is not None and result.recording_id == "NORTH"
+
+    def test_face_bearing_per_frame(self):
+        assert self._graph("absolute").face_bearing("X", "R") == pytest.approx(90.0)
+        assert self._graph("relative").face_bearing("X", "R") == pytest.approx(180.0)
+
+    def test_default_frame_is_absolute(self):
+        graph = StreetGraph()
+        assert graph.face_frame == "absolute"
+
+
 class TestStreetGraphArrivalFace:
-    """Tests for StreetGraph.arrival_face."""
+    """Tests for StreetGraph.arrival_face (the backtrack face at the new node)."""
 
     def setup_method(self):
         self.graph = _make_simple_graph()
@@ -257,30 +318,31 @@ class TestStreetGraphArrivalFace:
         face = self.graph.arrival_face("N0", "N1")
         assert face in HORIZONTAL_FACES
 
-    def test_arrival_face_moving_north(self):
-        """Moving from N0 to N1 (northward), the forward bearing at N1 is north (away from N0).
-        N1 has yaw=0, so Forward is north. We expect arrival_face to be 'F'.
+    def test_arrival_face_moving_north_is_behind(self):
+        """Moving from N0 to N1 (northward), the backtrack face at N1 points
+        south (back toward N0). N1 has yaw=0, so south is Behind ('B').
+        Excluding it lets the agent continue forward but not retrace its step.
         """
         face = self.graph.arrival_face("N0", "N1")
-        assert face == "F"
+        assert face == "B"
 
-    def test_arrival_face_returns_f_for_missing_coords(self):
-        """When either node is unknown, graceful fallback to 'F'."""
+    def test_arrival_face_returns_empty_for_missing_coords(self):
+        """When either node is unknown, no face is excluded ('')."""
         graph_missing = StreetGraph(
             adjacency={},
             coords={"A": (40.0, -74.0)},
             yaw_degrees={"A": 0.0},
         )
         face = graph_missing.arrival_face("A", "MISSING")
-        assert face == "F"
+        assert face == ""
 
     def test_arrival_face_round_trip(self):
-        """Going N0->N1 and N1->N0 should give different (opposite-ish) faces."""
+        """N0->N1 gives 'B' at N1 (south, toward N0); N1->N0 gives 'F' at N0
+        (north, toward N1). They must differ."""
         face_fwd = self.graph.arrival_face("N0", "N1")
         face_rev = self.graph.arrival_face("N1", "N0")
-        # N1 yaw=0, and going back south means arrival face is south (B)
-        # while going north from N0 is F. They should differ.
-        assert face_fwd != face_rev
+        assert face_fwd == "B"
+        assert face_rev == "F"
 
 
 class TestStreetGraphAvailableFaces:
@@ -290,16 +352,21 @@ class TestStreetGraphAvailableFaces:
         self.graph = _make_simple_graph()
 
     def test_excludes_arrival_face(self):
-        """available_faces excludes only the arrival face."""
+        """available_faces excludes only the (backtrack) arrival face."""
         for arrival in HORIZONTAL_FACES:
             result = self.graph.available_faces(arrival)
             assert arrival not in result
 
     def test_returns_three_faces(self):
-        """Always returns exactly 3 faces."""
+        """Returns exactly 3 faces for a real arrival face."""
         for arrival in HORIZONTAL_FACES:
             result = self.graph.available_faces(arrival)
             assert len(result) == 3
+
+    def test_empty_arrival_returns_all_faces(self):
+        """'' (walk seed) excludes nothing — all 4 faces available."""
+        result = self.graph.available_faces("")
+        assert result == list(HORIZONTAL_FACES)
 
     def test_all_returned_faces_are_valid(self):
         """All returned faces are members of HORIZONTAL_FACES."""
@@ -309,6 +376,77 @@ class TestStreetGraphAvailableFaces:
     def test_no_duplicates(self):
         result = self.graph.available_faces("R")
         assert len(result) == len(set(result))
+
+
+class TestStreetGraphLegalFaces:
+    """Tests for StreetGraph.legal_faces — the menu must equal the legal moves."""
+
+    def setup_method(self):
+        self.graph = _make_simple_graph()
+
+    def test_only_resolvable_faces_returned(self):
+        """N0 (yaw=0) has neighbors due north (F) and due east (R) only."""
+        result = self.graph.legal_faces("N0")
+        assert result == ["F", "R"]
+
+    def test_backtrack_face_excluded(self):
+        result = self.graph.legal_faces("N0", exclude_face="F")
+        assert result == ["R"]
+
+    def test_visited_neighbors_excluded(self):
+        result = self.graph.legal_faces("N0", exclude_ids={"N2"})
+        assert result == ["F"]
+
+    def test_dead_end_turnaround(self):
+        """When the backtrack face is the only resolvable move, it is offered
+        alone instead of stranding the walk."""
+        linear = _build_linear_graph(2)  # N0 <-> N1 only
+        result = linear.legal_faces("N0", exclude_face="F")
+        assert result == ["F"]
+
+    def test_dead_end_with_visited_backtrack_is_empty(self):
+        """With revisits disallowed, a dead end whose only exit was visited
+        yields no legal moves."""
+        linear = _build_linear_graph(2)
+        result = linear.legal_faces("N0", exclude_face="F", exclude_ids={"N1"})
+        assert result == []
+
+
+class TestGraphDiagnostics:
+    """Tests for compute_graph_diagnostics."""
+
+    def test_single_component_triangle(self):
+        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+
+        diag = compute_graph_diagnostics(_make_simple_graph())
+        assert diag["graph/n_nodes"] == 3
+        assert diag["graph/n_components"] == 1
+        assert diag["graph/largest_component_frac"] == pytest.approx(1.0)
+        assert diag["graph/n_isolated"] == 0
+
+    def test_linear_chain_dead_ends(self):
+        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+
+        diag = compute_graph_diagnostics(_build_linear_graph(5))
+        assert diag["graph/n_dead_ends"] == 2
+        assert diag["graph/n_intersections"] == 0
+        assert diag["graph/n_components"] == 1
+
+    def test_disconnected_components_detected(self):
+        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+
+        adjacency = {
+            "A": [Neighbor(recording_id="B", distance_m=10.0, bearing_deg=0.0)],
+            "B": [Neighbor(recording_id="A", distance_m=10.0, bearing_deg=180.0)],
+            "C": [],
+        }
+        coords = {"A": (40.0, -74.0), "B": (40.0001, -74.0), "C": (41.0, -74.0)}
+        graph = StreetGraph(adjacency=adjacency, coords=coords,
+                            yaw_degrees={k: 0.0 for k in coords})
+        diag = compute_graph_diagnostics(graph)
+        assert diag["graph/n_components"] == 2
+        assert diag["graph/n_isolated"] == 1
+        assert diag["graph/largest_component_frac"] == pytest.approx(2.0 / 3.0)
 
 
 # ---------------------------------------------------------------------------
@@ -820,8 +958,8 @@ def test_smoke_skip_inference(tmp_path):
 
     # Build seeds DataFrame manually (mirrors what sample_walk_seeds produces)
     seeds = pd.DataFrame([
-        {"walk_id": "walk_000000", "seed_recording_id": "N0", "seed_face": "F"},
-        {"walk_id": "walk_000001", "seed_recording_id": "N2", "seed_face": "F"},
+        {"walk_id": "walk_000000", "seed_recording_id": "N0", "seed_face": ""},
+        {"walk_id": "walk_000001", "seed_recording_id": "N2", "seed_face": ""},
     ])
 
     checkpoint_dir = str(tmp_path / "checkpoints")
@@ -1109,6 +1247,325 @@ class TestAllTraces:
         stepper = RoamingStepper(graph, [ws], _make_stepper_cfg())
         df = stepper.all_traces()
         assert df.iloc[0]["faces_shown"] == "F,R,L"
+
+
+# ---------------------------------------------------------------------------
+# 11. Board-first builder (pure functions, no OSM network access)
+# ---------------------------------------------------------------------------
+
+def _make_osm_like_grid(n: int = 3, spacing_deg: float = 0.001):
+    """Build an n x n grid MultiGraph mimicking osmnx output: nodes carry
+    x/y (lon/lat) attrs, edges carry length in meters."""
+    import networkx as nx
+    from dagspaces.urbanroamvqa.graph.board_builder import _haversine_m
+
+    G = nx.MultiGraph()
+    for r in range(n):
+        for c in range(n):
+            G.add_node(r * n + c, x=-74.0 + c * spacing_deg, y=40.0 + r * spacing_deg)
+
+    def _add(u, v):
+        d = _haversine_m(G.nodes[u]["y"], G.nodes[u]["x"], G.nodes[v]["y"], G.nodes[v]["x"])
+        G.add_edge(u, v, length=d)
+
+    for r in range(n):
+        for c in range(n):
+            node = r * n + c
+            if c + 1 < n:
+                _add(node, node + 1)
+            if r + 1 < n:
+                _add(node, node + n)
+    return G
+
+
+class TestBoardDiscretize:
+    """Tests for board_builder._discretize_edges."""
+
+    def test_board_is_connected_and_uniform(self):
+        import networkx as nx
+        from dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
+
+        G = _make_osm_like_grid(3)  # edges ~85-111m
+        board = _discretize_edges(G, spacing_m=30.0)
+
+        assert nx.is_connected(board)
+        # Junctions plus interpolated interior nodes
+        assert board.number_of_nodes() > G.number_of_nodes()
+        # Pitch stays near the target spacing
+        dists = [d["dist"] for _, _, d in board.edges(data=True)]
+        assert all(10.0 <= d <= 60.0 for d in dists)
+
+    def test_all_nodes_have_coords(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
+
+        board = _discretize_edges(_make_osm_like_grid(2), spacing_m=30.0)
+        for _, data in board.nodes(data=True):
+            assert math.isfinite(data["lat"]) and math.isfinite(data["lon"])
+
+    def test_flipped_geometry_is_reanchored(self):
+        """to_undirected leaves geometry direction arbitrary: a v->u geometry
+        must not create junction hops spanning the whole edge (regression for
+        the 2026-06-09 Manhattan build: 53% flipped edges -> 2.4km 'steps')."""
+        import networkx as nx
+        from shapely.geometry import LineString
+        from dagspaces.urbanroamvqa.graph.board_builder import (
+            _discretize_edges,
+            _haversine_m,
+        )
+
+        G = nx.MultiGraph()
+        G.add_node(0, x=-74.0, y=40.0)
+        G.add_node(1, x=-74.0, y=40.002)  # ~222m due north
+        length = _haversine_m(40.0, -74.0, 40.002, -74.0)
+        # Geometry deliberately runs from node 1 down to node 0 (flipped)
+        flipped_geom = LineString([(-74.0, 40.002), (-74.0, 40.0)])
+        G.add_edge(0, 1, length=length, geometry=flipped_geom)
+
+        board = _discretize_edges(G, spacing_m=30.0)
+        dists = [d["dist"] for _, _, d in board.edges(data=True)]
+        assert max(dists) < 45.0, f"flipped geometry produced a long hop: {max(dists):.0f}m"
+        assert nx.is_connected(board)
+
+
+class TestBoardAttach:
+    """Tests for board_builder._attach_recordings."""
+
+    def _board(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
+
+        return _discretize_edges(_make_osm_like_grid(3), spacing_m=30.0)
+
+    def test_unique_assignment_at_exact_positions(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
+
+        board = self._board()
+        nodes = list(board.nodes)
+        lats = np.array([board.nodes[n]["lat"] for n in nodes])
+        lons = np.array([board.nodes[n]["lon"] for n in nodes])
+        yaws = np.zeros(len(nodes))
+
+        assigned = _attach_recordings(board, lats, lons, yaws, max_snap_dist_m=10.0)
+        # One recording placed exactly at each node: full unique coverage
+        assert len(assigned) == len(nodes)
+        assert len(set(assigned.values())) == len(assigned)
+
+    def test_far_recordings_not_assigned(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
+
+        board = self._board()
+        lats = np.array([41.0])  # ~100km away
+        lons = np.array([-74.0])
+        assigned = _attach_recordings(board, lats, lons, np.zeros(1), max_snap_dist_m=30.0)
+        assert assigned == {}
+
+    def test_each_recording_used_at_most_once(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
+
+        board = self._board()
+        nodes = list(board.nodes)
+        # Single recording near two adjacent nodes: only one node gets it
+        lat = board.nodes[nodes[0]]["lat"]
+        lon = board.nodes[nodes[0]]["lon"]
+        assigned = _attach_recordings(
+            board, np.array([lat]), np.array([lon]), np.zeros(1), max_snap_dist_m=100.0,
+        )
+        assert len(assigned) == 1
+
+
+class TestBoardContract:
+    """Tests for board_builder._contract_imageless."""
+
+    def _chain_board(self):
+        """a - x - b chain with 10m edges; x will be imageless."""
+        import networkx as nx
+
+        board = nx.Graph()
+        board.add_node("a", lat=40.0, lon=-74.0)
+        board.add_node("x", lat=40.0001, lon=-74.0)
+        board.add_node("b", lat=40.0002, lon=-74.0)
+        board.add_edge("a", "x", dist=10.0)
+        board.add_edge("x", "b", dist=10.0)
+        return board
+
+    def test_contraction_reconnects_with_summed_distance(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
+
+        board = self._chain_board()
+        n = _contract_imageless(board, assigned={"a": 0, "b": 1}, max_contracted_edge_m=100.0)
+        assert n == 1
+        assert "x" not in board
+        assert board.has_edge("a", "b")
+        assert board["a"]["b"]["dist"] == pytest.approx(20.0)
+
+    def test_contraction_respects_max_edge_length(self):
+        from dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
+
+        board = self._chain_board()
+        _contract_imageless(board, assigned={"a": 0, "b": 1}, max_contracted_edge_m=15.0)
+        # 20m reconnect exceeds the 15m cap: no teleport edge is created
+        assert not board.has_edge("a", "b")
+
+    def test_imageless_chain_collapses(self):
+        import networkx as nx
+        from dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
+
+        board = nx.Graph()
+        chain = ["a", "x1", "x2", "x3", "b"]
+        for i, node in enumerate(chain):
+            board.add_node(node, lat=40.0 + i * 0.0001, lon=-74.0)
+        for u, v in zip(chain[:-1], chain[1:]):
+            board.add_edge(u, v, dist=10.0)
+
+        n = _contract_imageless(board, assigned={"a": 0, "b": 1}, max_contracted_edge_m=100.0)
+        assert n == 3
+        assert board.has_edge("a", "b")
+        assert board["a"]["b"]["dist"] == pytest.approx(40.0)
+        assert nx.is_connected(board)
+
+
+class TestPerRowGuidedDecoding:
+    """Per-step guided decoding: the JSON schema's chosen_face enum is
+    narrowed to each row's legal faces, so illegal moves are unrepresentable."""
+
+    def _prepare(self, tmp_path, structured_schema):
+        graph = _make_simple_graph()
+        image_root = _create_dummy_images(tmp_path, graph)
+        cfg = _make_stepper_cfg(structured_schema=structured_schema)
+        stepper = RoamingStepper(graph, _make_walks("N0", arrival_face=""), cfg)
+        data_cfg = OmegaConf.create({
+            "image_root": image_root,
+            "image_pattern": "{recording_id}_{face}.jpg",
+        })
+        return stepper, stepper.prepare_step_batch(data_cfg)
+
+    def test_enum_narrowed_to_faces_shown(self, tmp_path):
+        stepper, batch = self._prepare(tmp_path, _ROAM_SCHEMA)
+        assert len(batch) == 1
+        row = batch.iloc[0]
+        # N0 (yaw=0) has neighbors due north (F) and due east (R)
+        faces_shown = stepper.walks["w0"].history[-1].faces_shown
+        assert faces_shown == ["F", "R"]
+        guided = row["guided_decoding"]
+        assert isinstance(guided, dict)
+        schema = guided["json"]
+        assert schema["properties"]["chosen_face"]["enum"] == faces_shown
+
+    def test_rest_of_schema_preserved(self, tmp_path):
+        _, batch = self._prepare(tmp_path, _ROAM_SCHEMA)
+        schema = batch.iloc[0]["guided_decoding"]["json"]
+        assert schema["properties"]["reasoning"] == {"type": "string"}
+        assert schema["properties"]["stop"] == {"type": "boolean"}
+        assert schema["required"] == ["chosen_face", "reasoning"]
+
+    def test_base_schema_not_mutated_across_rows(self, tmp_path):
+        stepper, _ = self._prepare(tmp_path, _ROAM_SCHEMA)
+        assert stepper.structured_base["properties"]["chosen_face"]["enum"] == ["F", "R", "B", "L"]
+        # A second payload for a different menu is independent
+        p1 = stepper._guided_payload_for_faces(["B"])
+        p2 = stepper._guided_payload_for_faces(["F", "L"])
+        assert p1["json"]["properties"]["chosen_face"]["enum"] == ["B"]
+        assert p2["json"]["properties"]["chosen_face"]["enum"] == ["F", "L"]
+
+    def test_no_schema_means_no_column(self, tmp_path):
+        _, batch = self._prepare(tmp_path, structured_schema=None)
+        assert "guided_decoding" not in batch.columns
+
+
+class TestVqaPerRowGuidedOverride:
+    """run_vqa_stage preprocess honors a per-row guided_decoding payload."""
+
+    def _make_cfg(self, structured_output=None):
+        sp = {"temperature": 0.1, "max_tokens": 8, "stop": []}
+        if structured_output is not None:
+            sp["structured_output"] = structured_output
+        return OmegaConf.create({
+            "model": {"model_source": "test/tiny-text", "multimodal": False},
+            "prompt": {"system": "sys", "user_template": "{{prompt}}"},
+            "sampling_params_vqa": sp,
+        })
+
+    def test_row_payload_overrides_cfg_schema(self):
+        from dagspaces.urbanvqa.stages.vqa import _make_preprocess
+
+        cfg = self._make_cfg(structured_output=_ROAM_SCHEMA)
+        preprocess = _make_preprocess(cfg)
+        row_guided = {"json": {"type": "object", "properties": {
+            "chosen_face": {"type": "string", "enum": ["F", "R"]}}}}
+        result = preprocess({"sample_id": "s1", "prompt": "q",
+                             "guided_decoding": row_guided})
+        assert result["sampling_params"]["guided_decoding"] == row_guided
+
+    def test_falls_back_to_cfg_schema_without_row_payload(self):
+        from dagspaces.urbanvqa.stages.vqa import _make_preprocess
+
+        cfg = self._make_cfg(structured_output=_ROAM_SCHEMA)
+        preprocess = _make_preprocess(cfg)
+        result = preprocess({"sample_id": "s1", "prompt": "q"})
+        # cfg-level path goes through _build_guided_decoding_config, which
+        # collapses enum-bearing schemas to a choice constraint
+        assert result["sampling_params"]["guided_decoding"] == {"choice": ["F", "R", "B", "L"]}
+
+    def test_no_guided_decoding_when_neither_present(self):
+        from dagspaces.urbanvqa.stages.vqa import _make_preprocess
+
+        preprocess = _make_preprocess(self._make_cfg())
+        result = preprocess({"sample_id": "s1", "prompt": "q"})
+        assert "guided_decoding" not in result["sampling_params"]
+
+
+class TestBuildBoardGraphEndToEnd:
+    """Full build_board_graph run against a synthetic OSM backbone."""
+
+    def _build(self, tmp_path, monkeypatch, precomputed_path=None):
+        import dagspaces.urbanroamvqa.graph.board_builder as bb
+
+        G = _make_osm_like_grid(4)
+        monkeypatch.setattr(bb, "_load_osm_backbone", lambda cfg: G)
+
+        # One recording exactly at each junction, heading north
+        rows = [
+            {
+                "recording_id": f"R{i}",
+                "latitude": data["y"],
+                "longitude": data["x"],
+                "recorderDirection": 0.0,
+            }
+            for i, (_n, data) in enumerate(G.nodes(data=True))
+        ]
+        parquet = str(tmp_path / "meta.parquet")
+        pd.DataFrame(rows).to_parquet(parquet, index=False)
+
+        cfg = OmegaConf.create({
+            "graph_type": "board",
+            "spacing_m": 40.0,
+            "max_snap_dist_m": 60.0,
+            "heading_penalty_m": 10.0,
+            "max_contracted_edge_m": 300.0,
+            "min_main_component_frac": 0.5,
+            "yaw_column": "recorderDirection",
+            "precomputed_path": precomputed_path,
+        })
+        return bb.build_board_graph(parquet, cfg)
+
+    def test_single_connected_component_keyed_by_recording_id(self, tmp_path, monkeypatch):
+        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+
+        graph = self._build(tmp_path, monkeypatch)
+        # All 16 junction recordings survive; imageless interior nodes contracted
+        assert len(graph.adjacency) == 16
+        assert all(rid.startswith("R") for rid in graph.adjacency)
+        diag = compute_graph_diagnostics(graph)
+        assert diag["graph/n_components"] == 1
+        assert diag["graph/n_isolated"] == 0
+        # Grid corners have degree 2, edges 3, center 4
+        assert diag["graph/degree_max"] == 4
+
+    def test_cache_roundtrip(self, tmp_path, monkeypatch):
+        cache_path = str(tmp_path / "board.pkl")
+        graph1 = self._build(tmp_path, monkeypatch, precomputed_path=cache_path)
+        assert os.path.exists(cache_path)
+        graph2 = self._build(tmp_path, monkeypatch, precomputed_path=cache_path)
+        assert set(graph2.adjacency.keys()) == set(graph1.adjacency.keys())
 
 
 if __name__ == "__main__":

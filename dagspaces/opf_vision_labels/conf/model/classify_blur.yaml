@@ -1,0 +1,21 @@
+# Parameters for classify_blur: turn blur-candidate bboxes into face or
+# license_plate assignments using person and vehicle bboxes as context.
+
+name: classify_blur_heuristic
+
+# If a blur candidate's centroid falls within the top
+# ${face_upper_body_frac} of a person bbox, it is tagged as ``face``.
+face_upper_body_frac: ${thresholds.classify_face_upper_body_frac}
+
+# If a blur candidate's IoU with any vehicle bbox is at least this, it
+# is tagged as ``license_plate``. Plates are small relative to vehicles
+# so the threshold is intentionally lenient — we lean on the plate-sized
+# shape filter already applied in blur_region.
+plate_vehicle_iou_min: ${thresholds.classify_plate_vehicle_iou_min}
+
+# When a candidate satisfies both criteria (rare), prefer the one with
+# the stronger overlap; ties fall through to the priority below.
+priority: ["license_plate", "face"]
+
+# Drop ambiguous candidates rather than emit them as noise.
+drop_ambiguous: true

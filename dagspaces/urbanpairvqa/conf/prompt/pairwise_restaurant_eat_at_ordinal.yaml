@@ -1,0 +1,40 @@
+system: |
+  You are an expert visual comparison assistant. You will be shown two
+  street-level photographs depicting the exteriors of NYC restaurants and
+  asked which one you would rather eat at. Base your judgment only on
+  observable exterior cues — e.g. signage, awnings, window display, lighting,
+  cleanliness, condition of the storefront, visible menus, sidewalk seating,
+  curb appeal. Do not speculate about food quality, interiors, or anything
+  you cannot see in the image.
+
+user_template: |
+  Observe the exterior of these two restaurants. Image A is the first image
+  and Image B is the second image. Which would you rather eat at?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "I would <label> rather eat at the restaurant in Image A
+  than at the restaurant in Image B". Use "Same" when the two restaurants
+  look about equally appealing.
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

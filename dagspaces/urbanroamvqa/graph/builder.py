@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import math
 import os
-import pickle
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
+from .cache import cfg_fingerprint, load_cached_graph, save_cached_graph
 from .street_graph import Neighbor, StreetGraph
 
 
@@ -85,9 +85,12 @@ def _build_osmnx_constrained_graph(
     """
     try:
         import osmnx as ox
-    except ImportError:
-        print("[street_graph] osmnx not available, falling back to KNN-only graph", flush=True)
-        return _build_knn_graph(recordings, k_neighbors, max_radius_m)
+    except ImportError as exc:
+        raise RuntimeError(
+            "[street_graph] osmnx is required for the OSM-constrained KNN graph. "
+            "Install osmnx, or explicitly request the pure-KNN graph with "
+            "use_osmnx=False — a silent fallback would change the board topology."
+        ) from exc
 
     lats = recordings["latitude"].values.astype(float)
     lons = recordings["longitude"].values.astype(float)
@@ -97,7 +100,8 @@ def _build_osmnx_constrained_graph(
     north, south = float(np.max(lats)) + buffer, float(np.min(lats)) - buffer
     east, west = float(np.max(lons)) + buffer, float(np.min(lons)) - buffer
 
-    G = ox.graph_from_bbox(bbox=(north, south, east, west), network_type="drive")
+    # osmnx 2.x bbox order is (left, bottom, right, top)
+    G = ox.graph_from_bbox(bbox=(west, south, east, north), network_type="drive")
 
     # Snap each recording to nearest OSMNX edge
     X = lons.tolist()
@@ -171,8 +175,14 @@ def build_street_graph(
         graph_cfg: Config object with k_neighbors, max_radius_m, precomputed_path.
         use_osmnx: Whether to use OSMNX for street-network-constrained adjacency.
     """
-    # Dispatch by graph_type
+    # Dispatch by graph_type. "board" is the canonical builder: board-first
+    # construction from the OSM network with imagery attached afterwards.
+    # The remaining types build the graph from image coordinates and are
+    # kept for comparison experiments only.
     graph_type = str(getattr(graph_cfg, "graph_type", "knn"))
+    if graph_type == "board":
+        from .board_builder import build_board_graph
+        return build_board_graph(metadata_parquet, graph_cfg)
     if graph_type == "osm":
         return build_osm_projected_graph(metadata_parquet, graph_cfg)
     if graph_type == "h3":
@@ -182,11 +192,11 @@ def build_street_graph(
     if graph_type == "trajectory":
         return build_trajectory_graph(metadata_parquet, graph_cfg)
 
+    fingerprint = cfg_fingerprint(graph_cfg, metadata_parquet)
     precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
-    if precomputed_path and os.path.exists(precomputed_path):
-        print(f"[street_graph] Loading precomputed graph from {precomputed_path}", flush=True)
-        with open(precomputed_path, "rb") as f:
-            return pickle.load(f)
+    cached = load_cached_graph(precomputed_path, fingerprint, "[street_graph]")
+    if cached is not None:
+        return cached
 
     k_neighbors = int(getattr(graph_cfg, "k_neighbors", 10))
     max_radius_m = float(getattr(graph_cfg, "max_radius_m", 50.0))
@@ -224,16 +234,8 @@ def build_street_graph(
         if col not in meta_df.columns:
             raise ValueError(f"Metadata parquet missing required column: {col}")
 
-    # Get unique recordings with their coords and yaw
-    has_yaw = "yaw_deg" in meta_df.columns
-    if not has_yaw:
-        print("[street_graph] WARNING: no yaw column found — all yaw values will be 0. "
-              "Face-to-neighbor resolution will be unreliable.", flush=True)
-    group_cols = ["recording_id", "latitude", "longitude"]
-    if has_yaw:
-        group_cols.append("yaw_deg")
-
-    recordings = meta_df.drop_duplicates(subset=["recording_id"])[group_cols].reset_index(drop=True)
+    # Get unique recordings with their coords (yaw normalized after filtering)
+    recordings = meta_df.drop_duplicates(subset=["recording_id"]).reset_index(drop=True)
 
     # Drop recordings with NaN/inf coordinates
     n_before = len(recordings)
@@ -249,6 +251,9 @@ def build_street_graph(
     n_dropped = n_before - len(recordings)
     if n_dropped > 0:
         print(f"[street_graph] Dropped {n_dropped} recordings with NaN/inf coordinates", flush=True)
+
+    yaw_column = str(getattr(graph_cfg, "yaw_column", "recorderDirection"))
+    yaw_norm = _normalize_yaw_from_recorder_direction(recordings, yaw_column)
 
     print(f"[street_graph] Building graph for {len(recordings)} unique recordings (k={k_neighbors}, radius={max_radius_m}m)", flush=True)
 
@@ -267,21 +272,17 @@ def build_street_graph(
 
     coords: Dict[str, Tuple[float, float]] = {}
     yaw_degrees: Dict[str, float] = {}
-    for _, row in recordings.iterrows():
-        rid = str(row["recording_id"])
-        coords[rid] = (float(row["latitude"]), float(row["longitude"]))
-        if has_yaw:
-            yaw_degrees[rid] = float(row["yaw_deg"])
-        else:
-            yaw_degrees[rid] = 0.0
+    rec_ids_arr = recordings["recording_id"].astype(str).values
+    lats_arr = recordings["latitude"].values.astype(float)
+    lons_arr = recordings["longitude"].values.astype(float)
+    for i, rid in enumerate(rec_ids_arr):
+        coords[rid] = (lats_arr[i], lons_arr[i])
+        yaw_degrees[rid] = float(yaw_norm[i])
 
-    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees)
+    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees,
+                        face_frame=str(getattr(graph_cfg, "face_frame", "absolute")))
 
-    if precomputed_path:
-        os.makedirs(os.path.dirname(precomputed_path), exist_ok=True)
-        print(f"[street_graph] Saving precomputed graph to {precomputed_path}", flush=True)
-        with open(precomputed_path, "wb") as f:
-            pickle.dump(graph, f)
+    save_cached_graph(precomputed_path, graph, fingerprint, "[street_graph]")
 
     print(f"[street_graph] Graph built: {len(adjacency)} nodes, "
           f"avg {np.mean([len(v) for v in adjacency.values()]):.1f} neighbors", flush=True)
@@ -357,11 +358,11 @@ def build_osm_projected_graph(
     from shapely.geometry import Point
     from collections import defaultdict
 
+    fingerprint = cfg_fingerprint(graph_cfg, metadata_parquet)
     precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
-    if precomputed_path and os.path.exists(precomputed_path):
-        print(f"[osm_graph] Loading precomputed graph from {precomputed_path}", flush=True)
-        with open(precomputed_path, "rb") as f:
-            return pickle.load(f)
+    cached = load_cached_graph(precomputed_path, fingerprint, "[osm_graph]")
+    if cached is not None:
+        return cached
 
     yaw_column = str(getattr(graph_cfg, "yaw_column", "recorderDirection"))
     target_spacing = float(getattr(graph_cfg, "target_spacing_m", 25.0))
@@ -605,7 +606,8 @@ def build_osm_projected_graph(
         coords[rid] = (float(sub_lats[i]), float(sub_lons[i]))
         yaw_degrees_map[rid] = float(sub_yaws[i])
 
-    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees_map)
+    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees_map,
+                        face_frame=str(getattr(graph_cfg, "face_frame", "absolute")))
 
     total_edges = sum(len(v) for v in adjacency.values())
     avg_deg = total_edges / max(1, len(adjacency))
@@ -620,11 +622,7 @@ def build_osm_projected_graph(
         flush=True,
     )
 
-    if precomputed_path:
-        os.makedirs(os.path.dirname(precomputed_path) or ".", exist_ok=True)
-        print(f"[osm_graph] Saving to {precomputed_path}", flush=True)
-        with open(precomputed_path, "wb") as f:
-            pickle.dump(graph, f)
+    save_cached_graph(precomputed_path, graph, fingerprint, "[osm_graph]")
 
     return graph
 
@@ -643,11 +641,11 @@ def build_h3_graph(
     """
     import h3
 
+    fingerprint = cfg_fingerprint(graph_cfg, metadata_parquet)
     precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
-    if precomputed_path and os.path.exists(precomputed_path):
-        print(f"[h3_graph] Loading precomputed graph from {precomputed_path}", flush=True)
-        with open(precomputed_path, "rb") as f:
-            return pickle.load(f)
+    cached = load_cached_graph(precomputed_path, fingerprint, "[h3_graph]")
+    if cached is not None:
+        return cached
 
     resolution = int(getattr(graph_cfg, "h3_resolution", 12))
     yaw_column = str(getattr(graph_cfg, "yaw_column", "recorderDirection"))
@@ -769,7 +767,8 @@ def build_h3_graph(
         coords[rid] = (float(lats[idx]), float(lons[idx]))
         yaw_degrees[rid] = float(yaw_all[idx])
 
-    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees)
+    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees,
+                        face_frame=str(getattr(graph_cfg, "face_frame", "absolute")))
 
     # --- Diagnostics ---
     degrees = [len(v) for v in adjacency.values()]
@@ -787,11 +786,7 @@ def build_h3_graph(
         flush=True,
     )
 
-    if precomputed_path:
-        os.makedirs(os.path.dirname(precomputed_path) or ".", exist_ok=True)
-        print(f"[h3_graph] Saving to {precomputed_path}", flush=True)
-        with open(precomputed_path, "wb") as f:
-            pickle.dump(graph, f)
+    save_cached_graph(precomputed_path, graph, fingerprint, "[h3_graph]")
 
     return graph
 
@@ -813,11 +808,11 @@ def build_intersection_graph(
     import osmnx as ox
     from collections import defaultdict
 
+    fingerprint = cfg_fingerprint(graph_cfg, metadata_parquet)
     precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
-    if precomputed_path and os.path.exists(precomputed_path):
-        print(f"[intersection_graph] Loading precomputed graph from {precomputed_path}", flush=True)
-        with open(precomputed_path, "rb") as f:
-            return pickle.load(f)
+    cached = load_cached_graph(precomputed_path, fingerprint, "[intersection_graph]")
+    if cached is not None:
+        return cached
 
     # --- Config ---
     yaw_column = str(getattr(graph_cfg, "yaw_column", "recorderDirection"))
@@ -1045,7 +1040,8 @@ def build_intersection_graph(
         coords[rid] = (float(sub_lats[i]), float(sub_lons[i]))
         yaw_degrees_map[rid] = float(sub_yaws[i])
 
-    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees_map)
+    graph = StreetGraph(adjacency=adjacency, coords=coords, yaw_degrees=yaw_degrees_map,
+                        face_frame=str(getattr(graph_cfg, "face_frame", "absolute")))
 
     total_edges = sum(len(v) for v in adjacency.values())
     avg_deg = total_edges / max(1, len(adjacency))
@@ -1057,11 +1053,7 @@ def build_intersection_graph(
         flush=True,
     )
 
-    if precomputed_path:
-        os.makedirs(os.path.dirname(precomputed_path) or ".", exist_ok=True)
-        print(f"[intersection_graph] Saving to {precomputed_path}", flush=True)
-        with open(precomputed_path, "wb") as f:
-            pickle.dump(graph, f)
+    save_cached_graph(precomputed_path, graph, fingerprint, "[intersection_graph]")
 
     return graph
 
@@ -1099,11 +1091,11 @@ def build_trajectory_graph(
 
     TAG = "[trajectory_graph]"
 
+    fingerprint = cfg_fingerprint(graph_cfg, metadata_parquet)
     precomputed_path: Optional[str] = getattr(graph_cfg, "precomputed_path", None)
-    if precomputed_path and os.path.exists(precomputed_path):
-        print(f"{TAG} Loading precomputed graph from {precomputed_path}", flush=True)
-        with open(precomputed_path, "rb") as f:
-            return pickle.load(f)
+    cached = load_cached_graph(precomputed_path, fingerprint, TAG)
+    if cached is not None:
+        return cached
 
     # --- Config ---
     pass_time_gap_s = float(getattr(graph_cfg, "pass_time_gap_s", 10.0))
@@ -1147,17 +1139,15 @@ def build_trajectory_graph(
     recs["_ts"] = pd.to_datetime(recs["recordedAt"], utc=True)
     recs = recs[recs["_ts"].notna()].reset_index(drop=True)
 
-    # Normalize yaw
-    yaw_all = _normalize_yaw_from_recorder_direction(recs, yaw_column)
-
-    # Sort by timestamp for pass segmentation
+    # Sort by timestamp for pass segmentation, THEN normalize yaw so the
+    # yaw array is aligned with the sorted recordings.
     recs = recs.sort_values("_ts").reset_index(drop=True)
 
     rec_ids = recs["recording_id"].values.astype(str)
     lats = recs["latitude"].values.astype(float)
     lons = recs["longitude"].values.astype(float)
     timestamps = recs["_ts"].values  # numpy datetime64
-    yaws = yaw_all[recs.index.values] if len(yaw_all) == len(meta_df) else _normalize_yaw_from_recorder_direction(recs, yaw_column)
+    yaws = _normalize_yaw_from_recorder_direction(recs, yaw_column)
 
     n_recs = len(rec_ids)
     print(f"{TAG} {n_recs:,} unique recordings with timestamps", flush=True)
@@ -1343,19 +1333,17 @@ def build_trajectory_graph(
             bearing = _bearing_deg(lats[i], lons[i], lats[j], lons[j])
             bearing_rad = math.radians(bearing)
 
-            # Score as forward candidate (bearing vs yaw)
-            angle_fwd = abs(bearing_rad - src_yaw_rad)
-            if angle_fwd > math.pi:
-                angle_fwd = 2 * math.pi - angle_fwd
-            score_fwd = _streetsmart_score(dist_m, angle_fwd)
+            # Score against all four face directions (F/B/L/R). The Street
+            # Smart viewer scores per pressed arrow key; scoring only
+            # forward/backward rejects perpendicular cross-street candidates
+            # and leaves intersections without turn edges.
+            best_score = -1.0
+            for offset in (0.0, math.pi / 2, math.pi, 3 * math.pi / 2):
+                angle = abs(bearing_rad - (src_yaw_rad + offset)) % (2 * math.pi)
+                if angle > math.pi:
+                    angle = 2 * math.pi - angle
+                best_score = max(best_score, _streetsmart_score(dist_m, angle))
 
-            # Score as backward candidate (bearing vs yaw + π)
-            angle_bwd = abs(bearing_rad - (src_yaw_rad + math.pi))
-            if angle_bwd > math.pi:
-                angle_bwd = 2 * math.pi - angle_bwd
-            score_bwd = _streetsmart_score(dist_m, angle_bwd)
-
-            best_score = max(score_fwd, score_bwd)
             if best_score > 0:
                 candidates.append((j, dst_id, dist_m, bearing, best_score))
 
@@ -1455,7 +1443,13 @@ def build_trajectory_graph(
                 # Merge component labels so future bridges see the merged set
                 comp[c_mask] = comp[j_idx]
 
-            print(f"{TAG} Bridge edges: {n_bridge:,} (merged {n_components:,} → ~1 component)", flush=True)
+            n_remaining = len(np.unique(comp))
+            print(f"{TAG} Bridge edges: {n_bridge:,} "
+                  f"(merged {n_components:,} → {n_remaining:,} components)", flush=True)
+            if n_remaining > 1:
+                print(f"{TAG} WARNING: {n_remaining:,} components remain — some were "
+                      f"farther than bridge_radius_m={bridge_radius_m:.0f}m from the "
+                      f"main component. The graph is NOT fully connected.", flush=True)
         else:
             print(f"{TAG} Graph is already fully connected (1 component)", flush=True)
 
@@ -1464,6 +1458,7 @@ def build_trajectory_graph(
         adjacency=dict(adjacency),
         coords=coords,
         yaw_degrees=yaw_degrees,
+        face_frame=str(getattr(graph_cfg, "face_frame", "absolute")),
     )
 
     total_edges = sum(len(v) for v in adjacency.values())
@@ -1476,10 +1471,6 @@ def build_trajectory_graph(
         flush=True,
     )
 
-    if precomputed_path:
-        os.makedirs(os.path.dirname(precomputed_path) or ".", exist_ok=True)
-        print(f"{TAG} Saving to {precomputed_path}", flush=True)
-        with open(precomputed_path, "wb") as f:
-            pickle.dump(graph, f)
+    save_cached_graph(precomputed_path, graph, fingerprint, TAG)
 
     return graph

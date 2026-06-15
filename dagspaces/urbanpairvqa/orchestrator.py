@@ -46,7 +46,10 @@ from dagspaces.common.wandb_logger import WandbLogger
 _apply_resource_tracker_patch()
 
 # -- Dagspace-local imports -------------------------------------------------
-from .samplers.cyclomedia_pairs import build_global_random_pairs
+from .samplers.cyclomedia_pairs import (
+    build_global_random_pairs,
+    build_unit_random_pairs,
+)
 from .stages.pairwise_vqa import run_pairwise_vqa_stage
 
 try:
@@ -55,6 +58,49 @@ except ImportError:
     HydraConfig = None
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
+
+
+def _persist_pairs(
+    pairs_df: pd.DataFrame,
+    context: "StageExecutionContext",
+    *,
+    mode: str,
+) -> Optional[str]:
+    """Write the sampled pair manifest to the stage's output dir.
+
+    Lands at ``<run_dir>/pairs.parquet`` — same dir as the stage's `results`
+    output. A SIGTERM mid-inference still leaves this file on disk so a
+    downstream rerun can skip sampling and go straight to inference.
+    """
+    if pairs_df is None or len(pairs_df) == 0:
+        return None
+    out_paths = getattr(context, "output_paths", {}) or {}
+    # Prefer the dir of the `results` output; fall back to cwd.
+    results_path = out_paths.get("results")
+    if results_path:
+        run_dir = os.path.dirname(os.path.abspath(results_path)) or "."
+    else:
+        run_dir = os.getcwd()
+    os.makedirs(run_dir, exist_ok=True)
+    path = os.path.join(run_dir, "pairs.parquet")
+    try:
+        pairs_df.to_parquet(path, index=False)
+    except Exception as exc:
+        print(f"[pairwise_runner] WARN: failed to persist pairs.parquet: {exc}", flush=True)
+        return None
+    # Sidecar with minimal metadata for quick inspection.
+    meta = {
+        "mode": mode,
+        "rows": int(len(pairs_df)),
+        "columns": list(pairs_df.columns),
+        "written_at": datetime.utcnow().isoformat() + "Z",
+    }
+    try:
+        with open(os.path.join(run_dir, "pairs.meta.json"), "w") as f:
+            json.dump(meta, f, indent=2)
+    except OSError:
+        pass
+    return path
 
 
 # ---------------------------------------------------------------------------
@@ -74,6 +120,17 @@ def _load_pairwise_manifest(cfg: DictConfig, dataset_override: Optional[str]) ->
     sample_col = str(getattr(columns_map, "sample_id", "sample_id"))
     image_col = str(getattr(columns_map, "image_path", "image_path"))
     metadata_columns = list(getattr(data_cfg, "metadata_columns", []))
+
+    # Auto-inject pair_sampler.weight_column so data configs don't have to
+    # duplicate it in metadata_columns. If the column is missing from the
+    # parquet, the sampler's own fallback kicks in with a clear warning.
+    pair_cfg = getattr(cfg, "pair_sampler", {})
+    weight_column = getattr(pair_cfg, "weight_column", None)
+    if weight_column is not None:
+        weight_column = str(weight_column).strip() or None
+    if weight_column and weight_column not in metadata_columns:
+        metadata_columns.append(weight_column)
+
     try:
         import pyarrow.parquet as pq
         schema_cols = [f.name for f in pq.ParquetFile(parquet_path).schema_arrow]
@@ -169,28 +226,70 @@ class PairwiseVQARunner(StageRunner):
 
         runtime_cfg = getattr(cfg, "runtime", {})
         max_rows = getattr(runtime_cfg, "sample_n", None)
-        if max_rows:
-            manifest_df = manifest_df.head(int(max_rows))
-
         pair_cfg = getattr(cfg, "pair_sampler", {})
         max_pairs = getattr(pair_cfg, "max_pairs", None)
         pair_seed = int(getattr(pair_cfg, "pair_seed", 777))
+        # Random subsample (not head) so dry runs cover all boroughs, not just
+        # the first chunk in materialize order. Seed reuses pair_seed so the
+        # same runtime.sample_n produces the same subsample across reruns.
+        if max_rows and int(max_rows) < len(manifest_df):
+            manifest_df = (
+                manifest_df.sample(n=int(max_rows), random_state=pair_seed)
+                           .reset_index(drop=True)
+            )
         allow_replacement = bool(getattr(pair_cfg, "allow_replacement", False))
         counterbalance_mode = str(getattr(pair_cfg, "counterbalance_mode", "none"))
         repeat_count = int(getattr(pair_cfg, "repeat_count", 0) or 0)
         repeat_fraction = float(getattr(pair_cfg, "repeat_fraction", 0.0) or 0.0)
+        mode = str(getattr(pair_cfg, "mode", "image")).strip().lower() or "image"
+        unit_column = str(getattr(pair_cfg, "unit_column", "unit_uid"))
+        unit_name_column = str(getattr(pair_cfg, "unit_name_column", "unit_name"))
+        # Optional: within-unit weighted image sampling. See concept-facing-filter
+        # for the score this typically drives ("attribution_confidence").
+        weight_column = getattr(pair_cfg, "weight_column", None)
+        if weight_column is not None:
+            weight_column = str(weight_column).strip() or None
 
         metadata_columns = list(getattr(getattr(cfg, "data", {}), "metadata_columns", []))
-        pairs_df = build_global_random_pairs(
-            manifest_df,
-            max_pairs=int(max_pairs) if max_pairs is not None else None,
-            seed=pair_seed,
-            allow_replacement=allow_replacement,
-            counterbalance_mode=counterbalance_mode,
-            repeat_count=repeat_count,
-            repeat_fraction=repeat_fraction,
-            metadata_columns=metadata_columns or None,
-        )
+        if mode == "unit":
+            print(f"[pairwise_runner] pair_sampler.mode=unit — grouping by {unit_column!r}",
+                  flush=True)
+            pairs_df = build_unit_random_pairs(
+                manifest_df,
+                unit_column=unit_column,
+                unit_name_column=unit_name_column if unit_name_column else None,
+                max_pairs=int(max_pairs) if max_pairs is not None else None,
+                seed=pair_seed,
+                allow_replacement=allow_replacement,
+                counterbalance_mode=counterbalance_mode,
+                repeat_count=repeat_count,
+                repeat_fraction=repeat_fraction,
+                metadata_columns=metadata_columns or None,
+                weight_column=weight_column,
+            )
+        elif mode == "image":
+            pairs_df = build_global_random_pairs(
+                manifest_df,
+                max_pairs=int(max_pairs) if max_pairs is not None else None,
+                seed=pair_seed,
+                allow_replacement=allow_replacement,
+                counterbalance_mode=counterbalance_mode,
+                repeat_count=repeat_count,
+                repeat_fraction=repeat_fraction,
+                metadata_columns=metadata_columns or None,
+            )
+        else:
+            raise ValueError(
+                f"pair_sampler.mode must be 'image' or 'unit', got {mode!r}"
+            )
+
+        # Persist the sampled pairs alongside the stage output for audit +
+        # resume-with-different-model. Written before inference so a SIGTERM
+        # mid-inference still leaves the pair manifest on disk.
+        pairs_parquet_path = _persist_pairs(pairs_df, context, mode=mode)
+        if pairs_parquet_path:
+            print(f"[pairwise_runner] wrote {len(pairs_df)} pairs → "
+                  f"{pairs_parquet_path}", flush=True)
 
         out_any = run_pairwise_vqa_stage(pairs_df, cfg)
         out = out_any.to_pandas() if hasattr(out_any, "to_pandas") else out_any

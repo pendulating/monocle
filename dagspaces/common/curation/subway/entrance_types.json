@@ -1,0 +1,19 @@
+{
+  "source": "data.ny.gov/resource/i9wp-a4ja",
+  "fetched_at": "2026-04-28",
+  "entrance_types": [
+    "Easement - Passage",
+    "Easement - Street",
+    "Elevator",
+    "Escalator",
+    "Overpass",
+    "Ramp",
+    "Stair",
+    "Stair/Escalator",
+    "Stair/Ramp",
+    "Stair/Ramp/Walkway",
+    "Station House",
+    "Underpass",
+    "Walkway"
+  ]
+}

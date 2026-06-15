@@ -1,0 +1,47 @@
+# @package _global_
+# Smoke-test pipeline: 20 Cyclomedia images, local execution (no SLURM).
+# Exercises the DAG wiring and the P0 Cyclomedia stages only. House-number
+# is excluded from this smoke test (vLLM spin-up dominates at 20 images —
+# covered by sanity_2k instead).
+
+defaults:
+  - _self_
+  - /model@person_model: yolov8_person
+  - /model@vehicle_model: yolov8_vehicle
+  - override /data: cyclomedia_manhattan_2025_1
+
+runtime:
+  debug: true
+  sample_n: 20
+  streaming_io: false
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      person:
+        stage: person
+        depends_on: []
+        outputs:
+          detections: outputs/person/detections.parquet
+        overrides:
+          model: ${person_model}
+        wandb_suffix: sanity20_person
+      vehicle:
+        stage: vehicle
+        depends_on: []
+        outputs:
+          detections: outputs/vehicle/detections.parquet
+        overrides:
+          model: ${vehicle_model}
+        wandb_suffix: sanity20_vehicle
+      unify:
+        stage: unify
+        depends_on: [person, vehicle]
+        inputs:
+          person: person.detections
+          vehicle: vehicle.detections
+        outputs:
+          detections: ${runtime.pseudo_label_root}/sanity_20/detections.parquet
+        wandb_suffix: sanity20_unify

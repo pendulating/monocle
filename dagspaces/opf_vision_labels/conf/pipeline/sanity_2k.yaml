@@ -1,0 +1,72 @@
+# @package _global_
+# Stage 1 sanity-check pipeline: 2k Cyclomedia Manhattan images across
+# F/B/L/R faces. Includes the house-number Qwen2.5-VL-7B stage. Each
+# GPU-heavy stage runs as a SLURM job; CPU-only unify runs in-process
+# on the orchestrator node.
+#
+# Launch:
+#   python -m dagspaces.opf_vision_labels.cli -m pipeline=sanity_2k
+#
+# `-m` activates the Hydra submitit launcher so the orchestrator itself
+# runs as a slurm_monitor job. Each per-node `launcher:` field controls
+# the SLURM allocation for that stage (slurm_gpu_1x for the YOLOv8
+# stages, slurm_gpu_2x for the VLM-driven house_number stage).
+
+defaults:
+  - _self_
+  - /model@person_model: yolov8_person
+  - /model@vehicle_model: yolov8_vehicle
+  - /model@house_number_model: qwen3vl_text_spotting
+  - override /data: cyclomedia_manhattan_2025_1
+  - override /hydra/launcher: slurm_monitor
+
+runtime:
+  debug: false
+  sample_n: 2000
+  streaming_io: false
+  job_memory_gb: 64
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      person:
+        stage: person
+        depends_on: []
+        outputs:
+          detections: outputs/person/detections.parquet
+        overrides:
+          model: ${person_model}
+        launcher: slurm_gpu_1x
+        wandb_suffix: s2k_person
+      vehicle:
+        stage: vehicle
+        depends_on: []
+        outputs:
+          detections: outputs/vehicle/detections.parquet
+        overrides:
+          model: ${vehicle_model}
+        launcher: slurm_gpu_1x
+        wandb_suffix: s2k_vehicle
+      house_number:
+        stage: house_number
+        depends_on: []
+        outputs:
+          detections: outputs/house_number/detections.parquet
+        overrides:
+          model: ${house_number_model}
+          model.concurrency: 2
+          model.batch_size: 16
+        launcher: slurm_gpu_2x
+        wandb_suffix: s2k_house
+      unify:
+        stage: unify
+        depends_on: [person, vehicle, house_number]
+        inputs:
+          person: person.detections
+          vehicle: vehicle.detections
+          house_number: house_number.detections
+        outputs:
+          detections: ${runtime.pseudo_label_root}/sanity_2k/detections.parquet
+        wandb_suffix: s2k_unify

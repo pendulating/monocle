@@ -1,0 +1,40 @@
+# Trajectory-based street graph (Street Smart-style)
+#
+# Reverse-engineers the Cyclomedia Street Smart viewer's dual navigation:
+# 1. Route-based: sequential chaining within reconstructed vehicle passes
+# 2. Spatial scoring: cross-pass connections using the actual StreetSmartApi.js
+#    scoring function: score = angle > π/4 ? -1 : (1 - angle/π) / (1 + 0.1·√dist)
+# 3. Component bridging: ensures global connectivity for uninterrupted traversal
+#
+# Requires parquet columns: recording_id, latitude, longitude, recordedAt,
+#                           recorderDirection (or yawDegrees)
+graph_type: trajectory
+yaw_column: recorderDirection
+
+# --- Pass segmentation thresholds ---
+# A new pass starts when ANY of these thresholds is exceeded between
+# consecutive recordings (sorted by recordedAt).
+pass_time_gap_s: 10.0          # seconds; Cyclomedia captures ~every 0.5-1s
+pass_distance_gap_m: 100.0     # meters; consecutive captures ~5m apart
+pass_heading_gap_deg: 90.0     # degrees; same pass = same direction of travel
+
+# --- Along-pass edges ---
+max_along_pass_distance_m: 50.0  # drop anomalous gaps within a pass
+
+# --- Subsampling (0 = keep all recordings) ---
+# Reduce density by keeping one recording per interval along each pass.
+# Set to 0 to keep every capture point (~5m spacing).
+subsample_spacing_m: 0
+
+# --- Cross-pass spatial edges (Street Smart scoring) ---
+spatial_radius_m: 30.0          # meters; search radius for cross-pass neighbors
+max_spatial_neighbors: 4        # top N scored candidates per node
+
+# --- Component bridging ---
+# After pass + spatial edges, bridge any remaining disconnected components
+# to ensure the graph is globally traversable.
+bridge_components: true
+bridge_radius_m: 500.0          # max distance to bridge between components
+
+# --- Caching ---
+precomputed_path: null

@@ -6,7 +6,7 @@ system: |
 
 user_template: |
   You are on step {{ step_n }} of your search for urban greenery.
-  You see three street views arranged left to right in a single panoramic image.
+  You see one or more street views arranged left to right in a single panoramic image.
 
   Available directions:
   {{ directions }}

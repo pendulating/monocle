@@ -1,0 +1,69 @@
+defaults:
+  - _self_
+  - optional pipeline: null
+
+model:
+  model_source: null
+
+experiment:
+  name: ARTIFACT_GEN
+
+runtime:
+  debug: false
+  output_root: null
+  output_path: outputs/raster/query_${now:%Y%m%d_%H%M%S}
+  job_memory_gb: 64
+
+raster:
+  query_text: ""
+  query_mode: qwen_raw                           # qwen_raw, bge_projection, or qwen_direct
+  embeddings_input_path: null                    # urbanembed embed output (parquet dir)
+  pca_artifacts_path: null                       # dir with pca_components.bin, pca_mean.bin
+  projection_matrix_path: null                   # dir with W_proj.bin
+  bge_model: BAAI/bge-small-en-v1.5
+  pca_dim: 256
+
+  # Spatial parameters
+  bbox: [-74.02, 40.68, -73.90, 40.88]          # [W, S, E, N] default: Manhattan
+  resolution_m: 10.0
+  crs: "EPSG:4326"                               # output CRS
+  working_crs: "EPSG:32618"                      # projected CRS for meters (UTM 18N)
+
+  # Interpolation method: "idw" or "rays"
+  interpolation: rays
+
+  # IDW parameters (used when interpolation=idw)
+  idw_power: 2.0
+  max_neighbors: 50
+  max_distance_m: 100.0                          # NoData beyond this distance
+
+  # Ray accumulation parameters (used when interpolation=rays)
+  ray_length_m: 30.0                             # ray length in meters (~100 ft, typical street width)
+  ray_decay: linear                              # "linear" (score*(1-d/K)) or "none" (uniform)
+  ray_normalize_by_count: false                  # true = average relevance, false = total evidence
+
+  # Normalization
+  normalization: minmax                          # minmax or quantile
+
+combine:
+  raster_a_path: null                              # path to first raster (dir or .tif)
+  raster_b_path: null                              # path to second raster (dir or .tif)
+  label_a: "A"
+  label_b: "B"
+  operations: [signed_diff, abs_diff]              # signed_diff, abs_diff, max, sum
+  output_name: combined
+
+wandb:
+  enabled: true
+  project: ${oc.env:WANDB_PROJECT,ARTIFACT_GEN}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}

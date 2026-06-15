@@ -6,7 +6,7 @@ defaults:
   - override /data: cyclomedia_manhattan_2025
   - override /prompt: tourist
   - override /model: vllm_multimodal_qwen3_vl_2b
-  - override /graph: osmnx_knn_10
+  - override /graph: board_25m
 
 runtime:
   debug: false
@@ -19,7 +19,7 @@ roaming:
   max_steps: 10
   termination_mode: fixed
   seed_strategy: random
-  initial_face: F
+  initial_face: ""             # backtrack face excluded at seed; "" = show all legal faces
   walk_seed: 42
   allow_revisits: true
 

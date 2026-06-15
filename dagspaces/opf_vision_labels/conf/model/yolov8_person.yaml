@@ -1,0 +1,25 @@
+# YOLOv8-pose pretrained on COCO. Used by the `person` stage to emit
+# both whole-body person bboxes and face bboxes derived from head
+# keypoints (nose, eyes, ears).
+
+name: yolov8_pose
+backend: ultralytics_pose
+model_source: yolov8x-pose.pt    # 69M params; best recall on distant Cyclomedia pedestrians
+device: auto                     # auto | cuda | cpu
+imgsz: 1024                      # Cyclomedia `_1k` faces are native 1024²
+conf: 0.05                       # yolov8x is better-calibrated than s/n, so its 0.05 ≈ s/n's 0.10
+                                  # Cyclomedia pedestrians are 30-50px tall; default 0.35 misses most
+iou: 0.50
+max_det: 64
+
+# Face bbox derivation from head keypoints. Take the bounding rect of
+# visible head keypoints (nose, l/r eye, l/r ear), expand each side by
+# `face_expand` x half-extent (so 1.0 = no expansion, 2.0 = double).
+face_expand: 1.6
+
+# Fallback when no head keypoint is visible (e.g., person seen from
+# behind): use the top fraction of the person bbox as a face proxy.
+face_fallback_frac: 0.25
+
+teacher_model: yolov8x-pose-coco
+teacher_version: ultralytics-8.x

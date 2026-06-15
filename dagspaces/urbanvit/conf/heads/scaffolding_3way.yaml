@@ -1,0 +1,17 @@
+# Scaffolding classification heads.
+# Missing labels in the parquet are masked out of the loss per-head — you can
+# add a head here today, populate its column later, and re-run training.
+
+heads:
+  - name: scaffolding_any
+    column: label_scaffolding        # populate in parquet: 0 (no scaffold), 1 (any scaffold)
+    task: binary
+    num_classes: 2
+    loss_weight: 1.0
+  - name: fancy_vs_standard
+    column: label_fancy              # populate: 0 (standard green), 1 (fancy white)
+    task: binary
+    num_classes: 2
+    # only train on rows where the parent head's label == 1
+    conditional_on: scaffolding_any
+    loss_weight: 1.0

@@ -8,7 +8,7 @@ system: |
   be intentional about when to stop.
 
 user_template: |
-  You are on step {{ step_n }} of your urban exploration. You see three street views
+  You are on step {{ step_n }} of your urban exploration. You see one or more street views
   arranged left to right in a single panoramic image.
 
   Available directions:

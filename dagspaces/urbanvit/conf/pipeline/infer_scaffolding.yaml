@@ -1,0 +1,71 @@
+# @package _global_
+# Inference pipeline: shard → extract → classify → collate
+#
+# Default: uses pretrained backbone (extract.backbone_checkpoint=null).
+# Override with `extract.backbone_checkpoint=/path/to/train/checkpoint` to
+# apply a fine-tuned LoRA adapter.
+#
+# Example invocation (pretrained):
+#   python -m dagspaces.urbanvit.cli -m pipeline=infer_scaffolding
+#
+# Example (with fine-tuned backbone + heads):
+#   python -m dagspaces.urbanvit.cli -m pipeline=infer_scaffolding \
+#     extract.backbone_checkpoint=outputs/urbanvit/RUN_A/checkpoint \
+#     training.checkpoint_dir=outputs/urbanvit/RUN_A/checkpoint
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+
+runtime:
+  job_memory_gb: 64
+
+extract:
+  # Default: extract features for all rows (no train/val/test split required
+  # on an unlabeled inference corpus — shard stage still writes them all into
+  # tar files, but since there are no labels the split assignment is arbitrary
+  # and we just consume every split).
+  splits: [train, val, test]
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      shard:
+        stage: shard
+        depends_on: []
+        outputs:
+          shards_dir: ${shard.scratch_root}/${experiment.name}
+          manifest: ${shard.scratch_root}/${experiment.name}/manifest.json
+        launcher: slurm_gpu_klara_1x
+        wandb_suffix: shard_infer
+      extract:
+        stage: extract
+        depends_on: [shard]
+        inputs:
+          shards_dir: ${pipeline.graph.nodes.shard.outputs.shards_dir}
+        outputs:
+          features: outputs/urbanvit/${experiment.name}/features
+        overrides:
+          extract.batch_size: ${extract.batch_size}
+        launcher: slurm_gpu_klara_1x
+        wandb_suffix: extract_scaffolding
+      classify:
+        stage: classify
+        depends_on: [extract]
+        inputs:
+          features: ${pipeline.graph.nodes.extract.outputs.features}
+        outputs:
+          scores: outputs/urbanvit/${experiment.name}/scores.parquet
+        launcher: slurm_gpu_klara_1x
+        wandb_suffix: classify_scaffolding
+      collate:
+        stage: collate
+        depends_on: [classify]
+        inputs:
+          scores: ${pipeline.graph.nodes.classify.outputs.scores}
+        outputs:
+          final: outputs/urbanvit/${experiment.name}/final.parquet
+        launcher: slurm_monitor
+        wandb_suffix: collate_scaffolding

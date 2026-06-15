@@ -1,0 +1,56 @@
+# @package _global_
+# Hydra sweep: re-launch of the schools pairwise sweep across the same
+# natively-multimodal instruction-tuned open-weights lineup as
+# `schools_all_models.yaml`, pinned to the 2-GPU klara stage launcher and the
+# 128-token answer budget that the user-validated 2026-06-08 Qwen3.5-9B
+# baseline used (`multirun/2026-06-08_URBANPAIRVQA/12-21-15`).
+#
+# Supersedes the single-model qwen3.5-9b schools run; the earlier multi-model
+# sweeps still needed rerunning after the image-ingestion fix (see the
+# `may1-sweep-contaminated` note). Sanity-check the resulting label
+# distribution before trusting it: Same >> 30% with near-zero Much* labels
+# means the models likely never saw the images.
+#
+# Model group paths (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
+#   - gemma-4-e2b/instruct       → common/conf/model/gemma-4-e2b/instruct.yaml
+#   - gemma-4-e4b/instruct       → common/conf/model/gemma-4-e4b/instruct.yaml
+#   - phi-4/multimodal-instruct  → common/conf/model/phi-4/multimodal-instruct.yaml
+#   - qwen3.5-2b/instruct        → common/conf/model/qwen3.5-2b/instruct.yaml
+#   - qwen3.5-4b/instruct        → common/conf/model/qwen3.5-4b/instruct.yaml
+#   - qwen3.5-9b/instruct        → common/conf/model/qwen3.5-9b/instruct.yaml
+# All six are TP=1 and run comfortably inside the 2-GPU klara stage.
+#
+# Fixed (non-swept) overrides baked in here:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_2x  (matches baseline)
+#   - sampling_params_vqa.max_tokens         = 128                 (ordinal answer is short)
+# `pair_sampler.max_pairs=100000` is already the schools pipeline default.
+#
+# Max 4 inference runs in flight at once (`array_parallelism: 4`).
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=schools_all_models_klara2x \
+#       pipeline=pairwise_schools_mvp
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_2x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        gemma-4-e4b/instruct,
+        phi-4/multimodal-instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct,
+        qwen3.5-9b/instruct

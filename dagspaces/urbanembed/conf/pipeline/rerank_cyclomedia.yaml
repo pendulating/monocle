@@ -1,0 +1,39 @@
+# @package _global_
+# Reranking pipeline — standalone mode consuming pre-computed embeddings.
+#
+# Usage:
+#   python -m dagspaces.urbanembed.cli pipeline=rerank_cyclomedia \
+#     reranking.query_text="pedestrian infrastructure and sidewalk conditions" \
+#     reranking.embeddings_input_path=/share/pierson/matt/mllmsci/outputs/embed/cyclomedia_20260407_060223
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_manhattan_2025_1
+  - override /model: qwen3_vl_reranker_8b
+
+runtime:
+  streaming_io: false
+  job_memory_gb: 256
+
+reranking:
+  embeddings_input_path: /share/pierson/matt/mllmsci/outputs/embed/cyclomedia_20260407_060223
+  query_text: ""
+  top_k: 1000
+  rerank_batch_size: 10
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      rerank:
+        stage: rerank
+        depends_on: []
+        outputs:
+          results: outputs/rerank/cyclomedia_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          reranking.top_k: ${reranking.top_k}
+          reranking.rerank_batch_size: ${reranking.rerank_batch_size}
+        launcher: slurm_gpu_2x
+        wandb_suffix: rerank_cyclomedia

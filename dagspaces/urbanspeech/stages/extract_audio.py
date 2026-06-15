@@ -23,7 +23,9 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 from omegaconf import DictConfig
 
-VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".ts", ".m4v"}
+# .insv is Insta360's raw container — an MP4-family stream ffmpeg can decode
+# audio from directly (the proprietary metadata it ignores).
+VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".avi", ".webm", ".ts", ".m4v", ".insv"}
 
 
 # ---------------------------------------------------------------------------
@@ -34,8 +36,25 @@ def _sanitize_sample_id(raw: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]", "_", raw)
 
 
+def _exclude_tokens(cfg: DictConfig) -> List[str]:
+    """Blacklist substrings from data.video_exclude (str or list)."""
+    raw = getattr(cfg.data, "video_exclude", None)
+    if not raw:
+        return []
+    if isinstance(raw, str):
+        raw = [raw]
+    return [str(t).lower() for t in raw if str(t).strip()]
+
+
+def _is_excluded(rel_path: str, tokens: List[str]) -> bool:
+    """True if any blacklist token appears (case-insensitive) in rel_path."""
+    low = rel_path.lower()
+    return any(tok in low for tok in tokens)
+
+
 def _list_videos(cfg: DictConfig) -> pd.DataFrame:
     """Build the video listing from data.parquet_path or data.video_dir."""
+    exclude = _exclude_tokens(cfg)
     parquet_path = str(getattr(cfg.data, "parquet_path", "") or "")
     if parquet_path:
         df = pd.read_parquet(parquet_path)
@@ -55,16 +74,29 @@ def _list_videos(cfg: DictConfig) -> pd.DataFrame:
                 _sanitize_sample_id(os.path.splitext(os.path.basename(p))[0])
                 for p in df["video_path"]
             ]
+        if exclude:
+            n_before = len(df)
+            df = df[~df["video_path"].astype(str).str.lower().apply(
+                lambda p: _is_excluded(p, exclude))].reset_index(drop=True)
+            print(f"[extract_audio] Excluded {n_before - len(df)} videos "
+                  f"matching {exclude}", flush=True)
         return df
 
     video_dir = str(getattr(cfg.data, "video_dir", "") or "")
     if not video_dir:
         raise ValueError("data.parquet_path or data.video_dir must be set")
-    pattern = str(getattr(cfg.data, "video_glob", "") or "**/*.mp4")
-    paths = sorted(
+    pattern = str(getattr(cfg.data, "video_glob", "") or "**/*")
+    all_paths = [
         p for p in glob.glob(os.path.join(video_dir, pattern), recursive=True)
         if os.path.splitext(p)[1].lower() in VIDEO_EXTENSIONS
-    )
+    ]
+    if exclude:
+        kept = [p for p in all_paths
+                if not _is_excluded(os.path.relpath(p, video_dir), exclude)]
+        print(f"[extract_audio] Excluded {len(all_paths) - len(kept)} videos "
+              f"matching {exclude}", flush=True)
+        all_paths = kept
+    paths = sorted(all_paths)
     if not paths:
         raise ValueError(f"No videos matched {pattern!r} under {video_dir}")
     sample_ids: List[str] = []

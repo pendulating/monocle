@@ -1,0 +1,53 @@
+# Multimodal model config for pairwise comparison with reasoning.
+# Qwen3-VL-8B-Thinking: fine-tuned for chain-of-thought reasoning.
+
+model_source: /share/pierson/matt/zoo/models/Qwen3-VL-8B-Thinking
+
+engine_kwargs:
+  tensor_parallel_size: 1
+  max_model_len: 8192
+  # KV cache on A6000 + Qwen3-VL-8B fits ~22 full-context requests
+  # ("Maximum concurrency for 8,192 tokens per request: 22.77x" in vLLM logs).
+  # max_num_seqs sets the upper bound on concurrent decode streams; we leave
+  # headroom (16 / 22) for prefill spikes during chunked prefill.
+  max_num_seqs: 16
+  enable_chunked_prefill: true
+  # Per-step prefill budget. Two 1024² images expand to ~10k vision tokens
+  # each via the Qwen3-VL processor; 16384 lets us prefill multiple
+  # multimodal requests concurrently without splitting any single prompt
+  # across many tiny chunks.
+  max_num_batched_tokens: 16384
+  limit_mm_per_prompt:
+    image: 2
+  mm_processor_kwargs:
+    min_pixels: 784
+    max_pixels: 1048576  # 1024x1024 per image; full resolution
+    fps: 1
+  trust_remote_code: true
+  tokenizer_mode: auto
+  dtype: auto
+  kv_cache_dtype: auto
+  enable_prefix_caching: true
+  disable_log_stats: true
+  gpu_memory_utilization: 0.90
+  enforce_eager: false
+  disable_custom_all_reduce: false
+  # Cap multimodal preprocessor LRU cache (vLLM #15294, #35191) — without
+  # this it can leak GBs of RAM during multi-hour multimodal jobs.
+  mm_processor_cache_gb: 2
+  # Replicate the lightweight vision encoder across DP ranks instead of
+  # tensor-sharding it (vLLM 0.19+).  10–45% multimodal throughput win.
+  mm_encoder_tp_mode: data
+  structured_outputs_config:
+    reasoning_parser: qwen3
+
+batch_size: 16
+concurrency: 1
+# Chunked execution + parallel image hydration knobs for the DP-full
+# worker.  See dagspaces/common/vllm_inference.py::_DP_FULL_WORKER_SCRIPT.
+# chunk_size = 64 trades a small amount of Python overhead for much more
+# frequent progress visibility — important for the cold-start chunk where
+# vLLM does several seconds of one-time work.
+chunk_size: 64
+log_every: 1000
+image_load_workers: 16

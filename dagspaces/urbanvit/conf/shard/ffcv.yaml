@@ -1,0 +1,7 @@
+# FFCV beton-file backend — STUB.
+# v1 raises NotImplementedError; switch to this only when FFCV is installed.
+# FFCV install on this cluster needs libjpeg-turbo + opencv compiled from
+# source; deferred until we've profiled the WebDataset path and decide the
+# extra install is worth it.
+
+backend: ffcv

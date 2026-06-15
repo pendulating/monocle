@@ -1,0 +1,12 @@
+# WebDataset tar-shard backend (default).
+# - Write: pack JPEGs + JSON sidecars into ~1 GB tarballs
+# - Read:  stream tar shards with the `webdataset` library
+# Pure Python, pip-installable, no compiled deps.
+
+backend: webdataset
+
+# JPEG quality for resized images written into tars (90 = perceptually lossless for ViT)
+jpeg_quality: 90
+
+# webdataset reader kwargs
+shuffle_buffer: 1000

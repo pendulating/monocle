@@ -1,0 +1,78 @@
+# @package _global_
+# MVP pipeline: library-level pairwise VQA on "which library is better maintained".
+#
+# - Pairs at the **unit** level (library ↔ library): sample 2 distinct library
+#   uids, draw 1 face image from each, present to the VLM.
+# - 5k library pairs (procedurally generated at run time; persisted to
+#   <run_dir>/pairs.parquet for audit + resume).
+# - Balanced counterbalance to control presentation-order bias.
+# - No repeat observations (keep MVP honest — add them in a follow-up run).
+#
+# Submit:
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_libraries_mvp
+#
+# Dry-run (no GPU):
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_libraries_mvp \
+#       runtime.debug=true runtime.sample_n=1000 runtime.skip_inference=true
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_near_libraries_facing
+  - override /prompt: pairwise_library_maintained_ordinal
+  - override /model: gemma-4-e4b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+pair_sampler:
+  mode: unit                  # library ↔ library, not face ↔ face
+  unit_column: unit_uid
+  unit_name_column: unit_name
+  pair_seed: 777
+  max_pairs: 100000
+  allow_replacement: true     # 247 unique libraries → 123 max without replacement;
+                              # use with_replacement so we can actually hit 5k pairs
+                              # (library ordering is re-drawn each observation).
+  counterbalance_mode: balanced
+  repeat_count: 0
+  repeat_fraction: 0.10
+  # Bias within-library image selection toward confidently-facing shots
+  # (see [[concept-facing-filter]]). Requires a materialize/facing run
+  # after 2026-04-22. Graceful fallback to uniform if absent.
+  weight_column: attribution_confidence
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/libraries_mvp_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          pair_sampler.mode: ${pair_sampler.mode}
+          pair_sampler.unit_column: ${pair_sampler.unit_column}
+          pair_sampler.unit_name_column: ${pair_sampler.unit_name_column}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.weight_column: ${pair_sampler.weight_column}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 0
+          model.concurrency: 1
+        launcher: slurm_gpu_1x
+        wandb_suffix: pairwise_libraries_mvp

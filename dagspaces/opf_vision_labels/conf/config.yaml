@@ -1,0 +1,75 @@
+# Top-level Hydra config for opf_vision_labels
+#
+# Generates per-image pseudo-labels (face / license_plate / house_number /
+# person) over Cyclomedia panoramic cube-face imagery, for the OPF vision
+# head trainer in the sibling `privacy-filter` repo.
+
+defaults:
+  - _self_
+  - data: cyclomedia_manhattan_2025_1
+  - optional pipeline: sanity_20
+
+experiment:
+  name: OPF_VISION_LABELS
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  job_memory_gb: 64
+  # Where the unify stage writes the final consolidated parquet. The unify
+  # stage creates the directory; subpath layout is ``<name>/detections.parquet``
+  # with hive partitioning ``dataset=.../face=.../``.
+  pseudo_label_root: /share/ju/matt/privacy-filter/data/pseudo_labels
+
+# Default confidence / IoU / shape thresholds. Stage-specific overrides
+# live in conf/model/*.yaml and can be layered via per-node overrides in
+# the pipeline YAML.
+thresholds:
+  person_score_min: 0.05   # tuned for yolov8x-pose on Cyclomedia distant pedestrians
+  vehicle_score_min: 0.30
+  blur_internal_gradient_max: 8.0
+  blur_boundary_gradient_min: 20.0
+  blur_aspect_min: 0.5
+  blur_aspect_max: 3.0
+  blur_min_side_px: 20
+  blur_max_side_px: 200
+  classify_face_upper_body_frac: 0.30
+  classify_plate_vehicle_iou_min: 0.05
+  house_number_min_digits: 1
+  house_number_max_digits: 5
+  house_number_min_side_px: 5
+  house_number_max_side_px: 200
+  house_number_max_aspect: 5.0
+
+# Camera-vehicle mask exclusion: the Cyclomedia camera car's own body is
+# masked at a fixed bottom-center region with a solid-color fill (not a
+# Gaussian blur). Parameters here describe that region so blur_region can
+# exclude it. These are seeded from eyeballing; refine after the sanity run.
+camera_mask:
+  enabled: true
+  # Fraction of image dimensions. The mask is roughly a wide-ish blob at
+  # the bottom; err on the side of excluding too much rather than too little.
+  bottom_frac: 0.20
+  x_center: 0.50
+  x_half_width: 0.35
+
+wandb:
+  enabled: true
+  name_prefix: null
+  project: ${oc.env:WANDB_PROJECT,OPF_VISION_LABELS}
+  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 500
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}_${experiment.name}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
