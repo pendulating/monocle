@@ -24,6 +24,17 @@ audio_extraction:
   num_workers: 8            # parallel ffmpeg subprocesses
   skip_existing: true       # reuse WAVs from a previous (partial) run
   audio_dir: null           # null = <manifest dir>/audio/
+  # Voice Activity Detection (Silero). Runs on the CPU extract_audio stage and
+  # writes per-video speech_segments into the manifest so the GPU ASR stage
+  # only transcribes audio that actually contains speech — the real fix for
+  # granite-speech hallucinating "Thank you for watching" over ambient noise.
+  vad:
+    enabled: true
+    threshold: 0.5               # speech-probability cutoff (0-1); higher = stricter
+    min_speech_duration_ms: 250  # drop speech blips shorter than this
+    min_silence_duration_ms: 300 # silence this long splits a speech segment
+    speech_pad_ms: 200           # pad each detected segment on both sides
+    max_speech_duration_s: 30.0  # cap a single segment (matches chunk_seconds)
 
 asr:
   question: "can you transcribe the speech into a written format?"
@@ -35,12 +46,29 @@ asr:
   temperature: 0.0            # greedy decoding for ASR
   max_tokens: 256             # per 30 s chunk; speech is ~2-3 words/s
   output_column: transcript
+  # VAD-driven chunking: consume speech_segments from the manifest (written by
+  # extract_audio) so only speech windows are transcribed. Falls back to
+  # whole-file chunking when the column is absent or this is false.
+  use_vad_segments: true
+  vad_join_gap_seconds: 1.0   # merge speech segments separated by <= this gap
   # Anti-repetition / hallucination controls (granite-speech is a small AR model
-  # that loops + emits "Thank you." filler on silence under plain greedy):
+  # that loops + emits "Thank you." filler under plain greedy). With VAD doing
+  # the heavy lifting, keep frequency_penalty at 0 (0.5 over a 256-token window
+  # corrupts legitimately repeated words); repetition_penalty still breaks
+  # intra-chunk loops on hard audio.
   repetition_penalty: 1.2     # >1 penalizes already-emitted tokens; breaks loops
-  frequency_penalty: 0.0      # bump to ~0.5 for severe "Thank you x N" repeats
+  frequency_penalty: 0.0      # bump to ~0.5 only for severe intra-chunk repeats
   presence_penalty: 0.0       # one-time penalty per distinct token already seen
   silence_rms: 0.005          # drop chunks below this RMS energy (0 = transcribe all)
+  # Post-filter backstop for residual filler that survives VAD (music, crowd
+  # noise). Flagged chunks are excluded from the joined transcript but retained
+  # in chunk_transcripts + chunk_flags for audit. Uses a built-in phrase list
+  # when phrases is null.
+  hallucination_filter:
+    enabled: true
+    phrases: null               # null = built-in "thank you for watching"-family list
+    min_coverage: 0.6           # flag if >= this fraction of the chunk is filler
+    collapse_consecutive_duplicates: true
 
 wandb:
   enabled: true

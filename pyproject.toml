@@ -36,6 +36,7 @@ dependencies = [
     "timm>=1.0.15",
     "webdataset>=0.2.100",
     "marimo>=0.23.3",
+    "silero-vad>=5.1",
 ]
 
 [project.optional-dependencies]

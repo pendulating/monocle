@@ -20,7 +20,6 @@ module — extract_audio guarantees 16-bit PCM, so no librosa/soundfile needed.
 from __future__ import annotations
 
 import os
-import wave
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -34,24 +33,30 @@ from dagspaces.common.vllm_inference import (
     get_vllm_runtime_env_vars,
 )
 
+from .audio_io import read_wav as _read_wav
+from .vad import pack_segments
+
 
 # ---------------------------------------------------------------------------
 # Audio loading / chunking
 # ---------------------------------------------------------------------------
 
-def _read_wav(path: str) -> Tuple[np.ndarray, int]:
-    """Read a 16-bit PCM WAV into a float32 mono array in [-1, 1]."""
-    with wave.open(path, "rb") as wf:
-        sr = wf.getframerate()
-        n_channels = wf.getnchannels()
-        sample_width = wf.getsampwidth()
-        raw = wf.readframes(wf.getnframes())
-    if sample_width != 2:
-        raise ValueError(f"Expected 16-bit PCM WAV, got sample_width={sample_width}: {path}")
-    audio = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
-    if n_channels > 1:
-        audio = audio.reshape(-1, n_channels).mean(axis=1)
-    return audio, sr
+def _segment_bounds(
+    segments: List[Tuple[float, float]], sr: int, n_samples: int, chunk_s: float, join_gap_s: float
+) -> List[Tuple[int, int]]:
+    """Convert VAD speech segments (seconds) into sample-index windows.
+
+    Packs segments into <= chunk_s windows (so non-speech audio between
+    utterances is never transcribed) and clamps to the waveform length.
+    """
+    windows = pack_segments(segments, chunk_s, join_gap_s=join_gap_s)
+    bounds: List[Tuple[int, int]] = []
+    for start_s, end_s in windows:
+        start = max(0, int(round(start_s * sr)))
+        end = min(n_samples, int(round(end_s * sr)))
+        if end > start:
+            bounds.append((start, end))
+    return bounds
 
 
 def _chunk_bounds(
@@ -88,6 +93,74 @@ def _is_silent(chunk: np.ndarray, rms_threshold: float) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Hallucination post-filter
+# ---------------------------------------------------------------------------
+
+# Default filler phrases granite-speech emits over residual non-speech audio
+# that survives VAD (e.g. music, crowd noise). Matched as substrings against a
+# normalized (lowercased, punctuation-stripped) chunk; only *whole* chunks that
+# are essentially just the filler are flagged.
+_DEFAULT_HALLUCINATION_PHRASES = [
+    "thank you for watching",
+    "thanks for watching",
+    "thank you very much for watching",
+    "thank you for your attention",
+    "thank you very much for your attention",
+    "thank you very much",
+    "thank you",
+    "please subscribe",
+    "see you next time",
+    "i'll see you next time",
+]
+
+
+def _normalize_for_match(text: str) -> str:
+    """Lowercase and strip punctuation/whitespace for phrase matching."""
+    return "".join(ch for ch in text.lower() if ch.isalnum() or ch.isspace()).strip()
+
+
+def _make_hallucination_flagger(cfg: DictConfig):
+    """Return (enabled, flag_fn) where flag_fn(text) -> True if filler.
+
+    A chunk is flagged when, after normalization, it is *dominated* by a
+    blocklist phrase (the phrase covers >= ``min_coverage`` of its characters).
+    This drops "Thank you very much for watching." while sparing a real
+    sentence that merely contains "thank you" in passing.
+    """
+    fcfg = getattr(cfg.asr, "hallucination_filter", None)
+    enabled = bool(getattr(fcfg, "enabled", False)) if fcfg is not None else False
+    if not enabled:
+        return False, (lambda _t: False)
+
+    phrases_raw = getattr(fcfg, "phrases", None)
+    phrases = [str(p) for p in phrases_raw] if phrases_raw else list(_DEFAULT_HALLUCINATION_PHRASES)
+    norm_phrases = sorted(
+        (p for p in (_normalize_for_match(p) for p in phrases) if p),
+        key=len,
+        reverse=True,
+    )
+    min_coverage = float(getattr(fcfg, "min_coverage", 0.6))
+
+    def _flag(text: str) -> bool:
+        norm = _normalize_for_match(text)
+        if not norm:
+            return False
+        # Strip every blocklist phrase (repeatedly) and see how much non-filler
+        # text remains. A chunk that is essentially all filler — including
+        # repeated/concatenated phrases like "thank you thank you for watching"
+        # — collapses to near-empty and is flagged; a real sentence that merely
+        # ends with "thanks for watching" keeps a large residual and is spared.
+        residual = norm
+        for ph in norm_phrases:
+            if ph:
+                residual = residual.replace(ph, " ")
+        residual = "".join(residual.split())
+        return len(residual) <= (1.0 - min_coverage) * len(norm)
+
+    return True, _flag
+
+
+# ---------------------------------------------------------------------------
 # Stage entry point
 # ---------------------------------------------------------------------------
 
@@ -120,6 +193,14 @@ def run_asr_stage(cfg: DictConfig) -> str:
     batch_size = int(getattr(cfg.asr, "batch_size", 64)) or 64
     output_column = str(getattr(cfg.asr, "output_column", "transcript"))
     question = str(getattr(cfg.asr, "question", "can you transcribe the speech into a written format?"))
+
+    # VAD-driven chunking: when the manifest carries per-video speech_segments
+    # (written by extract_audio's VAD pass), transcribe only those windows so
+    # non-speech audio never reaches the model. Falls back to whole-file
+    # windowing when segments are absent (old manifests) or use_vad disabled.
+    use_vad = bool(getattr(cfg.asr, "use_vad_segments", True))
+    vad_join_gap_s = float(getattr(cfg.asr, "vad_join_gap_seconds", 1.0))
+    has_vad_col = "speech_segments" in df.columns
 
     # Anti-repetition / hallucination controls. granite-speech is a small
     # autoregressive model and, under plain greedy decoding, both loops on hard
@@ -228,9 +309,20 @@ def run_asr_stage(cfg: DictConfig) -> str:
         except Exception as exc:  # noqa: BLE001 — bad files must not kill the run
             asr_errors[row_idx] = f"wav_read_failed: {exc}"
             continue
-        for chunk_idx, (start, end) in enumerate(
-            _chunk_bounds(len(audio), sr, chunk_s, overlap_s, min_chunk_s)
-        ):
+
+        # Prefer VAD speech windows; fall back to whole-file chunking.
+        segments = row.get("speech_segments") if has_vad_col else None
+        if use_vad and segments is not None:
+            seg_pairs = [(float(s[0]), float(s[1])) for s in segments]
+            if not seg_pairs:
+                # VAD ran and found no speech -> nothing to transcribe.
+                asr_errors[row_idx] = "no_speech"
+                continue
+            bounds = _segment_bounds(seg_pairs, sr, len(audio), chunk_s, vad_join_gap_s)
+        else:
+            bounds = _chunk_bounds(len(audio), sr, chunk_s, overlap_s, min_chunk_s)
+
+        for chunk_idx, (start, end) in enumerate(bounds):
             clip = audio[start:end]
             # Drop silent/near-silent chunks rather than letting the model
             # hallucinate filler over them (no-op when silence_rms <= 0).
@@ -254,34 +346,65 @@ def run_asr_stage(cfg: DictConfig) -> str:
 
     _shutdown_llm(llm, stage_name="asr")
 
+    # Post-filter: flag residual hallucinated filler and collapse cross-chunk
+    # repeats when joining. Flagged chunks are excluded from the joined
+    # transcript but retained in chunk_transcripts (+ chunk_flags) for audit.
+    filter_enabled, is_hallucination = _make_hallucination_flagger(cfg)
+    collapse_dupes = bool(
+        getattr(getattr(cfg.asr, "hallucination_filter", None), "collapse_consecutive_duplicates", True)
+    )
+
     # Assemble per-video transcripts.
     transcripts: List[Any] = []
     chunk_lists: List[Any] = []
+    flag_lists: List[Any] = []
     n_chunks_col: List[int] = []
+    n_filtered_col: List[int] = []
     error_col: List[Any] = []
+    n_filtered_total = 0
     for row_idx, row in enumerate(rows):
         chunks = chunk_transcripts.get(row_idx)
         if chunks:
             ordered = [chunks[i] for i in sorted(chunks)]
-            transcripts.append(" ".join(t for t in ordered if t).strip())
+            flags = [bool(t) and is_hallucination(t) for t in ordered]
+            n_filtered_total += sum(flags)
+            kept: List[str] = []
+            prev_norm = None
+            for text, flagged in zip(ordered, flags):
+                if not text or flagged:
+                    continue
+                norm = _normalize_for_match(text)
+                if collapse_dupes and norm and norm == prev_norm:
+                    continue
+                kept.append(text)
+                prev_norm = norm
+            transcripts.append(" ".join(kept).strip() or None)
             chunk_lists.append(ordered)
+            flag_lists.append(flags)
             n_chunks_col.append(len(ordered))
-            error_col.append(None)
+            n_filtered_col.append(int(sum(flags)))
+            error_col.append(None if kept else "all_chunks_filtered")
         else:
             transcripts.append(None)
             chunk_lists.append(None)
+            flag_lists.append(None)
             n_chunks_col.append(0)
+            n_filtered_col.append(0)
             error_col.append(asr_errors.get(row_idx) or row.get("extract_error") or "no_audio")
 
     df[output_column] = transcripts
     df["chunk_transcripts"] = chunk_lists
+    df["chunk_flags"] = flag_lists
     df["n_chunks"] = n_chunks_col
+    df["n_chunks_filtered"] = n_filtered_col
     df["asr_error"] = error_col
     df["asr_model_source"] = model_source
 
     df.to_parquet(output_path, index=False)
     n_ok = int(df[output_column].notna().sum())
     print(f"[asr] Wrote {output_path}: {n_ok}/{len(df)} transcribed "
-          f"({n_chunks_done} chunks, {n_skipped_silent} silent chunks skipped)",
+          f"({n_chunks_done} chunks, {n_skipped_silent} silent chunks skipped, "
+          f"{n_filtered_total} chunks flagged as filler"
+          f"{' [filter off]' if not filter_enabled else ''})",
           flush=True)
     return output_path

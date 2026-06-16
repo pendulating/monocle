@@ -248,7 +248,80 @@ def run_extract_audio_stage(cfg: DictConfig) -> str:
     for col in ("audio_path", "has_audio", "audio_duration_s", "sample_rate", "extract_error"):
         df[col] = [results[str(sid)][col] for sid in df["sample_id"]]
 
+    # Voice Activity Detection: detect speech intervals per video so the GPU
+    # ASR stage only transcribes audio that actually contains speech. This is
+    # the fix for granite-speech hallucinating filler ("Thank you for watching")
+    # over ambient non-speech audio, which a pure RMS gate cannot catch.
+    _run_vad_pass(cfg, df)
+
     df.to_parquet(output_path, index=False)
     n_ok = int(df["has_audio"].sum())
     print(f"[extract_audio] Wrote {output_path}: {n_ok}/{len(df)} with audio", flush=True)
     return output_path
+
+
+def _run_vad_pass(cfg: DictConfig, df: pd.DataFrame) -> None:
+    """Add speech_segments / n_speech_segments / speech_duration_s to df.
+
+    Mutates ``df`` in place. Runs sequentially (Silero VAD is a GIL-bound torch
+    model — keep it out of the ffmpeg thread pool) over every extracted WAV.
+    Per-file VAD failures degrade gracefully to an empty segment list so a bad
+    file never kills the run; with VAD disabled the columns are written as
+    null, and the ASR stage falls back to whole-file chunking.
+    """
+    vad_cfg = getattr(cfg.audio_extraction, "vad", None)
+    enabled = bool(getattr(vad_cfg, "enabled", False)) if vad_cfg is not None else False
+    if not enabled:
+        df["speech_segments"] = None
+        df["n_speech_segments"] = None
+        df["speech_duration_s"] = None
+        print("[extract_audio] VAD disabled; ASR will chunk whole files", flush=True)
+        return
+
+    from .audio_io import read_wav
+    from .vad import speech_segments, total_speech_seconds
+
+    opts = dict(
+        threshold=float(getattr(vad_cfg, "threshold", 0.5)),
+        min_speech_duration_ms=int(getattr(vad_cfg, "min_speech_duration_ms", 250)),
+        min_silence_duration_ms=int(getattr(vad_cfg, "min_silence_duration_ms", 300)),
+        speech_pad_ms=int(getattr(vad_cfg, "speech_pad_ms", 200)),
+        max_speech_duration_s=float(getattr(vad_cfg, "max_speech_duration_s", 30.0)),
+    )
+    print(f"[extract_audio] Running VAD (Silero) over extracted audio: {opts}", flush=True)
+
+    segs_col: List[Any] = []
+    n_col: List[Any] = []
+    dur_col: List[Any] = []
+    n_done = 0
+    n_speech = 0
+    for _, row in df.iterrows():
+        audio_path = row.get("audio_path")
+        if not row.get("has_audio") or not audio_path:
+            segs_col.append(None)
+            n_col.append(None)
+            dur_col.append(None)
+            continue
+        try:
+            audio, sr = read_wav(str(audio_path))
+            segs = speech_segments(audio, sr, **opts)
+        except Exception as exc:  # noqa: BLE001 — bad files must not kill the pass
+            # Store None (not []) so ASR falls back to whole-file chunking for
+            # this clip rather than dropping it as "no speech".
+            print(f"[extract_audio] VAD failed for {audio_path}: {exc}", flush=True)
+            segs_col.append(None)
+            n_col.append(None)
+            dur_col.append(None)
+            continue
+        # Store as list-of-lists so parquet/pyarrow round-trips cleanly.
+        segs_col.append([[s, e] for s, e in segs])
+        n_col.append(len(segs))
+        dur_col.append(total_speech_seconds(segs))
+        n_done += 1
+        if segs:
+            n_speech += 1
+
+    df["speech_segments"] = segs_col
+    df["n_speech_segments"] = n_col
+    df["speech_duration_s"] = dur_col
+    print(f"[extract_audio] VAD done: {n_speech}/{n_done} clips contain speech", flush=True)
