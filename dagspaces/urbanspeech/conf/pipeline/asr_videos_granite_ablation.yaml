@@ -30,6 +30,8 @@ pipeline:
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
           audio_extraction.num_workers: ${audio_extraction.num_workers}
+          audio_extraction.vad.enabled: ${audio_extraction.vad.enabled}
+          audio_extraction.vad.threshold: ${audio_extraction.vad.threshold}
         launcher: slurm_cpu_ju
         wandb_suffix: extract_audio
 
