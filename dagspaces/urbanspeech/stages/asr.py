@@ -71,6 +71,22 @@ def _chunk_bounds(
     return bounds
 
 
+def _is_silent(chunk: np.ndarray, rms_threshold: float) -> bool:
+    """True if a chunk's RMS energy is below rms_threshold.
+
+    granite-speech (like every attention-based ASR) hallucinates filler such
+    as "Thank you. Thank you." on silent / near-silent audio, so chunks below
+    the threshold are dropped before inference rather than transcribed. The
+    waveform is float32 in [-1, 1]; a quiet room sits around 0.001–0.005 RMS
+    and conversational speech is typically >0.02, so ~0.005–0.01 is a safe
+    cutoff. ``rms_threshold <= 0`` disables the gate (transcribe everything).
+    """
+    if rms_threshold <= 0.0 or chunk.size == 0:
+        return False
+    rms = float(np.sqrt(np.mean(np.square(chunk, dtype=np.float64))))
+    return rms < rms_threshold
+
+
 # ---------------------------------------------------------------------------
 # Stage entry point
 # ---------------------------------------------------------------------------
@@ -104,6 +120,16 @@ def run_asr_stage(cfg: DictConfig) -> str:
     batch_size = int(getattr(cfg.asr, "batch_size", 64)) or 64
     output_column = str(getattr(cfg.asr, "output_column", "transcript"))
     question = str(getattr(cfg.asr, "question", "can you transcribe the speech into a written format?"))
+
+    # Anti-repetition / hallucination controls. granite-speech is a small
+    # autoregressive model and, under plain greedy decoding, both loops on hard
+    # audio ("Literally, this is the set." x20) and emits filler on silence
+    # ("Thank you. Thank you."). repetition/frequency/presence penalties break
+    # the loops; the RMS gate drops silent chunks before they reach the model.
+    repetition_penalty = float(getattr(cfg.asr, "repetition_penalty", 1.0) or 1.0)
+    frequency_penalty = float(getattr(cfg.asr, "frequency_penalty", 0.0) or 0.0)
+    presence_penalty = float(getattr(cfg.asr, "presence_penalty", 0.0) or 0.0)
+    silence_rms = float(getattr(cfg.asr, "silence_rms", 0.0) or 0.0)
 
     # Set runtime env vars before importing vLLM.
     for k, v in {**get_pcie_nccl_env_vars(), **get_vllm_runtime_env_vars()}.items():
@@ -140,7 +166,15 @@ def run_asr_stage(cfg: DictConfig) -> str:
     sampling_params = SamplingParams(
         temperature=float(getattr(cfg.asr, "temperature", 0.0)),
         max_tokens=int(getattr(cfg.asr, "max_tokens", 256)),
+        repetition_penalty=repetition_penalty,
+        frequency_penalty=frequency_penalty,
+        presence_penalty=presence_penalty,
     )
+    print(f"[asr] Sampling: temp={sampling_params.temperature} "
+          f"max_tokens={sampling_params.max_tokens} "
+          f"repetition_penalty={repetition_penalty} "
+          f"frequency_penalty={frequency_penalty} "
+          f"presence_penalty={presence_penalty} silence_rms={silence_rms}", flush=True)
 
     streaming_io = bool(getattr(getattr(cfg, "runtime", {}), "streaming_io", False))
     parts_dir = output_path + ".parts"
@@ -155,6 +189,7 @@ def run_asr_stage(cfg: DictConfig) -> str:
     pending: List[Dict[str, Any]] = []  # {row_idx, chunk_idx, start_s, end_s, audio}
     n_chunks_done = 0
     n_parts = 0
+    n_skipped_silent = 0
 
     def _flush_batch(batch: List[Dict[str, Any]]) -> None:
         nonlocal n_chunks_done, n_parts
@@ -196,12 +231,18 @@ def run_asr_stage(cfg: DictConfig) -> str:
         for chunk_idx, (start, end) in enumerate(
             _chunk_bounds(len(audio), sr, chunk_s, overlap_s, min_chunk_s)
         ):
+            clip = audio[start:end]
+            # Drop silent/near-silent chunks rather than letting the model
+            # hallucinate filler over them (no-op when silence_rms <= 0).
+            if _is_silent(clip, silence_rms):
+                n_skipped_silent += 1
+                continue
             pending.append({
                 "row_idx": row_idx,
                 "chunk_idx": chunk_idx,
                 "start_s": start / sr,
                 "end_s": end / sr,
-                "audio": audio[start:end],
+                "audio": clip,
                 "sr": sr,
             })
             if len(pending) >= batch_size:
@@ -241,5 +282,6 @@ def run_asr_stage(cfg: DictConfig) -> str:
     df.to_parquet(output_path, index=False)
     n_ok = int(df[output_column].notna().sum())
     print(f"[asr] Wrote {output_path}: {n_ok}/{len(df)} transcribed "
-          f"({n_chunks_done} chunks)", flush=True)
+          f"({n_chunks_done} chunks, {n_skipped_silent} silent chunks skipped)",
+          flush=True)
     return output_path

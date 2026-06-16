@@ -35,6 +35,12 @@ asr:
   temperature: 0.0            # greedy decoding for ASR
   max_tokens: 256             # per 30 s chunk; speech is ~2-3 words/s
   output_column: transcript
+  # Anti-repetition / hallucination controls (granite-speech is a small AR model
+  # that loops + emits "Thank you." filler on silence under plain greedy):
+  repetition_penalty: 1.2     # >1 penalizes already-emitted tokens; breaks loops
+  frequency_penalty: 0.0      # bump to ~0.5 for severe "Thank you x N" repeats
+  presence_penalty: 0.0       # one-time penalty per distinct token already seen
+  silence_rms: 0.005          # drop chunks below this RMS energy (0 = transcribe all)
 
 wandb:
   enabled: true
