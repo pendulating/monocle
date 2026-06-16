@@ -1,0 +1,41 @@
+# IBM granite-speech-4.1-2b — speech-to-text via vLLM
+#
+# Same vLLM model class as the 3.3 configs
+# (GraniteSpeechForConditionalGeneration, model_type=granite_speech — supported
+# by vLLM 0.19), but two differences from 3.3:
+#   1. No speech LoRA. config.json carries "has_lora_adapter": false and the
+#      repo ships no adapter_*.safetensors — the audio encoder/projector are
+#      baked into the indexed weights. So speech_lora is false and engine_kwargs
+#      omits enable_lora/max_lora_rank (the asr stage then attaches no
+#      LoRARequest). The repo's out_llm.safetensors is an auxiliary CTC head for
+#      the HF processor and is not referenced by the weight index — vLLM ignores
+#      it.
+#   2. The LLM backbone is granite-4.0-1b-base (text_config max_position_embeddings
+#      4096), so max_model_len can go to 4096.
+#
+# bf16 weights are ~4.6 GB — comfortably fits one 24 GB RTX A5000 (TP=1,
+# launcher slurm_gpu_ju_1x).
+#
+# Unlike 3.3, the base 4.1 model emits raw lowercase text by default. To get
+# punctuation + capitalization, override the prompt:
+#   asr.question="transcribe the speech with proper punctuation and capitalization."
+#
+# NOTE: the -plus (speaker-attributed ASR + word timestamps) and -nar variants
+# use distinct architectures (granite_speech_plus / granite_speech_nar) that
+# vLLM 0.19 does NOT support — they are intentionally not wired up here.
+
+model_source: /share/pierson/matt/zoo/models/granite-speech-4.1-2b
+model_family: granite_speech
+speech_lora: false
+
+engine_kwargs:
+  tensor_parallel_size: 1
+  max_model_len: 4096        # granite-4.0-1b-base backbone; 30 s audio + transcript fits
+  max_num_seqs: 8
+  limit_mm_per_prompt:
+    audio: 1
+  trust_remote_code: true
+  dtype: auto
+  gpu_memory_utilization: 0.90
+
+batch_size: 0
