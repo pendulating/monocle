@@ -6,8 +6,14 @@
 #   python -m dagspaces.urbanspeech.cli -m pipeline=asr_videos \
 #     data.video_dir=/path/to/clips
 #
-# Swap the model with `model=granite_speech_3_3_8b` (pair the asr node with
-# launcher slurm_gpu_ju_2x — see asr_videos_granite_ablation for both at once).
+# Swap the model on the CLI (a `model=` override wins over the default below):
+#   - `model=granite_speech_4_1_2b` — newer 4.1 backbone, no speech LoRA, TP=1.
+#       Add `asr.question="transcribe the speech with proper punctuation and
+#       capitalization."` for punctuated/cased output (raw lowercase otherwise).
+#   - `model=granite_speech_3_3_8b` — pair the asr node with launcher
+#       slurm_gpu_ju_2x (see asr_videos_granite_ablation for both at once).
+# The 4.1 -plus (speaker-attributed ASR + word timestamps) and -nar variants use
+# architectures vLLM 0.19 does not support, so they are not available here.
 
 defaults:
   - _self_
