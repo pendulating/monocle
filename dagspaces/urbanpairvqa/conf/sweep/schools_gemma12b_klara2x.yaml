@@ -1,0 +1,46 @@
+# @package _global_
+# Hydra sweep: schools pairwise run for the Gemma-4-12B-IT model only, to extend
+# the capability ladder of `schools_all_models_klara2x.yaml`. That sweep already
+# covers gemma-4-{e2b,e4b}, phi-4, and qwen3.5-{2b,4b,9b}; the public/non-public
+# quality gap and the poverty gradient both *grow with rater capability* within
+# the qwen family (2b → 4b → 9b). Gemma-4-12B-IT is the largest gemma-4 dense
+# checkpoint we have — running it on the identical pipeline lets us check whether
+# the same monotone-with-capability discrepancy appears in the gemma family.
+#
+# Everything here is byte-for-byte identical to schools_all_models_klara2x.yaml
+# except the swept model list (one model), so the result is directly comparable
+# and can be dropped straight into the same aggregation dir.
+#
+# Model group path (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
+#   - gemma-4-12b/instruct → common/conf/model/gemma-4-12b/instruct.yaml
+# Gemma-4-12B-IT is ~24 GB bf16, fits TP=1 on a single 48 GB A6000; klara_2x then
+# runs DP=2 (one replica per GPU), matching the rest of the schools sweep.
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the model likely never saw the images.
+#
+# Fixed (non-swept) overrides, matching the 6-model sweep:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_2x
+#   - sampling_params_vqa.max_tokens         = 128
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=schools_gemma12b_klara2x \
+#       pipeline=pairwise_schools_mvp
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_2x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 1
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct

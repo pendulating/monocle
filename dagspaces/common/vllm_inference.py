@@ -370,6 +370,64 @@ def _flatten_messages_for_template(messages: List[Dict[str, Any]]) -> List[Dict[
     return flat
 
 
+# Cache: model_source -> (is_gemma4_unified, chat_template_str_or_None)
+_GEMMA4_UNIFIED_CACHE: Dict[str, tuple] = {}
+
+
+def _gemma4_unified_chat_template(model_source: str) -> tuple:
+    """Return ``(is_unified, chat_template_str)`` for a model directory.
+
+    gemma-4 *unified* (``Gemma4UnifiedForConditionalGeneration``, model_type
+    ``gemma4_unified``) is encoder-free and uses the image token ``<|image|>``
+    (id 258880). Its ``chat_template.jinja`` is what inserts that token — the
+    tokenizer's default template omits images entirely, so vLLM's mm processor
+    fails with "Failed to apply prompt replacement". For any other model this
+    returns ``(False, None)`` and callers fall back to the normal path, so
+    qwen / gemma-4 e2b/e4b are unaffected.
+    """
+    if model_source in _GEMMA4_UNIFIED_CACHE:
+        return _GEMMA4_UNIFIED_CACHE[model_source]
+    result = (False, None)
+    try:
+        with open(os.path.join(model_source, "config.json")) as f:
+            arch = json.load(f).get("architectures") or []
+        if any("Gemma4Unified" in str(a) for a in arch):
+            with open(os.path.join(model_source, "chat_template.jinja")) as f:
+                result = (True, f.read())
+    except Exception:
+        result = (False, None)
+    _GEMMA4_UNIFIED_CACHE[model_source] = result
+    return result
+
+
+def _to_image_type_blocks(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Rewrite image content blocks to ``{"type": "image"}``.
+
+    gemma-4 unified's chat template matches on ``content.type == 'image'``; the
+    pipeline emits OpenAI ``image_url`` (and the DP path ``image_pil``) blocks,
+    which that template ignores. The actual pixels are passed separately via
+    ``multi_modal_data`` / extracted from the originals, so the block value is
+    irrelevant — only the placeholder count matters here. Non-image blocks are
+    preserved; the input is not mutated.
+    """
+    out: List[Dict[str, Any]] = []
+    for msg in messages:
+        content = msg.get("content")
+        if isinstance(content, list):
+            new_content: List[Any] = []
+            for block in content:
+                if isinstance(block, dict) and block.get("type") in (
+                    "image_url", "image_pil", "image",
+                ):
+                    new_content.append({"type": "image"})
+                else:
+                    new_content.append(block)
+            out.append({**msg, "content": new_content})
+        else:
+            out.append(msg)
+    return out
+
+
 def get_pcie_nccl_env_vars() -> Dict[str, str]:
     """Return NCCL environment variables required for PCIe-only GPUs (no NVLink)."""
     return {
@@ -2832,12 +2890,22 @@ def run_vllm_inference(
                 # only needs the text/placeholder structure, not the pixels.
                 template_messages = messages
 
+                # gemma-4 unified needs its own chat_template.jinja (which emits
+                # the <|image|> token) and {"type":"image"} blocks; gated so no
+                # other model family is affected.
+                _g4u_is, _g4u_tmpl = _gemma4_unified_chat_template(_model_source)
+                _g4u_kwargs = {}
+                if _g4u_is:
+                    template_messages = _to_image_type_blocks(messages)
+                    _g4u_kwargs = {"chat_template": _g4u_tmpl}
+
                 try:
                     chat_template_kwargs = dict(
                         getattr(cfg.model, "chat_template_kwargs", {}) or {}
                     )
                     prompt = tokenizer.apply_chat_template(
                         template_messages, tokenize=False, add_generation_prompt=True,
+                        **_g4u_kwargs,
                         **chat_template_kwargs,
                     )
                 except Exception:
