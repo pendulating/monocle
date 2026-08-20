@@ -1,0 +1,158 @@
+# @package _global_
+# Integrative Complexity ingredients over the reasoning traces of a thinking run.
+#
+# The stage reads a pairvqa results parquet and writes 1 row for each
+# ingredient: a dimension, a perspective, a dismissal, a reconsideration, a
+# verdict, a hedge, or a weighing. It writes NO code and NO score. A later step
+# derives those from the table, thus a threshold changes without a rerun.
+#
+# This pipeline does not use LangExtract. The schema is written by hand in
+# `dagspaces/common/ic_schema.py`, because IC needs real enums, real bounds,
+# and nested sub-quotes.
+#
+# Warning: only a THINKING run holds a trace. The canonical battery runs greedy
+# with `max_tokens=128`, and its `model_reasoning` column is empty.
+#
+# Run it:
+#
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=ic_extract \
+#       ic_extract.results_path=/share/.../subway_safety_mvp_20260813_013722.parquet
+#
+# Pilot of 300 traces, few-shot and then zero-shot:
+#
+#   ... runtime.sample_n=300 ic_extract.debug_answers=20
+#   ... runtime.sample_n=300 ic_extract.use_examples=false
+#
+# Dry run, no GPU:
+#
+#   ... runtime.sample_n=20 runtime.skip_inference=true
+#
+# See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+
+# Warning: a plain group entry must come BEFORE every `override` entry. Hydra
+# rejects a defaults list that adds a group after an override.
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  # The extractor. qwen3.5-9b is NOT the judge of the 2026-08-13 thinking runs,
+  # which gemma-4-12b wrote. `trace_extract` uses the same model, thus the two
+  # schemas stay comparable and the first reviewer question stays answerable:
+  # the finding cannot be an echo of the judge.
+  - override /model: qwen3.5-9b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+ic_extract:
+  # The results parquet of the thinking run. No default: name it on the CLI.
+  results_path: ???
+  reasoning_column: model_reasoning
+  id_column: pair_id
+  # These columns travel into every output row, so a reader can ask which
+  # reasoning structure goes with which judgment.
+  keep_columns:
+    - presented_label
+    - presented_score
+    - relative_label
+  # Empty means "read it from the source". The case comes from the parquet file
+  # name, and the judge model from `<stage_dir>/.hydra/overrides.yaml`.
+  case: ""
+  judge_model: ""
+
+  # The ingredient ORDER, which is also the schema version.
+  #
+  #   v2  the corpus of 2026-08-18: dimension, perspective, verdict, weighing,
+  #       dismissal, reconsideration, hedge
+  #   v3  the order probe: `dismissal` moves from 5th to 3rd, and nothing else
+  #       moves. It answers whether the position sets the rate.
+  #
+  # Warning: 2 versions never pool. The output rows carry the version, and
+  # `ic_codes` refuses a table that holds 2.
+  schema_order: v2
+
+  # The 3 worked examples. Set false for the zero-shot prompt.
+  #
+  # Warning: the examples are NOT a sample. All 3 hold a weighing, but a
+  # weighing word appears in 0.6% of the 11,000 subway traces. A few-shot
+  # prompt leaks the base rate of its own examples, thus the pilot runs both
+  # ways over the same traces and we compare.
+  use_examples: true
+  # Empty means the file beside `ic_schema.py`.
+  examples_path: ""
+
+  # Measured 2026-08-15 on the 300-trace pilot: 54 tokens for each ingredient,
+  # and a median answer holds 32 of them.
+  #
+  # Warning: 4,096 cut 10% of the subway traces, and a cut answer loses whole
+  # ARRAYS. Watch `answers_cut` and `answers_repaired` on every run.
+  max_tokens: 8192
+  temperature: 0.0
+  batch_size: 256
+  # 1 parquet for each row range, under `chunks/`. A rerun skips a range that
+  # already has a chunk, thus a walltime stop loses at most 1 shard.
+  shard_rows: 2000
+  # A trace shorter than this is a stub, not a judgment.
+  min_chars: 200
+  # Write the first N raw answers to `debug_answers.jsonl`. A silent trace
+  # gives no row, thus the parquet cannot say WHY it was silent.
+  debug_answers: 0
+  # Split the traces across N jobs, 1 GPU for each. The work is decode-bound
+  # and each trace stands alone, thus the wall clock falls by N:
+  #
+  #   ... ic_extract.shard_count=8 ic_extract.shard_index=0,1,2,3,4,5,6,7 \
+  #       hydra.launcher.array_parallelism=8
+  #
+  # Warning: leave `array_parallelism` at its default and the 8 jobs run one
+  # after the other.
+  shard_count: 1
+  shard_index: 0
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      ic:
+        stage: ic_extract
+        depends_on: []
+        outputs:
+          # The shard index is in the name. A multirun gives each job its own
+          # stage directory, but 2 sweeps that start in the same second can
+          # share one, and then 2 shards would write the same file.
+          ingredients: outputs/ic/ic_ingredients_${ic_extract.schema_order}_s${ic_extract.shard_index}_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          model.model_source: ${model.model_source}
+          # Measured 2026-08-15 with the Qwen3.5-9B tokenizer:
+          #   few-shot prompt   6,250 tokens (the 3 examples cost 5,219)
+          #   longest trace     7,650 tokens (schools, 28,001 characters)
+          #   answer cap        4,096 tokens
+          #   worst case       17,996 tokens
+          #
+          # Warning: do NOT cut this to 16,384. That is the value
+          # `extract_traces` uses, and it is 1,612 tokens short of the worst
+          # case here. The long trace would be dropped, not shortened.
+          model.engine_kwargs.max_model_len: 24576
+          # The cap is a cap, not a reservation. A real request uses about
+          # 8,000 tokens, and the scheduler allocates as it goes. The "maximum
+          # concurrency" line of vLLM assumes the worst case and reads low.
+          model.engine_kwargs.max_num_seqs: 128
+          # EVERY prompt starts with the same 6,250 tokens: the instructions
+          # and the 3 examples. Only the trace differs. The cache holds that
+          # prefix ONE time for all sequences, thus the examples cost almost
+          # nothing at run time.
+          #
+          # Warning: without this the engine prefills 6,250 tokens again for
+          # each of 11,000 traces.
+          model.engine_kwargs.enable_prefix_caching: true
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          # The extractor reads text. A thought block only wastes decode steps.
+          model.thinking_mode: off
+        launcher: slurm_gpu_1x
+        wandb_suffix: ic_extract_ic_ingredients

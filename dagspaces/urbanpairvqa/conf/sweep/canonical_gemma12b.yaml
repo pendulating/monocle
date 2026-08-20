@@ -1,0 +1,63 @@
+# @package _global_
+# ⚠️ SUPERSEDED on 2026-08-14 by `looks_proxy_gemma12b.yaml`. That file holds
+# the 7-case axis, runs the "looks like" prompts, AND pins
+# `prompt.image_layout=interleaved_labels`, without which gemma-4-12b does not
+# bind the second image. Use this file only to repeat a run of 2026-08-11..14.
+#
+# CANONICAL RATER 2 of 2 — gemma-4-12b.
+#
+# The canonical model set for the consolidated ranking battery is
+# **qwen3.5-9b + gemma-4-12b** (use these unless a run says otherwise).
+# This is the companion to `canonical_qwen9b.yaml`; launch both, pool after.
+#
+# ┌─ ONE HARD REQUIREMENT — easy to forget, fails loudly ──────────────────────┐
+# │                                                                            │
+# │ LAUNCHER: klara_1x (single GPU), NEVER klara_2x.                           │
+# │   gemma-4-12b is `Gemma4UnifiedForConditionalGeneration` (`gemma4_         │
+# │   unified`). The `<|image|>` chat-template fix lives only in the           │
+# │   single-process apply_chat_template site in vllm_inference.py. The        │
+# │   DP-worker path that a 2-GPU stage triggers (DP=2) is NOT gated for this  │
+# │   arch, so klara_2x crashes with "Failed to apply prompt replacement for   │
+# │   mm_items['image'][0]". ~24 GB bf16 fits one 48 GB A6000 at TP=1.         │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# VENV: use the canonical default. Do NOT override it.
+# `.venv-nightly` is DEPRECATED (2026-08-12). gemma-4-12b runs on the canonical
+# `.venv-vllm025cu129` (vLLM 0.25.0), which `server.env` already selects. An
+# override LOSES the node-local venv mirror — only `venv-vllm025cu129.tar.zst`
+# exists, so the stage falls back to NFS and pays about 13 minutes of cold
+# torch/vLLM import for each process spawn.
+#
+# Sampling is greedy (temperature=0.0) from conf/config.yaml — see the note
+# there. Note gemma-4-12b ships `thinking_mode: off` in its model config; the
+# `<|channel>thought` channel still parses fine within max_tokens=128.
+#
+# Usage (any case pipeline):
+#   export HYDRA_SWEEP_DIR=multirun/canon_gemma12b_<case>
+#   .venv-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=canonical_gemma12b pipeline=pairwise_road_quality_mvp
+#
+# Sanity-check the label distribution before trusting the run: Same >> 30% with
+# near-zero Much* labels means the model likely never saw the images.
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x   # NOT klara_2x — see requirement 2 above
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # Each array task is its own single-GPU job, so parallel tasks are safe. The
+    # klara_2x prohibition is about DP *inside* one job, not about concurrent
+    # jobs. Set this with the companion qwen sweep to stay at 8 GPUs total.
+    # To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct

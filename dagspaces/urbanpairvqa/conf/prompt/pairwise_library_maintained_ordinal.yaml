@@ -1,15 +1,24 @@
-system: |
-  You are an expert visual comparison assistant. You will be shown two
-  street-level photographs of NYC public library buildings and asked to
-  judge which building appears better maintained. Base your judgment on
-  observable facade cues only — e.g. paint / render condition, glazing,
-  signage, lighting, cleanliness of entrances, visible damage or graffiti.
-  Do not speculate about interiors you cannot see.
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Libraries
+# Umbrella: Signs of public investment + government management
+# Unit:     public library building (FacDB facgroup=LIBRARIES)
+# Data:     data/cyclomedia_near_libraries_facing   (pair_sampler.mode=unit)
+# Pipeline: pipeline=pairwise_libraries_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# Minimal prompt contract — see pairwise_subway_safety_ordinal.yaml for the
+# full statement of what is deliberately left unspecified and why.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
 
 user_template: |
-  Compare the physical maintenance condition of the two depicted NYC
-  public library buildings. Image A is the first image and Image B is
-  the second image.
+  Image A is the first image and Image B is the second image.
+  Both show New York City public library buildings.
+  Which library building looks better?
 
   Return exactly one label from:
   - MuchLess
@@ -18,11 +27,18 @@ user_template: |
   - More
   - MuchMore
 
-  Interpret this as "Image A is <label> well-maintained than Image B".
-  Use "Same" when the two buildings look about equally well-maintained.
+  Interpret this as "the library in Image A is <label> well-maintained than the
+  one in Image B". Use "Same" when they look about the same.
 
 structured_output:
   enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
   json_schema:
     type: object
     properties:
@@ -32,4 +48,9 @@ structured_output:
       confidence:
         type: number
     required: ["answer"]
-    additionalProperties: true
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    # NOTE: flipped true → false on 2026-08-11 to match the other six cases.
+    additionalProperties: false

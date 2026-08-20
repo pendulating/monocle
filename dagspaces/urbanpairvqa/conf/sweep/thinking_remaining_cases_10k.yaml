@@ -1,0 +1,108 @@
+# @package _global_
+# ⚠️ SUPERSEDED on 2026-08-14 by `looks_thinking_gemma12b.yaml`, which holds all
+# 7 cases in 1 sweep. Use this file only to repeat a run of 2026-08-14.
+#
+# THINKING-MODE run for the 3 cases that the first thinking sweep left out —
+# gemma-4-12b, 10k pairs. The sibling of `thinking_public_investment_10k.yaml`.
+#
+# Every setting below is copied from that file, unchanged. Only the case list
+# and the array width differ. Keep the 2 files in step: a difference in
+# sampling, in the image layout, or in the pair count would make the 2 halves
+# of the corpus incomparable, and the `distinctive` score compares them.
+#
+# Cases:
+#   pairwise_restaurants_mvp
+#   pairwise_parks_plazas_mvp
+#   pairwise_street_photography_mvp
+#
+# With the 4 cases of 2026-08-13 (subway safety, libraries, schools, road
+# quality) this completes the 7-case battery of the consolidation.
+#
+# *** MODEL: gemma-4-12b/instruct_thinking. Set it on the CLI. ***
+# That config flips thinking on AND wires the `gemma4` reasoning parser. The
+# parser is what makes this work: it holds the answer-enum grammar until the
+# model closes its thought channel. Without it, guided decoding forces the JSON
+# immediately and NO reasoning is emitted.
+#
+# *** VENV: the canonical default. Do NOT override it. ***
+# `.venv-nightly` is DEPRECATED (2026-08-12). gemma-4-12b runs on the canonical
+# venv, which `server.env` already selects. Override it and the job LOSES the
+# node-local mirror, then a cold import over NFS costs about 13 minutes for
+# each process spawn.
+#
+# *** LAUNCHER: klara_1x, never klara_2x. ***
+# gemma-4-12b is the encoder-free `gemma4_unified` arch, and the DP-worker path
+# is not gated for its `<|image|>` template, so a 2-GPU stage crashes.
+#
+# Launch (3 cases, 3 GPUs, all at once):
+#   export HYDRA_SWEEP_DIR=multirun/thinking_remaining_cases
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_remaining_cases_10k \
+#       model=gemma-4-12b/instruct_thinking \
+#       pipeline=pairwise_restaurants_mvp,pairwise_parks_plazas_mvp,pairwise_street_photography_mvp
+#
+# Smoke-test 16 pairs first:
+#   ... pair_sampler.max_pairs=16
+#
+# Check the stage log for this line, which proves the mirror was used:
+#   [stage_venv] ... scratch mirror ...
+#
+# Warning: these runs are NOT canonical. The model string is
+# `gemma-4-12b/instruct_thinking`, and the sweep name is not in
+# CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
+# correct: a thinking run uses different sampling, so its labels are not
+# comparable with the greedy battery. `notebooks/cvpr/_traces.py` collects them
+# instead.
+
+sampling_params_vqa:
+  # Google's standard sampling for gemma-4-12b.
+  #
+  # Warning: thinking mode MUST NOT be greedy. Greedy decoding degenerates into
+  # repetition over a long trace, which would corrupt the very text this run
+  # exists to collect.
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  # Measured across all 11,000 road-quality traces of 2026-08-13:
+  #   p50 538 · p90 877 · p99 1,313 · max 2,827 tokens
+  # 4,096 keeps 1.45x headroom over the longest trace ever seen, and the prompt
+  # is 624 tokens, so the ceiling is 4,720, inside the 5,120 window that
+  # instruct_thinking.yaml sets.
+  #
+  # Warning: raise this and you must raise `max_model_len` with it, or vLLM
+  # truncates the trace.
+  max_tokens: 4096
+
+prompt:
+  # ┌─ REQUIRED. Do not remove. ────────────────────────────────────────────────┐
+  # │ Without `interleaved_labels`, gemma-4-12b in thinking mode CANNOT SEE    │
+  # │ THE SECOND IMAGE. Measured on 16 pairs, 2026-08-13:                      │
+  # │                                                                          │
+  # │   layout              "only one image" in trace   NotSure                │
+  # │   images_then_text    15 of 18                    83%                    │
+  # │   interleaved_labels   0 of 18                     5.6%                  │
+  # └──────────────────────────────────────────────────────────────────────────┘
+  image_layout: interleaved_labels
+
+  structured_output:
+    # Match the canonical battery, so a trace explains the same 6-way choice.
+    allow_not_sure: true
+
+pair_sampler:
+  # A deterministic seed-777 PREFIX of the 100k canonical draw. Thus pairs
+  # 0..9,999 match the greedy baseline pair for pair, and a trace can be read
+  # beside the label that run produced for the same pair.
+  max_pairs: 10000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # 1 array task for each case, each its own single-GPU job. Parallel tasks
+    # are safe — the klara_2x prohibition is about DP inside one job.
+    array_parallelism: 3

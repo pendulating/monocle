@@ -14,11 +14,11 @@
 # Model group paths (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
 #   - gemma-4-e2b/instruct       → common/conf/model/gemma-4-e2b/instruct.yaml
 #   - gemma-4-e4b/instruct       → common/conf/model/gemma-4-e4b/instruct.yaml
-#   - phi-4/multimodal-instruct  → common/conf/model/phi-4/multimodal-instruct.yaml
+#   (phi-4/multimodal-instruct dropped 2026-07-01 — degenerate pairvqa output)
 #   - qwen3.5-2b/instruct        → common/conf/model/qwen3.5-2b/instruct.yaml
 #   - qwen3.5-4b/instruct        → common/conf/model/qwen3.5-4b/instruct.yaml
 #   - qwen3.5-9b/instruct        → common/conf/model/qwen3.5-9b/instruct.yaml
-# All six are TP=1 and run comfortably inside the 2-GPU klara stage.
+# All five are TP=1 and run comfortably inside the 2-GPU klara stage.
 #
 # Fixed (non-swept) overrides baked in here:
 #   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_2x  (matches baseline)
@@ -50,7 +50,6 @@ hydra:
       model: >-
         gemma-4-e2b/instruct,
         gemma-4-e4b/instruct,
-        phi-4/multimodal-instruct,
         qwen3.5-2b/instruct,
         qwen3.5-4b/instruct,
         qwen3.5-9b/instruct

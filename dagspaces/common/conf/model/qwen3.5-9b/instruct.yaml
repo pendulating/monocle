@@ -14,7 +14,18 @@ model:
     # Sized for pairwise VQA: 2x 1024x1024 images = ~2,220 prompt tokens; with
     # max_tokens=2048 generation budget the worst case is ~4,300 tokens.
     max_model_len: 6144
-    max_num_seqs: 32
+    # Raised 32 → 96 on 2026-08-13. vLLM reported "Maximum concurrency for
+    # 6,144 tokens per request: 101.87x", thus the KV cache held room for about
+    # 102 sequences while the engine ran only 32. The run used a third of the
+    # GPU it asked for. 96 x 6,144 = 590k tokens, which stays inside the 626k
+    # the cache holds.
+    #
+    # Note: a pairwise prompt is 2,158 tokens (measured, 2 x 1024x1024 images),
+    # against 624 for gemma-4-12b. Thus qwen is 3.5x the prefill work for the
+    # same pair, which is why it ran 26 hours where gemma ran 10. The remedy
+    # for THAT is max_pixels below, but a change there changes what the model
+    # sees. Do not touch it without a re-run of every case.
+    max_num_seqs: 96
     tensor_parallel_size: 1
     trust_remote_code: true
     # Pairwise VQA sends TWO images per prompt. Without this, vLLM caps at 1

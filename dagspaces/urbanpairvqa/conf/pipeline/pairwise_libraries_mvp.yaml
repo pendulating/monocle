@@ -20,7 +20,7 @@ defaults:
   - override /hydra/launcher: slurm_monitor
   - override /data: cyclomedia_near_libraries_facing
   - override /prompt: pairwise_library_maintained_ordinal
-  - override /model: gemma-4-e4b/instruct
+  - override /model: qwen3.5-9b/instruct
 
 runtime:
   debug: false
@@ -59,6 +59,8 @@ pipeline:
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
           runtime.skip_inference: ${runtime.skip_inference}
+          runtime.resume: ${runtime.resume}
+          runtime.resume_chunk_rows: ${runtime.resume_chunk_rows}
           pair_sampler.mode: ${pair_sampler.mode}
           pair_sampler.unit_column: ${pair_sampler.unit_column}
           pair_sampler.unit_name_column: ${pair_sampler.unit_name_column}
@@ -68,6 +70,9 @@ pipeline:
           pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
           pair_sampler.repeat_count: ${pair_sampler.repeat_count}
           pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.pairs_path: ${pair_sampler.pairs_path}
+          pair_sampler.shard_count: ${pair_sampler.shard_count}
+          pair_sampler.shard_index: ${pair_sampler.shard_index}
           pair_sampler.weight_column: ${pair_sampler.weight_column}
           model.model_source: ${model.model_source}
           model.engine_kwargs.gpu_memory_utilization: 0.92

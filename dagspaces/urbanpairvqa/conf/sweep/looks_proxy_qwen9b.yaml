@@ -1,0 +1,92 @@
+# @package _global_
+# VALIDATION BY PROXY — rater 1 of 2, qwen3.5-9b, all 7 cases.
+#
+# ─── Why this sweep exists ───────────────────────────────────────────────────
+# On 2026-08-14 the canonical prompts moved to "looks like" wording. A prompt
+# now asks what the image SHOWS ("which station entrance looks safer?"), not
+# what is true of the place ("which is safer?"). The proxy grades the place,
+# thus the model and the proxy no longer claim the same thing, and a weak
+# correlation now means the model cannot read the property from a facade.
+#
+# A run from before 2026-08-14 used the old wording. It is NOT comparable with
+# a run from this sweep. Do not pool the two.
+#
+# ─── What it produces ────────────────────────────────────────────────────────
+# 1 greedy, label-only run for each of the 7 cases. These are the runs that
+# `notebooks/cvpr/<case>/<case>_validation.py` reads. The companion rater is
+# `looks_proxy_gemma12b.yaml`; launch both and pool the parquets after.
+#
+# ┌─ WHY THE 2 RATERS DO NOT SHARE 1 SWEEP ────────────────────────────────────┐
+# │ gemma-4-12b needs `prompt.image_layout=interleaved_labels` and qwen does   │
+# │ not (see the gemma file). A shared sweep would put 1 model on the wrong    │
+# │ layout. The 2 raters also differ in throughput by about 2x, so a shared    │
+# │ array would hold GPUs for the slower half.                                 │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# VENV: the canonical default. Do NOT override it. `server.env` selects
+# `.venv-mllmsci-vllm025cu129`, and only that venv has a node-local mirror. An
+# override costs about 13 minutes of cold import for each process spawn.
+#
+# SAMPLING: greedy (temperature=0.0) from conf/config.yaml. An ordinal label
+# under guided decoding is a classification, not a generation. Greedy makes a
+# run reproducible and removes the need for a retest anchor.
+#
+# PAIRS: the pipeline default, max_pairs=100000 for every case, plus a 10%
+# repeat fraction → about 110,000 rows for each run. The draw is seed 777, thus
+# the thinking sweeps read the first 10,000 pairs of this same draw.
+#
+# ─── Cost (measured on schools, 2026-08-13) ──────────────────────────────────
+# | Rater        | Rows | Wall clock on 1 A6000 |
+# |--------------|------|-----------------------|
+# | qwen3.5-9b   | 110k | about 16.5 h          |
+# | gemma-4-12b  | 110k | about 7.7 h           |
+# qwen pays 3.5x the prefill of gemma for the same pair (2,158 prompt tokens
+# against 624), which is where the difference comes from.
+# 7 cases x 16.5 h = about 115 GPU-hours. At 4 GPUs that is about 29 hours.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   export HYDRA_SWEEP_DIR=multirun/looks_proxy_qwen9b
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli \
+#       --multirun +sweep=looks_proxy_qwen9b
+#
+# The case axis is in this file, thus the command needs no `pipeline=`.
+# To run 1 case only, add `pipeline=pairwise_schools_mvp` on the command line.
+#
+# Smoke-test 16 pairs first if anything about the venv or the node changed:
+#   ... pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16
+#
+# ─── After the runs land ─────────────────────────────────────────────────────
+# `notebooks/cvpr/_provenance.py` keeps 2 gates: `CANONICAL_SWEEPS`, which now
+# holds this sweep name, and `CONSOLIDATION_DATE`. Raise that date to the
+# launch date, or the notebooks mix these runs with the old-wording runs.
+#
+# Sanity-check each run before you trust it: Same much above 30% with almost no
+# Much* labels means the model probably never saw the images.
+
+sampling_params_vqa:
+  # The ordinal answer is about 10-15 tokens. 128 is ample headroom, and it
+  # keeps the KV window small, which is what sets how many sequences fit.
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # 4 monitor tasks at a time, thus 4 single-GPU stage jobs at a time.
+    # klara holds 8 GPUs but only 56 CPUs, and a stage job asks for 8 CPUs, so
+    # 7 stage jobs is the true ceiling for the node. Run this sweep beside 1
+    # companion sweep at the same width and expect 1 job to wait.
+    # To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct
+      # All 7 cases of the consolidated battery. The 5 cases of the public
+      # investment umbrella come first, then the 2 standalone cases.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

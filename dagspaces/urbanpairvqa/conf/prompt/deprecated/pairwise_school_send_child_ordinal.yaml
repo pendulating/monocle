@@ -1,12 +1,42 @@
-system: |
-  You are a parent in NYC checking out schools for your child. You will be
-  shown two street-level photographs of NYC K-12 schools and asked which one
-  you would rather send your child to, based on appearance.
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ DEPRECATED 2026-08-13. Use `pairwise_school_better_ordinal` instead.      ║
+# ║                                                                           ║
+# ║ The question below asks "which school would you rather send your child    ║
+# ║ to?". That question is misleading. It asks the model for a PARENT'S       ║
+# ║ PREFERENCE, which mixes school quality with commute, neighbourhood,       ║
+# ║ safety, and class. The proxy is a school report card, which grades the    ║
+# ║ school alone. Thus the prompt and the proxy measure 2 different things,   ║
+# ║ and a weak correlation cannot tell you which one failed.                  ║
+# ║                                                                           ║
+# ║ The file stays for provenance. The canonical schools runs of 2026-08-12   ║
+# ║ used it, and so did the thinking run of 2026-08-13. Do not delete it, and ║
+# ║ do not change it: an earlier result is only readable beside the exact     ║
+# ║ text that produced it.                                                    ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Schools (deprecated framing)
+# Umbrella: Signs of public investment + government management
+# Unit:     K-12 school (FacDB facgroup=SCHOOLS (K-12))
+# Data:     data/cyclomedia_near_schools_facing   (pair_sampler.mode=unit)
+# Pipeline: pipeline=pairwise_schools_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# Minimal prompt contract — see pairwise_subway_safety_ordinal.yaml for the
+# full statement of what is deliberately left unspecified and why. Note the
+# pre-consolidation version of this file carried a "You are a parent in NYC"
+# persona in the system prompt; there is now no system prompt at all.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
 
 user_template: |
-  You are a parent considering these two schools for your child. Image A is
-  the first image and Image B is the second image. Based on appearance,
-  which school would you rather send your child to?
+  Image A is the first image and Image B is the second image.
+  Both show New York City K-12 schools.
+  Which school would you rather send your child to?
 
   Return exactly one label from:
   - MuchLess
@@ -16,11 +46,17 @@ user_template: |
   - MuchMore
 
   Interpret this as "I would <label> rather send my child to the school in
-  Image A than to the school in Image B". Use "Same" when the two schools
-  look about equally appealing.
+  Image A than the one in Image B". Use "Same" when they look about the same.
 
 structured_output:
   enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
   json_schema:
     type: object
     properties:

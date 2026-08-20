@@ -1,0 +1,48 @@
+# @package _global_
+# Case 3 | Subway Station Safety — model sweep, 1-GPU klara stage.
+# Same five natively-multimodal instruction-tuned open-weights models as the
+# klara2x variant, but each run uses a SINGLE klara GPU (slurm_gpu_klara_1x,
+# DP=1) instead of the 2-GPU DP=2 stage. With array_parallelism=2 that means
+# TWO models run concurrently, one GPU each = 2 GPUs busy per sweep.
+#
+# All five are TP=1 and fit on one 48GB A6000 (incl. qwen3.5-9b).
+#
+# Fixed (non-swept) overrides:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_1x
+#   - sampling_params_vqa.max_tokens         = 128  (ordinal answer is short)
+# `pair_sampler.max_pairs=100000` is the subway pipeline default.
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the models likely never saw the images.
+#
+# Two inference runs in flight at once (`array_parallelism: 2`) — 1 GPU each.
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=subway_all_models_klara1x \
+#       pipeline=pairwise_subway_safety_mvp
+#
+# Add the abstention option across the whole sweep by appending:
+#       prompt.structured_output.allow_not_sure=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        gemma-4-e4b/instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct,
+        qwen3.5-9b/instruct

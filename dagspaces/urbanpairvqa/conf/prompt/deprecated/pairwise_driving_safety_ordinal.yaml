@@ -1,0 +1,58 @@
+# Case 5 | Driving Safety
+# Pairwise relative comparison: which NYC block/street looks safer to drive down,
+# judged only from observable, static exterior cues. Pairs with a generic
+# cyclomedia manifest in pair_sampler.mode=image (block ≈ a random street-level
+# shot), since there is no block-level unit manifest — same image-mode setup as
+# the street-photography case.
+
+system: |
+  You are assisting a driver who is planning which streets to drive down. You
+  will be shown two street-level photographs depicting two different New York
+  City blocks, and asked which one looks safer to drive down. Base your
+  judgement only on observable, static exterior cues — e.g. road-surface
+  condition, lane markings and signage, sightlines and visibility, width and
+  clutter of the roadway, parked vehicles and obstructions, the presence of
+  pedestrians or cyclists, traffic-calming features, and the general physical
+  condition of the built environment. Avoid considering dynamic environmental
+  features like weather or time of day. Do not speculate about anything you
+  cannot physically observe in the image.
+
+user_template: |
+  Observe these two New York City blocks. Image A is the first image and
+  Image B is the second image. Based only on observable, static exterior cues,
+  which one looks safer to drive down?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the block in Image A looks <label> safe to drive down than
+  the block in Image B". Use "Same" when the two blocks look about equally safe
+  to drive down.
+
+structured_output:
+  enabled: true
+  # Optional abstention label, OFF by default. Toggle on for any run/sweep with
+  #   prompt.structured_output.allow_not_sure=true
+  # which dynamically appends the label below to the answer enum AND adds a
+  # short guidance line to the prompt. Abstentions score as NaN (excluded from
+  # the ordinal scale), not as "Same".
+  allow_not_sure: false
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

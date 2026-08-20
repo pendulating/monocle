@@ -1,0 +1,50 @@
+# @package _global_
+# Case 3 | Subway Station Safety — model sweep.
+# Subway analog of `restaurants_all_models_klara2x.yaml` / `schools_all_models_klara2x.yaml`:
+# the same five natively-multimodal instruction-tuned open-weights models, same
+# 2-GPU klara stage launcher, same 128-token answer budget — so subway, schools,
+# and restaurants are directly comparable and fold into one cross-task aggregation.
+# (The encoder-free gemma4_unified 12B is NOT here — it runs on klara_1x via a
+# companion sweep, per `project-restaurants-7model-sweep`.)
+#
+# Fixed (non-swept) overrides:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_2x
+#   - sampling_params_vqa.max_tokens         = 128  (ordinal answer is short)
+# `pair_sampler.max_pairs=50000` is the subway pipeline default.
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the models likely never saw the images.
+#
+# Max 2 inference runs in flight at once (`array_parallelism: 2`) — note each
+# klara_2x stage uses 2 GPUs, so parallelism 2 = up to 4 GPUs busy per sweep.
+# For a lighter 1-GPU-per-run footprint use `subway_all_models_klara1x.yaml`.
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=subway_all_models_klara2x \
+#       pipeline=pairwise_subway_safety_mvp
+#
+# Add the abstention option across the whole sweep by appending:
+#       prompt.structured_output.allow_not_sure=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_2x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        gemma-4-e4b/instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct,
+        qwen3.5-9b/instruct

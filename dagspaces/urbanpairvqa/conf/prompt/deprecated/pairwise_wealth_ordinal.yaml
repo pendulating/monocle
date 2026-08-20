@@ -14,6 +14,12 @@ user_template: |
 
 structured_output:
   enabled: true
+  # Optional abstention label, OFF by default. Toggle on per run/sweep with
+  #   prompt.structured_output.allow_not_sure=true
+  # (appends `not_sure_label` to the answer enum + a prompt guidance line;
+  # abstentions score as NaN, excluded from the ordinal scale).
+  allow_not_sure: false
+  not_sure_label: NotSure
   json_schema:
     type: object
     properties:

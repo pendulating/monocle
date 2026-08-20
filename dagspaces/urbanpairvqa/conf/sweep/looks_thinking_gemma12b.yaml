@@ -1,0 +1,123 @@
+# @package _global_
+# THINKING MODE — rater 2 of 2, gemma-4-12b, all 7 cases, 10k pairs for each.
+#
+# The companion of `looks_thinking_qwen9b.yaml`. Read that file for why the
+# trace corpus is re-run: on 2026-08-14 the canonical prompts moved to "looks
+# like" wording, so every earlier trace answers a different question.
+#
+# This sweep replaces `thinking_public_investment_10k.yaml` (4 cases) and
+# `thinking_remaining_cases_10k.yaml` (3 cases). It holds all 7 cases and the
+# model axis, so the launch command carries neither.
+#
+# ┌─ REQUIREMENT 1 — LAUNCHER: klara_1x, NEVER klara_2x ───────────────────────┐
+# │ gemma-4-12b is the encoder-free `gemma4_unified` arch, and the DP-worker   │
+# │ path is not gated for its `<|image|>` template, so a 2-GPU stage crashes.  │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ┌─ REQUIREMENT 2 — LAYOUT: interleaved_labels. Do not remove. ───────────────┐
+# │ `interleaved_labels` puts a text anchor before each image:                 │
+# │   "Image A:", image, "Image B:", image, prompt                             │
+# │                                                                            │
+# │ Without it, gemma-4-12b in thinking mode CANNOT SEE THE SECOND IMAGE.      │
+# │ Measured on 16 pairs, 2026-08-13:                                          │
+# │                                                                            │
+# │   layout              "only one image" in the trace   NotSure              │
+# │   images_then_text    15 of 18                        83%                  │
+# │   interleaved_labels   0 of 18                         5.6%                │
+# │                                                                            │
+# │ The prompt holds about 696 input tokens either way, which is 2 images'     │
+# │ worth, so the pixels are present. The model fails to BIND them as 2        │
+# │ images. As of 2026-08-14 the gemma proxy sweep pins the same layout.       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# MODEL: `gemma-4-12b/instruct_thinking` flips thinking on AND wires the
+# `gemma4` reasoning parser. The parser is what makes this work: it holds the
+# answer enum grammar until the model closes its thought channel. Without it,
+# guided decoding forces the JSON at once and NO reasoning comes out.
+#
+# VENV: the canonical default. Do NOT override it. `.venv-nightly` is
+# DEPRECATED (2026-08-12); gemma-4-12b runs on `.venv-mllmsci-vllm025cu129`,
+# which `server.env` already selects. An override loses the node-local mirror,
+# and a cold import over NFS costs about 13 minutes for each process spawn.
+#
+# PAIRS: max_pairs=10000 is a deterministic seed-777 PREFIX of the 100,000-pair
+# canonical draw, thus a trace sits beside the greedy label for the same pair.
+#
+# ─── Cost (measured 2026-08-13 and 2026-08-14) ───────────────────────────────
+# 11,000 rows took 7.2-10 h on 1 A6000. 7 cases = about 63 GPU-hours. At 4 GPUs
+# that is about 16 hours.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   export HYDRA_SWEEP_DIR=multirun/looks_thinking_gemma12b
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli \
+#       --multirun +sweep=looks_thinking_gemma12b
+#
+# The case axis is in this file, thus the command needs no `pipeline=`.
+#
+# Smoke-test 16 pairs first:
+#   ... pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16
+#
+# Check the stage log for this line, which proves the mirror was used:
+#   [stage_venv] ... scratch mirror ...
+# "no matching scratch mirror" means the job runs from NFS.
+#
+# Warning: these runs are NOT canonical. The model string is
+# `gemma-4-12b/instruct_thinking`, and this sweep name is not in
+# CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
+# correct — a thinking run uses different sampling. `_traces.py` collects them.
+
+sampling_params_vqa:
+  # Google's standard sampling for gemma-4-12b: temperature 1.0, top_p 0.95,
+  # top_k 64.
+  #
+  # Warning: thinking mode MUST NOT be greedy. Greedy decoding degenerates into
+  # repetition over a long trace, which would corrupt the text this run exists
+  # to collect.
+  #
+  # Note on top_k. It is inert in the greedy battery, because guided decoding
+  # already masks the vocabulary to about 6 label tokens. Here it is NOT inert:
+  # the thought channel is free text and carries no grammar.
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  # Measured across all 11,000 road-quality traces of 2026-08-13:
+  #   p50 538 · p90 877 · p99 1,313 · max 2,827 tokens
+  # 4,096 keeps 1.45x headroom over the longest trace ever seen. The prompt is
+  # 624 tokens, thus the ceiling is 4,720, inside the 5,120 window that
+  # `instruct_thinking.yaml` sets.
+  #
+  # Warning: raise this and you must raise `max_model_len` with it, or vLLM
+  # truncates the trace.
+  max_tokens: 4096
+
+prompt:
+  # REQUIRED for this arch. See requirement 2 above. Do not remove.
+  image_layout: interleaved_labels
+
+  structured_output:
+    # Match the canonical battery, so a trace explains the same 6-way choice.
+    allow_not_sure: true
+
+pair_sampler:
+  # Deterministic seed-777 prefix of the 100k canonical draw.
+  max_pairs: 10000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x   # NOT klara_2x — see requirement 1
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # 4 single-GPU stage jobs at a time. Each array task is its own job, so
+    # parallel tasks are safe — the klara_2x prohibition is about DP inside 1
+    # job. To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct_thinking
+      # All 7 cases, in the same order as the proxy sweeps.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

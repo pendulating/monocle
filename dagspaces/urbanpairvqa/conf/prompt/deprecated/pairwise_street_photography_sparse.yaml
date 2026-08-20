@@ -1,0 +1,42 @@
+# Case 4 | Street Photography
+# Pairwise relative comparison: which NYC block is a more appealing location for
+# a street-photography photoshoot, judged only from observable, static exterior
+# cues. Pairs with a generic cyclomedia manifest in pair_sampler.mode=image
+# (block ≈ a random street-level shot), since there is no block-level unit
+# manifest.
+
+system: |
+  You will be shown two street-level photographs of two city blocks.
+  Work through your reasoning, then give a final label.
+
+user_template: |
+  Image A is the first image, Image B is the second.
+  Which block is better suited for street photography?
+
+  Reason first. End with exactly one line:
+  LABEL: <MuchLess|Less|Same|More|MuchMore>
+  completing the sentence "Block A is <label> suited than Block B."
+
+structured_output:
+  enabled: true
+  # Optional abstention label, OFF by default. Toggle on for any run/sweep with
+  #   prompt.structured_output.allow_not_sure=true
+  # which dynamically appends the label below to the answer enum AND adds a
+  # short guidance line to the prompt. Abstentions score as NaN (excluded from
+  # the ordinal scale), not as "Same".
+  allow_not_sure: true
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

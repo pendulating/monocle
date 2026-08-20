@@ -1,0 +1,118 @@
+# @package _global_
+# Structured extraction over the reasoning traces of a thinking run.
+#
+# The stage reads a pairvqa results parquet and writes 1 row for each
+# extraction. It samples no pairs and reads no image. Thus it names its input
+# directly, with `trace_extract.results_path`.
+#
+# Warning: only a THINKING run holds a trace. The canonical battery runs greedy
+# with `max_tokens=128`, and its `model_reasoning` column is empty. The stage
+# stops with an error on such a file.
+#
+# Run it:
+#
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=extract_traces \
+#       trace_extract.results_path=/share/.../subway_safety_mvp_20260813_013722.parquet
+#
+# Smoke run of 200 traces:
+#
+#   ... runtime.sample_n=200
+#
+# Dry run, no GPU (the stub answers with no extraction):
+#
+#   ... runtime.sample_n=20 runtime.skip_inference=true
+#
+# See `vlm-narratives-docs/langextract-trace-extraction.md`.
+
+# Warning: a plain group entry must come BEFORE every `override` entry. Hydra
+# rejects a defaults list that adds a group after an override.
+defaults:
+  - _self_
+  # The schema, the few-shot examples, and the chunk settings.
+  - /extract: urban_cues_v1
+  - override /hydra/launcher: slurm_monitor
+  # The extractor. qwen3.5-9b is NOT the judge of the 2026-08-13 thinking runs,
+  # which gemma-4-12b wrote. A different extractor keeps the first reviewer
+  # question answerable: the finding cannot be an echo of the judge.
+  - override /model: qwen3.5-9b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+trace_extract:
+  # The results parquet of the thinking run. No default: name it on the CLI.
+  results_path: ???
+  reasoning_column: model_reasoning
+  id_column: pair_id
+  # These columns travel into every output row, so a reader can ask which cues
+  # go with which judgment.
+  keep_columns:
+    - presented_label
+    - presented_score
+    - relative_label
+  # Empty means "read it from the source". The case comes from the parquet file
+  # name, and the judge model from `<stage_dir>/.hydra/overrides.yaml`.
+  case: ""
+  judge_model: ""
+  # 1 parquet for each row range, under `chunks/`. A rerun skips a range that
+  # already has a chunk, thus a walltime stop loses at most 1 shard.
+  shard_rows: 2000
+  # A trace shorter than this is a stub, not a judgment.
+  min_chars: 200
+  # Split the traces across N jobs, 1 GPU for each. The work is decode-bound
+  # and each trace stands alone, thus the wall clock falls by N. Run it with a
+  # Hydra multirun over `shard_index`:
+  #
+  #   ... trace_extract.shard_count=8 trace_extract.shard_index=0,1,2,3,4,5,6,7
+  #
+  # Each shard writes its own parquet in its own stage directory. Read a case
+  # by reading every shard of it.
+  shard_count: 1
+  shard_index: 0
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      extract:
+        stage: trace_extract
+        depends_on: []
+        outputs:
+          # The shard index is in the name. A multirun gives each job its own
+          # stage directory, but 2 sweeps that start in the same second can
+          # share one, and then 2 shards would write the same file.
+          extractions: outputs/extractions/urban_cues_v1_s${trace_extract.shard_index}_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          model.model_source: ${model.model_source}
+          # The prompt holds the instructions, 3 examples, and 1 trace chunk of
+          # up to 12,000 characters. That reaches about 7,000 tokens, and the
+          # answer takes up to 4,096 more. The model default of 6,144 is for a
+          # pairwise image prompt and it is far too small here.
+          model.engine_kwargs.max_model_len: 16384
+          # The KV cache holds 710k tokens. A real request uses about 5,100
+          # (2,500 prompt + 2,600 answer), thus the cache has room for far more
+          # than 64 sequences. The "maximum concurrency" line of vLLM assumes
+          # the worst case of `max_model_len` and reads low; the scheduler
+          # allocates as it goes.
+          model.engine_kwargs.max_num_seqs: 128
+          # EVERY prompt starts with the same 2,000 tokens: the instructions
+          # and the 3 examples. Only the trace differs. Without this the engine
+          # prefills those 2,000 tokens again for each of 11,000 traces.
+          #
+          # Note: the pairvqa model configs leave this off, and rightly so — an
+          # image prompt shares no prefix. A text prompt with a fixed preamble
+          # is the opposite case.
+          model.engine_kwargs.enable_prefix_caching: true
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          # The extractor reads text. A thought block only wastes decode steps.
+          model.thinking_mode: off
+        launcher: slurm_gpu_1x
+        wandb_suffix: trace_extract_urban_cues_v1

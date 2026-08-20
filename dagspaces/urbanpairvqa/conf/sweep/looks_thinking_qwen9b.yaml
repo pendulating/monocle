@@ -1,0 +1,100 @@
+# @package _global_
+# THINKING MODE — rater 1 of 2, qwen3.5-9b, all 7 cases, 10k pairs for each.
+#
+# ─── Why this sweep exists ───────────────────────────────────────────────────
+# On 2026-08-14 the canonical prompts moved to "looks like" wording. A prompt
+# now asks what the image SHOWS, not what is true of the place. The trace
+# corpus must show what the model says under the NEW question, so every
+# thinking run from before that date is stale. `notebooks/cvpr/<case>/
+# <case>_traces.py` and the langextract stage read the runs of this sweep.
+#
+# The companion is `looks_thinking_gemma12b.yaml`. The 2 raters differ in
+# sampling and in image layout (see below), so they cannot share 1 sweep.
+#
+# ─── What it produces ────────────────────────────────────────────────────────
+# 1 run for each of the 7 cases, with the thought channel kept. The model
+# config `qwen3.5-9b/instruct_thinking` flips thinking on AND wires the `qwen3`
+# reasoning parser. The parser is what makes this work: it holds the answer
+# enum grammar until the model closes the thought channel. Without it, guided
+# decoding forces the JSON at once and NO reasoning comes out.
+#
+# PAIRS: max_pairs=10000 is a deterministic seed-777 PREFIX of the 100,000-pair
+# canonical draw. Thus pairs 0..9,999 match the greedy proxy run pair for pair,
+# and you can read a trace beside the label that run gave for the same pair.
+# The 10% repeat fraction stays, thus about 11,000 rows for each run, which
+# also gives a self-consistency estimate inside the thinking arm.
+#
+# LAYOUT: the default `images_then_text`, which is what the qwen proxy runs
+# use. Only gemma-4-12b needs `interleaved_labels` — that failure belongs to
+# the encoder-free `gemma4_unified` prompt-replacement path, which qwen does
+# not use. Keep the default here so the trace and its greedy baseline share
+# 1 prompt.
+#
+# VENV: the canonical default. Do NOT override it. `server.env` selects
+# `.venv-mllmsci-vllm025cu129`, the only venv with a node-local mirror.
+#
+# ─── Cost ────────────────────────────────────────────────────────────────────
+# gemma-4-12b took about 9 h for 11,000 rows on 1 A6000 (2026-08-13). qwen pays
+# 3.5x the prefill for the same pair and holds a 12,288-token window, so plan
+# for 10-14 h for each case, thus about 70-100 GPU-hours for the 7. At 4 GPUs
+# that is about 18-25 hours.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   export HYDRA_SWEEP_DIR=multirun/looks_thinking_qwen9b
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli \
+#       --multirun +sweep=looks_thinking_qwen9b
+#
+# The case axis is in this file, thus the command needs no `pipeline=`.
+#
+# Smoke-test 16 pairs first and confirm 3 things: a real thought channel, a
+# parsed JSON answer, and a label distribution that is not all NotSure:
+#   ... pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16
+#
+# Warning: these runs are NOT canonical. The model string is
+# `qwen3.5-9b/instruct_thinking`, and this sweep name is not in
+# CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
+# correct — a thinking run uses different sampling, thus its labels are not
+# comparable with the greedy battery. `notebooks/cvpr/_traces.py` collects them.
+
+sampling_params_vqa:
+  # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0
+  # (see conf/config.yaml), and greedy decoding degenerates into repetition
+  # over a long trace, which would corrupt the text this run exists to collect.
+  # These are Qwen's thinking-mode values.
+  temperature: 1.0
+  top_p: 0.95
+  # `qwen3.5-9b/instruct_thinking` sets max_model_len=12288 and the pairwise
+  # prompt is about 2,220 tokens, so 8,192 fits with room to spare.
+  #
+  # Warning: raise this and you must raise `max_model_len` with it, or vLLM
+  # truncates the trace.
+  max_tokens: 8192
+
+prompt:
+  structured_output:
+    # Match the canonical battery, so a trace explains the same 6-way choice.
+    allow_not_sure: true
+
+pair_sampler:
+  # Deterministic seed-777 prefix of the 100k canonical draw.
+  max_pairs: 10000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # 4 single-GPU stage jobs at a time. klara holds 8 GPUs but only 56 CPUs,
+    # and a stage job asks for 8 CPUs, so 7 stage jobs is the node ceiling.
+    # To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct_thinking
+      # All 7 cases, in the same order as the proxy sweeps.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

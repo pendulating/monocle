@@ -1,0 +1,76 @@
+# @package _global_
+# THINKING-MODE Street Photography sweep — 1,000 pairs, FREESTYLE prompt.
+# Reasoning ENABLED for the three models:
+#   gemma-4-12b, qwen3.5-9b, gemma-4-e2b (a.k.a. "gemma4-2b").
+#
+# Companion to `thinking_street_subway_10k.yaml`, but:
+#   * 1,000 pairs (deterministic seed-777 PREFIX of the 100k baseline draws, so
+#     pairs 0..999 match the non-thinking street baseline -> paired contrast).
+#   * FREESTYLE prompt (`pairwise_street_photography_freestyle`) instead of the
+#     pipeline-default ordinal. The freestyle template opens "Reason first" and
+#     keeps `additionalProperties:false`, so the chain-of-thought lands in the
+#     model's THOUGHT channel (gated by the reasoning_parser in each
+#     `_thinking` model config) and only {answer(+confidence)} is grammar-forced.
+#
+# This sweep holds the FIXED overrides only. The model axis is set on the CLI
+# because the three models split across two interpreters:
+#   * gemma-4-12b/instruct_thinking  -> .venv-nightly (gemma4_unified needs
+#     vLLM 0.23 cu129; DP path ungated => klara_1x ONLY). See thinking_gemma12b.
+#   * qwen3.5-9b/instruct_thinking, gemma-4-e2b/instruct_thinking -> stable .venv.
+# klara_1x for all three: 1 GPU handles 1k pairs and avoids the untested
+# DP+reasoning path.
+#
+# max_tokens=8192 leaves room for a multi-thousand-token trace + the JSON
+# (fits inside every model's max_model_len=12288). `allow_not_sure=true`
+# matches the street baselines.
+#
+# The prompt GROUP swap must be on the CLI (`prompt=...`); a merged +sweep=
+# config can only override leaf values, not the /prompt defaults entry.
+#
+# ---- Launch (task axis = canonical Hydra multirun) --------------------------
+#   # gemma-4-12b (NIGHTLY venv, klara_1x only):
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_street_photography_1k \
+#       prompt=pairwise_street_photography_freestyle \
+#       model=gemma-4-12b/instruct_thinking \
+#       pipeline=pairwise_street_photography_mvp
+#
+#   # qwen3.5-9b and gemma-4-e2b (stable venv, both concurrently):
+#   .venv/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_street_photography_1k \
+#       prompt=pairwise_street_photography_freestyle \
+#       model=qwen3.5-9b/instruct_thinking,gemma-4-e2b/instruct_thinking \
+#       pipeline=pairwise_street_photography_mvp
+#
+# gemma-4-e2b has NEVER run with thinking here — smoke-test it first:
+#   .venv/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_street_photography_1k \
+#       prompt=pairwise_street_photography_freestyle \
+#       model=gemma-4-e2b/instruct_thinking \
+#       pipeline=pairwise_street_photography_mvp pair_sampler.max_pairs=16
+
+sampling_params_vqa:
+  # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0
+  # (see conf/config.yaml), but greedy decoding degenerates into repetition over
+  # long reasoning traces. Pinned here to Qwen's thinking-mode recommendation.
+  temperature: 1.0
+  top_p: 0.95
+  max_tokens: 8192
+
+pair_sampler:
+  max_pairs: 1000
+
+prompt:
+  structured_output:
+    allow_not_sure: true
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2

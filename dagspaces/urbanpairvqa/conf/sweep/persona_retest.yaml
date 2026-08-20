@@ -1,0 +1,54 @@
+# @package _global_
+# RETEST ANCHOR (A0) for the persona probe — the decoding-noise ceiling.
+#
+# `persona_probe.yaml` reports linear-weighted κ between the no-persona and
+# persona arms. That number is UNINTERPRETABLE on its own: sampling runs at
+# temperature 0.6, so even re-running the *identical* prompt disagrees with
+# itself by some amount. Without knowing that self-agreement ceiling you cannot
+# tell "the persona changed the judgments" from "temperature did".
+#
+# This sweep re-runs the production (no-persona) arm a second time, same models,
+# same seed-777 pair prefix, changing nothing. Comparing that re-run against the
+# probe's own no-persona arm gives the test-retest κ — the ceiling every
+# persona-vs-no-persona κ must be judged against. This is the same A0-anchor
+# discipline the Reviewer-2 battery uses: judge every arm against A0 retest,
+# never against a nominal 1.0.
+#
+# 2 runs (1 arm × 2 models), 1,000 pairs each.
+#
+# Usage — pair each launch with the matching persona_probe run of the same case:
+#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-3.12/bin/activate
+#   export HYDRA_SWEEP_DIR=multirun/persona_retest_roadquality
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=persona_retest \
+#       pipeline=pairwise_road_quality_mvp
+#
+# Then feed BOTH stage dirs to the analyzer:
+#   python scripts/pairwise_persona_probe.py <probe_stage_dir> --retest <retest_stage_dir>
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # Parallel is safe — see the note in persona_probe.yaml.
+    array_parallelism: 2
+  sweeper:
+    params:
+      # Production arm only, re-run. Nothing is perturbed; the only difference
+      # from the probe's no-persona arm is the temperature-0.6 sampling draw.
+      # QUOTED on purpose: `hydra.sweeper.params` values must be strings. A bare
+      # YAML `null` becomes None and Hydra rejects it ("field ... is not
+      # Optional"). The quoted "null" is passed through as the override text
+      # `prompt.system=null`, which the override parser then resolves to None.
+      prompt.system: "null"
+      model: qwen3.5-9b/instruct, gemma-4-e4b/instruct

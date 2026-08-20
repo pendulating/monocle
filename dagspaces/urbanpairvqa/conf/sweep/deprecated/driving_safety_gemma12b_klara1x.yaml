@@ -1,0 +1,62 @@
+# @package _global_
+# Case 5 | Driving Safety — Gemma-4-12B-IT ONLY, the 6th and largest usable
+# rater, extending `driving_safety_all_models_klara1x.yaml` (gemma-4-{e2b,e4b},
+# qwen3.5-{2b,4b,9b}). Together they give the full 6-model capability ladder on
+# the driving-safety task, foldable into the same tract-level aggregation as the
+# other image-mode cases. Pairs are drawn in image mode from the citywide 500k
+# manifest.
+#
+# Model group path (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
+#   - gemma-4-12b/instruct → common/conf/model/gemma-4-12b/instruct.yaml
+#
+# *** LAUNCHER: klara_1x (single GPU), NOT klara_2x. ***
+# Gemma-4-12B is the encoder-free `Gemma4UnifiedForConditionalGeneration`
+# (model_type `gemma4_unified`). Its `<|image|>` chat-template fix lives ONLY in
+# the single-process apply_chat_template site in vllm_inference.py; the DP-worker
+# path (`_run_data_parallel_full`, which the 2-GPU klara_2x stage triggers via
+# DP=2) is NOT gated for the unified arch, so a klara_2x run would crash with
+# "Failed to apply prompt replacement for mm_items['image'][0]". ~24 GB bf16
+# weights fit a single 48 GB A6000 at TP=1.
+#
+# *** VENV: must launch the driver on .venv-nightly (vLLM 0.23 cu129). ***
+# Gemma4UnifiedForConditionalGeneration needs vLLM >=0.23; the default .venv
+# (0.19.1) cannot load it. Launch with:
+#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun ...
+# submitit then bakes the nightly interpreter into both the monitor and the GPU
+# stage sbatch (the klara_1x launcher's LD_PRELOAD libstdc++ line is preserved).
+#
+# Fixed (non-swept) overrides, matching the 5-model driving-safety sweep:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_1x
+#   - sampling_params_vqa.max_tokens         = 128  (gemma-12b config is
+#     thinking_mode=off; the ordinal answer parses fine within 128)
+#
+# Append the abstention option to match the 5-model driving-safety runs:
+#   prompt.structured_output.allow_not_sure=true
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the model likely never saw the images.
+#
+# Usage:
+#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=driving_safety_gemma12b_klara1x \
+#       pipeline=pairwise_driving_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 1
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct

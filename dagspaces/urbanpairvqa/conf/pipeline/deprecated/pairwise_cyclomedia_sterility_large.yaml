@@ -8,7 +8,7 @@ defaults:
   - _self_
   - override /hydra/launcher: slurm_monitor
   - override /data: cyclomedia_pairwise_manhattan_2025_1
-  - override /prompt: pairwise_sterility_ordinal
+  - override /prompt: deprecated/pairwise_sterility_ordinal
   - override /model: qwen3.5-9b/instruct_thinking
 
 runtime:

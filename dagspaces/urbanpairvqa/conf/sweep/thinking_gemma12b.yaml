@@ -1,0 +1,55 @@
+# @package _global_
+# THINKING-MODE PROBE — Gemma-4-12B-IT with reasoning ENABLED.
+# 1,000 random pairs each of restaurants and schools (2 runs total).
+#
+# Companion to `thinking_qwen9b.yaml` (same pairs, same budgets) for the
+# encoder-free gemma4_unified arch. Differences forced by the arch:
+#   * Model `gemma-4-12b/instruct_thinking` (thinking_mode=on,
+#     reasoning_parser=gemma4, max_model_len=12288).
+#   * Launcher klara_1x ONLY — the DP-worker path is not gated for the unified
+#     `<|image|>` chat template, so klara_2x/DP=2 would crash.
+#   * MUST be launched with the .venv-nightly interpreter (vLLM
+#     0.23.1rc1.dev333+cu129); the stable .venv (vLLM 0.19.1) cannot load
+#     gemma4_unified. submitit bakes `sys.executable` into the sbatch scripts,
+#     so the launching interpreter selects the env. See
+#     project_gemma4_unified_support.
+#
+# Pairs are the same deterministic seed-777 prefix as the qwen probe and the
+# production runs → paired thinking-vs-baseline at the unit level.
+#
+# *** NOVEL PATH — smoke-test first (see review notes). *** gemma-4-12b has never
+# run with thinking enabled here; confirm a 10-20 pair run produces a real
+# thought channel + parsed JSON + non-degenerate labels before the full probe.
+#
+# Run on the NIGHTLY venv (task axis on the CLI = canonical Hydra multirun):
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun +sweep=thinking_gemma12b \
+#       pipeline=pairwise_restaurants_mvp,pairwise_schools_mvp
+#
+# Smoke test FIRST (single task, 20 pairs):
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_gemma12b pipeline=pairwise_restaurants_mvp pair_sampler.max_pairs=20
+
+sampling_params_vqa:
+  # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0
+  # (see conf/config.yaml), but greedy decoding degenerates into repetition over
+  # long reasoning traces. Pinned here to Qwen's thinking-mode recommendation.
+  temperature: 1.0
+  top_p: 0.95
+  max_tokens: 8192
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct_thinking

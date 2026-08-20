@@ -1,0 +1,92 @@
+# @package _global_
+# Case 4 | Street Photography
+# MVP pipeline: block-level pairwise VQA on "which NYC block is a more appealing
+# location for a street-photography photoshoot".
+#
+# Unlike restaurants/schools/subway (which aggregate to a curated unit), there
+# is no block-level facing manifest, so this case pairs RANDOM street-level
+# shots directly via `pair_sampler.mode=image` against the citywide 500k
+# stratified cyclomedia manifest (cyclomedia_all_2025_citywide — 100k/borough,
+# built by scripts/materialize_cyclomedia_citywide.py). Each "block" is one
+# random cube-face image; there is no within-unit repetition, so the TrueSkill
+# section of the report does not apply — use the label-distribution and
+# cross-model aggregation reports instead. At max_pairs=100,000 (~220k
+# image-slots) each block is reused ~0.4x, so most runs sample distinct blocks
+# from across all five boroughs.
+#
+# Default model is qwen3.5-4b/instruct (same as the other cases). For the full
+# sweep, override via Hydra multirun:
+#
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=street_photography_all_models_klara2x \
+#       pipeline=pairwise_street_photography_mvp
+#
+# Single-model submit:
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_street_photography_mvp
+#
+# Enable the abstention ("NotSure") option:
+#   ... pipeline=pairwise_street_photography_mvp prompt.structured_output.allow_not_sure=true
+#
+# Dry-run (no GPU):
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_street_photography_mvp \
+#       runtime.debug=true runtime.sample_n=1000 runtime.skip_inference=true
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_all_2025_citywide
+  - override /prompt: pairwise_street_photography_ordinal
+  - override /model: qwen3.5-9b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+pair_sampler:
+  mode: image                 # block ≈ random street-level shot (no unit manifest)
+  unit_column: unit_uid       # unused in image mode; kept for override-schema parity
+  unit_name_column: unit_name
+  pair_seed: 777
+  max_pairs: 100000
+  allow_replacement: false    # 500k images → ~1.25e11 canonical pairs; no reuse needed.
+  counterbalance_mode: balanced
+  repeat_count: 0
+  repeat_fraction: 0.10
+  weight_column: null         # within-unit weighting is unit-mode only
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/street_photography_mvp_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          runtime.resume: ${runtime.resume}
+          runtime.resume_chunk_rows: ${runtime.resume_chunk_rows}
+          pair_sampler.mode: ${pair_sampler.mode}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.pairs_path: ${pair_sampler.pairs_path}
+          pair_sampler.shard_count: ${pair_sampler.shard_count}
+          pair_sampler.shard_index: ${pair_sampler.shard_index}
+          pair_sampler.weight_column: ${pair_sampler.weight_column}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 0
+          model.concurrency: 1
+        launcher: slurm_gpu_1x
+        wandb_suffix: pairwise_street_photography_mvp

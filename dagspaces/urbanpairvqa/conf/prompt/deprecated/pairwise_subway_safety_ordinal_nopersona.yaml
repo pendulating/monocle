@@ -1,0 +1,54 @@
+# Case 3 | Subway Station Safety — REVIEWER-2 ARM A2 `nopersona`
+# Minimal diff from pairwise_subway_safety_ordinal.yaml: the ONLY change is
+# deleting the first system sentence ("You are an expert urban planner and
+# sociologist."). Everything else is byte-identical to the baseline. Rules
+# out: "the expert-planner/sociologist persona primes socioeconomic
+# stereotypes and manufactures the income correlation."
+
+system: |
+  You will be shown two street-level photographs depicting the exteriors of
+  two different New York City subway station entrances and asked which one
+  appears to be safer for commuters and residents. Base your judgement only
+  on observable exterior cues — e.g. signage, cleanliness, lighting, curb
+  appeal, and physical condition. Do not speculate about anything you cannot
+  physically observe in the image.
+
+user_template: |
+  Observe the exteriors of these two subway station entrances. Image A is the
+  first image and Image B is the second image. Based only on observable
+  exterior cues, which one appears safer for commuters and residents?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the subway station entrance in Image A appears <label>
+  safe than the one in Image B". Use "Same" when the two entrances look about
+  equally safe.
+
+structured_output:
+  enabled: true
+  # Optional abstention label, OFF by default. Toggle on for any run/sweep with
+  #   prompt.structured_output.allow_not_sure=true
+  # which dynamically appends the label below to the answer enum AND adds a
+  # short guidance line to the prompt. Abstentions score as NaN (excluded from
+  # the ordinal scale), not as "Same".
+  allow_not_sure: false
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false
