@@ -1,0 +1,33 @@
+#!/bin/bash
+#SBATCH --job-name=monocle
+#SBATCH --partition=pierson
+#SBATCH --nodelist=klara
+#SBATCH --gres=gpu:1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --time=00:45:00
+#SBATCH --output=/share/pierson/matt/mllmsci/outputs/monocle_%j.out
+
+# Generic monocle runner: sbatch monocle/monocle.sub <module> [args...]
+#   sbatch monocle/monocle.sub monocle.validate
+#   sbatch monocle/monocle.sub monocle.cli --image /path.jpg
+# Same env recipe as the activation-probe / GEPA runs: .venv-nightly
+# (transformers 5.12, native Gemma4Unified) + the klara libstdc++ preload.
+set -euo pipefail
+cd /share/pierson/matt/mllmsci
+
+source ~/.bashrc
+source /share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+export PYTHONUNBUFFERED=1
+export HF_HUB_OFFLINE=1
+
+echo "=== GPU sanity ==="
+echo "HOST=$(hostname) DATE=$(date) CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
+nvidia-smi -L || true
+
+MODULE="${1:-monocle.validate}"
+shift || true
+python -m "$MODULE" "$@"

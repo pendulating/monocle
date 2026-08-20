@@ -1,0 +1,35 @@
+#!/bin/bash
+#SBATCH --job-name=gepa-pairwise-subway
+#SBATCH --partition=pierson
+#SBATCH --nodelist=klara
+#SBATCH --gres=gpu:1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --time=08:00:00
+#SBATCH --output=outputs/gepa_pairwise/slurm_%j.out
+
+# GEPA prompt optimization over the subway-safety pairwise task.
+# gemma-4-12b (gemma4_unified) is both task model and reflection model, so
+# this must run on .venv-nightly (vLLM >= 0.23) with the klara libstdc++
+# LD_PRELOAD — same environment recipe as slurm_gpu_klara_1x.
+#
+# Submit from the repo root:
+#   sbatch scripts/gepa_pairwise_subway.sub [extra gepa_pairwise args...]
+
+set -euo pipefail
+cd /share/pierson/matt/mllmsci
+
+source ~/.bashrc
+source /share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+# bashrc conda-activates anaconda base, whose old libstdc++.so.6 lacks
+# GLIBCXX_3.4.32 (needed by flashinfer JIT); force the system one.
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+export PYTHONUNBUFFERED=1
+
+echo "=== GPU sanity ==="
+echo "HOST=$(hostname) DATE=$(date) CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
+nvidia-smi -L || true
+
+python -m dagspaces.urbanpairvqa.prompt_opt.gepa_pairwise "$@"
