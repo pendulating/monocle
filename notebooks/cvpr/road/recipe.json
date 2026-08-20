@@ -1,0 +1,37 @@
+{
+    "0":
+    {
+        "name": "Street Pavement Ratings",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/6yyb-pb25/query.json",
+        "documentation": "https://data.cityofnewyork.us/Transportation/Street-Pavement-Ratings/6yyb-pb25",
+        "role": "proxy",
+        "key": "the_geom",
+        "column": "systemrating",
+        "note": "The primary proxy. DOT scores a street segment from 0 to 10, and a HIGH score is a GOOD road, so it needs no sign flip. 514,521 rows in total, so filter the year on the server: inspections since 2024 give 125,924 rated segments. WARNING: a rating of exactly 0.0 means NOT RATED, not worst pavement. 72,768 rows carry it. The zeros fall from 11,043 in 2021 to 1,358 in 2026 while rated rows hold steady, which is a backlog that clears. pavement_segments drops them."
+    },
+    "1":
+    {
+        "name": "Street Pothole Work Orders - Closed",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/x9wy-ing4/query.json",
+        "documentation": "https://data.cityofnewyork.us/Transportation/Street-Pothole-Work-Orders-Closed-Dataset/x9wy-ing4",
+        "role": "proxy",
+        "key": "the_geom",
+        "note": "A secondary proxy, aggregated as repairs for each km^2 with a sign of -1. WARNING: it counts REPAIRS, not defects. A borough that fixes potholes quickly looks worse here than one that ignores them. Read it beside the pavement rating, never alone."
+    },
+    "2":
+    {
+        "name": "ACS 5-Year 2024, table S1901 — median household income by census tract",
+        "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
+        "role": "context",
+        "key": "geoid",
+        "note": "An area proxy. Only the census-tract layer carries a true median."
+    },
+    "3":
+    {
+        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
+        "role": "context",
+        "key": "latitude,longitude",
+        "note": "An area proxy. Crime is point data, so every layer gets a true value."
+    }
+}

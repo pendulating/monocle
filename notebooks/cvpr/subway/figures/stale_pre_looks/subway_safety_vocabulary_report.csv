@@ -1,0 +1,7 @@
+extraction_class,attribute,moved_to_other,share_of_class,top_values
+visual_evidence,category,886,0.0015,"safety (542), weather (110), infrastructure (62), wealth (51), class (36), occlusion (20), quality (19), crime (17), security (7), transportation (6)"
+image_artifact,kind,657,0.0816,"light (617), shadow (17), cannot_see (14), construction (6), out_of_view (3)"
+inference,kind,212,0.0024,"architecture (115), construction (21), commerce (19), traffic (19), cleanliness (16), light (7), people (7), prestige (5), scale (2), greenery (1)"
+uncertainty,reason,52,0.0008,"occlusion (33), angle (17), blur (2)"
+comparison,direction,12,0.0001,both (12)
+inference,image,1,0.0,neither (1)

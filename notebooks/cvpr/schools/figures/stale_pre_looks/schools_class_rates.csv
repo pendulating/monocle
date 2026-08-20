@@ -1,0 +1,8 @@
+extraction_class,libraries,road_quality,schools,subway_safety
+comparison,217.32,273.58,271.53,274.15
+decision,121.15,159.01,121.35,152.65
+image_artifact,13.48,20.99,14.42,24.28
+inference,119.34,82.56,348.0,263.57
+person_reference,8.8,1.29,11.16,112.58
+uncertainty,145.35,83.99,131.54,242.86
+visual_evidence,1472.24,1322.38,1063.44,1374.14

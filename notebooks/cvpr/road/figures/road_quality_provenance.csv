@@ -1,0 +1,3 @@
+case,question,model,sweep,state,created_at,rows,readable,wandb_id,results_path,wandb_url,notes
+road_quality,Which roadway looks to be in better condition?,gemma-4-12b/instruct_thinking,looks_thinking_gemma12b,finished,2026-08-15T22:09:01,11000,True,canon:trace:road_quality:gemma-4-12b,/share/pierson/matt/mllmsci/notebooks/cvpr/canonical_data/trace/road_quality__gemma-4-12b/results.parquet,,
+road_quality,Which roadway looks to be in better condition?,qwen3.5-9b/instruct_thinking,looks_thinking_qwen9b,finished,2026-08-15T18:31:44,11000,True,canon:trace:road_quality:qwen3.5-9b,/share/pierson/matt/mllmsci/notebooks/cvpr/canonical_data/trace/road_quality__qwen3.5-9b/results.parquet,,

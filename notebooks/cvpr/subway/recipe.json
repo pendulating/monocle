@@ -1,0 +1,27 @@
+{
+    "0":
+    {
+        "name": "ACS 5-Year 2024, table S1901 — median household income by census tract",
+        "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
+        "role": "proxy",
+        "key": "geoid",
+        "column": "Estimate!!Households!!Median income (dollars)",
+        "note": "On disk. The libraries case reads the same file. Only the census-tract layer carries a true median; NTA and community district carry a population-weighted mean of tract medians."
+    },
+    "1":
+    {
+        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
+        "role": "proxy",
+        "key": "latitude,longitude",
+        "note": "133,114 complaints, every one geocoded. Severity weights felony 3, misdemeanor 2, violation 1, the same as scripts/pairwise_socioeconomic_regression.py. Crime is point data, so a count and an area aggregate exactly. Thus every layer gets a true value, unlike the income proxy."
+    },
+    "2":
+    {
+        "name": "ACS 5-Year 2024, table B01003 — total population by census tract",
+        "file": "data/external/acs_tract_population/acs_b01003_nyc_tract.parquet",
+        "role": "weight",
+        "key": "geoid",
+        "note": "Weights the income aggregation, and supplies the denominator of the per-capita crime rate. A sum aggregates exactly, so the population of a polygon needs no approximation."
+    }
+}

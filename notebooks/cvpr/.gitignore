@@ -1,0 +1,8 @@
+# The W&B metadata cache and the SODA response cache. The notebooks download
+# them again when they need them.
+.wandb_cache/
+.proxy_cache/
+__pycache__/
+
+# Keep `outputs/`. Those tables are paper artifacts, and the file names carry
+# the notebook version.

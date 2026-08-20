@@ -1,0 +1,61 @@
+unit,score,count,count_elsewhere
+visual_evidence:residential street,27.31,989,35
+visual_evidence:parked cars,24.59,777,823
+visual_evidence:markings,20.01,373,29
+visual_evidence:visible wear,19.21,288,38
+visual_evidence:worn,19.19,262,55
+visual_evidence:minor wear,18.25,389,18
+visual_evidence:cracks,16.92,368,14
+visual_evidence:clear markings,16.3,206,105
+visual_evidence:some wear,15.72,239,17
+visual_evidence:concrete barrier,15.66,227,18
+visual_evidence:double yellow lines,15.13,219,16
+visual_evidence:clear lane markings,15.06,588,6
+visual_evidence:manhole cover,13.86,339,7
+visual_evidence:wear and tear,13.28,163,13
+visual_evidence:cars parked on both sides,13.26,125,44
+visual_evidence:multi-lane road,13.13,145,15
+visual_evidence:signs of wear,13.05,121,26
+visual_evidence:debris,12.96,137,79
+visual_evidence:relatively smooth,12.57,1159,1
+visual_evidence:city street,12.55,120,58
+visual_evidence:decent condition,12.38,111,44
+visual_evidence:cars parked on the side,12.29,108,22
+visual_evidence:wear,12.06,126,12
+visual_evidence:shadows,11.91,127,87
+visual_evidence:asphalt,10.41,688,1
+visual_evidence:visible wear and tear,10.29,119,6
+visual_evidence:concrete barriers,10.04,72,15
+visual_evidence:somewhat worn,10.0,88,8
+visual_evidence:fairly well-maintained,9.85,80,47
+visual_evidence:asphalt looks relatively smooth,9.63,914,0
+visual_evidence:debris (leaves),9.58,67,12
+visual_evidence:debris/dirt,9.32,84,6
+visual_evidence:standard city street,9.26,114,123
+visual_evidence:city street with parked cars,9.24,64,10
+visual_evidence:multiple lanes,9.16,111,4
+visual_evidence:curb,8.88,98,4
+visual_evidence:city street with a crosswalk,8.84,65,7
+visual_evidence:shadows from trees,8.75,202,2
+visual_evidence:crosswalk markings,8.69,55,10
+visual_evidence:narrower street,8.4,63,43
+visual_evidence:dirt/debris,8.2,56,6
+visual_evidence:very uniform,8.18,52,7
+visual_evidence:residential street with parked cars,8.15,93,3
+visual_evidence:well-maintained city street,8.09,46,12
+visual_evidence:parked cars on both sides,8.08,69,4
+visual_evidence:side street,8.08,46,11
+uncertainty:the difference isn't extreme,7.88,44,15
+visual_evidence:cracks and patches,7.76,258,1
+visual_evidence:slight wear,7.73,59,4
+uncertainty:they are very similar,7.67,45,22
+visual_evidence:visible cracks and patches,7.66,245,1
+visual_evidence:car parked on the side,7.56,48,5
+visual_evidence:fairly standard,7.54,41,8
+inference:residential street,7.4,51,4
+visual_evidence:wide multi-lane road,7.34,44,5
+visual_evidence:asphalt looks relatively smooth and well-maintained,7.34,531,0
+"uncertainty:maybe they are ""same""?",7.31,43,24
+visual_evidence:typical city wear,7.3,38,8
+visual_evidence:pavement looks somewhat worn,7.22,47,4
+visual_evidence:markings on the road,7.2,39,6

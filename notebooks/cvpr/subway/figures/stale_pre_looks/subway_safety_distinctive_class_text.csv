@@ -1,0 +1,61 @@
+unit,score,count,count_elsewhere
+visual_evidence:crosswalk,35.29,1468,715
+visual_evidence:well-lit,23.09,1866,14
+visual_evidence:clear sidewalk,23.05,516,129
+visual_evidence:trash can,21.14,501,217
+visual_evidence:wide sidewalk,21.14,697,26
+visual_evidence:cars,20.94,550,291
+person_reference:people walking around,20.87,503,40
+visual_evidence:bike lane,18.66,416,203
+person_reference:people are walking around,17.18,364,24
+visual_evidence:clear crosswalk,16.91,284,42
+person_reference:people walking,16.9,280,46
+visual_evidence:traffic light,16.43,261,55
+person_reference:people are walking on the sidewalk,15.74,241,43
+person_reference:people around,14.86,293,16
+uncertainty:i don't see any,14.83,340,13
+visual_evidence:pedestrian crossing,14.82,220,31
+visual_evidence:graffiti,14.76,242,102
+person_reference:pedestrians,14.08,200,27
+visual_evidence:bus,13.88,234,117
+person_reference:people walking on the sidewalk,13.46,176,42
+visual_evidence:subway entrance,13.18,275,10
+visual_evidence:busy city street,12.26,169,73
+visual_evidence:traffic lights,12.24,187,12
+visual_evidence:busy intersection,12.06,160,15
+visual_evidence:buildings,11.83,167,81
+visual_evidence:busy street,11.77,149,58
+"visual_evidence:""one way"" sign",11.56,154,70
+visual_evidence:high-rise buildings,11.48,130,36
+visual_evidence:yellow taxi,11.21,137,55
+visual_evidence:busy street corner,11.15,147,11
+visual_evidence:street light,11.04,118,25
+visual_evidence:bus lane,10.96,117,29
+person_reference:some people,10.79,135,62
+visual_evidence:pedestrians,10.77,121,14
+visual_evidence:cluttered,10.67,130,58
+visual_evidence:lot of traffic,10.63,110,27
+visual_evidence:tall buildings,10.51,123,52
+person_reference:some people around,10.34,173,6
+visual_evidence:construction barriers,10.3,149,91
+visual_evidence:bollards,10.18,105,14
+visual_evidence:food truck,10.17,109,12
+visual_evidence:car parked nearby,10.08,103,33
+visual_evidence:street corner with a crosswalk,9.67,94,29
+visual_evidence:crosswalks,9.63,120,66
+visual_evidence:heavy traffic,9.57,90,24
+person_reference:people standing around,9.57,131,6
+person_reference:people on the sidewalk,9.57,93,30
+visual_evidence:street corner,9.51,89,24
+visual_evidence:railing,9.51,128,6
+visual_evidence:traffic,9.48,88,23
+visual_evidence:very dark,9.36,87,25
+person_reference:people,9.32,140,99
+visual_evidence:metal railing,9.23,83,15
+visual_evidence:truck,9.2,117,70
+visual_evidence:cars parked and moving,9.2,88,31
+visual_evidence:wide street,9.18,82,15
+person_reference:person standing near the entrance,9.17,96,8
+"visual_evidence:""no standing"" sign",9.14,101,50
+visual_evidence:sidewalk is relatively clear,9.12,82,13
+visual_evidence:sidewalk is wide,9.07,80,19

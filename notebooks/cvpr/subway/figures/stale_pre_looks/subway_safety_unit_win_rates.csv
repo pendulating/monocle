@@ -1,0 +1,401 @@
+unit,n,wins,unit_name,n_images,image_path,image_confidence,image_distance_ft,win_rate,shrunk_rate,base_rate
+413_Stair_407075058_n740117912,15,15,Wall St (Stair),5,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELW/W0ELW31B/faces/R.jpg,0.582,33.0,1.0,0.8261,0.5
+40_EasementStreet_406834124_n739765033,11,11,Atlantic Av-Barclays Ctr (Easement - Street),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E3Y/W0E3YGZP/faces/B.jpg,0.362,57.0,1.0,0.7895,0.5
+105_EasementStreet_407126990_n740040990,10,10,Brooklyn Bridge-City Hall/Chambers St (Easement - Street),13,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EGT/W0EGT3DJ/faces/R.jpg,0.306,65.0,1.0,0.7778,0.5
+471_StairEscalator_407557660_n740002359,9,9,34 St - Hudson Yards (Stair/Escalator),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ED1/W0ED1GKM/faces/B.jpg,0.429,48.0,1.0,0.7647,0.5
+258_Elevator_407097309_n738196621,9,9,Briarwood (Elevator),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0CZO/W0CZO672/faces/L.jpg,0.611,26.0,1.0,0.7647,0.5
+233_Stair_407181166_n739882986,9,9,Delancey St-Essex St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EPJ/W0EPJLF2/faces/R.jpg,0.512,22.0,1.0,0.7647,0.5
+21_EasementStreet_407097799_n740102942,9,9,Chambers St/WTC/Park Place/Cortlandt St (Easement - Street),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELS/W0ELSNKH/faces/B.jpg,0.409,51.0,1.0,0.7647,0.5
+401_EasementStreet_407567229_n739725650,17,15,Lexington Av/51-53 Sts (Easement - Street),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E61/W0E61G7E/faces/F.jpg,0.458,46.0,0.8824,0.76,0.5
+414_Stair_407048029_n740144281,8,8,Bowling Green (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELX/W0ELX96E/faces/F.jpg,0.535,38.0,1.0,0.75,0.5
+469_EasementStreet_407530377_n739780680,12,11,Grand Central-42 St (Easement - Street),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5K/W0D5KUWC/faces/B.jpg,0.458,46.0,0.9167,0.75,0.5
+292_Stair_406871666_n739762873,8,8,Fulton St (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBQ/W0DBQL1U/faces/F.jpg,0.553,36.0,1.0,0.75,0.5
+174_EasementStreet_406935820_n739870075,8,8,Jay St-MetroTech (Easement - Street),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EGR/W0EGRZPL/faces/R.jpg,0.369,57.0,1.0,0.75,0.5
+14_Stair_407413694_n739888623,8,8,23 St (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E60/W0E60BWN/faces/F.jpg,0.605,29.0,1.0,0.75,0.5
+281_EasementStreet_407468858_n739435169,8,8,Court Sq-23 St (Easement - Street),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0E4A/W0E4APE0/faces/F.jpg,0.456,46.0,1.0,0.75,0.5
+198_Stair_406601692_n738303928,8,8,Howard Beach-JFK Airport (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBW/W0EBW9PP/faces/R.jpg,0.648,21.0,1.0,0.75,0.5
+180_Stair_406800207_n739402430,8,8,Kingston-Throop Avs (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRB/W0CRBLF9/faces/R.jpg,0.609,27.0,1.0,0.75,0.5
+226_Stair_407552322_n739840526,8,8,42 St-Bryant Pk/5 Av (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JGHG/faces/L.jpg,0.412,51.0,1.0,0.75,0.5
+240_Stair_406655020_n739792962,8,8,7 Av (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EH2/W0EH2RS6/faces/R.jpg,0.627,29.0,1.0,0.75,0.5
+359_Stair_406333082_n739478373,8,8,Flatbush Av-Brooklyn College (Stair),14,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DAZ/W0DAZ21B/faces/L.jpg,0.587,33.0,1.0,0.75,0.5
+163_EasementPassage_407563491_n739906315,8,8,Times Sq-42 St/Port Authority Bus Terminal (Easement - Passage),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECIQ8L/faces/L.jpg,0.514,40.0,1.0,0.75,0.5
+272_Stair_407519304_n739270977,8,8,36 St (Stair),12,/share/ju/cyclomedia/raw/queens_2025_1k/W0E4A/W0E4ARWB/faces/B.jpg,0.498,31.0,1.0,0.75,0.5
+314_Stair_407736414_n739824310,11,10,66 St-Lincoln Center (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0CTW/W0CTW764/faces/L.jpg,0.599,20.0,0.9091,0.7368,0.5
+284_Stair_407237540_n739506330,10,9,Nassau Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D0A/W0D0AWMB/faces/B.jpg,0.609,24.0,0.9,0.7222,0.5
+265_Stair_407362920_n738764169,10,9,Grand Av-Newtown (Stair),14,/share/ju/cyclomedia/raw/queens_2025_1k/W0E5N/W0E5NF0M/faces/R.jpg,0.54,37.0,0.9,0.7222,0.5
+318_EasementStreet_407510660_n739911404,10,9,34 St-Penn Station (Easement - Street),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5M/W0D5MUYZ/faces/B.jpg,0.431,49.0,0.9,0.7222,0.5
+118_Stair_407332929_n739869546,10,9,3 Av (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJISY/faces/R.jpg,0.531,38.0,0.9,0.7222,0.5
+225_EasementStreet_407601466_n739804899,10,9,47-50 Sts-Rockefeller Ctr (Easement - Street),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JGKV/faces/L.jpg,0.393,53.0,0.9,0.7222,0.5
+199_Stair_406080632_n738159820,10,9,Broad Channel (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0EO5/W0EO5SMC/faces/F.jpg,0.493,42.0,0.9,0.7222,0.5
+148_Stair_408407547_n739392446,9,8,168 St-Washington Hts (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DAP/W0DAPM9H/faces/B.jpg,0.564,35.0,0.8889,0.7059,0.5
+225_EasementPassage_407578742_n739820852,9,8,47-50 Sts-Rockefeller Ctr (Easement - Passage),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JGJA/faces/L.jpg,0.51,40.0,0.8889,0.7059,0.5
+287_Stair_406999886_n739499332,9,8,Flushing Av (Stair),14,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E8H/W0E8HZ16/faces/F.jpg,0.497,41.0,0.8889,0.7059,0.5
+332_Stair_407094436_n740063618,9,8,Fulton St (Stair),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EM2/W0EM2N22/faces/B.jpg,0.577,32.0,0.8889,0.7059,0.5
+155_Stair_408000042_n739584074,9,8,Cathedral Pkwy (110 St) (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECI5SV/faces/R.jpg,0.513,35.0,0.8889,0.7059,0.5
+38_Elevator_406225859_n740283617,9,8,86 St (Elevator),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DDB/W0DDB9PU/faces/R.jpg,0.651,22.0,0.8889,0.7059,0.5
+405_Stair_407401236_n739859708,9,8,23 St-Baruch College (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E60/W0E60BV3/faces/F.jpg,0.609,30.0,0.8889,0.7059,0.5
+447_Stair_407594937_n738306493,8,7,Flushing-Main St (Stair),3,/share/ju/cyclomedia/raw/queens_2025_1k/W0CWG/W0CWGQLW/faces/L.jpg,0.491,42.0,0.875,0.6875,0.5
+405_Stair_407402572_n739867682,8,7,23 St-Baruch College (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E60/W0E60BVI/faces/B.jpg,0.529,38.0,0.875,0.6875,0.5
+325_Stair_407229619_n740066299,8,7,Canal St (Stair),13,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEL/W0DEL8EM/faces/R.jpg,0.639,28.0,0.875,0.6875,0.5
+404_Stair_407432570_n739837380,8,7,28 St (Stair),5,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E5P/W0E5PO42/faces/F.jpg,0.332,46.0,0.875,0.6875,0.5
+359_Stair_406318572_n739476667,8,7,Flatbush Av-Brooklyn College (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EH7/W0EH7UCR/faces/L.jpg,0.559,35.0,0.875,0.6875,0.5
+327_Stair_407153917_n740091988,8,7,Chambers St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELQ/W0ELQQ5I/faces/B.jpg,0.553,36.0,0.875,0.6875,0.5
+158_Stair_407852100_n739695929,8,7,86 St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DGR/W0DGROTD/faces/L.jpg,0.569,34.0,0.875,0.6875,0.5
+21_EasementStreet_407101434_n740111427,8,7,Chambers St/WTC/Park Place/Cortlandt St (Easement - Street),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELX/W0ELX9DN/faces/R.jpg,0.383,55.0,0.875,0.6875,0.5
+228_Stair_407431327_n739931221,8,7,23 St (Stair),5,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E60/W0E60BYX/faces/F.jpg,0.565,27.0,0.875,0.6875,0.5
+230_Stair_407252073_n739965618,8,7,Broadway-Lafayette St/Bleecker St (Stair),13,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEC/W0DECOJ5/faces/B.jpg,0.537,37.0,0.875,0.6875,0.5
+152_Stair_408183718_n739472010,8,7,135 St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DAK/W0DAK2CO/faces/B.jpg,0.514,40.0,0.875,0.6875,0.5
+161_EasementStreet_407667708_n739833664,8,7,59 St-Columbus Circle (Easement - Street),15,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECN/W0ECNY5Z/faces/B.jpg,0.514,40.0,0.875,0.6875,0.5
+260_Stair_407186225_n738382901,8,7,75 Av (Stair),17,/share/ju/cyclomedia/raw/queens_2025_1k/W0E5Z/W0E5ZXIP/faces/B.jpg,0.633,28.0,0.875,0.6875,0.5
+163_Stair_407586951_n739890158,8,7,Times Sq-42 St/Port Authority Bus Terminal (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D7Q/W0D7QGMF/faces/F.jpg,0.594,31.0,0.875,0.6875,0.5
+243_Stair_406449233_n739800183,8,7,Church Av (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFT/W0EFTTXD/faces/L.jpg,0.577,33.0,0.875,0.6875,0.5
+162_EasementStreet_407623670_n739864705,11,9,50 St (Easement - Street),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECP/W0ECPMLH/faces/B.jpg,0.618,27.0,0.8182,0.6842,0.5
+167_Stair_407310974_n740015985,11,9,W 4 St-Wash Sq (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEI/W0DEIGEF/faces/L.jpg,0.447,47.0,0.8182,0.6842,0.5
+324_Stair_407287096_n740055131,10,8,Houston St (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEI/W0DEIUOW/faces/L.jpg,0.459,46.0,0.8,0.6667,0.5
+511_Stair_405646862_n741269428,13,10,Oakwood Heights (Stair),10,/share/ju/cyclomedia/raw/si_2025_1k/W0CRY/W0CRY4JD/faces/R.jpg,0.452,46.0,0.7692,0.6667,0.5
+307_Stair_408082611_n739634977,10,8,116 St-Columbia University (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DGR/W0DGRRB6/faces/R.jpg,0.571,34.0,0.8,0.6667,0.5
+28_Stair_406771710_n739830200,10,8,Union St (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EI5/W0EI55AV/faces/R.jpg,0.551,26.0,0.8,0.6667,0.5
+230_Stair_407250257_n739957848,10,8,Broadway-Lafayette St/Bleecker St (Stair),15,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EHO/W0EHO4OC/faces/B.jpg,0.529,38.0,0.8,0.6667,0.5
+198_Elevator_406604843_n738305360,10,8,Howard Beach-JFK Airport (Elevator),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0DCW/W0DCWQXL/faces/R.jpg,0.626,29.0,0.8,0.6667,0.5
+229_Elevator_407373522_n739965383,12,9,14 St/6 Av (Elevator),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EHO/W0EHO80X/faces/F.jpg,0.615,30.0,0.75,0.65,0.5
+73_StationHouse_406242460_n739959620,9,7,62 St/New Utrecht Av (Station House),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFN/W0EFN8EU/faces/R.jpg,0.469,43.0,0.7778,0.6471,0.5
+219_Stair_408280110_n739255880,9,7,161 St-Yankee Stadium (Stair),4,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CQ3/W0CQ34R5/faces/F.jpg,0.363,57.0,0.7778,0.6471,0.5
+266_EasementStreet_407420520_n738810756,9,7,Elmhurst Av (Easement - Street),13,/share/ju/cyclomedia/raw/queens_2025_1k/W0E3X/W0E3XSQ0/faces/F.jpg,0.509,38.0,0.7778,0.6471,0.5
+459_Stair_407438705_n739241768,9,7,40 St-Lowery St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKQ/W0CKQXZ8/faces/B.jpg,0.584,33.0,0.7778,0.6471,0.5
+2_Stair_407710582_n739173326,9,7,Astoria Blvd (Stair),15,/share/ju/cyclomedia/raw/queens_2025_1k/W0CH4/W0CH4IL1/faces/F.jpg,0.477,44.0,0.7778,0.6471,0.5
+120_Stair_407170278_n739562626,9,7,Bedford Av (Stair),1,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D0M/W0D0M35R/faces/R.jpg,0.447,47.0,0.7778,0.6471,0.5
+284_Stair_407255880_n739516020,9,7,Nassau Av (Stair),16,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D52/W0D527S4/faces/F.jpg,0.553,36.0,0.7778,0.6471,0.5
+9_Stair_407652809_n739800466,11,8,57 St-7 Av (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5L/W0D5L9VG/faces/B.jpg,0.312,64.0,0.7273,0.6316,0.5
+102_Stair_407185586_n739876473,8,6,Delancey St-Essex St (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELS/W0ELSGXH/faces/F.jpg,0.516,37.0,0.75,0.625,0.5
+257_Stair_407049172_n738119582,8,6,Sutphin Blvd (Stair),16,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIJ/W0DIJYXY/faces/B.jpg,0.497,42.0,0.75,0.625,0.5
+153_Stair_408120020_n739517467,8,6,125 St (Stair),14,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EHK/W0EHKU66/faces/B.jpg,0.518,39.0,0.75,0.625,0.5
+110_Stair_407044430_n739023890,8,6,Forest Av (Stair),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0EKR/W0EKRK1I/faces/R.jpg,0.655,22.0,0.75,0.625,0.5
+107_EasementPassage_407080350_n740106650,8,6,Broad St (Easement - Passage),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELS/W0ELSN0Y/faces/R.jpg,0.623,29.0,0.75,0.625,0.5
+228_Stair_407429067_n739925842,8,6,23 St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JKXM/faces/F.jpg,0.553,32.0,0.75,0.625,0.5
+164_Stair_407522195_n739938635,8,6,34 St-Penn Station (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5M/W0D5MUXJ/faces/B.jpg,0.545,37.0,0.75,0.625,0.5
+161_Stair_407686784_n739811728,8,6,59 St-Columbus Circle (Stair),3,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0CTZ/W0CTZBBJ/faces/R.jpg,0.203,68.0,0.75,0.625,0.5
+292_Stair_406870404_n739747032,8,6,Fulton St (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E5G/W0E5G8SJ/faces/L.jpg,0.6,29.0,0.75,0.625,0.5
+226_Stair_407535053_n739847341,8,6,42 St-Bryant Pk/5 Av (Stair),16,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECIQ37/faces/F.jpg,0.512,36.0,0.75,0.625,0.5
+9_Stair_407640707_n739808046,8,6,57 St-7 Av (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EME/W0EME2VZ/faces/R.jpg,0.321,62.0,0.75,0.625,0.5
+146_StationHouse_408529297_n739374299,8,6,181 St (Station House),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EHN/W0EHN0P7/faces/R.jpg,0.551,36.0,0.75,0.625,0.5
+9_Stair_407656338_n739797767,8,6,57 St-7 Av (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECIORX/faces/R.jpg,0.461,46.0,0.75,0.625,0.5
+447_Stair_407595971_n738304171,8,6,Flushing-Main St (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0CWG/W0CWGQLU/faces/F.jpg,0.554,36.0,0.75,0.625,0.5
+336_Stair_406909720_n739854480,8,6,Hoyt St (Stair),6,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EGT/W0EGT3SK/faces/L.jpg,0.453,36.0,0.75,0.625,0.5
+265_Stair_407375079_n738774159,8,6,Grand Av-Newtown (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0E5N/W0E5NGDV/faces/L.jpg,0.561,35.0,0.75,0.625,0.5
+254_Stair_407126600_n737832674,13,9,Jamaica-179 St (Stair),6,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIM/W0DIMF1V/faces/B.jpg,0.559,23.0,0.6923,0.619,0.5
+118_Stair_407329604_n739866278,10,7,3 Av (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJHZ0/faces/B.jpg,0.658,25.0,0.7,0.6111,0.5
+345_Stair_406689826_n739318527,10,7,Crown Hts-Utica Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E8V/W0E8V139/faces/B.jpg,0.641,21.0,0.7,0.6111,0.5
+52_StationHouse_405990000_n739560243,10,7,Ave U (Station House),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEG/W0DEG9ZB/faces/F.jpg,0.413,51.0,0.7,0.6111,0.5
+522_Stair_405133997_n742511586,10,7,Tottenville (Stair),5,/share/ju/cyclomedia/raw/si_2025_1k/W0EDJ/W0EDJ43J/faces/B.jpg,0.328,62.0,0.7,0.6111,0.5
+512_Stair_405568692_n741362968,12,8,Bay Terrace (Stair),8,/share/ju/cyclomedia/raw/si_2025_1k/W0CRP/W0CRPFR6/faces/L.jpg,0.355,56.0,0.6667,0.6,0.5
+377_Stair_408103500_n739254715,9,6,3 Av-138 St (Stair),5,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EBK/W0EBK35H/faces/F.jpg,0.442,48.0,0.6667,0.5882,0.5
+170_Stair_407137352_n740090664,9,6,Chambers St/WTC/Park Place/Cortlandt St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEI/W0DEIILG/faces/L.jpg,0.48,43.0,0.6667,0.5882,0.5
+304_Stair_408266705_n739505231,9,6,145 St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D288UP/faces/L.jpg,0.658,23.0,0.6667,0.5882,0.5
+166_Stair_407406130_n740022132,9,6,14 St/8 Av (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECO/W0ECOW9H/faces/F.jpg,0.599,30.0,0.6667,0.5882,0.5
+23_Stair_407019334_n740125934,9,6,Whitehall St-South Ferry (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELS/W0ELSGAZ/faces/R.jpg,0.585,27.0,0.6667,0.5882,0.5
+278_StairEscalator_407023237_n737999950,9,6,Jamaica Center-Parsons/Archer (Stair/Escalator),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0EA5/W0EA5VCJ/faces/B.jpg,0.436,42.0,0.6667,0.5882,0.5
+225_Stair_407578149_n739817936,11,7,47-50 Sts-Rockefeller Ctr (Stair),15,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JDIW/faces/R.jpg,0.64,24.0,0.6364,0.5789,0.5
+477_StairEscalator_407669623_n739595894,8,5,72 St (Stair/Escalator),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E60/W0E60DGG/faces/R.jpg,0.625,23.0,0.625,0.5625,0.5
+212_Stair_408676880_n738927390,8,5,Kingsbridge Rd (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2U/W0D2UDCZ/faces/B.jpg,0.47,45.0,0.625,0.5625,0.5
+21_EasementPassage_407112115_n740106761,8,5,Chambers St/WTC/Park Place/Cortlandt St (Easement - Passage),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EM1/W0EM1CPB/faces/L.jpg,0.646,21.0,0.625,0.5625,0.5
+277_Stair_407629497_n739816298,8,5,7 Av (Stair),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0CTW/W0CTW9K9/faces/R.jpg,0.493,38.0,0.625,0.5625,0.5
+284_Stair_407238047_n739509807,8,5,Nassau Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E8Q/W0E8QOXV/faces/R.jpg,0.264,72.0,0.625,0.5625,0.5
+367_Stair_408314802_n738674288,8,5,St Lawrence Av (Stair),13,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EC8/W0EC8QQI/faces/B.jpg,0.651,22.0,0.625,0.5625,0.5
+469_EasementStreet_407522602_n739783584,8,5,Grand Central-42 St (Easement - Street),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5N/W0D5NZZ7/faces/B.jpg,0.511,40.0,0.625,0.5625,0.5
+210_Stair_408750794_n738796013,8,5,Norwood-205 St (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0END/W0ENDR8R/faces/L.jpg,0.636,28.0,0.625,0.5625,0.5
+439_Stair_408075694_n739454604,8,5,125 St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECJ/W0ECJD1E/faces/R.jpg,0.61,30.0,0.625,0.5625,0.5
+429_Stair_408304069_n738920048,8,5,Freeman St (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CW8/W0CW8GBW/faces/L.jpg,0.453,46.0,0.625,0.5625,0.5
+163_Stair_407558064_n739905611,8,5,Times Sq-42 St/Port Authority Bus Terminal (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECIQ0N/faces/B.jpg,0.649,27.0,0.625,0.5625,0.5
+401_Stair_407573205_n739721689,8,5,Lexington Av/51-53 Sts (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5P/W0D5P7HE/faces/R.jpg,0.489,38.0,0.625,0.5625,0.5
+33_Stair_406495617_n740096026,8,5,45 St (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DCX/W0DCXMX6/faces/L.jpg,0.514,40.0,0.625,0.5625,0.5
+318_Stair_407512038_n739907529,8,5,34 St-Penn Station (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEL/W0DELW17/faces/F.jpg,0.492,42.0,0.625,0.5625,0.5
+397_Stair_407794474_n739557947,8,5,86 St (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECI4VX/faces/B.jpg,0.548,34.0,0.625,0.5625,0.5
+382_Stair_408627753_n739007379,8,5,Fordham Rd (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2X/W0D2X81N/faces/F.jpg,0.601,31.0,0.625,0.5625,0.5
+318_Stair_407510270_n739903473,8,5,34 St-Penn Station (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEL/W0DELW10/faces/F.jpg,0.409,39.0,0.625,0.5625,0.5
+519_Stair_405196676_n742286845,10,6,Richmond Valley (Stair),10,/share/ju/cyclomedia/raw/si_2025_1k/W0EDJ/W0EDJ3FX/faces/L.jpg,0.653,26.0,0.6,0.5556,0.5
+317_Stair_407552480_n739873620,10,6,Times Sq-42 St/Port Authority Bus Terminal (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECIQ56/faces/B.jpg,0.539,37.0,0.6,0.5556,0.5
+412_EasementStreet_407103857_n740096861,10,6,Fulton St (Easement - Street),15,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DIC/W0DICC3A/faces/B.jpg,0.485,43.0,0.6,0.5556,0.5
+325_Stair_407225992_n740061226,10,6,Canal St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEL/W0DEL8EB/faces/R.jpg,0.523,39.0,0.6,0.5556,0.5
+403_Stair_407465019_n739822146,10,6,33 St (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EQV/W0EQV2JL/faces/B.jpg,0.631,28.0,0.6,0.5556,0.5
+390_Stair_408182590_n739276590,10,6,149 St-Grand Concourse (Stair),9,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6E/W0E6EYEL/faces/L.jpg,0.611,28.0,0.6,0.5556,0.5
+124_Stair_407077427_n739401016,12,7,Montrose Av (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D52/W0D524X9/faces/F.jpg,0.442,47.0,0.5833,0.55,0.5
+207_Stair_405955210_n737682710,12,7,Beach 36 St (Stair),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0EO4/W0EO4NC7/faces/F.jpg,0.66,26.0,0.5833,0.55,0.5
+218_Stair_408342860_n739175620,12,7,167 St (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6F/W0E6F17B/faces/B.jpg,0.568,34.0,0.5833,0.55,0.5
+510_Stair_405733062_n741176127,9,5,New Dorp (Stair),13,/share/ju/cyclomedia/raw/si_2025_1k/W0E3V/W0E3VNYR/faces/F.jpg,0.558,35.0,0.5556,0.5294,0.5
+514_Stair_405448229_n741645123,9,5,Eltingville (Stair),9,/share/ju/cyclomedia/raw/si_2025_1k/W0E8W/W0E8WX9P/faces/B.jpg,0.554,36.0,0.5556,0.5294,0.5
+519_Stair_405197629_n742289145,9,5,Richmond Valley (Stair),10,/share/ju/cyclomedia/raw/si_2025_1k/W0EDJ/W0EDJ3FS/faces/L.jpg,0.626,18.0,0.5556,0.5294,0.5
+509_Overpass_405790723_n741097410,9,5,Grant City (Overpass),7,/share/ju/cyclomedia/raw/si_2025_1k/W0E8X/W0E8X4YJ/faces/R.jpg,0.554,34.0,0.5556,0.5294,0.5
+213_Stair_408626080_n738966620,9,5,Fordham Rd (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EM9/W0EM9SVM/faces/R.jpg,0.498,41.0,0.5556,0.5294,0.5
+151_EasementStreet_408256520_n739438059,9,5,145 St (Easement - Street),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECN/W0ECN21O/faces/L.jpg,0.455,46.0,0.5556,0.5294,0.5
+71_StationHouse_406345520_n740107260,9,5,8 Av (Station House),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DCX/W0DCXOTA/faces/L.jpg,0.505,41.0,0.5556,0.5294,0.5
+231_Stair_407181896_n739935609,9,5,Grand St (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJMVQ/faces/F.jpg,0.443,48.0,0.5556,0.5294,0.5
+72_StationHouse_406306090_n740040670,11,6,Fort Hamilton Pkwy (Station House),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DCR/W0DCRE5J/faces/L.jpg,0.478,44.0,0.5455,0.5263,0.5
+274_EasementStreet_407477378_n739446888,11,6,Court Sq-23 St (Easement - Street),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0CDM/W0CDMZIA/faces/R.jpg,0.405,51.0,0.5455,0.5263,0.5
+469_EasementPassage_407525140_n739779770,8,4,Grand Central-42 St (Easement - Passage),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JCRM/faces/R.jpg,0.582,12.0,0.5,0.5,0.5
+277_Stair_407633428_n739825738,10,5,7 Av (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ED2/W0ED2NGF/faces/F.jpg,0.612,30.0,0.5,0.5,0.5
+11_Stair_407543135_n739866372,8,4,Times Sq-42 St/Port Authority Bus Terminal (Stair),2,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECIQ4C/faces/R.jpg,0.521,38.0,0.5,0.5,0.5
+291_Stair_406881570_n739655790,8,4,Clinton-Washington Avs (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBQ/W0DBQJOB/faces/B.jpg,0.615,27.0,0.5,0.5,0.5
+193_Stair_406821514_n738368413,8,4,104 St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBH/W0EBHX9A/faces/R.jpg,0.376,56.0,0.5,0.5,0.5
+254_Elevator_407126116_n737833764,8,4,Jamaica-179 St (Elevator),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIM/W0DIMF1T/faces/B.jpg,0.556,29.0,0.5,0.5,0.5
+281_Stair_407462430_n739440110,8,4,Court Sq-23 St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0CDM/W0CDMZ7D/faces/L.jpg,0.469,45.0,0.5,0.5,0.5
+165_Stair_407465177_n739971926,10,5,23 St (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5N/W0D5NKD6/faces/F.jpg,0.554,36.0,0.5,0.5,0.5
+164_Stair_407529333_n739933463,8,4,34 St-Penn Station (Stair),4,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ED1/W0ED1GIN/faces/B.jpg,0.634,28.0,0.5,0.5,0.5
+213_Stair_408614010_n738980980,10,5,Fordham Rd (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPX/W0CPXJO2/faces/B.jpg,0.515,40.0,0.5,0.5,0.5
+361_Stair_408468193_n738324030,8,4,Buhre Av (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EER/W0EERJSO/faces/B.jpg,0.582,33.0,0.5,0.5,0.5
+356_Elevator_406507480_n739493840,10,5,Church Av (Elevator),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CVY/W0CVY2FA/faces/R.jpg,0.454,46.0,0.5,0.5,0.5
+107_EasementStreet_407080774_n740097526,12,6,Broad St (Easement - Street),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DG8/W0DG8VB6/faces/R.jpg,0.649,21.0,0.5,0.5,0.5
+510_Stair_405730202_n741177700,8,4,New Dorp (Stair),7,/share/ju/cyclomedia/raw/si_2025_1k/W0CRP/W0CRPFW4/faces/L.jpg,0.49,38.0,0.5,0.5,0.5
+218_Stair_408348169_n739178219,10,5,167 St (Stair),13,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6E/W0E6EY2N/faces/L.jpg,0.458,42.0,0.5,0.5,0.5
+5_Stair_407565079_n739299782,10,5,36 Av (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0CEI/W0CEII43/faces/B.jpg,0.393,53.0,0.5,0.5,0.5
+118_Stair_407331516_n739870664,10,5,3 Av (Stair),15,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJHYS/faces/B.jpg,0.528,19.0,0.5,0.5,0.5
+318_Stair_407503272_n739908869,10,5,34 St-Penn Station (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECL/W0ECL2R4/faces/F.jpg,0.521,39.0,0.5,0.5,0.5
+381_Stair_408676200_n738971520,8,4,Kingsbridge Rd (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2T/W0D2TV91/faces/R.jpg,0.556,36.0,0.5,0.5,0.5
+378_Stair_408867370_n738781200,8,4,Woodlawn (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2T/W0D2TVKH/faces/R.jpg,0.64,28.0,0.5,0.5,0.5
+316_Stair_407613250_n739836631,8,4,50 St (Stair),3,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECP/W0ECPMOO/faces/F.jpg,0.59,24.0,0.5,0.5,0.5
+308_Stair_408039646_n739666339,10,5,Cathedral Pkwy (110 St) (Stair),17,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DPE/W0DPEKVE/faces/R.jpg,0.578,24.0,0.5,0.5,0.5
+223_EasementStreet_407648960_n739664260,8,4,Lexington Av/63 St (Easement - Street),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E5N/W0E5NLGD/faces/L.jpg,0.441,48.0,0.5,0.5,0.5
+324_Stair_407279845_n740056278,10,5,Houston St (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEI/W0DEIUPC/faces/L.jpg,0.426,50.0,0.5,0.5,0.5
+360_Stair_408530120_n738271720,13,6,Pelham Bay Park (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D1G/W0D1G521/faces/R.jpg,0.428,49.0,0.4615,0.4762,0.5
+506_Stair_405963353_n740874145,9,4,Old Town (Stair),6,/share/ju/cyclomedia/raw/si_2025_1k/W0CV9/W0CV940S/faces/L.jpg,0.476,44.0,0.4444,0.4706,0.5
+128_StationHouse_406997350_n739109980,9,4,Myrtle-Wyckoff Avs (Station House),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EKQ/W0EKQ89V/faces/L.jpg,0.449,47.0,0.4444,0.4706,0.5
+212_Stair_408661270_n738939820,9,4,Kingsbridge Rd (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EM9/W0EM9SY5/faces/R.jpg,0.503,41.0,0.4444,0.4706,0.5
+188_Elevator_406755801_n738718739,9,4,Euclid Av (Elevator),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DDF/W0DDFGPS/faces/R.jpg,0.62,29.0,0.4444,0.4706,0.5
+194_Stair_406847601_n738308779,9,4,111 St (Stair),14,/share/ju/cyclomedia/raw/queens_2025_1k/W0CVU/W0CVUP2U/faces/B.jpg,0.614,18.0,0.4444,0.4706,0.5
+410_Elevator_407182795_n740001254,9,4,Canal St (Elevator),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJNFQ/faces/F.jpg,0.586,33.0,0.4444,0.4706,0.5
+195_Stair_406858900_n738270810,12,5,Ozone Park-Lefferts Blvd (Stair),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBI/W0EBIFBD/faces/L.jpg,0.382,55.0,0.4167,0.45,0.5
+508_Stair_405839541_n741027069,10,4,Jefferson Av (Stair),12,/share/ju/cyclomedia/raw/si_2025_1k/W0CVC/W0CVC1AP/faces/F.jpg,0.607,31.0,0.4,0.4444,0.5
+164_Stair_407521806_n739930803,10,4,34 St-Penn Station (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEL/W0DELW2G/faces/F.jpg,0.501,41.0,0.4,0.4444,0.5
+273_Elevator_407488969_n739378479,10,4,Queens Plaza (Elevator),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0E4A/W0E4APAY/faces/L.jpg,0.524,36.0,0.4,0.4444,0.5
+213_Stair_408622960_n738968850,10,4,Fordham Rd (Stair),14,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EM9/W0EM9SVF/faces/R.jpg,0.576,32.0,0.4,0.4444,0.5
+421_StationHouse_408775614_n738663578,10,4,Gun Hill Rd (Station House),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E3V/W0E3V2D5/faces/F.jpg,0.403,52.0,0.4,0.4444,0.5
+352_Stair_406664379_n738833001,10,4,New Lots Av (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EH4/W0EH4Z43/faces/L.jpg,0.594,23.0,0.4,0.4444,0.5
+375_Stair_408050474_n739134955,10,4,Cypress Av (Stair),7,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CWH/W0CWHVS1/faces/B.jpg,0.645,26.0,0.4,0.4444,0.5
+214_Stair_408560263_n739011541,8,3,182-183 Sts (Stair),9,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPP/W0CPP09S/faces/L.jpg,0.568,34.0,0.375,0.4375,0.5
+183_Stair_406785315_n739107794,8,3,Rockaway Av (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBQ/W0DBQENH/faces/R.jpg,0.552,23.0,0.375,0.4375,0.5
+17_Stair_407243543_n739978724,8,3,Prince St (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DI9/W0DI9X37/faces/R.jpg,0.579,28.0,0.375,0.4375,0.5
+21_StationHouse_407107493_n740090283,8,3,Chambers St/WTC/Park Place/Cortlandt St (Station House),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EM2/W0EM2N3J/faces/B.jpg,0.574,33.0,0.375,0.4375,0.5
+391_Stair_408133392_n739299986,8,3,138 St-Grand Concourse (Stair),17,/share/ju/cyclomedia/raw/bronx_2025_1k/W0DEF/W0DEFIT3/faces/B.jpg,0.619,30.0,0.375,0.4375,0.5
+397_Elevator_407795098_n739553242,8,3,86 Street (Elevator),2,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECT/W0ECTNB1/faces/R.jpg,0.332,62.0,0.375,0.4375,0.5
+289_Stair_406897570_n739516120,8,3,Bedford-Nostrand Avs (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRE/W0CREKEK/faces/B.jpg,0.442,34.0,0.375,0.4375,0.5
+306_Escalator_408157388_n739585275,8,3,125 St (Escalator),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D2C/W0D2CO3I/faces/L.jpg,0.647,27.0,0.375,0.4375,0.5
+241_Stair_406607630_n739789920,8,3,15 St-Prospect Park (Stair),14,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEK/W0DEKKDZ/faces/F.jpg,0.4,53.0,0.375,0.4375,0.5
+129_Stair_406961170_n739044160,8,3,Halsey St (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEP/W0DEP1EZ/faces/R.jpg,0.643,21.0,0.375,0.4375,0.5
+32_Stair_406544900_n740044990,8,3,36 St (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBM/W0DBM4ZR/faces/F.jpg,0.511,40.0,0.375,0.4375,0.5
+148_Stair_408419367_n739394614,8,3,168 St-Washington Hts (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D288JX/faces/L.jpg,0.548,36.0,0.375,0.4375,0.5
+82_Stair_406952670_n738432230,8,3,104 St (Stair),13,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBH/W0EBH4T4/faces/F.jpg,0.556,36.0,0.375,0.4375,0.5
+430_Elevator_408244006_n738928917,11,4,Simpson St (Elevator),9,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CWB/W0CWBMOY/faces/F.jpg,0.437,48.0,0.3636,0.4211,0.5
+174_Stair_406923290_n739871670,11,4,Jay St-MetroTech (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EGT/W0EGT3BF/faces/R.jpg,0.497,33.0,0.3636,0.4211,0.5
+49_Stair_406253471_n739610073,9,3,Avenue J (Stair),4,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEI/W0DEIBBB/faces/F.jpg,0.521,39.0,0.3333,0.4118,0.5
+332_EasementStreet_407091436_n740067881,9,3,Fulton St (Easement - Street),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EM2/W0EM2NLP/faces/R.jpg,0.585,26.0,0.3333,0.4118,0.5
+204_Stair_405907440_n737977890,9,3,Beach 67 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIJ/W0DIJ710/faces/R.jpg,0.581,26.0,0.3333,0.4118,0.5
+161_Elevator_407676894_n739824960,9,3,59 St-Columbus Circle (Elevator),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECJ/W0ECJ9N0/faces/L.jpg,0.291,68.0,0.3333,0.4118,0.5
+216_Stair_408465533_n739097033,9,3,174-175 Sts (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EBJ/W0EBJYGD/faces/B.jpg,0.539,6.0,0.3333,0.4118,0.5
+415_EasementStreet_406922990_n739903010,9,3,Borough Hall/Court St (Easement - Street),3,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EGS/W0EGS148/faces/B.jpg,0.405,52.0,0.3333,0.4118,0.5
+205_Stair_405922561_n737874086,9,3,Beach 60 St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINQHC/faces/B.jpg,0.636,20.0,0.3333,0.4118,0.5
+276_EasementStreet_407606388_n739764862,9,3,5 Av/53 St (Easement - Street),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E65/W0E65D48/faces/B.jpg,0.583,16.0,0.3333,0.4118,0.5
+204_Stair_405909510_n737961760,9,3,Beach 67 St (Stair),14,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIO/W0DIO362/faces/L.jpg,0.404,52.0,0.3333,0.4118,0.5
+350_Stair_406645892_n738941123,12,4,Pennsylvania Av (Stair),21,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBO/W0DBOZKO/faces/L.jpg,0.602,15.0,0.3333,0.4,0.5
+89_Stair_406796800_n738857090,10,3,Cleveland St (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CR8/W0CR8KOY/faces/L.jpg,0.488,40.0,0.3,0.3889,0.5
+476_Escalator_407778649_n739514473,10,3,86 St (Escalator),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECI553/faces/F.jpg,0.661,24.0,0.3,0.3889,0.5
+233_Stair_407187876_n739882306,10,3,Delancey St-Essex St (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJI8X/faces/L.jpg,0.517,39.0,0.3,0.3889,0.5
+440_Stair_408018347_n739496507,10,3,116 St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DPD/W0DPDL9Q/faces/R.jpg,0.569,33.0,0.3,0.3889,0.5
+246_Stair_406243010_n739758170,10,3,Avenue I (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFL/W0EFL5BU/faces/R.jpg,0.6,26.0,0.3,0.3889,0.5
+88_Stair_406816590_n738789840,10,3,Norwood Av (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CR8/W0CR8I2W/faces/B.jpg,0.603,15.0,0.3,0.3889,0.5
+377_Stair_408106380_n739268830,10,3,3 Av-138 St (Stair),9,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EBK/W0EBK2VP/faces/B.jpg,0.443,43.0,0.3,0.3889,0.5
+22_Stair_407078334_n740128311,10,3,Rector St (Stair),5,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEC/W0DECO53/faces/R.jpg,0.584,28.0,0.3,0.3889,0.5
+125_StationHouse_407061192_n739336391,8,2,Morgan Av (Station House),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRD/W0CRDBO6/faces/L.jpg,0.611,30.0,0.25,0.375,0.5
+136_Stair_406590028_n738993145,8,2,New Lots Av (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBP/W0DBP0PT/faces/B.jpg,0.595,32.0,0.25,0.375,0.5
+125_Stair_407063170_n739316960,8,2,Morgan Av (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E5V/W0E5VOB9/faces/B.jpg,0.655,23.0,0.25,0.375,0.5
+445_StationHouse_408588167_n738555237,8,2,Pelham Pkwy (Station House),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EDS/W0EDSJIK/faces/R.jpg,0.422,33.0,0.25,0.375,0.5
+517_Stair_405256747_n741995091,8,2,Prince's Bay (Stair),7,/share/ju/cyclomedia/raw/si_2025_1k/W0D6W/W0D6WP2Z/faces/L.jpg,0.378,55.0,0.25,0.375,0.5
+503_Stair_406286019_n740752482,8,2,Stapleton (Stair),7,/share/ju/cyclomedia/raw/si_2025_1k/W0EKZ/W0EKZN7P/faces/B.jpg,0.647,21.0,0.25,0.375,0.5
+133_Stair_406753900_n739025940,8,2,Atlantic Av (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBM/W0DBMBLX/faces/L.jpg,0.604,15.0,0.25,0.375,0.5
+410_Stair_407186913_n740007097,8,2,Canal St (Stair),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJNG4/faces/F.jpg,0.619,26.0,0.25,0.375,0.5
+392_Stair_408042618_n739376559,8,2,125 St (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D286Q4/faces/L.jpg,0.587,32.0,0.25,0.375,0.5
+369_Stair_408284600_n738793620,8,2,Elder Av (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPH/W0CPHYJJ/faces/B.jpg,0.538,30.0,0.25,0.375,0.5
+176_Stair_406865530_n739746060,8,2,Lafayette Av (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D59/W0D59J4U/faces/L.jpg,0.585,30.0,0.25,0.375,0.5
+297_Stair_408697981_n739151790,8,2,215 St (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DAP/W0DAPQCA/faces/F.jpg,0.273,69.0,0.25,0.375,0.5
+249_Stair_406090410_n739729040,8,2,Avenue P (Stair),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EJU/W0EJUBGA/faces/R.jpg,0.505,41.0,0.25,0.375,0.5
+204_Stair_405911570_n737961994,8,2,Beach 67 St (Stair),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0EO5/W0EO5K31/faces/L.jpg,0.4,53.0,0.25,0.375,0.5
+447_Stair_407594606_n738299149,8,2,Flushing-Main St (Stair),6,/share/ju/cyclomedia/raw/queens_2025_1k/W0ELL/W0ELL2I0/faces/R.jpg,0.563,35.0,0.25,0.375,0.5
+55_Stair_405777460_n739602310,8,2,Brighton Beach (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEI/W0DEIF5T/faces/B.jpg,0.66,23.0,0.25,0.375,0.5
+98_Stair_407006437_n739421931,8,2,Flushing Av (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E8U/W0E8UKA6/faces/B.jpg,0.643,21.0,0.25,0.375,0.5
+98_Elevator_407006273_n739420192,8,2,Flushing Av (Elevator),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E5Z/W0E5ZOYV/faces/B.jpg,0.57,24.0,0.25,0.375,0.5
+106_Stair_407102190_n740075959,8,2,Fulton St (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DG8/W0DG8VCU/faces/R.jpg,0.565,35.0,0.25,0.375,0.5
+388_Stair_408357397_n739210597,8,2,167 St (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6F/W0E6F0U7/faces/F.jpg,0.572,22.0,0.25,0.375,0.5
+56_Stair_405764230_n739678940,8,2,Ocean Pkwy (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEI/W0DEIFF7/faces/F.jpg,0.655,23.0,0.25,0.375,0.5
+217_Stair_408386549_n739141871,8,2,170 St (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6E/W0E6EXZQ/faces/L.jpg,0.517,36.0,0.25,0.375,0.5
+183_Stair_406784181_n739109780,11,3,Rockaway Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D54/W0D54KXG/faces/L.jpg,0.616,27.0,0.2727,0.3684,0.5
+63_Stair_406271574_n739968629,11,3,62 St/New Utrecht Av (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFR/W0EFRK2W/faces/L.jpg,0.472,44.0,0.2727,0.3684,0.5
+30_Stair_406652787_n739932544,11,3,Prospect Av (Stair),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EH2/W0EH2QUE/faces/F.jpg,0.512,34.0,0.2727,0.3684,0.5
+461_EasementStreet_407508350_n739396710,11,3,Queensboro Plaza (Easement - Street),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0E4F/W0E4FI8Z/faces/F.jpg,0.494,36.0,0.2727,0.3684,0.5
+206_Stair_405930910_n737759873,11,3,Beach 44 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINQ7P/faces/F.jpg,0.639,22.0,0.2727,0.3684,0.5
+65_Stair_406128744_n740008872,14,4,79 St (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFR/W0EFRKC0/faces/F.jpg,0.461,33.0,0.2857,0.3636,0.5
+517_Stair_405254041_n742007462,14,4,Prince's Bay (Stair),10,/share/ju/cyclomedia/raw/si_2025_1k/W0D6W/W0D6WPAQ/faces/B.jpg,0.64,28.0,0.2857,0.3636,0.5
+173_Stair_406994050_n739914130,14,4,High St (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EEH/W0EEHXC9/faces/L.jpg,0.574,29.0,0.2857,0.3636,0.5
+106_EasementPassage_407093032_n740083124,9,2,Fulton St (Easement - Passage),4,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DG8/W0DG8V4Z/faces/L.jpg,0.331,62.0,0.2222,0.3529,0.5
+205_Stair_405925006_n737891453,9,2,Beach 60 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINQDY/faces/F.jpg,0.602,22.0,0.2222,0.3529,0.5
+281_Stair_407462617_n739448587,9,2,Court Sq-23 St (Stair),15,/share/ju/cyclomedia/raw/queens_2025_1k/W0CEI/W0CEI5IC/faces/F.jpg,0.58,23.0,0.2222,0.3529,0.5
+456_Escalator_407455308_n739032919,9,2,61 St-Woodside (Escalator),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKR/W0CKR1D9/faces/R.jpg,0.585,33.0,0.2222,0.3529,0.5
+26_EasementStreet_406898100_n739816510,9,2,DeKalb Av (Easement - Street),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D7O/W0D7O9VU/faces/L.jpg,0.514,40.0,0.2222,0.3529,0.5
+254_Stair_407125485_n737833970,9,2,Jamaica-179 St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0ED7/W0ED7K9E/faces/R.jpg,0.615,26.0,0.2222,0.3529,0.5
+267_StationHouse_407468140_n738909408,9,2,Jackson Hts-Roosevelt Av/74 St-Broadway (Station House),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0E3W/W0E3WSI5/faces/B.jpg,0.561,35.0,0.2222,0.3529,0.5
+456_Stair_407456920_n739032340,9,2,61 St-Woodside (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKR/W0CKR1DD/faces/R.jpg,0.59,30.0,0.2222,0.3529,0.5
+167_Stair_407311107_n740011646,9,2,W 4 St-Wash Sq (Stair),4,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEI/W0DEIJJX/faces/F.jpg,0.351,59.0,0.2222,0.3529,0.5
+384_Stair_408533424_n739079574,9,2,Burnside Av (Stair),7,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6F/W0E6FM8W/faces/L.jpg,0.529,36.0,0.2222,0.3529,0.5
+397_EasementStreet_407797530_n739557985,9,2,86 St (Easement - Street),5,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECI/W0ECI57G/faces/F.jpg,0.413,48.0,0.2222,0.3529,0.5
+305_Stair_408215954_n739542336,9,2,137 St-City College (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D288Y9/faces/L.jpg,0.48,43.0,0.2222,0.3529,0.5
+339_Stair_406809510_n739754480,9,2,Bergen St (Stair),14,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EH4/W0EH4L5J/faces/F.jpg,0.658,26.0,0.2222,0.3529,0.5
+333_EasementStreet_407066450_n740086351,9,2,Wall St (Easement - Street),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DG8/W0DG8RWL/faces/B.jpg,0.64,27.0,0.2222,0.3529,0.5
+516_Stair_405332341_n741923434,9,2,Huguenot (Stair),7,/share/ju/cyclomedia/raw/si_2025_1k/W0EDS/W0EDSU7D/faces/R.jpg,0.496,42.0,0.2222,0.3529,0.5
+511_Stair_405653725_n741263119,9,2,Oakwood Heights (Stair),4,/share/ju/cyclomedia/raw/si_2025_1k/W0CS0/W0CS06SL/faces/R.jpg,0.283,69.0,0.2222,0.3529,0.5
+57_Stair_405759722_n739767500,9,2,W 8 St-NY Aquarium (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEP/W0DEPXTA/faces/L.jpg,0.607,31.0,0.2222,0.3529,0.5
+374_Stair_408083258_n739080056,12,3,E 143 St-St Mary's St (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CWH/W0CWHW3X/faces/F.jpg,0.553,32.0,0.25,0.35,0.5
+519_Stair_405194737_n742294915,15,4,Richmond Valley (Stair),6,/share/ju/cyclomedia/raw/si_2025_1k/W0D8P/W0D8PO6K/faces/F.jpg,0.39,42.0,0.2667,0.3478,0.5
+2_Stair_407701847_n739177584,10,2,Astoria Blvd (Stair),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0E40/W0E40LKH/faces/R.jpg,0.543,37.0,0.2,0.3333,0.5
+58_StationHouse_405764558_n739812435,10,2,Coney Island-Stillwell Av (Station House),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEQ/W0DEQ78Y/faces/R.jpg,0.382,55.0,0.2,0.3333,0.5
+109_Stair_407061721_n738957490,10,2,Fresh Pond Rd (Stair),3,/share/ju/cyclomedia/raw/queens_2025_1k/W0DEN/W0DENP5N/faces/L.jpg,0.449,22.0,0.2,0.3333,0.5
+379_Stair_408795606_n738851577,10,2,Mosholu Pkwy (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2Z/W0D2ZCPJ/faces/F.jpg,0.492,42.0,0.2,0.3333,0.5
+164_Stair_407524423_n739936995,10,2,34 St-Penn Station (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEL/W0DELW2S/faces/F.jpg,0.431,49.0,0.2,0.3333,0.5
+460_Stair_407446191_n739317842,10,2,33 St-Rawson St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKQ/W0CKQZ5D/faces/F.jpg,0.514,40.0,0.2,0.3333,0.5
+53_StationHouse_405950750_n739549866,14,3,Neck Rd (Station House),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEG/W0DEG9KI/faces/F.jpg,0.529,38.0,0.2143,0.3182,0.5
+359_Stair_406332807_n739479297,11,2,Flatbush Av-Brooklyn College (Stair),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEH/W0DEHV5J/faces/F.jpg,0.505,41.0,0.1818,0.3158,0.5
+206_Stair_405929122_n737757076,11,2,Beach 44 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0EOH/W0EOH1F5/faces/F.jpg,0.504,41.0,0.1818,0.3158,0.5
+436_StationHouse_408240843_n739369860,11,2,Harlem-148 St (Station House),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECJ/W0ECJE10/faces/R.jpg,0.453,46.0,0.1818,0.3158,0.5
+224_Stair_407638466_n739777230,11,2,57 St (Stair),13,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5J/W0D5JGNH/faces/L.jpg,0.515,40.0,0.1818,0.3158,0.5
+458_Stair_407430100_n739178654,11,2,46 St-Bliss St (Stair),16,/share/ju/cyclomedia/raw/queens_2025_1k/W0E7O/W0E7OKGB/faces/L.jpg,0.623,29.0,0.1818,0.3158,0.5
+94_Stair_406859810_n739156897,11,2,Halsey St (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRE/W0CREHEV/faces/F.jpg,0.581,33.0,0.1818,0.3158,0.5
+295_Elevator_408789717_n739050678,11,2,231 St (Elevator),14,/share/ju/cyclomedia/raw/bronx_2025_1k/W0ENE/W0ENEN8P/faces/B.jpg,0.498,37.0,0.1818,0.3158,0.5
+3_Stair_407669901_n739211808,11,2,30 Av (Stair),12,/share/ju/cyclomedia/raw/queens_2025_1k/W0CJT/W0CJTQO2/faces/R.jpg,0.58,33.0,0.1818,0.3158,0.5
+201_Stair_405853825_n738202185,8,1,Beach 98 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINN4Y/faces/B.jpg,0.636,21.0,0.125,0.3125,0.5
+371_Stair_408205910_n738908360,8,1,Hunts Point Av (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E96/W0E9684D/faces/R.jpg,0.322,55.0,0.125,0.3125,0.5
+55_Stair_405774184_n739618378,8,1,Brighton Beach (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EES/W0EES5YY/faces/B.jpg,0.632,19.0,0.125,0.3125,0.5
+95_Stair_406901596_n739230571,8,1,Gates Av (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRD/W0CRDAQ4/faces/F.jpg,0.585,33.0,0.125,0.3125,0.5
+456_Stair_407457170_n739030630,8,1,61 St-Woodside (Stair),5,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKQ/W0CKQX0Q/faces/F.jpg,0.587,28.0,0.125,0.3125,0.5
+275_EasementStreet_407578040_n739711410,8,1,Lexington Av/51-53 Sts (Easement - Street),14,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E5K/W0E5KMJN/faces/R.jpg,0.402,52.0,0.125,0.3125,0.5
+293_Stair_408897830_n738984320,8,1,Van Cortlandt Park-242 St (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0ENE/W0ENETII/faces/L.jpg,0.529,29.0,0.125,0.3125,0.5
+297_Stair_408697076_n739149548,8,1,215 St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EHO/W0EHO979/faces/R.jpg,0.624,29.0,0.125,0.3125,0.5
+4_Stair_407618934_n739256167,8,1,Broadway (Stair),5,/share/ju/cyclomedia/raw/queens_2025_1k/W0E44/W0E44QJU/faces/B.jpg,0.404,52.0,0.125,0.3125,0.5
+451_Elevator_407493442_n738694143,8,1,Junction Blvd (Elevator),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0COP/W0COPJUH/faces/R.jpg,0.631,27.0,0.125,0.3125,0.5
+61_Stair_406362822_n739948990,8,1,50 St (Stair),5,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFR/W0EFRJX6/faces/L.jpg,0.558,26.0,0.125,0.3125,0.5
+134_Stair_406685270_n739017650,8,1,Sutter Av (Stair),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBP/W0DBP0MO/faces/L.jpg,0.654,24.0,0.125,0.3125,0.5
+391_Stair_408133808_n739298403,8,1,138 St-Grand Concourse (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6E/W0E6EYIE/faces/L.jpg,0.412,51.0,0.125,0.3125,0.5
+383_Stair_408582670_n739040990,8,1,183 St (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EBJ/W0EBJWF8/faces/L.jpg,0.475,40.0,0.125,0.3125,0.5
+217_Stair_408390093_n739140611,8,1,170 St (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6G/W0E6GQY8/faces/F.jpg,0.413,51.0,0.125,0.3125,0.5
+27_Elevator_406838050_n739784870,12,2,Atlantic Av-Barclays Ctr (Elevator),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EI5/W0EI55FH/faces/R.jpg,0.468,39.0,0.1667,0.3,0.5
+216_Stair_408449405_n739108702,12,2,174-175 Sts (Stair),14,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPP/W0CPP0L2/faces/R.jpg,0.549,29.0,0.1667,0.3,0.5
+153_Elevator_408107815_n739528525,12,2,125 St (Elevator),14,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECN/W0ECN844/faces/B.jpg,0.627,29.0,0.1667,0.3,0.5
+80_Stair_407002829_n738292737,12,2,121 St (Stair),12,/share/ju/cyclomedia/raw/queens_2025_1k/W0CT8/W0CT81PU/faces/B.jpg,0.593,14.0,0.1667,0.3,0.5
+364_Stair_408369540_n738466530,9,1,Zerega Av (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPP/W0CPPI1D/faces/L.jpg,0.516,40.0,0.1111,0.2941,0.5
+25_Stair_406923150_n739851720,9,1,Jay St-MetroTech (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEB/W0DEBAZH/faces/R.jpg,0.614,30.0,0.1111,0.2941,0.5
+206_Stair_405931188_n737757271,9,1,Beach 44 St (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0EO4/W0EO4NG4/faces/F.jpg,0.641,22.0,0.1111,0.2941,0.5
+371_Stair_408208190_n738904420,9,1,Hunts Point Av (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2X/W0D2XIH3/faces/F.jpg,0.408,50.0,0.1111,0.2941,0.5
+381_Stair_408676060_n738974180,9,1,Kingsbridge Rd (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0END/W0ENDTKE/faces/F.jpg,0.483,33.0,0.1111,0.2941,0.5
+349_Stair_406633592_n739031178,9,1,Junius St (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CVU/W0CVUZPX/faces/B.jpg,0.614,19.0,0.1111,0.2941,0.5
+248_Stair_406161563_n739745128,9,1,Avenue N (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EJU/W0EJUBBV/faces/L.jpg,0.581,29.0,0.1111,0.2941,0.5
+23_Stair_407041502_n740133314,9,1,Whitehall St-South Ferry (Stair),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DG8/W0DG8RZ5/faces/L.jpg,0.573,34.0,0.1111,0.2941,0.5
+462_Elevator_407461455_n739454034,9,1,Court Sq-23 St (Elevator),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0CDM/W0CDMY9Q/faces/R.jpg,0.44,48.0,0.1111,0.2941,0.5
+251_Stair_405967010_n739734020,9,1,Avenue U (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EJU/W0EJUBO1/faces/L.jpg,0.484,30.0,0.1111,0.2941,0.5
+207_Stair_405953655_n737681141,9,1,Beach 36 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINPNO/faces/R.jpg,0.647,21.0,0.1111,0.2941,0.5
+293_Stair_408901360_n738982570,9,1,Van Cortlandt Park-242 St (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2W/W0D2WP57/faces/L.jpg,0.532,38.0,0.1111,0.2941,0.5
+99_Stair_407042930_n739483300,13,2,Lorimer St (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D0A/W0D0AYBR/faces/L.jpg,0.579,33.0,0.1538,0.2857,0.5
+512_Underpass_405559377_n741374575,13,2,Bay Terrace (Underpass),10,/share/ju/cyclomedia/raw/si_2025_1k/W0E2N/W0E2N990/faces/F.jpg,0.463,38.0,0.1538,0.2857,0.5
+114_Stair_406978870_n739265050,10,1,Central Av (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRD/W0CRDB4Y/faces/B.jpg,0.599,20.0,0.1,0.2778,0.5
+186_Stair_406724912_n738901667,10,1,Van Siclen Av (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EH4/W0EH4X5W/faces/R.jpg,0.614,26.0,0.1,0.2778,0.5
+83_Stair_406934785_n738525673,10,1,Woodhaven Blvd (Stair),13,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBI/W0EBIKLO/faces/R.jpg,0.6,15.0,0.1,0.2778,0.5
+371_Elevator_408206647_n738909463,10,1,Hunts Point Av (Elevator),6,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E96/W0E9684F/faces/R.jpg,0.303,48.0,0.1,0.2778,0.5
+295_Elevator_408787791_n739046367,10,1,231 St (Elevator),13,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2W/W0D2WSC1/faces/L.jpg,0.603,22.0,0.1,0.2778,0.5
+100_Stair_407072658_n739543323,10,1,Hewes St (Stair),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E8O/W0E8OGPV/faces/F.jpg,0.617,17.0,0.1,0.2778,0.5
+392_Elevator_408044243_n739372301,10,1,125 St (Elevator),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D2872U/faces/F.jpg,0.528,38.0,0.1,0.2778,0.5
+316_EasementStreet_407615236_n739844507,10,1,50 St (Easement - Street),9,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECP/W0ECPMNP/faces/B.jpg,0.577,28.0,0.1,0.2778,0.5
+428_Stair_408372796_n738875735,10,1,174 St (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E96/W0E96CWH/faces/B.jpg,0.601,15.0,0.1,0.2778,0.5
+14_Stair_407412470_n739896749,10,1,23 St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5I/W0D5IP80/faces/B.jpg,0.465,45.0,0.1,0.2778,0.5
+106_EasementStreet_407093780_n740082969,14,2,Fulton St (Easement - Street),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EM2/W0EM2N8F/faces/B.jpg,0.632,19.0,0.1429,0.2727,0.5
+96_Stair_406929350_n739282470,11,1,Kosciuszko St (Stair),12,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E5S/W0E5SF4G/faces/L.jpg,0.635,27.0,0.0909,0.2632,0.5
+55_Stair_405776970_n739604380,11,1,Brighton Beach (Stair),11,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EES/W0EES7AJ/faces/B.jpg,0.61,27.0,0.0909,0.2632,0.5
+246_Stair_406261773_n739764106,11,1,Avenue I (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFM/W0EFM5B9/faces/L.jpg,0.53,29.0,0.0909,0.2632,0.5
+363_Stair_408401280_n738428750,11,1,Westchester Sq-E Tremont Av (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPP/W0CPPHYR/faces/L.jpg,0.474,44.0,0.0909,0.2632,0.5
+432_Stair_408196139_n739019949,11,1,Prospect Av (Stair),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E98/W0E982Y5/faces/L.jpg,0.386,45.0,0.0909,0.2632,0.5
+302_Stair_408407262_n739397252,11,1,168 St-Washington Hts (Stair),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D289LK/faces/R.jpg,0.483,43.0,0.0909,0.2632,0.5
+418_Stair_408935457_n738571661,11,1,233 St (Stair),15,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E3Y/W0E3YC15/faces/R.jpg,0.598,32.0,0.0909,0.2632,0.5
+200_Stair_405880980_n738139015,8,0,Beach 90 St (Stair),6,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINMI8/faces/F.jpg,0.575,32.0,0.0,0.25,0.5
+504_Stair_406207463_n740710103,16,2,Clifton (Stair),12,/share/ju/cyclomedia/raw/si_2025_1k/W0EKW/W0EKWM4W/faces/R.jpg,0.524,39.0,0.125,0.25,0.5
+63_Stair_406273515_n739967384,8,0,62 St/New Utrecht Av (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DCH/W0DCH83C/faces/L.jpg,0.582,33.0,0.0,0.25,0.5
+245_Stair_406287080_n739766460,8,0,18 Av (Stair),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EFT/W0EFTUFQ/faces/R.jpg,0.613,29.0,0.0,0.25,0.5
+22_Stair_407074289_n740133042,8,0,Rector St (Stair),8,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELX/W0ELX9BX/faces/L.jpg,0.565,35.0,0.0,0.25,0.5
+305_Stair_408213608_n739544144,8,0,137 St-City College (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D28/W0D288YG/faces/L.jpg,0.532,38.0,0.0,0.25,0.5
+349_Stair_406634149_n739027336,8,0,Junius St (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E7R/W0E7RBF8/faces/B.jpg,0.54,18.0,0.0,0.25,0.5
+97_Stair_406969112_n739354484,8,0,Myrtle Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E5S/W0E5SEAH/faces/L.jpg,0.49,27.0,0.0,0.25,0.5
+384_Stair_408532360_n739077503,12,1,Burnside Av (Stair),9,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPM/W0CPMUE1/faces/R.jpg,0.552,36.0,0.0833,0.25,0.5
+448_Ramp_407543973_n738457980,8,0,Mets-Willets Point (Ramp),3,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBM/W0EBMG7M/faces/R.jpg,0.303,66.0,0.0,0.25,0.5
+432_Stair_408195886_n739015009,8,0,Prospect Av (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2X/W0D2XIUK/faces/R.jpg,0.583,33.0,0.0,0.25,0.5
+200_Stair_405879191_n738137860,8,0,Beach 90 St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0EO4/W0EO41ST/faces/B.jpg,0.648,22.0,0.0,0.25,0.5
+212_Underpass_408661810_n738943060,8,0,Kingsbridge Rd (Underpass),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EM9/W0EM9RSG/faces/R.jpg,0.536,24.0,0.0,0.25,0.5
+424_Elevator_408565160_n738677431,12,1,Pelham Pkwy (Elevator),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2G/W0D2GDMH/faces/L.jpg,0.571,34.0,0.0833,0.25,0.5
+420_Stair_408837982_n738628369,8,0,219 St (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPT/W0CPTUJU/faces/L.jpg,0.554,33.0,0.0,0.25,0.5
+1_EasementPassage_407749098_n739119884,12,1,Astoria-Ditmars Blvd (Easement - Passage),5,/share/ju/cyclomedia/raw/queens_2025_1k/W0CH4/W0CH4Q87/faces/R.jpg,0.48,43.0,0.0833,0.25,0.5
+389_Stair_408278540_n739257450,8,0,161 St-Yankee Stadium (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CQ3/W0CQ34R9/faces/B.jpg,0.649,24.0,0.0,0.25,0.5
+70_Stair_405883299_n739835485,8,0,Bay 50 St (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EJU/W0EJUCJ6/faces/R.jpg,0.545,29.0,0.0,0.25,0.5
+91_Stair_406768239_n738995113,8,0,Alabama Av (Stair),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CR8/W0CR8HQL/faces/B.jpg,0.619,17.0,0.0,0.25,0.5
+280_StationHouse_407012544_n738165827,8,0,Jamaica-Van Wyck (Station House),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIK/W0DIKK4I/faces/B.jpg,0.58,32.0,0.0,0.25,0.5
+457_Stair_407444484_n739113476,8,0,52 St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0E4F/W0E4FJX4/faces/B.jpg,0.607,16.0,0.0,0.25,0.5
+362_Stair_408439350_n738363860,8,0,Middletown Rd (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CTQ/W0CTQ57J/faces/F.jpg,0.563,35.0,0.0,0.25,0.5
+367_Stair_408317650_n738670780,12,1,St Lawrence Av (Stair),13,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EC8/W0EC8QQP/faces/F.jpg,0.521,39.0,0.0833,0.25,0.5
+460_Stair_407447369_n739315948,13,1,33 St-Rawson St (Stair),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKQ/W0CKQYYZ/faces/B.jpg,0.552,31.0,0.0769,0.2381,0.5
+54_StationHouse_405873020_n739542240,13,1,Sheepshead Bay (Station House),13,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DHZ/W0DHZXWV/faces/B.jpg,0.552,36.0,0.0769,0.2381,0.5
+294_Stair_408849088_n739006597,13,1,238 St (Stair),17,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2W/W0D2WQJJ/faces/R.jpg,0.597,28.0,0.0769,0.2381,0.5
+51_StationHouse_406090620_n739578080,13,1,Kings Hwy (Station House),8,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EEP/W0EEPJG1/faces/F.jpg,0.58,30.0,0.0769,0.2381,0.5
+49_StationHouse_406251468_n739607947,13,1,Avenue J (Station House),6,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EF5/W0EF5WAU/faces/B.jpg,0.59,31.0,0.0769,0.2381,0.5
+159_Stair_407819909_n739720340,13,1,81 St-Museum of Natural History (Stair),12,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0D5L/W0D5LD0N/faces/B.jpg,0.443,48.0,0.0769,0.2381,0.5
+219_Stair_408274880_n739260040,9,0,161 St-Yankee Stadium (Stair),7,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CW4/W0CW4EZ1/faces/B.jpg,0.546,31.0,0.0,0.2353,0.5
+366_StationHouse_408331448_n738610722,9,0,Parkchester (Station House),4,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EES/W0EESAJ1/faces/B.jpg,0.365,57.0,0.0,0.2353,0.5
+379_Stair_408793430_n738848800,9,0,Mosholu Pkwy (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2T/W0D2TVEW/faces/R.jpg,0.409,52.0,0.0,0.2353,0.5
+50_StationHouse_406179244_n739594540,9,0,Avenue M (Station House),1,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DHX/W0DHXPVQ/faces/R.jpg,0.241,45.0,0.0,0.2353,0.5
+245_Stair_406305620_n739769950,9,0,18 Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBP/W0DBPMEG/faces/R.jpg,0.613,29.0,0.0,0.2353,0.5
+250_Stair_406040527_n739721405,9,0,Kings Hwy (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EK7/W0EK7D7P/faces/B.jpg,0.473,44.0,0.0,0.2353,0.5
+456_Stair_407458485_n739032320,9,0,61 St-Woodside (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKR/W0CKR1DH/faces/R.jpg,0.549,8.0,0.0,0.2353,0.5
+458_Stair_407432275_n739186129,9,0,46 St-Bliss St (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0E7L/W0E7LF0L/faces/B.jpg,0.607,27.0,0.0,0.2353,0.5
+73_StationHouse_406256060_n739968300,9,0,62 St/New Utrecht Av (Station House),1,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DCH/W0DCH82C/faces/R.jpg,0.219,79.0,0.0,0.2353,0.5
+106_EasementStreet_407101628_n740074258,9,0,Fulton St (Easement - Street),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0EM2/W0EM2N2O/faces/F.jpg,0.554,31.0,0.0,0.2353,0.5
+100_Stair_407065268_n739526173,9,0,Hewes St (Stair),6,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D0A/W0D0AY9A/faces/B.jpg,0.562,13.0,0.0,0.2353,0.5
+195_Stair_406857503_n738270487,9,0,Ozone Park-Lefferts Blvd (Stair),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBI/W0EBIAM9/faces/B.jpg,0.497,17.0,0.0,0.2353,0.5
+295_Stair_408786940_n739048210,9,0,231 St (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0END/W0ENDTVM/faces/R.jpg,0.583,33.0,0.0,0.2353,0.5
+425_Stair_408492266_n738683337,9,0,Bronx Park East (Stair),8,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D1G/W0D1G47Q/faces/L.jpg,0.562,21.0,0.0,0.2353,0.5
+54_StationHouse_405857340_n739543710,14,1,Sheepshead Bay (Station House),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEH/W0DEHVZB/faces/F.jpg,0.66,23.0,0.0714,0.2273,0.5
+97_Stair_406970278_n739355833,14,1,Myrtle Av (Stair),14,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0D1D/W0D1DNYV/faces/F.jpg,0.593,32.0,0.0714,0.2273,0.5
+195_Elevator_406862264_n738245399,14,1,Ozone Park-Lefferts Blvd (Elevator),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBI/W0EBIANG/faces/F.jpg,0.515,40.0,0.0714,0.2273,0.5
+239_StationHouse_406698741_n739888912,14,1,4 Av-9 St (Station House),9,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DF3/W0DF3HD9/faces/R.jpg,0.553,36.0,0.0714,0.2273,0.5
+229_Stair_407374199_n739971973,10,0,14 St/6 Av (Stair),7,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEJ/W0DEJHTD/faces/B.jpg,0.584,19.0,0.0,0.2222,0.5
+460_Stair_407447578_n739317629,10,0,33 St-Rawson St (Stair),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKQ/W0CKQYZ2/faces/B.jpg,0.601,30.0,0.0,0.2222,0.5
+200_Stair_405878304_n738140067,10,0,Beach 90 St (Stair),9,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINN8A/faces/B.jpg,0.608,22.0,0.0,0.2222,0.5
+448_Stair_407544310_n738457859,10,0,Mets-Willets Point (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBM/W0EBMG7Q/faces/B.jpg,0.549,36.0,0.0,0.2222,0.5
+133_Stair_406755609_n739029737,10,0,Atlantic Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0E5H/W0E5HNPV/faces/B.jpg,0.625,18.0,0.0,0.2222,0.5
+135_Stair_406637337_n739006329,10,0,Livonia Av (Stair),4,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DBP/W0DBP0NU/faces/L.jpg,0.35,59.0,0.0,0.2222,0.5
+456_Elevator_407458221_n739026908,10,0,61 St-Woodside (Elevator),4,/share/ju/cyclomedia/raw/queens_2025_1k/W0CKQ/W0CKQX0J/faces/F.jpg,0.406,52.0,0.0,0.2222,0.5
+449_Stair_407516100_n738560650,10,0,111 St (Stair),11,/share/ju/cyclomedia/raw/queens_2025_1k/W0E3W/W0E3WS1D/faces/F.jpg,0.593,29.0,0.0,0.2222,0.5
+450_Stair_407499839_n738623704,10,0,103 St-Corona Plaza (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0E3W/W0E3WS4J/faces/F.jpg,0.617,27.0,0.0,0.2222,0.5
+167_Elevator_407311149_n740012226,10,0,W 4 St-Wash Sq (Elevator),15,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0DEI/W0DEIJK2/faces/R.jpg,0.634,27.0,0.0,0.2222,0.5
+382_Stair_408625620_n739013670,15,1,Fordham Rd (Stair),10,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EBJ/W0EBJX74/faces/L.jpg,0.553,33.0,0.0667,0.2174,0.5
+457_Stair_407439330_n739130030,11,0,52 St (Stair),7,/share/ju/cyclomedia/raw/queens_2025_1k/W0E4F/W0E4FJWA/faces/B.jpg,0.62,17.0,0.0,0.2105,0.5
+23_Stair_407039956_n740133066,11,0,Whitehall St-South Ferry (Stair),6,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ELS/W0ELSMXX/faces/L.jpg,0.573,33.0,0.0,0.2105,0.5
+430_Stair_408241451_n738927472,11,0,Simpson St (Stair),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E98/W0E982ID/faces/B.jpg,0.582,31.0,0.0,0.2105,0.5
+415_Stair_406926010_n739905449,11,0,Borough Hall/Court St (Stair),7,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EGS/W0EGS14D/faces/F.jpg,0.472,44.0,0.0,0.2105,0.5
+387_Elevator_408400760_n739176480,11,0,170 St (Elevator),11,/share/ju/cyclomedia/raw/bronx_2025_1k/W0CPG/W0CPG0S7/faces/R.jpg,0.468,31.0,0.0,0.2105,0.5
+204_Stair_405910896_n737965613,11,0,Beach 67 St (Stair),4,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIJ/W0DIJ70M/faces/F.jpg,0.385,54.0,0.0,0.2105,0.5
+415_Stair_406925551_n739901084,11,0,Borough Hall/Court St (Stair),4,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0EGS/W0EGS146/faces/F.jpg,0.448,47.0,0.0,0.2105,0.5
+449_Stair_407514230_n738559960,11,0,111 St (Stair),1,/share/ju/cyclomedia/raw/queens_2025_1k/W0COM/W0COMOPW/faces/R.jpg,0.217,80.0,0.0,0.2105,0.5
+382_Elevator_408625646_n739010864,16,1,Fordham Rd (Elevator),14,/share/ju/cyclomedia/raw/bronx_2025_1k/W0D2T/W0D2TV5F/faces/R.jpg,0.572,29.0,0.0625,0.2083,0.5
+68_Stair_406017260_n739936960,12,0,Bay Pkwy (Stair),17,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DCR/W0DCREVL/faces/B.jpg,0.532,38.0,0.0,0.2,0.5
+86_Stair_406901420_n738716300,17,1,Cypress Hills (Stair),14,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CR8/W0CR8IXN/faces/R.jpg,0.625,20.0,0.0588,0.2,0.5
+14_Stair_407407915_n739896610,12,0,23 St (Stair),10,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0E5K/W0E5KN39/faces/F.jpg,0.578,33.0,0.0,0.2,0.5
+305_Stair_408213989_n739539105,17,1,137 St-City College (Stair),11,/share/ju/cyclomedia/raw/manhattan_2025_1k/W0ECV/W0ECVAL7/faces/R.jpg,0.598,28.0,0.0588,0.2,0.5
+208_Stair_405996995_n737615769,12,0,Beach 25 St (Stair),13,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINPRS/faces/R.jpg,0.641,20.0,0.0,0.2,0.5
+208_Stair_405995486_n737617121,17,1,Beach 25 St (Stair),10,/share/ju/cyclomedia/raw/queens_2025_1k/W0DIN/W0DINPRQ/faces/B.jpg,0.658,26.0,0.0588,0.2,0.5
+219_Stair_408274710_n739262500,13,0,161 St-Yankee Stadium (Stair),7,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E6C/W0E6CH6R/faces/L.jpg,0.58,33.0,0.0,0.1905,0.5
+452_Stair_407483345_n738764271,13,0,90 St-Elmhurst Av (Stair),15,/share/ju/cyclomedia/raw/queens_2025_1k/W0E3V/W0E3V7AB/faces/L.jpg,0.566,33.0,0.0,0.1905,0.5
+448_Stair_407547782_n738456807,13,0,Mets-Willets Point (Stair),8,/share/ju/cyclomedia/raw/queens_2025_1k/W0EBM/W0EBMG0I/faces/F.jpg,0.444,47.0,0.0,0.1905,0.5
+366_StationHouse_408332372_n738608907,13,0,Parkchester (Station House),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0EKL/W0EKL68D/faces/B.jpg,0.612,30.0,0.0,0.1905,0.5
+133_Stair_406756103_n739028838,13,0,Atlantic Av (Stair),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0CRD/W0CRDLFG/faces/R.jpg,0.612,19.0,0.0,0.1905,0.5
+204_Stair_405909276_n737964192,14,0,Beach 67 St (Stair),6,/share/ju/cyclomedia/raw/queens_2025_1k/W0ENQ/W0ENQCLJ/faces/B.jpg,0.575,20.0,0.0,0.1818,0.5
+443_StationHouse_408795190_n738379580,16,0,Baychester Av (Station House),12,/share/ju/cyclomedia/raw/bronx_2025_1k/W0E3Y/W0E3YBNA/faces/L.jpg,0.557,35.0,0.0,0.1667,0.5
+239_StationHouse_406700448_n739892527,16,0,4 Av-9 St (Station House),10,/share/ju/cyclomedia/raw/brooklyn_2025_1k/W0DEK/W0DEKFTN/faces/L.jpg,0.449,47.0,0.0,0.1667,0.5
