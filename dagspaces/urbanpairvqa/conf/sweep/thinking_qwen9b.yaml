@@ -1,0 +1,48 @@
+# @package _global_
+# THINKING-MODE PROBE — Qwen3.5-9B-Instruct with reasoning ENABLED.
+# 1,000 random pairs each of restaurants and schools (2 runs total).
+#
+# Design notes:
+#   * Pairs use the production seed (777) and the same unit sampler, and
+#     `max_pairs=1000` is a deterministic PREFIX of the 50k/100k production
+#     draws — so the canonical restaurant/school pairs 0..999 are identical to
+#     the non-thinking baseline. This is a PAIRED thinking-vs-baseline contrast
+#     at the unit level (the within-unit facing image may differ; the unit pair
+#     does not).
+#   * Model `qwen3.5-9b/instruct_thinking` sets thinking_mode=on,
+#     reasoning_parser=qwen3, max_model_len=12288.
+#   * Launcher klara_1x (single-process) — avoids exercising the DP reasoning
+#     path; 1,000 pairs is small enough that 1 GPU is plenty.
+#   * max_tokens=8192 leaves room for a multi-thousand-token reasoning trace
+#     plus the structured JSON (fits inside max_model_len=12288).
+#   * repeat_fraction stays at the pipeline default (0.10) → ~1,100 rows/run,
+#     so we also get a within-thinking self-consistency estimate.
+#
+# Run on the SHARED .venv (task axis on the CLI = canonical Hydra multirun):
+#   .venv/bin/python -m dagspaces.urbanpairvqa.cli --multirun +sweep=thinking_qwen9b \
+#       pipeline=pairwise_restaurants_mvp,pairwise_schools_mvp
+
+sampling_params_vqa:
+  # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0
+  # (see conf/config.yaml), but greedy decoding degenerates into repetition over
+  # long reasoning traces. Pinned here to Qwen's thinking-mode recommendation.
+  temperature: 1.0
+  top_p: 0.95
+  max_tokens: 8192
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct_thinking

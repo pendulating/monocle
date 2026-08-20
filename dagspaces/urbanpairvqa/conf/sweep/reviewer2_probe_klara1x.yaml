@@ -1,0 +1,70 @@
+# @package _global_
+# REVIEWER-2 ROBUSTNESS PROBES — qwen models (2b negative control + 9b signal
+# carrier), 1,000-pair deterministic prefix of the production seed-777 draw.
+#
+# Battery context: the subway-safety production sweep found large raters'
+# safety judgments track tract income + per-capita crime while small models
+# are near-noise. Each probe arm below perturbs prompt wording or image
+# presentation; the paired per-pair comparison against the production 100k
+# parquets (scripts/pairwise_reviewer2_baselines.py) shows whether per-pair
+# behavior persists. Arms are passed on the CLI so this one file serves every
+# axis. Production settings held fixed unless the arm perturbs them:
+# allow_not_sure=true, thinking off, max_tokens=128, counterbalance balanced.
+#
+# IMPORTANT: comparability with the production prefix requires
+# pair_sampler.max_pairs (below) — NEVER runtime.sample_n, which subsamples
+# the manifest and breaks the prefix property.
+#
+# Arms / invocations (run each as its own multirun, staggered launches with
+# distinct HYDRA_SWEEP_DIR per prior sweep practice, e.g.
+#   export HYDRA_SWEEP_DIR=multirun/r2a_prompt_subway):
+#
+# A0 retest + A1-A4 prompt variants (10 runs = 5 prompts x 2 models):
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=reviewer2_probe_klara1x \
+#       pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true \
+#       prompt=pairwise_subway_safety_ordinal,pairwise_subway_safety_ordinal_paraphrase,pairwise_subway_safety_ordinal_nopersona,pairwise_subway_safety_ordinal_enumrev,pairwise_subway_safety_ordinal_flipped
+#
+# A7 temp0 (2 runs):
+#   ... +sweep=reviewer2_probe_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true sampling_params_vqa.temperature=0.0
+#
+# A6 freeform — guided decoding off (2 runs):
+#   ... +sweep=reviewer2_probe_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true prompt.structured_output.enabled=false
+#
+# A5 res-half — qwen only; gemma-4 has no max_pixels knob (2 runs):
+#   ... +sweep=reviewer2_probe_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true \
+#       model.engine_kwargs.mm_processor_kwargs.max_pixels=262144
+#
+# C1/C2 image layouts (after the Tier-C code change + gemma smoke; 4 runs):
+#   ... +sweep=reviewer2_probe_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true \
+#       +prompt.image_layout=interleaved_labels   # or text_first
+#
+# Dry-run any arm (no GPU):
+#   append runtime.debug=true runtime.skip_inference=true
+#
+# gemma-4-12b runs the same axes via reviewer2_gemma12b_klara1x (own file:
+# klara_1x-only unified-arch path + .venv-nightly). phi-4 stays banned.
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: qwen3.5-2b/instruct, qwen3.5-9b/instruct

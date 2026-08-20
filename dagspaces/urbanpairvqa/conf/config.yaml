@@ -1,11 +1,17 @@
 # Top-level Hydra config for URBANPAIRVQA
 
+# Compose-time defaults only. Every real run selects a case with `pipeline=`,
+# which overrides both `data` and `prompt` — see conf/pipeline/ for the seven
+# consolidated ranking cases. Street photography is the default because it is
+# the image-mode case, matching the default `pair_sampler.mode: image` below.
+# Retired configs live under the `deprecated/` sub-group of each config group
+# and are still selectable, e.g. `prompt=deprecated/pairwise_wealth_ordinal`.
 defaults:
   - _self_
   - data: cyclomedia_pairwise_manhattan_2025_1
-  - prompt: pairwise_relative_ordinal
+  - prompt: pairwise_street_photography_ordinal
   - model: vllm_multimodal_qwen3_vl_2b
-  - optional pipeline: pairwise_cyclomedia_ordinal
+  - optional pipeline: pairwise_street_photography_mvp
 
 experiment:
   name: URBANPAIRVQA
@@ -17,6 +23,16 @@ runtime:
   job_memory_gb: 64
   # Debug/smoke option to skip model inference and emit deterministic labels.
   skip_inference: false
+  # Keep the finished rows of a job that a preemption stops. The stage writes a
+  # chunk parquet for each row range beside its results parquet, and a job that
+  # starts again generates only the rest. Turn this on for the `gpu` partition,
+  # which takes a node back when its owner wants it. Off costs nothing on a
+  # partition that does not preempt.
+  resume: false
+  # How many rows one chunk holds. The runner rounds this up to a whole number
+  # of batches. A chunk is the unit of loss: 2,000 rows is about 18 minutes of
+  # qwen3.5-9b, and 250 rows is about 2 minutes.
+  resume_chunk_rows: 2000
 
 pair_sampler:
   # Pair construction strategy.
@@ -35,6 +51,20 @@ pair_sampler:
   counterbalance_mode: none  # none|random|balanced
   repeat_count: 0
   repeat_fraction: 0.0
+  # Read the pair table from this parquet instead of drawing it. Drawing
+  # 1,100,000 pairs costs about 195 seconds, and every shard of a case would
+  # otherwise repeat it — about 51 GPU-hours over the 966 jobs of the
+  # 1,000,000-pair battery. `scripts/prebuild_pair_tables.py` writes the file
+  # and a sidecar JSON, and the runner refuses a table that other sampler
+  # settings produced. `null` draws the table in the job, as before.
+  pairs_path: null
+  # Split one case across N independent GPU jobs. Every shard builds the same
+  # full pair table from `pair_seed`, then keeps every N-th canonical pair.
+  # shard_count=1 (the default) keeps the whole table and changes nothing.
+  # A 1,000,000-pair case needs this: 1 job cannot hold the prompts, and it
+  # would run for about a week. See `_shard_pairs` in orchestrator.py.
+  shard_count: 1
+  shard_index: 0
   # Optional column to bias **within-unit** image selection (unit mode only).
   # Set to e.g. "attribution_confidence" — emitted by the per-unit facing
   # filter — to prefer confidently-facing shots. `null` = uniform.
@@ -48,9 +78,29 @@ diagnostics:
 
 pairwise: {}
 
+# GREEDY BY DEFAULT (2026-08-11). A pairwise ordinal judgment aggregated over
+# 100k pairs is a *classification*, not a generation: the answer is one of six
+# enum labels under guided decoding, ~10-15 tokens. Sampling injected noise into
+# every number in the battery for no benefit — measured on road quality at the
+# old temperature=0.6, qwen3.5-9b reproduced only 39% of its own labels when
+# re-run on an identical prompt (test-retest linear-weighted κ = 0.343, 31% of
+# pairs flipping which side won). gemma-4-e4b held up better (κ = 0.912) but was
+# still paying noise for nothing. Greedy makes runs reproducible and removes the
+# need for a retest-anchor run to interpret any cross-arm κ.
+#
+# NOT the Qwen "recommended" instruct settings (temperature=0.7, top_p=0.8,
+# top_k=20, presence_penalty=1.5) — those are tuned for free-form generation and
+# do not transfer to enum-constrained decoding: top_k=20 is non-binding once
+# guided decoding has masked the vocabulary to ~6 label tokens, and
+# presence_penalty over a 10-token structured answer distorts the label
+# distribution rather than curbing repetition.
+#
+# ⚠️ THINKING-MODE RUNS MUST OVERRIDE THIS. Greedy decoding degenerates into
+# repetition over long reasoning traces, which is exactly what Qwen warns about;
+# thinking sweeps pin their own temperature explicitly (see conf/sweep/thinking_*).
 sampling_params_vqa:
-  temperature: 0.6
-  top_p: 0.95
+  temperature: 0.0
+  top_p: 1.0          # inert under greedy; kept explicit so the intent is clear
   max_tokens: 2048
   stop: []
 

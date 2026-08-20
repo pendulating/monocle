@@ -1,0 +1,65 @@
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Road quality
+# Umbrella: Signs of public investment + government management
+# Unit:     block ≈ one random street-level shot (no roadway unit manifest —
+#           FacDB rows for roadways carry no BIN, so the building-based facing
+#           filter does not apply; see [[concept-facing-filter]])
+# Data:     data/cyclomedia_all_2025_citywide   (pair_sampler.mode=image)
+# Pipeline: pipeline=pairwise_road_quality_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# Minimal prompt contract — see pairwise_subway_safety_ordinal.yaml for the
+# full statement of what is deliberately left unspecified and why.
+#
+# Replaces the retired driving-safety case
+# (prompt=deprecated/pairwise_driving_safety_ordinal), which asked about risk to
+# a driver rather than about the condition of the road itself.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
+
+user_template: |
+  Image A is the first image and Image B is the second image.
+  Both show New York City roadways.
+  Which roadway looks to be in better condition?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the roadway in Image A is in <label> good condition than
+  the one in Image B". Use "Same" when they look about the same.
+
+structured_output:
+  enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  #
+  # Expect a higher abstention rate here than on the building-facing cases: in
+  # image mode the camera is not aimed at any curated unit, so some pairs show
+  # very little roadway.
+  allow_not_sure: true
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

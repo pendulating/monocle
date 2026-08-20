@@ -1,0 +1,66 @@
+# @package _global_
+# REVIEWER-2 ROBUSTNESS PROBES — SMALL-MODEL LADDER (fresh, same-seed run).
+# Three models on the STANDARD multimodal path / stable .venv / klara_1x:
+#   qwen3.5-2b (negative control), qwen3.5-9b (mid), gemma-4-e2b (tiny gemma-4).
+# gemma-4-e2b is `Gemma4ForConditionalGeneration` (model_type gemma4, real
+# gemma4_vision encoder) — the ENCODER path, NOT the encoder-free
+# `gemma4_unified` used by gemma-4-12b, so it needs neither .venv-nightly nor
+# the <|image|> chat-template fix. All three share this one file.
+#
+# 1,000-pair deterministic seed-777 prefix of the production subway draw
+# (pair_sampler.max_pairs — NEVER runtime.sample_n, which subsamples the
+# manifest and breaks the prefix property). Production settings held fixed
+# unless the arm perturbs them: allow_not_sure=true, thinking off,
+# max_tokens=128, temp 0.6/top_p 0.95, counterbalance balanced.
+#
+# Companion to reviewer2_probe_klara1x.yaml (qwen 2b/9b only, the original
+# subway battery) and reviewer2_gemma12b_klara1x.yaml (12b, nightly/unified).
+#
+# Arms passed on the CLI so this one file serves every axis. Stagger each
+# multirun launch (distinct HYDRA_SWEEP_DIR + a few seconds apart) so separate
+# drivers never resolve the same ${now} stage dir — within a multirun the
+# sweep job number <n> already isolates tasks.
+#
+# A0 retest + A1-A4 prompt variants (15 runs = 5 prompts x 3 models):
+#   export HYDRA_SWEEP_DIR=multirun/r2b_prompt_subway
+#   .venv/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=reviewer2_smallladder_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true \
+#       prompt=pairwise_subway_safety_ordinal,pairwise_subway_safety_ordinal_paraphrase,pairwise_subway_safety_ordinal_nopersona,pairwise_subway_safety_ordinal_enumrev,pairwise_subway_safety_ordinal_flipped
+#
+# C1/C2 image layouts (6 runs = 2 layouts x 3 models):
+#   ... +sweep=reviewer2_smallladder_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true \
+#       +prompt.image_layout=interleaved_labels,text_first
+#
+# A6 freeform — guided decoding off (3 runs):
+#   ... prompt.structured_output.allow_not_sure=true prompt.structured_output.enabled=false
+#
+# A7 temp0 (3 runs):
+#   ... prompt.structured_output.allow_not_sure=true sampling_params_vqa.temperature=0.0
+#
+# A5 res-half is qwen-only (gemma-4 has no mm_processor_kwargs.max_pixels knob)
+# — run it via reviewer2_probe_klara1x.yaml (2 qwen models) with
+#   model.engine_kwargs.mm_processor_kwargs.max_pixels=262144
+#
+# Dry-run any arm (no GPU): append runtime.debug=true runtime.skip_inference=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: qwen3.5-2b/instruct, qwen3.5-9b/instruct, gemma-4-e2b/instruct

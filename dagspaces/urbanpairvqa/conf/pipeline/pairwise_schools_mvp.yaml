@@ -1,10 +1,17 @@
 # @package _global_
-# MVP pipeline: school-level pairwise VQA on "which school would you rather
-# send your child to" using the FacDB K-12 schools cyclomedia facing manifest.
+# MVP pipeline: school-level pairwise VQA on "which looks to be the better
+# school" using the FacDB K-12 schools cyclomedia facing manifest.
+#
+# Warning: the prompt changed on 2026-08-13. It was
+# `pairwise_school_send_child_ordinal` ("which school would you rather send
+# your child to?"), which asked for a parent's preference and thus did not
+# share a subject with the report-card proxy. The old file stays in
+# `prompt/deprecated/` for provenance. A run from before that date is NOT
+# comparable with a run after it.
 #
 # Mirrors `pairwise_restaurants_mvp.yaml` with three changes:
 #   1. data         — cyclomedia_near_restaurants_facing → cyclomedia_near_schools_facing
-#   2. prompt       — pairwise_restaurant_eat_at_ordinal → pairwise_school_send_child_ordinal
+#   2. prompt       — pairwise_restaurant_eat_at_ordinal → pairwise_school_better_ordinal
 #   3. max_pairs    — 50,000 → 100,000. The facing-filtered manifest has 2,287
 #      unique schools (out of 3,103 publishable; 816 had no facing-confident
 #      shot). C(2287, 2) ≈ 2.6M canonical pairs available without replacement,
@@ -28,8 +35,8 @@ defaults:
   - _self_
   - override /hydra/launcher: slurm_monitor
   - override /data: cyclomedia_near_schools_facing
-  - override /prompt: pairwise_school_send_child_ordinal
-  - override /model: qwen3.5-4b/instruct
+  - override /prompt: pairwise_school_better_ordinal
+  - override /model: qwen3.5-9b/instruct
 
 runtime:
   debug: false
@@ -68,6 +75,8 @@ pipeline:
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
           runtime.skip_inference: ${runtime.skip_inference}
+          runtime.resume: ${runtime.resume}
+          runtime.resume_chunk_rows: ${runtime.resume_chunk_rows}
           pair_sampler.mode: ${pair_sampler.mode}
           pair_sampler.unit_column: ${pair_sampler.unit_column}
           pair_sampler.unit_name_column: ${pair_sampler.unit_name_column}
@@ -77,6 +86,9 @@ pipeline:
           pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
           pair_sampler.repeat_count: ${pair_sampler.repeat_count}
           pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.pairs_path: ${pair_sampler.pairs_path}
+          pair_sampler.shard_count: ${pair_sampler.shard_count}
+          pair_sampler.shard_index: ${pair_sampler.shard_index}
           pair_sampler.weight_column: ${pair_sampler.weight_column}
           model.model_source: ${model.model_source}
           model.engine_kwargs.gpu_memory_utilization: 0.92

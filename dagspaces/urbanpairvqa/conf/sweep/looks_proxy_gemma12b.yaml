@@ -1,0 +1,94 @@
+# @package _global_
+# VALIDATION BY PROXY — rater 2 of 2, gemma-4-12b, all 7 cases.
+#
+# The companion of `looks_proxy_qwen9b.yaml`. Read that file for why the
+# battery is re-run: on 2026-08-14 the canonical prompts moved to "looks like"
+# wording, so a run from before that date is NOT comparable with a run here.
+#
+# ┌─ REQUIREMENT 1 — LAUNCHER: klara_1x, NEVER klara_2x ───────────────────────┐
+# │ gemma-4-12b is the encoder-free `gemma4_unified` arch. The `<|image|>`     │
+# │ chat-template fix lives only in the single-process apply_chat_template     │
+# │ site in vllm_inference.py. A 2-GPU stage starts the DP-worker path, which  │
+# │ is not gated for this arch, and the job dies with "Failed to apply prompt  │
+# │ replacement for mm_items['image'][0]". 24 GB bf16 fits 1 48 GB A6000.      │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ┌─ REQUIREMENT 2 — LAYOUT: interleaved_labels ───────────────────────────────┐
+# │ NEW ON 2026-08-14, and the 1 way this sweep differs from the old           │
+# │ `canonical_gemma12b`. Under the default `images_then_text` layout,         │
+# │ gemma-4-12b does not bind the second image. Measured on 16 pairs with      │
+# │ traces, 2026-08-13:                                                        │
+# │                                                                            │
+# │   layout              "only one image" in the trace   NotSure              │
+# │   images_then_text    15 of 18                        83%                  │
+# │   interleaved_labels   0 of 18                         5.6%                │
+# │                                                                            │
+# │ The cause is the prompt-replacement path of the unified arch, not the      │
+# │ thought channel, so a label-only run fails the same way. A label-only run  │
+# │ CANNOT SHOW the failure: it looks like an honest abstention rate. Thus     │
+# │ the proxy runs now pin the layout that works.                              │
+# │                                                                            │
+# │ Cost: a gemma-4-12b number from this sweep is not comparable with a        │
+# │ gemma-4-12b number from before 2026-08-14, for 2 reasons and not 1 (the    │
+# │ prompt AND the layout). The qwen half of the battery changed for 1 reason. │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# VENV: the canonical default. Do NOT override it. `server.env` selects
+# `.venv-mllmsci-vllm025cu129`. `.venv-nightly` is DEPRECATED (2026-08-12) and
+# has no node-local mirror, so it pays about 13 minutes of cold import for each
+# process spawn.
+#
+# SAMPLING: greedy (temperature=0.0) from conf/config.yaml. gemma-4-12b ships
+# `thinking_mode: off` in its model config, and max_tokens=128 holds the answer.
+#
+# PAIRS: the pipeline default, max_pairs=100000 for every case, plus a 10%
+# repeat fraction → about 110,000 rows for each run. Same seed-777 draw as the
+# qwen half, so the 2 raters judge the same pairs.
+#
+# ─── Cost (measured on schools, 2026-08-13) ──────────────────────────────────
+# 110k rows took about 7.7 h on 1 A6000. 7 cases = about 54 GPU-hours. At 4
+# GPUs that is about 14 hours.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   export HYDRA_SWEEP_DIR=multirun/looks_proxy_gemma12b
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli \
+#       --multirun +sweep=looks_proxy_gemma12b
+#
+# The case axis is in this file, thus the command needs no `pipeline=`.
+#
+# Smoke-test 16 pairs first, and confirm the abstention rate is low:
+#   ... pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16
+#
+# Check the stage log for this line, which proves the mirror was used:
+#   [stage_venv] ... scratch mirror ...
+#
+# Sanity-check each run before you trust it: Same much above 30% with almost no
+# Much* labels means the model probably never saw the images.
+
+sampling_params_vqa:
+  max_tokens: 128
+
+prompt:
+  # REQUIRED for this arch. See requirement 2 above. Do not remove.
+  image_layout: interleaved_labels
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x   # NOT klara_2x — see requirement 1
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # Each array task is its own single-GPU job, so parallel tasks are safe.
+    # The klara_2x prohibition is about DP inside 1 job, not about concurrent
+    # jobs. Keep this at 4 and run 1 companion sweep beside it.
+    # To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      # All 7 cases, in the same order as the qwen half.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

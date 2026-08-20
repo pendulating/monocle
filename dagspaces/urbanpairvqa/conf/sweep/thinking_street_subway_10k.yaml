@@ -1,0 +1,65 @@
+# @package _global_
+# ⚠️ SUPERSEDED on 2026-08-14 by `looks_thinking_qwen9b.yaml` and
+# `looks_thinking_gemma12b.yaml`, which hold all 7 cases and the "looks like"
+# prompts. Use this file only to repeat a run of 2026-07-11.
+#
+# THINKING-MODE re-run for Street Photography + Subway Station Safety — 10k pairs.
+# Regenerates the two cases with reasoning ENABLED for the three models whose
+# baseline street/subway runs captured NO reasoning trace (thinking_mode was off):
+#   gemma-4-12b, qwen3.5-9b, gemma-4-e2b.
+#
+# This sweep holds the FIXED overrides only; the model axis is set on the CLI
+# because the three models split across two interpreters:
+#   * gemma-4-12b/instruct_thinking  -> .venv-nightly (gemma4_unified needs
+#     vLLM 0.23 cu129); klara_1x ONLY (DP path ungated). See thinking_gemma12b.yaml.
+#   * qwen3.5-9b/instruct_thinking, gemma-4-e2b/instruct_thinking -> stable .venv.
+# klara_1x for all three: 1 GPU is plenty for 10k pairs and it avoids the
+# untested DP+reasoning path.
+#
+# Pairs: deterministic seed-777 PREFIX (max_pairs=10000) of the 100k baseline
+# draws, so pairs 0..9,999 match the non-thinking baseline -> paired
+# thinking-vs-baseline contrast. `allow_not_sure=true` matches the baselines.
+# max_tokens=8192 leaves room for a multi-thousand-token trace + the JSON
+# (fits inside the models' max_model_len=12288).
+#
+# Launch (task axis = canonical Hydra multirun):
+#   # gemma-4-12b (nightly venv):
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_street_subway_10k model=gemma-4-12b/instruct_thinking \
+#       pipeline=pairwise_street_photography_mvp,pairwise_subway_safety_mvp
+#   # qwen3.5-9b and gemma-4-e2b (stable venv):
+#   .venv/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_street_subway_10k \
+#       model=qwen3.5-9b/instruct_thinking,gemma-4-e2b/instruct_thinking \
+#       pipeline=pairwise_street_photography_mvp,pairwise_subway_safety_mvp
+#
+# gemma-4-e2b has NEVER run with thinking here — smoke-test it first:
+#   .venv/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=thinking_street_subway_10k model=gemma-4-e2b/instruct_thinking \
+#       pipeline=pairwise_street_photography_mvp pair_sampler.max_pairs=16
+
+sampling_params_vqa:
+  # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0
+  # (see conf/config.yaml), but greedy decoding degenerates into repetition over
+  # long reasoning traces. Pinned here to Qwen's thinking-mode recommendation.
+  temperature: 1.0
+  top_p: 0.95
+  max_tokens: 8192
+
+pair_sampler:
+  max_pairs: 10000
+
+prompt:
+  structured_output:
+    allow_not_sure: true
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2

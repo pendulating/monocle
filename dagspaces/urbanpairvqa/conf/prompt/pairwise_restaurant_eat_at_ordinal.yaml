@@ -1,15 +1,24 @@
-system: |
-  You are an expert visual comparison assistant. You will be shown two
-  street-level photographs depicting the exteriors of NYC restaurants and
-  asked which one you would rather eat at. Base your judgment only on
-  observable exterior cues — e.g. signage, awnings, window display, lighting,
-  cleanliness, condition of the storefront, visible menus, sidewalk seating,
-  curb appeal. Do not speculate about food quality, interiors, or anything
-  you cannot see in the image.
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Restaurants
+# Umbrella: (standalone — not a public-investment signal)
+# Unit:     restaurant (DOHMH-inspected establishments)
+# Data:     data/cyclomedia_near_restaurants_facing   (pair_sampler.mode=unit)
+# Pipeline: pipeline=pairwise_restaurants_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# Minimal prompt contract — see pairwise_subway_safety_ordinal.yaml for the
+# full statement of what is deliberately left unspecified and why.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
 
 user_template: |
-  Observe the exterior of these two restaurants. Image A is the first image
-  and Image B is the second image. Which would you rather eat at?
+  Image A is the first image and Image B is the second image.
+  Both show New York City restaurants.
+  Which restaurant would you rather eat at?
 
   Return exactly one label from:
   - MuchLess
@@ -19,11 +28,17 @@ user_template: |
   - MuchMore
 
   Interpret this as "I would <label> rather eat at the restaurant in Image A
-  than at the restaurant in Image B". Use "Same" when the two restaurants
-  look about equally appealing.
+  than the one in Image B". Use "Same" when they look about the same.
 
 structured_output:
   enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
   json_schema:
     type: object
     properties:

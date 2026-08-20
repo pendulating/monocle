@@ -9,11 +9,23 @@ model:
   # Gemma-4 is reasoning-capable — set to "off" for structured-extraction tasks.
   thinking_mode: off
   engine_kwargs:
-    # Sized for pairwise VQA: 2x 1024x1024 images = ~700 prompt tokens (Gemma
-    # pools to ~256 image tokens per image); with max_tokens=2048 the worst
-    # case is ~2,750 tokens.
-    max_model_len: 4096
-    max_num_seqs: 16
+    # Sized for pairwise VQA: 2x 1024x1024 images = 624 prompt tokens
+    # (measured 2026-08-13; Gemma pools to ~256 image tokens per image). With
+    # the config.yaml default max_tokens=2048 the worst case is 2,672 tokens.
+    #
+    # Cut 4096 → 3072 on 2026-08-13 to buy concurrency. The KV cache holds
+    # about 61k tokens, so the window sets how many sequences fit:
+    # 61k/4096 = 14.9, and 61k/3072 = 19.8.
+    #
+    # Warning: do NOT cut this below 2,672. The canonical sweep sets
+    # max_tokens=128, but a plain run uses the config.yaml default of 2048, and
+    # then a 2048 window drops every request.
+    max_model_len: 3072
+    # 18 x 3,072 = 55k tokens, inside the 61k the cache holds. This model stays
+    # KV-bound, not seq-capped, so the gain here is only about 1.2x. The large
+    # win for gemma is in instruct_thinking.yaml, where the window was 4x
+    # bigger than any trace needed.
+    max_num_seqs: 18
     # ~24 GB bf16 weights fit a single 48 GB A6000; klara_2x then runs DP=2
     # (one replica per GPU), matching the rest of the schools sweep.
     tensor_parallel_size: 1

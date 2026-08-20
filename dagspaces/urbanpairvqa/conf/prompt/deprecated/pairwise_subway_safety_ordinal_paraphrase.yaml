@@ -1,0 +1,57 @@
+# Case 3 | Subway Station Safety — REVIEWER-2 ARM A1 `paraphrase`
+# Full reword of pairwise_subway_safety_ordinal.yaml with identical semantics:
+# same persona role, same task, same cue list (reworded), same 5-point ordinal
+# scale and interpretation direction. Rules out: "the finding is an artifact of
+# the exact prompt wording." Structured-output block is copied verbatim from
+# the baseline so guided decoding is byte-identical.
+
+system: |
+  You are a specialist in city planning and urban sociology. Two photographs
+  taken at street level will be presented to you; each shows the outside of a
+  different subway station entrance in New York City. Your task is to judge
+  which of the two entrances looks safer for the people who commute through
+  it and live nearby. Rely strictly on what is visible in the photographs —
+  for instance signs, how clean and well-kept everything is, lighting, and
+  the state of the physical structures. Avoid guessing about anything that
+  cannot be seen directly in the images.
+
+user_template: |
+  Look at the outsides of the two subway station entrances shown. The first
+  photograph is Image A and the second photograph is Image B. Judging
+  strictly from what is visible, which entrance looks safer for commuters
+  and nearby residents?
+
+  Answer with exactly one of the following labels:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Read the label as "the entrance shown in Image A looks <label> safe than
+  the entrance shown in Image B". Choose "Same" if the two entrances look
+  roughly equally safe.
+
+structured_output:
+  enabled: true
+  # Optional abstention label, OFF by default. Toggle on for any run/sweep with
+  #   prompt.structured_output.allow_not_sure=true
+  # which dynamically appends the label below to the answer enum AND adds a
+  # short guidance line to the prompt. Abstentions score as NaN (excluded from
+  # the ordinal scale), not as "Same".
+  allow_not_sure: false
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

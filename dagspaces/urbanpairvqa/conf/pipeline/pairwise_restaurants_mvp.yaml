@@ -29,7 +29,7 @@ defaults:
   - override /hydra/launcher: slurm_monitor
   - override /data: cyclomedia_near_restaurants_facing
   - override /prompt: pairwise_restaurant_eat_at_ordinal
-  - override /model: qwen3.5-4b/instruct
+  - override /model: qwen3.5-9b/instruct
 
 runtime:
   debug: false
@@ -42,7 +42,10 @@ pair_sampler:
   unit_column: unit_uid
   unit_name_column: unit_name
   pair_seed: 777
-  max_pairs: 50000
+  max_pairs: 100000          # bumped 50k → 100k (2026-06-25) to match the 100k/run
+                              # cadence across all four cases. NOTE: the completed
+                              # 7-model restaurants sweeps were 50k — 100k runs are
+                              # NOT directly comparable to those without a re-run.
   allow_replacement: true    # 18,488 unique restaurants → ~170M canonical pairs
                               # available without replacement; no need to reuse units.
   counterbalance_mode: balanced
@@ -67,6 +70,8 @@ pipeline:
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
           runtime.skip_inference: ${runtime.skip_inference}
+          runtime.resume: ${runtime.resume}
+          runtime.resume_chunk_rows: ${runtime.resume_chunk_rows}
           pair_sampler.mode: ${pair_sampler.mode}
           pair_sampler.unit_column: ${pair_sampler.unit_column}
           pair_sampler.unit_name_column: ${pair_sampler.unit_name_column}
@@ -76,6 +81,9 @@ pipeline:
           pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
           pair_sampler.repeat_count: ${pair_sampler.repeat_count}
           pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.pairs_path: ${pair_sampler.pairs_path}
+          pair_sampler.shard_count: ${pair_sampler.shard_count}
+          pair_sampler.shard_index: ${pair_sampler.shard_index}
           pair_sampler.weight_column: ${pair_sampler.weight_column}
           model.model_source: ${model.model_source}
           model.engine_kwargs.gpu_memory_utilization: 0.92

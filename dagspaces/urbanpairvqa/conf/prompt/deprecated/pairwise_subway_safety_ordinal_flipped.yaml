@@ -1,0 +1,67 @@
+# Case 3 | Subway Station Safety — REVIEWER-2 ARM A4 `flipped`
+# Semantic scale flip of pairwise_subway_safety_ordinal.yaml: asks which
+# entrance appears LESS safe, with labels defined on the "unsafe" direction
+# ("Image A appears <label> unsafe than Image B"). Rules out: "acquiescence /
+# positive-end response bias — the model just likes agreeing with the framing."
+#
+# *** ANALYSIS MUST NEGATE THIS ARM'S SCORES. ***
+# The stage's _canonicalize_label only normalizes surface forms and
+# _invert_label only un-does the A/B presentation swap — neither performs
+# semantic inversion. "More" here means MORE UNSAFE. The comparison script
+# (scripts/pairwise_reviewer2_baselines.py --flip-arms flipped) negates
+# relative_score (MuchLess<->MuchMore, Less<->More; Same/NotSure fixed) before
+# comparing against the production baseline. Do NOT fold this arm's raw labels
+# into any safety-direction aggregation.
+#
+# The hard-appended stage line "Interpret labels as Image A relative to
+# Image B." stays semantically valid under the flip.
+
+system: |
+  You are an expert urban planner and sociologist. You will be shown two
+  street-level photographs depicting the exteriors of two different New York
+  City subway station entrances and asked which one appears to be less safe
+  for commuters and residents. Base your judgement only on observable
+  exterior cues — e.g. signage, cleanliness, lighting, curb appeal, and
+  physical condition. Do not speculate about anything you cannot physically
+  observe in the image.
+
+user_template: |
+  Observe the exteriors of these two subway station entrances. Image A is the
+  first image and Image B is the second image. Based only on observable
+  exterior cues, which one appears less safe — that is, more unsafe — for
+  commuters and residents?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the subway station entrance in Image A appears <label>
+  unsafe than the one in Image B". Use "Same" when the two entrances look
+  about equally unsafe.
+
+structured_output:
+  enabled: true
+  # Optional abstention label, OFF by default. Toggle on for any run/sweep with
+  #   prompt.structured_output.allow_not_sure=true
+  # which dynamically appends the label below to the answer enum AND adds a
+  # short guidance line to the prompt. Abstentions score as NaN (excluded from
+  # the ordinal scale), not as "Same".
+  allow_not_sure: false
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

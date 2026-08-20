@@ -1,0 +1,52 @@
+# @package _global_
+# Gemma-4-12B-IT with reasoning ("thinking") ENABLED — the thinking-mode sibling
+# of instruct.yaml. Mirrors qwen3.5-9b/instruct_thinking.yaml: flips thinking on,
+# enlarges the context window to fit a reasoning trace before the structured JSON,
+# and wires the `gemma4` reasoning parser so vLLM holds the answer-enum grammar
+# until the model closes its thought channel (without it, guided decoding forces
+# the JSON immediately and no reasoning is emitted). Both .venv and .venv-nightly
+# resolve `gemma4` via vllm.reasoning.ReasoningParserManager.
+#
+# *** Encoder-free Gemma4UnifiedForConditionalGeneration (model_type gemma4_unified). ***
+# MUST run on a single-GPU launcher (klara_1x) launched with the .venv-nightly
+# interpreter (vLLM 0.23.1rc1.dev333+cu129): the DP-worker path is NOT gated for
+# the unified `<|image|>` chat template, so klara_2x/DP=2 crashes. See
+# project_gemma4_unified_support. Configured identically to instruct.yaml except
+# for the thinking flips below, so thinking-vs-non-thinking isn't confounded by
+# config drift.
+model:
+  model_source: /share/pierson/matt/zoo/models/gemma-4-12B-it
+  model_family: gemma-4
+  thinking_mode: on
+  chat_template_kwargs:
+    enable_thinking: true
+  engine_kwargs:
+    # 2x 1024x1024 images pool to ~256 image tokens each: 624 prompt tokens,
+    # measured 2026-08-13.
+    #
+    # Cut 12288 → 5120 on 2026-08-13. The old window was 4x larger than any
+    # trace needed, and it was the reason these runs crawled. The window sets
+    # how many sequences the KV cache can hold:
+    #   81,403 KV tokens / 12,288 =  6.6 sequences
+    #   81,403 KV tokens /  5,120 = 15.9 sequences
+    #
+    # The size comes from measurement, not from a guess. Across all 11,000
+    # road-quality traces of 2026-08-13, output length ran:
+    #   p50 538 · p90 877 · p99 1,313 · max 2,827 tokens
+    # NOT ONE request passed 3,000. Thus 624 + 2,827 = 3,451 is the true worst
+    # case, and 5,120 keeps 1,669 tokens of headroom.
+    #
+    # Warning: keep this above `prompt + max_tokens` of the sweep that uses it.
+    # thinking_public_investment_10k.yaml sets max_tokens=4096, so the ceiling
+    # is 624 + 4,096 = 4,720, inside 5,120.
+    max_model_len: 5120
+    # 16 x 5,120 = 82k, which matches the 81k cache. vLLM preempts if a batch
+    # ever needs more.
+    max_num_seqs: 16
+    tensor_parallel_size: 1
+    trust_remote_code: true
+    # Defer the structured-output grammar until after the thought channel closes.
+    structured_outputs_config:
+      reasoning_parser: gemma4
+  batch_size: 0
+  concurrency: 1

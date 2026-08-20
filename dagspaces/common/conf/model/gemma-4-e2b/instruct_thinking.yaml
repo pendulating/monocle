@@ -1,0 +1,39 @@
+# @package _global_
+# Gemma-4-E2B-IT with reasoning ("thinking") ENABLED — the thinking-mode sibling
+# of instruct.yaml. Mirrors gemma-4-12b/instruct_thinking.yaml and
+# qwen3.5-9b/instruct_thinking.yaml: flips thinking on, enlarges the context
+# window to fit a reasoning trace before the structured JSON, and wires the
+# `gemma4` reasoning parser so vLLM holds the answer-enum grammar until the model
+# closes its thought channel (without it, guided decoding forces the JSON
+# immediately and no reasoning is emitted).
+#
+# Unlike the 12B (encoder-free gemma4_unified) sibling, Gemma-4-E2B is the
+# STANDARD multimodal architecture — same path that ran fine on klara_2x in the
+# all-models sweeps — so there is no unified-`<|image|>`/DP-worker gating issue
+# and it loads under the stable .venv. Still, thinking has NEVER been exercised
+# on this model here: smoke-test a ~16-pair run for a real thought channel +
+# parsed JSON + non-degenerate labels before trusting a full probe.
+#
+# Configured identically to instruct.yaml except for the thinking flips below,
+# so thinking-vs-non-thinking isn't confounded by config drift.
+model:
+  model_source: /share/pierson/matt/zoo/models/Gemma-4-E2B-it
+  model_family: gemma-4
+  thinking_mode: on
+  chat_template_kwargs:
+    enable_thinking: true
+  engine_kwargs:
+    # 2x 1024x1024 images pool to ~256 image tokens each (~700 prompt tokens);
+    # a thinking trace adds a few thousand generation tokens. 12288 leaves
+    # comfortable headroom (matches the qwen3.5-9b / gemma-4-12b thinking siblings).
+    max_model_len: 12288
+    # ~5B effective params (~10 GB bf16) leaves ample KV room on a 48 GB card,
+    # so we keep instruct.yaml's 16 rather than dropping to the 12B's 8.
+    max_num_seqs: 16
+    tensor_parallel_size: 1
+    trust_remote_code: true
+    # Defer the structured-output grammar until after the thought channel closes.
+    structured_outputs_config:
+      reasoning_parser: gemma4
+  batch_size: 0
+  concurrency: 1

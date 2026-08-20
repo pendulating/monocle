@@ -1,0 +1,53 @@
+# @package _global_
+# Case 5 | Driving Safety — model sweep, 1-GPU klara stage.
+# Five natively-multimodal instruction-tuned open-weights models (gemma-4-e2b,
+# gemma-4-e4b, qwen3.5-2b, qwen3.5-4b, qwen3.5-9b). Each run uses a SINGLE klara
+# GPU (slurm_gpu_klara_1x, DP=1). With array_parallelism=2, TWO models run
+# concurrently, one GPU each = 2 GPUs busy per sweep. Pairs are drawn in image
+# mode from the citywide 500k manifest (see the pipeline header) — same pair
+# seed/manifest as the street-photography case, so both constructs are rated on
+# identical block pairs. phi-4/multimodal-instruct is intentionally excluded
+# (degenerate output — see the gemma-12b companion header / project memory).
+# The gemma-4-12b rater runs in the companion `driving_safety_gemma12b_klara1x`.
+#
+# All five are TP=1 and fit on one 48GB A6000 (incl. qwen3.5-9b).
+#
+# Fixed (non-swept) overrides:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_1x
+#   - sampling_params_vqa.max_tokens         = 128  (ordinal answer is short)
+# `pair_sampler.max_pairs=100000` is the driving-safety pipeline default.
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the models likely never saw the images.
+#
+# Two inference runs in flight at once (`array_parallelism: 2`) — 1 GPU each.
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=driving_safety_all_models_klara1x \
+#       pipeline=pairwise_driving_safety_mvp
+#
+# Add the abstention option across the whole sweep by appending:
+#       prompt.structured_output.allow_not_sure=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        gemma-4-e4b/instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct,
+        qwen3.5-9b/instruct

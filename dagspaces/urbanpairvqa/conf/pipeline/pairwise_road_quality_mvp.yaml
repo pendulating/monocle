@@ -1,0 +1,97 @@
+# @package _global_
+# Case | Road quality   (umbrella: signs of public investment + gov management)
+# MVP pipeline: block-level pairwise VQA on "which roadway is in better
+# condition".
+#
+# There is no roadway unit manifest — FacDB rows for roadways carry no BIN, so
+# the building-based per-unit facing filter has nothing to attribute against.
+# This case therefore pairs RANDOM street-level shots directly via
+# `pair_sampler.mode=image` against the citywide 500k stratified cyclomedia
+# manifest (cyclomedia_all_2025_citywide — 100k/borough, built by
+# scripts/materialize_cyclomedia_citywide.py), exactly like street photography.
+# Each "block" is one random cube-face image; there is no within-unit
+# repetition, so the TrueSkill section of the report does not apply — use the
+# label-distribution and cross-model aggregation reports instead.
+#
+# pair_seed=777 and max_pairs=100000 deliberately match the street-photography
+# pipeline so the two image-mode cases draw comparable block samples.
+#
+# Replaces the retired driving-safety pipeline
+# (pipeline=deprecated/pairwise_driving_safety_mvp).
+#
+# Single-model submit:
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_road_quality_mvp
+#
+# Full sweep (reuse the street-photography launcher sweeps — both are image
+# mode against the same manifest, so the resource profile is identical):
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=street_photography_all_models_klara2x \
+#       pipeline=pairwise_road_quality_mvp
+#
+# NotSure abstention is ON by default (prompt.structured_output.allow_not_sure).
+# Disable for an ablation with:
+#   ... pipeline=pairwise_road_quality_mvp prompt.structured_output.allow_not_sure=false
+#
+# Dry-run (no GPU):
+#   python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_road_quality_mvp \
+#       runtime.debug=true runtime.sample_n=1000 runtime.skip_inference=true
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_all_2025_citywide
+  - override /prompt: pairwise_road_quality_ordinal
+  - override /model: qwen3.5-9b/instruct
+
+runtime:
+  debug: false
+  sample_n: null
+  skip_inference: false
+  job_memory_gb: 64
+
+pair_sampler:
+  mode: image                 # block ≈ random street-level shot (no unit manifest)
+  unit_column: unit_uid       # unused in image mode; kept for override-schema parity
+  unit_name_column: unit_name
+  pair_seed: 777
+  max_pairs: 100000
+  allow_replacement: false    # 500k images → ~1.25e11 canonical pairs; no reuse needed.
+  counterbalance_mode: balanced
+  repeat_count: 0
+  repeat_fraction: 0.10
+  weight_column: null         # within-unit weighting is unit-mode only
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      pairwise:
+        stage: pairwise_vqa
+        depends_on: []
+        outputs:
+          results: outputs/pairwise/road_quality_mvp_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          runtime.skip_inference: ${runtime.skip_inference}
+          runtime.resume: ${runtime.resume}
+          runtime.resume_chunk_rows: ${runtime.resume_chunk_rows}
+          pair_sampler.mode: ${pair_sampler.mode}
+          pair_sampler.pair_seed: ${pair_sampler.pair_seed}
+          pair_sampler.max_pairs: ${pair_sampler.max_pairs}
+          pair_sampler.allow_replacement: ${pair_sampler.allow_replacement}
+          pair_sampler.counterbalance_mode: ${pair_sampler.counterbalance_mode}
+          pair_sampler.repeat_count: ${pair_sampler.repeat_count}
+          pair_sampler.repeat_fraction: ${pair_sampler.repeat_fraction}
+          pair_sampler.pairs_path: ${pair_sampler.pairs_path}
+          pair_sampler.shard_count: ${pair_sampler.shard_count}
+          pair_sampler.shard_index: ${pair_sampler.shard_index}
+          pair_sampler.weight_column: ${pair_sampler.weight_column}
+          model.model_source: ${model.model_source}
+          model.engine_kwargs.gpu_memory_utilization: 0.92
+          model.engine_kwargs.tensor_parallel_size: 1
+          model.batch_size: 0
+          model.concurrency: 1
+        launcher: slurm_gpu_1x
+        wandb_suffix: pairwise_road_quality_mvp

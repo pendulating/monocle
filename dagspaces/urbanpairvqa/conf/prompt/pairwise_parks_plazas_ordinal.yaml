@@ -1,0 +1,66 @@
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Parks / plazas
+# Umbrella: Signs of public investment + government management
+# Unit:     park or plaza (FacDB facgroup=PARKS AND PLAZAS, domain
+#           "PARKS, GARDENS, AND HISTORICAL SITES")
+# Data:     data/cyclomedia_near_parks_facing   (pair_sampler.mode=unit)
+# Pipeline: pipeline=pairwise_parks_plazas_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# Minimal prompt contract — see pairwise_subway_safety_ordinal.yaml for the
+# full statement of what is deliberately left unspecified and why.
+#
+# PREREQUISITE — the unit manifest does not exist yet. Build it before running:
+#   python -m dagspaces.common.curation facdb-facilities \
+#       --facgroup "PARKS AND PLAZAS" --out curation/facdb_parks_plazas/
+# then materialize-cyclomedia (which auto-chains the facing filter).
+# CAVEAT: unlike libraries/schools, most park and plaza FacDB rows carry no BIN,
+# so the building-polygon occlusion check in the facing filter has nothing to
+# aim at. Expect the facing filter to behave differently here — audit
+# attribution_confidence before trusting unit attribution. See
+# [[concept-facing-filter]] and dagspaces/common/curation/facdb/validation.py.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
+
+user_template: |
+  Image A is the first image and Image B is the second image.
+  Both show New York City parks or public plazas.
+  Which one looks to be better maintained?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the park or plaza in Image A is <label> well-maintained
+  than the one in Image B". Use "Same" when they look about the same.
+
+structured_output:
+  enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

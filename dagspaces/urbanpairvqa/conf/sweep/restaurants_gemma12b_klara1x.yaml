@@ -1,0 +1,53 @@
+# @package _global_
+# Hydra sweep: restaurants pairwise run for the Gemma-4-12B-IT model ONLY, the
+# 7th and largest rater, extending `restaurants_all_models_klara2x.yaml` (which
+# covers gemma-4-{e2b,e4b}, phi-4, and qwen3.5-{2b,4b,9b}). Together they give
+# the same 7-model capability ladder used for the schools deliverable, on the
+# restaurants task — so we can check whether gemma-12b's schools result (it
+# broke the monotone capability trend and was the strongest discrepancy, toward
+# PUBLIC) is task-specific or reproduces on restaurants.
+#
+# Model group path (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
+#   - gemma-4-12b/instruct → common/conf/model/gemma-4-12b/instruct.yaml
+#
+# *** LAUNCHER: klara_1x (single GPU), NOT klara_2x. ***
+# Gemma-4-12B is the encoder-free `Gemma4UnifiedForConditionalGeneration`
+# (model_type `gemma4_unified`). Its `<|image|>` chat-template fix lives ONLY in
+# the single-process apply_chat_template site in vllm_inference.py; the DP-worker
+# path (`_DP_FULL_WORKER_SCRIPT` / `_run_data_parallel_full`, which the 2-GPU
+# klara_2x stage triggers via DP=2) is NOT gated for the unified arch, so a
+# klara_2x run would crash with "Failed to apply prompt replacement for
+# mm_items['image'][0]". This is why the validated schools gemma-12b deliverable
+# (job 482243) ran on klara_1x — we mirror that here. ~24 GB bf16 weights fit a
+# single 48 GB A6000 at TP=1. (The checked-in schools_gemma12b_klara2x.yaml names
+# klara_2x, but that launcher is wrong for this arch until the DP path is gated.)
+#
+# Fixed (non-swept) overrides, matching the 6-model sweep:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_1x
+#   - sampling_params_vqa.max_tokens         = 128  (the <|channel>thought
+#     channel parses fine within 128; gemma-12b config has thinking_mode=off)
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the model likely never saw the images.
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=restaurants_gemma12b_klara1x \
+#       pipeline=pairwise_restaurants_mvp
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 1
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct

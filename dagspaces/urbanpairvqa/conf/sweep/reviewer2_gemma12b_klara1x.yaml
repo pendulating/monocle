@@ -1,0 +1,59 @@
+# @package _global_
+# REVIEWER-2 ROBUSTNESS PROBES — Gemma-4-12B-IT ONLY, 1,000-pair deterministic
+# prefix of the production seed-777 draw. Companion to
+# reviewer2_probe_klara1x.yaml (qwen 2b/9b); same CLI-passed perturbation
+# arms, minus A5 res-half (gemma-4 has no mm_processor_kwargs.max_pixels knob
+# — fixed token pooling).
+#
+# *** LAUNCHER: klara_1x (single GPU), NOT klara_2x. ***
+# Gemma-4-12B is the encoder-free `Gemma4UnifiedForConditionalGeneration`
+# (model_type `gemma4_unified`). Its `<|image|>` chat-template fix lives ONLY in
+# the single-process apply_chat_template site in vllm_inference.py; the DP-worker
+# path is NOT gated for the unified arch and would crash with
+# "Failed to apply prompt replacement for mm_items['image'][0]".
+#
+# *** VENV: must launch the driver on .venv-nightly (vLLM 0.23 cu129). ***
+#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun ...
+#
+# Arms (one invocation each, serial — array_parallelism=1):
+#
+# A0 retest + A1-A4 prompt variants (5 runs):
+#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+#   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=reviewer2_gemma12b_klara1x pipeline=pairwise_subway_safety_mvp \
+#       prompt.structured_output.allow_not_sure=true \
+#       prompt=pairwise_subway_safety_ordinal,pairwise_subway_safety_ordinal_paraphrase,pairwise_subway_safety_ordinal_nopersona,pairwise_subway_safety_ordinal_enumrev,pairwise_subway_safety_ordinal_flipped
+#
+# A7 temp0:  ... sampling_params_vqa.temperature=0.0
+# A6 freeform: ... prompt.structured_output.enabled=false
+# C1/C2 layouts (ONLY after the 20-pair smoke — the unified-arch <|image|>
+# prompt replacement is fragile to content-block changes):
+#   ... +prompt.image_layout=interleaved_labels   # or text_first
+#   Smoke first: append pair_sampler.max_pairs=20 to a throwaway invocation.
+#
+# Sanity-check each landing: Same >> 30% with near-zero Much* labels means the
+# model likely never saw the images (see the may1 contamination signature).
+#
+# NEVER runtime.sample_n (breaks the production prefix); use
+# pair_sampler.max_pairs only.
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 1
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct

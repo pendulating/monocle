@@ -1,0 +1,44 @@
+# @package _global_
+# ABSTENTION PROBE — A/B the optional "NotSure" structured-output option.
+#
+# Sweeps `prompt.structured_output.allow_not_sure` over {false, true} so each
+# run has a paired baseline-vs-abstention contrast, across two models. The
+# `allow_not_sure=true` arm dynamically appends "NotSure" to the answer enum
+# AND a guidance line to the prompt; abstentions score as NaN (excluded from
+# the ordinal scale), so the label distribution / abstention rate is the signal
+# of interest, not TrueSkill.
+#
+# 4 runs total (2 toggle states × 2 models), 1,000 pairs each, on the
+# production seed (777) so the pairs are a deterministic prefix of the larger
+# draws. Works against any case pipeline — pick one on the CLI.
+#
+# Usage (restaurants shown; swap for any case pipeline):
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=not_sure_probe \
+#       pipeline=pairwise_subway_safety_mvp
+#
+# Dry-run the plumbing (no GPU; skip_inference emits NotSure deterministically
+# only on the allow_not_sure=true arm):
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=not_sure_probe \
+#       pipeline=pairwise_subway_safety_mvp \
+#       runtime.debug=true runtime.skip_inference=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      prompt.structured_output.allow_not_sure: false,true
+      model: qwen3.5-9b/instruct, gemma-4-e4b/instruct

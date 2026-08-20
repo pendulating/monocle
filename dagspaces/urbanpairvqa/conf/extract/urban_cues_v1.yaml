@@ -1,0 +1,190 @@
+# @package extract
+# Urban cue schema, version 1 (2026-08-13).
+#
+# This config turns 1 reasoning trace into typed, grounded extractions. It
+# replaces the word count in `notebooks/cvpr/_traces.py` for every question that
+# a word cannot answer: which image holds a cue, whether the cue is good or bad,
+# and whether the model went past the pixels.
+#
+# The 3 examples come from real traces of the 2026-08-13 thinking sweep
+# (subway safety and libraries). Every `extraction_text` appears in its own
+# `text` word for word. The aligner matches the span against the source, thus a
+# paraphrase can never align.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, or an
+# example. Never edit a version in place. The version reaches every output row,
+# and 2 versions must never pool.
+#
+# See `vlm-narratives-docs/langextract-trace-extraction.md`.
+
+name: urban_cues
+schema_version: v1
+
+# 1 trace must become 1 chunk. The subway run of 2026-08-13 has a p99 of 8,973
+# characters and a maximum of 19,252.
+#
+# Warning: the LangExtract default is 1000. At that value a median trace splits
+# into 4 chunks, no chunk holds both images, and every comparison is lost.
+max_char_buffer: 12000
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+
+# Warning: a cap that is too low loses the WHOLE trace, not the tail of it.
+# Guided decoding writes valid JSON up to the cap, the cap cuts it, and the
+# parser then returns nothing. Measured on 2026-08-13 with 200 subway traces at
+# 2,048 tokens: 113 of 200 traces came back empty, and the 87 that survived
+# gave 28 extractions each. A dense trace needs more than 2,048.
+#
+# `answers_truncated` in the stage metadata counts the answers that reach the
+# cap, and `answers_repaired` counts the ones that `repair_truncated_json`
+# saved. A dense trace of 10,000 characters writes about 2,600 tokens, thus
+# 8,192 leaves room. Watch the 2 numbers on each run.
+max_tokens: 8192
+use_guided_json: true
+
+# Put a lower bound of 1 on the extraction array.
+#
+# Warning: an empty answer is the main silent failure. Measured on 2026-08-13
+# over 24 long subway traces, 15 came back as `{"extractions": []}` in about 11
+# tokens. A long trace fails much more often than a short one: the silent
+# traces had a median of 4,487 characters against 2,785 for the rest. The bound
+# makes the grammar unable to write an empty array.
+require_extraction: true
+
+prompt_description: |
+  You read the private reasoning that a vision-language model wrote while it
+  compared two street-level photographs of New York City. Extract what the model
+  says. Do not judge the images yourself, and do not add anything the text does
+  not say.
+
+  Use exactly these classes:
+
+  - visual_evidence: a concrete thing the model says it can see.
+    attributes: image (A, B, both, unclear); valence (good, bad, neutral);
+    category (people, cleanliness, upkeep, greenery, light, signage, traffic,
+    construction, commerce, architecture, other)
+  - inference: a claim the photograph cannot show, which the model draws from
+    what it sees.
+    attributes: image (A, B, both, unclear); kind (safety, quality, upkeep,
+    wealth, class, crime, demographic, other)
+  - person_reference: a statement about the people in a photograph.
+    attributes: image (A, B, both, unclear); used_in_judgment (yes, no)
+  - image_artifact: a statement about the photograph itself, not about the
+    place: the angle, the blur, an obstruction, the time of day, the weather.
+    attributes: image (A, B, both, unclear); kind (blur, angle, occlusion,
+    time_of_day, weather, other)
+  - comparison: an explicit statement that sets image A against image B.
+    attributes: direction (A, B, neither); dimension (a short phrase);
+    hedged (yes, no)
+  - uncertainty: language that hedges, or that says the model cannot decide.
+    attributes: reason (looks_equal, cannot_see, out_of_view, other)
+  - decision: the sentence that states the final answer.
+    attributes: label (MuchLess, Less, Same, More, MuchMore, NotSure)
+
+  Rules:
+
+  1. Copy each extraction from the trace, character for character. It must be a
+     span you can point to in the text. Never paraphrase, never join two parts
+     of the text, and never shorten a phrase to its meaning.
+  2. Do not extract the same span two times.
+  3. Extract in the order that the spans appear in the text.
+  4. The opening sentence restates the question the model was asked. Extract
+     nothing from it.
+  5. Never answer with an empty list. Every trace names at least one thing that
+     it sees. Extract what is there, and stop. A repeated thought is 1
+     extraction, not 2.
+
+examples:
+  # 1. Subway safety. Holds visual evidence for both images, a person
+  #    reference, a comparison, a hedge, and the decision.
+  - text: |
+      The user wants me to compare the safety of two subway station entrances.
+
+      **Image A analysis:**
+      - There are people walking around, some on skateboards.
+      - There's a trash can, a sign, and traffic lights.
+      - The area seems well-lit and has some foot traffic.
+
+      **Image B analysis:**
+      - Shows a subway entrance behind a construction fence.
+      - The sidewalk has some debris or unevenness due to construction.
+
+      **Comparison of safety:**
+      - Image A has more clear visibility of the surroundings.
+      - Is there a significant difference in safety? They both look pretty standard for NYC.
+      - I'll go with "Same".
+    extractions:
+      - extraction_class: person_reference
+        extraction_text: 'people walking around, some on skateboards'
+        attributes: {image: A, used_in_judgment: 'no'}
+      - extraction_class: visual_evidence
+        extraction_text: 'trash can'
+        attributes: {image: A, valence: neutral, category: cleanliness}
+      - extraction_class: visual_evidence
+        extraction_text: 'traffic lights'
+        attributes: {image: A, valence: neutral, category: traffic}
+      - extraction_class: visual_evidence
+        extraction_text: 'well-lit'
+        attributes: {image: A, valence: good, category: light}
+      - extraction_class: visual_evidence
+        extraction_text: 'construction fence'
+        attributes: {image: B, valence: bad, category: construction}
+      - extraction_class: visual_evidence
+        extraction_text: 'debris or unevenness'
+        attributes: {image: B, valence: bad, category: upkeep}
+      - extraction_class: comparison
+        extraction_text: 'Image A has more clear visibility of the surroundings'
+        attributes: {direction: A, dimension: visibility, hedged: 'no'}
+      - extraction_class: uncertainty
+        extraction_text: 'They both look pretty standard for NYC'
+        attributes: {reason: looks_equal}
+      - extraction_class: decision
+        extraction_text: 'I''ll go with "Same"'
+        attributes: {label: Same}
+
+  # 2. Library upkeep. Holds an inference about class, an artifact of the
+  #    camera angle, and a hedge.
+  - text: |
+      The user wants me to compare the maintenance of two New York City public library buildings.
+
+      - **Image A:** Shows a side view of a large, mostly white brick building with a flat roof. The wall looks plain and might have some weathering or dirt, but it's hard to tell for sure.
+      - **Image B:** Shows a classic red brick building with arched windows and decorative masonry. It looks very well-maintained and clean.
+
+      Image B looks like a high-end, prestigious building. Image A looks like a standard, slightly neglected industrial-style building.
+      It's hard to judge maintenance from a side wall.
+      Therefore, Image A is likely "Less" well-maintained than Image B.
+    extractions:
+      - extraction_class: visual_evidence
+        extraction_text: 'weathering or dirt'
+        attributes: {image: A, valence: bad, category: cleanliness}
+      - extraction_class: uncertainty
+        extraction_text: 'it''s hard to tell for sure'
+        attributes: {reason: cannot_see}
+      - extraction_class: visual_evidence
+        extraction_text: 'arched windows and decorative masonry'
+        attributes: {image: B, valence: good, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'high-end, prestigious building'
+        attributes: {image: B, kind: class}
+      - extraction_class: inference
+        extraction_text: 'slightly neglected'
+        attributes: {image: A, kind: upkeep}
+      - extraction_class: image_artifact
+        extraction_text: 'hard to judge maintenance from a side wall'
+        attributes: {image: A, kind: angle}
+      - extraction_class: decision
+        extraction_text: 'Image A is likely "Less" well-maintained than Image B'
+        attributes: {label: Less}
+
+  # 3. The negative example. Every trace opens with the question it was asked.
+  #    That echo is not evidence.
+  #
+  #    Warning: the LangExtract example check raises on an example with no
+  #    span. `langextract_backend.validate_examples` runs the check over the
+  #    examples that have a span, and `extract_documents` turns the built-in
+  #    check off.
+  - text: |
+      The user wants me to compare two images of New York City street scenes and choose which one looks better. I need to return one label as JSON.
+    extractions: []

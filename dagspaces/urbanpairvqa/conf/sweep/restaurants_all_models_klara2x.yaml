@@ -1,0 +1,57 @@
+# @package _global_
+# Hydra sweep: restaurants pairwise run across the five natively-multimodal
+# instruction-tuned open-weights models that share the gemma4 / qwen
+# arch (NOT the encoder-free gemma4_unified 12B — that one is in the companion
+# `restaurants_gemma12b_klara1x.yaml`). This is the restaurants analog of
+# `schools_all_models_klara2x.yaml`: same lineup, same 2-GPU klara stage
+# launcher, same 128-token answer budget, so the two tasks are directly
+# comparable and can be folded into one cross-task aggregation.
+#
+# Model group paths (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
+#   - gemma-4-e2b/instruct       → common/conf/model/gemma-4-e2b/instruct.yaml
+#   - gemma-4-e4b/instruct       → common/conf/model/gemma-4-e4b/instruct.yaml
+#   (phi-4/multimodal-instruct dropped 2026-07-01 — degenerate pairvqa output)
+#   - qwen3.5-2b/instruct        → common/conf/model/qwen3.5-2b/instruct.yaml
+#   - qwen3.5-4b/instruct        → common/conf/model/qwen3.5-4b/instruct.yaml
+#   - qwen3.5-9b/instruct        → common/conf/model/qwen3.5-9b/instruct.yaml
+# All five are TP=1 and run as DP=2 inside the 2-GPU klara stage. The shared-TMPDIR
+# DP task-pickle collision (see `project-dp-tmpdir-collision`) is FIXED, so the
+# concurrent-pair packing that `array_parallelism: 2` produces is safe.
+#
+# Fixed (non-swept) overrides, matching the schools klara2x sweep:
+#   - pipeline.graph.nodes.pairwise.launcher = slurm_gpu_klara_2x
+#   - sampling_params_vqa.max_tokens         = 128  (ordinal answer is short)
+# `pair_sampler.max_pairs=50000` is the restaurants pipeline default (18,488
+# unique camis → no size cap needed).
+#
+# Sanity-check the resulting label distribution before trusting it: Same >> 30%
+# with near-zero Much* labels means the models likely never saw the images.
+#
+# Max 2 inference runs in flight at once (`array_parallelism: 2`).
+#
+# Usage:
+#   python -m dagspaces.urbanpairvqa.cli --multirun \
+#       +sweep=restaurants_all_models_klara2x \
+#       pipeline=pairwise_restaurants_mvp
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_2x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: >-
+        gemma-4-e2b/instruct,
+        gemma-4-e4b/instruct,
+        qwen3.5-2b/instruct,
+        qwen3.5-4b/instruct,
+        qwen3.5-9b/instruct

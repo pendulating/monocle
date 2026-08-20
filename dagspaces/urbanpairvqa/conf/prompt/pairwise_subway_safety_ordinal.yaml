@@ -1,0 +1,63 @@
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Subway safety
+# Umbrella: Signs of public investment + government management
+# Unit:     subway station entrance
+# Data:     data/cyclomedia_near_subway_facing   (pair_sampler.mode=unit)
+# Pipeline: pipeline=pairwise_subway_safety_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# MINIMAL PROMPT CONTRACT — shared by all seven cases. The only text that varies
+# between cases is the unit noun, the question, and the interpretation line.
+# Deliberately absent, so as not to contaminate the output distribution:
+#   - no enumerated cues ("e.g. signage, cleanliness, lighting, ...")
+#   - no persona at all — the system turn is omitted entirely (`system: null`)
+#   - no "base your judgement only on observable cues" / "do not speculate"
+#   - no instruction about what to ignore (weather, time of day, ...)
+#   - no examples
+# Adding any of these back is an ABLATION, not a fix — keep it in its own file
+# under prompt/deprecated/ or a new variant so the battery stays comparable.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
+
+user_template: |
+  Image A is the first image and Image B is the second image.
+  Both show New York City subway station entrances.
+  Which station entrance looks safer?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the station entrance in Image A is <label> safe than the
+  one in Image B". Use "Same" when they look about the same.
+
+structured_output:
+  enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

@@ -6,12 +6,12 @@
 # Model group paths (resolved via Hydra searchpath `pkg://dagspaces.common.conf`):
 #   - gemma-4-e2b/instruct       → common/conf/model/gemma-4-e2b/instruct.yaml
 #   - gemma-4-e4b/instruct       → common/conf/model/gemma-4-e4b/instruct.yaml
-#   - phi-4/multimodal-instruct  → common/conf/model/phi-4/multimodal-instruct.yaml
+#   (phi-4/multimodal-instruct dropped 2026-07-01 — degenerate pairvqa output)
 #   - qwen3.5-2b/instruct        → common/conf/model/qwen3.5-2b/instruct.yaml
 #   - qwen3.5-4b/instruct        → common/conf/model/qwen3.5-4b/instruct.yaml
 #   - qwen3.5-9b/instruct        → common/conf/model/qwen3.5-9b/instruct.yaml
 #
-# All six model configs were retuned to fit the pairwise prompt (2x 1024x1024
+# All five model configs were retuned to fit the pairwise prompt (2x 1024x1024
 # images, ~2,200 prompt tokens for Qwen, ~700 for Gemma, ~5,400 for Phi-4-MM).
 #
 # Max 4 inference runs in flight at once (`array_parallelism: 4` matches the
@@ -31,7 +31,6 @@ hydra:
       model: >-
         gemma-4-e2b/instruct,
         gemma-4-e4b/instruct,
-        phi-4/multimodal-instruct,
         qwen3.5-2b/instruct,
         qwen3.5-4b/instruct,
         qwen3.5-9b/instruct

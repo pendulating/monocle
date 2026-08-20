@@ -1,0 +1,93 @@
+# @package _global_
+# PERSONA PROBE — does removing the system persona move the abstention rate?
+#
+# The 2026-08-11 consolidation dropped the system turn entirely (`system: null`)
+# from all seven cases. Reviewer-2 arm A2 (`nopersona`) already showed that
+# removing a much stronger DOMAIN persona ("expert urban planner and
+# sociologist") leaves the judgments at the decoding-noise bound — but A2 ran
+# when `allow_not_sure` still defaulted to `false`, so it could not have
+# measured the one channel where a persona plausibly bites:
+#
+#   "expert" is a competence prime. Dropping it may raise the NotSure rate,
+#   which would move headline numbers without moving any individual judgment.
+#
+# Signal of interest is therefore the **label distribution — specifically the
+# abstention rate** — not TrueSkill. Ordinal agreement between the two arms is
+# a useful secondary read (are the non-abstained judgments the same?).
+#
+# Arms: `prompt.system` over {null (production), the removed persona string}.
+# 4 runs per case (2 persona arms × 2 models), 1,000 pairs each on the
+# production seed (777), so the pairs are a deterministic prefix of the 100k
+# draw — use `pair_sampler.max_pairs=1000`, NEVER `runtime.sample_n`, which
+# resamples the manifest and breaks the prefix.
+#
+# Models are the not_sure_probe pair (qwen3.5-9b + gemma-4-e4b): both run the
+# standard encoder path / stable `.venv`, so this needs none of the gemma-4-12b
+# nightly-venv + DP gating.
+#
+# ⚠️ `/share/pierson/matt/mllmsci/.venv` is GUTTED (empty site-packages, no
+# bin/), so the launcher's default `source .../.venv/bin/activate` fails and
+# every job dies at setup. Point at the intact stable env until it is rebuilt:
+#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-3.12/bin/activate
+#
+# Usage — run once per case (subway = unit mode, road quality = image mode):
+#   export HYDRA_SWEEP_DIR=multirun/persona_subway
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=persona_probe \
+#       pipeline=pairwise_subway_safety_mvp
+#
+#   export HYDRA_SWEEP_DIR=multirun/persona_roadquality
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=persona_probe \
+#       pipeline=pairwise_road_quality_mvp
+#
+# ⚠️ Set HYDRA_SWEEP_DIR per launch — it isolates the MONITOR dir only, not the
+# GPU-stage dir, so same-second launches otherwise share pairs.parquet.
+#
+# Dry-run the plumbing (no GPU):
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=persona_probe \
+#       pipeline=pairwise_subway_safety_mvp \
+#       runtime.debug=true runtime.skip_inference=true
+
+sampling_params_vqa:
+  max_tokens: 128
+
+pair_sampler:
+  max_pairs: 1000
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # Parallel is SAFE here — the shared-TMPDIR hazard does not apply. Verified
+    # 2026-08-11, since the memory of it invalidating the 2026-06-13 schools
+    # sweep makes this look riskier than it is:
+    #   1. The collision was a DP *task-pickle* clobber, and it is fixed at the
+    #      right layer — every DP path allocates a unique per-invocation
+    #      `tempfile.mkdtemp()` subdir inside the shared TMPDIR and rmtree's it
+    #      (vllm_inference.py:1781, 1960, 2378, 3389). /scratch/$USER currently
+    #      holds zero orphaned dp workdirs, so the cleanup path works.
+    #   2. This probe never enters the DP path at all: data_parallel_size is
+    #      unset and the pipeline pins concurrency=1, TP=1.
+    # Do NOT "fix" this by isolating TMPDIR per job — the shared TMPDIR is also
+    # where torchinductor caches compiled kernels (/scratch/$USER/torchinductor_
+    # $USER). Per-job isolation would fragment that cache and force a fresh
+    # torch.compile on every run (~256 s for qwen3.5-9b), which is a straight
+    # regression. Share the caches, isolate the mutable per-run state — which is
+    # exactly what the current design does.
+    array_parallelism: 4
+  sweeper:
+    params:
+      # null = production (no system turn at all). The quoted arm restores the
+      # generic persona that was removed on 2026-08-11.
+      prompt.system: null,'You are an expert visual comparison assistant.'
+      # MODEL COMES FROM THE CLI — deliberately not swept here. The canonical
+      # raters (qwen3.5-9b, gemma-4-12b) need different venvs, and one multirun
+      # can only bake one interpreter, so sweeping both would run one of them
+      # wrong. Launch once per model:
+      #   ... +sweep=persona_probe model=qwen3.5-9b/instruct   (stable venv)
+      #   ... +sweep=persona_probe model=gemma-4-12b/instruct  (nightly venv —
+      #       see canonical_gemma12b.yaml for the full requirements)

@@ -1,0 +1,69 @@
+# ─── Consolidated ranking battery ────────────────────────────────────────────
+# Case:     Schools
+# Umbrella: Signs of public investment + government management
+# Unit:     K-12 school (FacDB facgroup=SCHOOLS (K-12))
+# Data:     data/cyclomedia_near_schools_facing   (pair_sampler.mode=unit)
+# Pipeline: pipeline=pairwise_schools_mvp
+# Scale:    5-point ordinal + NotSure abstention (on by default)
+#
+# Minimal prompt contract — see pairwise_subway_safety_ordinal.yaml for the
+# full statement of what is deliberately left unspecified and why.
+#
+# This file replaces `deprecated/pairwise_school_send_child_ordinal` on
+# 2026-08-13. That prompt asked "which school would you rather send your child
+# to?", which asks for a PARENT'S PREFERENCE. A preference mixes school
+# quality with commute, neighbourhood, safety, and class. The proxy is a school
+# report card, which grades the school alone. Thus the old prompt and the proxy
+# measured 2 different things.
+#
+# The question below asks about the school, not about the reader. It keeps the
+# same subject as the proxy, so a weak correlation now means the model cannot
+# read school quality from a facade — which is the claim the paper tests.
+#
+# Warning: a run of this prompt is NOT comparable with a run of the deprecated
+# one. Treat 2026-08-13 as a second consolidation date for the schools case.
+
+# No system persona. `null` means the stage omits the system turn entirely —
+# NOT an empty system turn (`system: ""`), which renders a vestigial empty block.
+# Neither the Qwen3.5 nor the Gemma-4 chat template injects a default persona
+# when the system turn is absent, so this is a real no-persona condition.
+system: null
+
+user_template: |
+  Image A is the first image and Image B is the second image.
+  Both show New York City K-12 schools.
+  Which looks to be the better school?
+
+  Return exactly one label from:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Interpret this as "the school in Image A is a <label> good school than the
+  one in Image B". Use "Same" when they look about the same.
+
+structured_output:
+  enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

@@ -4,7 +4,7 @@ defaults:
   - _self_
   - override /hydra/launcher: slurm_monitor
   - override /data: cyclomedia_pairwise_manhattan_2025_1
-  - override /prompt: pairwise_relative_ordinal
+  - override /prompt: deprecated/pairwise_relative_ordinal
   - override /model: vllm_multimodal_qwen3_vl_2b
 
 runtime:

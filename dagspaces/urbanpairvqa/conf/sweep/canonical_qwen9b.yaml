@@ -1,0 +1,55 @@
+# @package _global_
+# ⚠️ SUPERSEDED on 2026-08-14 by `looks_proxy_qwen9b.yaml`, which holds the
+# 7-case axis and runs the "looks like" prompts. Use this file only to repeat a
+# run of 2026-08-11..14. A new run belongs in the new sweep.
+#
+# CANONICAL RATER 1 of 2 — qwen3.5-9b.
+#
+# The canonical model set for the consolidated ranking battery is
+# **qwen3.5-9b + gemma-4-12b** (use these unless a run says otherwise).
+# They need SEPARATE LAUNCHES and cannot share one sweep — see the note below.
+#
+# Runs on the stable env (`.venv-3.12`, vLLM 0.19), which is the launcher
+# default, so no venv override is needed. Any GPU launcher works; klara_1x
+# matches the gemma-4-12b companion so the two are resource-comparable.
+#
+# ┌─ WHY THE TWO CANONICAL MODELS CANNOT SHARE A SWEEP ────────────────────────┐
+# │ gemma-4-12b is the encoder-free `gemma4_unified` arch and needs            │
+# │ `.venv-nightly` (vLLM 0.23 cu129) + the klara_1x LD_PRELOAD libstdc++      │
+# │ line. `MLLMSCI_VENV_ACTIVATE` is resolved once at submit time and baked    │
+# │ into every job's sbatch script, so one multirun = one venv. Putting both   │
+# │ models in a single sweeper param list would run one of them on the wrong   │
+# │ interpreter. Launch them separately and pool the parquets afterwards.      │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# Sampling is greedy (temperature=0.0) from conf/config.yaml — deliberate, and
+# NOT the Qwen "recommended" instruct settings, which are tuned for free-form
+# generation rather than enum-constrained decoding. See the config.yaml note.
+# Greedy means runs are reproducible and no retest anchor is needed to read a
+# cross-arm kappa.
+#
+# Usage (any case pipeline):
+#   export HYDRA_SWEEP_DIR=multirun/canon_qwen_<case>
+#   python -m dagspaces.urbanpairvqa.cli --multirun +sweep=canonical_qwen9b \
+#       pipeline=pairwise_road_quality_mvp
+
+sampling_params_vqa:
+  max_tokens: 128        # ordinal answer is ~10-15 tokens; 128 is ample headroom
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # klara has 8 GPUs and each stage job takes 1. Set this with the companion
+    # gemma sweep, so the two together do not ask for more than 8.
+    # To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct
