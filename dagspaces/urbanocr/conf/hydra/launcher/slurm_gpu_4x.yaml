@@ -15,7 +15,13 @@ additional_parameters:
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv/bin/activate}
+  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
+  # Prefer a node-local /scratch mirror of the driver venv when the node has
+  # one. This exports MLLMSCI_STAGE_PYTHON, which the submitit command line
+  # reads (dagspaces/common/orchestrator.py::_create_submitit_executor).
+  # A cold torch/vllm/flashinfer import over NFS costs about 13 minutes for
+  # each process spawn. See scripts/sync_venv_to_scratch.sh.
+  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/scripts/activate_stage_venv.sh
   # `source ~/.bashrc` conda-activates anaconda base, whose old libstdc++.so.6
   # lacks GLIBCXX_3.4.32 and shadows the system one. flashinfer >=0.6.12 JIT
   # kernels (vLLM sampling) need 3.4.32, so force the system libstdc++ (which

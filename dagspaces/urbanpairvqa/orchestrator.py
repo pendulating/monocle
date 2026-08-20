@@ -50,7 +50,9 @@ from .samplers.cyclomedia_pairs import (
     build_global_random_pairs,
     build_unit_random_pairs,
 )
+from .stages.ic_extract import run_ic_extract_stage
 from .stages.pairwise_vqa import run_pairwise_vqa_stage
+from .stages.trace_extract import run_trace_extract_stage
 
 try:
     from hydra.core.hydra_config import HydraConfig
@@ -58,6 +60,168 @@ except ImportError:
     HydraConfig = None
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
+
+
+def pair_fingerprint(cfg: DictConfig, manifest_rows: int) -> Dict[str, Any]:
+    """Describe everything that decides the pair table.
+
+    A prebuilt table is only usable by a job whose sampler settings match. This
+    is the same guard idea as the resume cache: a table built under other
+    settings must stop the job, not quietly change the science.
+
+    `shard_index` is NOT part of this. Every shard reads the same full table and
+    then keeps its own share.
+    """
+    pc = getattr(cfg, "pair_sampler", {})
+    return {
+        "mode": str(getattr(pc, "mode", "image")),
+        "unit_column": str(getattr(pc, "unit_column", "")),
+        "unit_name_column": str(getattr(pc, "unit_name_column", "")),
+        "max_pairs": int(getattr(pc, "max_pairs", 0) or 0),
+        "pair_seed": int(getattr(pc, "pair_seed", 777)),
+        "allow_replacement": bool(getattr(pc, "allow_replacement", False)),
+        "counterbalance_mode": str(getattr(pc, "counterbalance_mode", "none")),
+        "repeat_count": int(getattr(pc, "repeat_count", 0) or 0),
+        "repeat_fraction": float(getattr(pc, "repeat_fraction", 0.0) or 0.0),
+        "weight_column": str(getattr(pc, "weight_column", "") or ""),
+        "metadata_columns": sorted(
+            str(c) for c in getattr(getattr(cfg, "data", {}), "metadata_columns", []) or []
+        ),
+        "manifest_rows": int(manifest_rows),
+    }
+
+
+def build_pair_table(cfg: DictConfig, manifest_df: pd.DataFrame) -> pd.DataFrame:
+    """Draw the full pair table for a case, before any shard cut.
+
+    This is the expensive step: 1,100,000 pairs take about 195 seconds, and it
+    gives the SAME table in every job, because the seed fixes the draw. Thus
+    `scripts/prebuild_pair_tables.py` runs it once for each case and the shards
+    read the parquet in about 3 seconds. See `_load_pair_table`.
+    """
+    pair_cfg = getattr(cfg, "pair_sampler", {})
+    mode = str(getattr(pair_cfg, "mode", "image")).strip().lower() or "image"
+    max_pairs = getattr(pair_cfg, "max_pairs", None)
+    metadata_columns = list(getattr(getattr(cfg, "data", {}), "metadata_columns", []))
+    weight_column = getattr(pair_cfg, "weight_column", None)
+    if weight_column is not None:
+        weight_column = str(weight_column).strip() or None
+
+    common = dict(
+        max_pairs=int(max_pairs) if max_pairs is not None else None,
+        seed=int(getattr(pair_cfg, "pair_seed", 777)),
+        allow_replacement=bool(getattr(pair_cfg, "allow_replacement", False)),
+        counterbalance_mode=str(getattr(pair_cfg, "counterbalance_mode", "none")),
+        repeat_count=int(getattr(pair_cfg, "repeat_count", 0) or 0),
+        repeat_fraction=float(getattr(pair_cfg, "repeat_fraction", 0.0) or 0.0),
+        metadata_columns=metadata_columns or None,
+    )
+    if mode == "unit":
+        print(f"[pairwise_runner] pair_sampler.mode=unit — grouping by "
+              f"{str(getattr(pair_cfg, 'unit_column', 'unit_uid'))!r}", flush=True)
+        unit_name_column = str(getattr(pair_cfg, "unit_name_column", "unit_name"))
+        return build_unit_random_pairs(
+            manifest_df,
+            unit_column=str(getattr(pair_cfg, "unit_column", "unit_uid")),
+            unit_name_column=unit_name_column if unit_name_column else None,
+            weight_column=weight_column,
+            **common,
+        )
+    if mode == "image":
+        return build_global_random_pairs(manifest_df, **common)
+    raise ValueError(f"pair_sampler.mode must be 'image' or 'unit', got {mode!r}")
+
+
+def _load_pair_table(cfg: DictConfig, manifest_df: pd.DataFrame) -> pd.DataFrame:
+    """Read the prebuilt pair table when there is one, or draw it.
+
+    `pair_sampler.pairs_path` names a parquet that
+    `scripts/prebuild_pair_tables.py` wrote. A sidecar JSON beside it holds the
+    sampler settings, and this refuses a table that another setting produced.
+    """
+    pair_cfg = getattr(cfg, "pair_sampler", {})
+    pairs_path = getattr(pair_cfg, "pairs_path", None)
+    if not pairs_path:
+        return build_pair_table(cfg, manifest_df)
+
+    pairs_path = str(pairs_path)
+    if not os.path.exists(pairs_path):
+        raise FileNotFoundError(
+            f"pair_sampler.pairs_path names {pairs_path}, and there is no file "
+            "there. Run scripts/prebuild_pair_tables.py first, or clear the "
+            "setting to draw the table in the job."
+        )
+
+    want = pair_fingerprint(cfg, len(manifest_df))
+    side = os.path.splitext(pairs_path)[0] + ".json"
+    if os.path.exists(side):
+        try:
+            with open(side) as fh:
+                have = json.load(fh).get("fingerprint")
+        except Exception:
+            have = None
+        if have is not None and have != want:
+            diff = [k for k in want if have.get(k) != want.get(k)]
+            raise ValueError(
+                f"the prebuilt table {pairs_path} was drawn under other sampler "
+                f"settings. These differ: {diff}. Build it again."
+            )
+    t0 = time.time()
+    pairs_df = pd.read_parquet(pairs_path)
+    print(f"[pairwise_runner] read {len(pairs_df)} prebuilt pairs in "
+          f"{time.time() - t0:.1f}s from {pairs_path}", flush=True)
+    return pairs_df
+
+
+def _shard_pairs(pairs_df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
+    """Keep the part of the pair table that belongs to this job.
+
+    A 1,000,000-pair case is too large for 1 GPU job: it needs about 168 GPU
+    hours for qwen3.5-9b, and its prompts alone fill the memory of the job. The
+    work splits perfectly, because no pair needs another pair.
+
+    The cut goes by CANONICAL PAIR, not by row. A canonical pair holds 2
+    counterbalanced presentations and any repeat draws, and the repeat
+    diagnostics compare those rows against each other. A cut by row would put
+    the 2 halves of a comparison in 2 jobs and make the diagnostic empty.
+
+    Each job builds the same full pair table from the same seed, then keeps
+    every N-th canonical pair. Thus the shards partition the table exactly, and
+    no shard needs to read another shard.
+
+    ```bash
+    python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_schools_mvp \\
+        pair_sampler.max_pairs=1000000 \\
+        pair_sampler.shard_count=96 pair_sampler.shard_index=0,1,2,...,95
+    ```
+    """
+    pair_cfg = getattr(cfg, "pair_sampler", {})
+    count = int(getattr(pair_cfg, "shard_count", 1) or 1)
+    index = int(getattr(pair_cfg, "shard_index", 0) or 0)
+    if count <= 1:
+        return pairs_df
+    if not 0 <= index < count:
+        raise ValueError(f"shard_index must be in [0, {count}), got {index}")
+    if "canonical_pair_id" not in pairs_df.columns:
+        raise ValueError(
+            "pair_sampler.shard_count needs a canonical_pair_id column. "
+            "The sampler always writes one; a custom pair table must too."
+        )
+    # `factorize` numbers the canonical pairs in the order they appear, thus the
+    # stride keeps each shard mixed over the whole city. A contiguous cut would
+    # give 1 shard the pairs of 1 corner of the draw.
+    codes, _ = pd.factorize(pairs_df["canonical_pair_id"], sort=False)
+    keep = pairs_df.loc[codes % count == index].reset_index(drop=True)
+    if len(keep) == 0:
+        raise ValueError(
+            f"shard {index} of {count} holds no pair. Lower shard_count."
+        )
+    print(
+        f"[pairwise_runner] shard {index + 1} of {count}: "
+        f"{len(keep)} rows of {len(pairs_df)}",
+        flush=True,
+    )
+    return keep
 
 
 def _persist_pairs(
@@ -227,7 +391,6 @@ class PairwiseVQARunner(StageRunner):
         runtime_cfg = getattr(cfg, "runtime", {})
         max_rows = getattr(runtime_cfg, "sample_n", None)
         pair_cfg = getattr(cfg, "pair_sampler", {})
-        max_pairs = getattr(pair_cfg, "max_pairs", None)
         pair_seed = int(getattr(pair_cfg, "pair_seed", 777))
         # Random subsample (not head) so dry runs cover all boroughs, not just
         # the first chunk in materialize order. Seed reuses pair_seed so the
@@ -237,51 +400,21 @@ class PairwiseVQARunner(StageRunner):
                 manifest_df.sample(n=int(max_rows), random_state=pair_seed)
                            .reset_index(drop=True)
             )
-        allow_replacement = bool(getattr(pair_cfg, "allow_replacement", False))
+        # `build_pair_table` reads the rest of the sampler settings itself.
+        # Only what the metadata and the pairs sidecar need stays here.
         counterbalance_mode = str(getattr(pair_cfg, "counterbalance_mode", "none"))
-        repeat_count = int(getattr(pair_cfg, "repeat_count", 0) or 0)
-        repeat_fraction = float(getattr(pair_cfg, "repeat_fraction", 0.0) or 0.0)
         mode = str(getattr(pair_cfg, "mode", "image")).strip().lower() or "image"
-        unit_column = str(getattr(pair_cfg, "unit_column", "unit_uid"))
-        unit_name_column = str(getattr(pair_cfg, "unit_name_column", "unit_name"))
-        # Optional: within-unit weighted image sampling. See concept-facing-filter
-        # for the score this typically drives ("attribution_confidence").
-        weight_column = getattr(pair_cfg, "weight_column", None)
-        if weight_column is not None:
-            weight_column = str(weight_column).strip() or None
 
-        metadata_columns = list(getattr(getattr(cfg, "data", {}), "metadata_columns", []))
-        if mode == "unit":
-            print(f"[pairwise_runner] pair_sampler.mode=unit — grouping by {unit_column!r}",
-                  flush=True)
-            pairs_df = build_unit_random_pairs(
-                manifest_df,
-                unit_column=unit_column,
-                unit_name_column=unit_name_column if unit_name_column else None,
-                max_pairs=int(max_pairs) if max_pairs is not None else None,
-                seed=pair_seed,
-                allow_replacement=allow_replacement,
-                counterbalance_mode=counterbalance_mode,
-                repeat_count=repeat_count,
-                repeat_fraction=repeat_fraction,
-                metadata_columns=metadata_columns or None,
-                weight_column=weight_column,
-            )
-        elif mode == "image":
-            pairs_df = build_global_random_pairs(
-                manifest_df,
-                max_pairs=int(max_pairs) if max_pairs is not None else None,
-                seed=pair_seed,
-                allow_replacement=allow_replacement,
-                counterbalance_mode=counterbalance_mode,
-                repeat_count=repeat_count,
-                repeat_fraction=repeat_fraction,
-                metadata_columns=metadata_columns or None,
-            )
-        else:
-            raise ValueError(
-                f"pair_sampler.mode must be 'image' or 'unit', got {mode!r}"
-            )
+        # Read the prebuilt table when the sweep points at one, or draw it here.
+        # Drawing 1,100,000 pairs costs about 195 seconds, and every shard of a
+        # case would otherwise repeat it. See `_load_pair_table`.
+        pairs_df = _load_pair_table(cfg, manifest_df)
+
+        # Keep only this job's share. The full table is built first and from
+        # the same seed in every shard, thus the shards partition it exactly.
+        shard_count = int(getattr(pair_cfg, "shard_count", 1) or 1)
+        pairs_total = len(pairs_df)
+        pairs_df = _shard_pairs(pairs_df, cfg)
 
         # Persist the sampled pairs alongside the stage output for audit +
         # resume-with-different-model. Written before inference so a SIGTERM
@@ -290,6 +423,33 @@ class PairwiseVQARunner(StageRunner):
         if pairs_parquet_path:
             print(f"[pairwise_runner] wrote {len(pairs_df)} pairs → "
                   f"{pairs_parquet_path}", flush=True)
+
+        # Resume across a preemption. `runtime.resume=true` gives this shard a
+        # dir of its own beside its results parquet, and the inference path
+        # writes a chunk parquet for each row range there. A job that starts
+        # again reads the chunks and generates only the rest.
+        #
+        # The dir must NOT hold a timestamp: a requeued job renders
+        # `${now:...}` again and would otherwise lose its own chunks. The
+        # parent of the results path carries no timestamp, thus it is stable.
+        if bool(getattr(runtime_cfg, "resume", False)):
+            results_path = (getattr(context, "output_paths", {}) or {}).get("results")
+            base = os.path.dirname(os.path.abspath(results_path)) if results_path \
+                else context.output_dir
+            resume_dir = os.path.join(base, "resume")
+            os.makedirs(resume_dir, exist_ok=True)
+            chunk_rows = int(getattr(runtime_cfg, "resume_chunk_rows", 0) or 0)
+            # The model config group is a struct, thus a new key needs the
+            # struct flag off. The inference path reads both keys with getattr
+            # and does nothing when they are absent.
+            OmegaConf.set_struct(cfg, False)
+            OmegaConf.update(cfg, "model.resume_dir", resume_dir, merge=True)
+            if chunk_rows > 0:
+                OmegaConf.update(cfg, "model.resume_chunk_rows", chunk_rows,
+                                 merge=True)
+            OmegaConf.set_struct(cfg, True)
+            print(f"[pairwise_runner] resume dir: {resume_dir} "
+                  f"(chunk {chunk_rows} rows)", flush=True)
 
         out_any = run_pairwise_vqa_stage(pairs_df, cfg)
         out = out_any.to_pandas() if hasattr(out_any, "to_pandas") else out_any
@@ -328,10 +488,129 @@ class PairwiseVQARunner(StageRunner):
         metadata = {
             "rows": int(len(out)),
             "pairs_sampled": int(len(pairs_df)),
+            "pairs_total": int(pairs_total),
+            "shard_count": shard_count,
+            "shard_index": int(getattr(pair_cfg, "shard_index", 0) or 0),
             "seed": pair_seed,
             "counterbalance_mode": counterbalance_mode,
             "diagnostics": diagnostics,
         }
+
+        outputs = _collect_outputs(
+            context,
+            {name: spec.optional for name, spec in context.node.outputs.items()},
+        )
+        return StageResult(outputs=outputs, metadata=metadata)
+
+
+# ---------------------------------------------------------------------------
+# Trace Extraction Stage Runner
+# ---------------------------------------------------------------------------
+
+class TraceExtractRunner(StageRunner):
+    """Turn the reasoning traces of a pairvqa run into typed extractions.
+
+    The stage reads a results parquet of a THINKING run. It needs no dataset and
+    no pair sampler, thus it takes its input from `trace_extract.results_path`.
+    See `vlm-narratives-docs/langextract-trace-extraction.md`.
+    """
+
+    stage_name = "trace_extract"
+
+    def run(self, context: StageExecutionContext) -> StageResult:
+        cfg = context.cfg
+        out_paths = getattr(context, "output_paths", {}) or {}
+        results_path = out_paths.get("extractions")
+        output_dir = (
+            os.path.dirname(results_path) if results_path else context.output_dir
+        )
+        os.makedirs(output_dir, exist_ok=True)
+
+        out, metadata = run_trace_extract_stage(cfg, output_dir)
+
+        if results_path:
+            out.to_parquet(results_path, index=False)
+
+        if context.logger:
+            try:
+                context.logger.log_metrics(
+                    {
+                        f"trace_extract/{k}": v
+                        for k, v in metadata.items()
+                        if isinstance(v, (int, float))
+                    }
+                )
+                if isinstance(out, pd.DataFrame) and not out.empty:
+                    prefer_cols = [
+                        c for c in [
+                            "pair_id", "case", "presented_label", "extraction_class",
+                            "extraction_text", "attributes_json", "alignment_status",
+                            "char_start", "char_end",
+                        ] if c in out.columns
+                    ]
+                    context.logger.log_table(
+                        out.head(2000), "trace_extract/extractions",
+                        prefer_cols=prefer_cols, panel_group="inspect_results",
+                    )
+            except Exception as exc:
+                print(f"[trace_extract] Warning: failed to log to wandb: {exc}",
+                      flush=True)
+
+        outputs = _collect_outputs(
+            context,
+            {name: spec.optional for name, spec in context.node.outputs.items()},
+        )
+        return StageResult(outputs=outputs, metadata=metadata)
+
+
+class ICExtractRunner(StageRunner):
+    """Extract the Integrative Complexity ingredients from a run's traces.
+
+    The stage reads a results parquet of a THINKING run. It needs no dataset and
+    no pair sampler, thus it takes its input from `ic_extract.results_path`.
+    See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+    """
+
+    stage_name = "ic_extract"
+
+    def run(self, context: StageExecutionContext) -> StageResult:
+        cfg = context.cfg
+        out_paths = getattr(context, "output_paths", {}) or {}
+        results_path = out_paths.get("ingredients")
+        output_dir = (
+            os.path.dirname(results_path) if results_path else context.output_dir
+        )
+        os.makedirs(output_dir, exist_ok=True)
+
+        out, metadata = run_ic_extract_stage(cfg, output_dir)
+
+        if results_path:
+            out.to_parquet(results_path, index=False)
+
+        if context.logger:
+            try:
+                context.logger.log_metrics(
+                    {
+                        f"ic_extract/{k}": v
+                        for k, v in metadata.items()
+                        if isinstance(v, (int, float))
+                    }
+                )
+                if isinstance(out, pd.DataFrame) and not out.empty:
+                    prefer_cols = [
+                        c for c in [
+                            "pair_id", "case", "presented_label", "ingredient_type",
+                            "name", "quote", "attrs_json", "quote_method",
+                            "char_start", "char_end",
+                        ] if c in out.columns
+                    ]
+                    context.logger.log_table(
+                        out.head(2000), "ic_extract/ingredients",
+                        prefer_cols=prefer_cols, panel_group="inspect_results",
+                    )
+            except Exception as exc:
+                print(f"[ic_extract] Warning: failed to log to wandb: {exc}",
+                      flush=True)
 
         outputs = _collect_outputs(
             context,
@@ -346,6 +625,8 @@ class PairwiseVQARunner(StageRunner):
 
 _STAGE_REGISTRY: Dict[str, StageRunner] = {
     "pairwise_vqa": PairwiseVQARunner(),
+    "trace_extract": TraceExtractRunner(),
+    "ic_extract": ICExtractRunner(),
 }
 
 
@@ -411,6 +692,44 @@ def execute_stage_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
             except Exception:
                 pass
             raise
+
+
+def run_shard_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Run 1 stage and write its manifest, with no monitor job above it.
+
+    `execute_stage_job` gives its outputs back to the caller. A monitor job
+    normally waits for that and writes `pipeline_manifest.json`. A single-node
+    graph does not need a monitor: it holds 1 stage with no dependency, thus a
+    whole CPU job would only block on `job.result()`. 966 of those hold about
+    1,900 CPU-hours of a node for nothing.
+
+    Thus this wrapper writes the manifest from inside the GPU job, and the
+    submitter exits as soon as it submits. `scripts/merge_pairwise_shards.py`
+    reads the shard index and the shard count from that manifest.
+    """
+    t0 = time.time()
+    result = execute_stage_job(context_data)
+    output_root = context_data["output_root"]
+    node_key = context_data["node"]["key"]
+    manifest = {
+        "output_root": output_root,
+        "nodes": {
+            node_key: {
+                "stage": context_data["node"]["stage"],
+                "outputs": result["outputs"],
+                "metadata": result["metadata"],
+                "duration_s": round(time.time() - t0, 3),
+            }
+        },
+    }
+    try:
+        os.makedirs(output_root, exist_ok=True)
+        with open(os.path.join(output_root, "pipeline_manifest.json"), "w") as fh:
+            json.dump(manifest, fh, indent=2)
+    except Exception as exc:
+        print(f"[run_shard_job] WARN: could not write the manifest: {exc}",
+              flush=True)
+    return result
 
 
 # ---------------------------------------------------------------------------

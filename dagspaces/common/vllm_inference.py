@@ -149,6 +149,30 @@ def _detect_reasoning_parser(model_source: str) -> Optional[str]:
     return None
 
 
+_RECOVER_ANSWER_RE = re.compile(
+    r'\{[^{}]*?"answer"\s*:\s*"[^"]+?"[^{}]*?\}', re.IGNORECASE
+)
+
+
+def _recover_trailing_answer(reasoning: str) -> Tuple[str, str]:
+    """Recover a structured answer that a family reasoning parser swallowed.
+
+    Some parsers (notably ``gemma4``) key on reasoning *special tokens* that
+    vLLM strips from ``output.text``; they then misclassify the entire output
+    as reasoning and return empty content, silently dropping the structured
+    answer that sits at the tail (e.g. ``... final answer.{"answer": "More"}``).
+
+    Splits the last ``{... "answer": ... }`` object off the end and returns
+    ``(reasoning_without_it, answer_object)``. If no answer object is present
+    (e.g. genuinely truncated reasoning), returns ``(reasoning, "")`` unchanged.
+    """
+    matches = list(_RECOVER_ANSWER_RE.finditer(reasoning))
+    if not matches:
+        return reasoning, ""
+    m = matches[-1]
+    return reasoning[:m.start()].rstrip(), m.group(0).strip()
+
+
 def _split_reasoning(
     text: str,
     model_source: str,
@@ -193,6 +217,12 @@ def _split_reasoning(
             reasoning, content = parser.extract_reasoning(text, None)
             reasoning = (reasoning or "").strip()
             content = (content or "").strip()
+            # Some parsers (e.g. gemma4) key on reasoning special tokens that
+            # vLLM strips from output.text, so they classify the whole output as
+            # reasoning and return empty content — dropping the structured
+            # answer. Recover the trailing answer object so the label survives.
+            if not content and reasoning:
+                reasoning, content = _recover_trailing_answer(reasoning)
             # Safety: if parser handed back content that still contains raw
             # reasoning tags, something went wrong — fall through to regex.
             if "<think>" not in content and "</think>" not in content:
@@ -339,6 +369,51 @@ def _extract_images_from_messages(messages: List[Dict[str, Any]]) -> List[Any]:
                 if img is not None:
                     images.append(img)
     return images
+
+
+def _hydrate_messages_for_chat(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Return a copy of ``messages`` with ``image_url`` / ``image`` (path) blocks
+    replaced by vLLM ``image_pil`` blocks holding loaded PIL images, for
+    ``llm.chat()``.
+
+    This is the single-process analogue of the DP path's image hydration
+    (``_hydrate_chunk_images`` + ``_convert_image_blocks``). It lets
+    ``llm.chat()`` perform the model-specific multimodal placeholder insertion
+    (e.g. gemma-4's ``<start_of_image>``) end-to-end — which the manual
+    ``apply_chat_template → tokenizer.encode → TokensPrompt → generate`` path
+    does not do for every chat template. Image blocks that fail to load are
+    dropped so the placeholder count stays consistent with the images present.
+    """
+    out: List[Dict[str, Any]] = []
+    for msg in messages:
+        content = msg.get("content")
+        if not isinstance(content, list):
+            out.append(msg)
+            continue
+        new_content = []
+        for block in content:
+            if not isinstance(block, dict):
+                new_content.append(block)
+                continue
+            btype = block.get("type")
+            if btype == "image_url":
+                iu = block.get("image_url")
+                url = iu.get("url") if isinstance(iu, dict) else iu
+                img = _load_pil_from_url(str(url)) if url else None
+                if img is not None:
+                    new_content.append({"type": "image_pil", "image_pil": img})
+            elif btype == "image" and isinstance(block.get("image"), str):
+                img = _load_pil_from_url(block["image"])
+                if img is not None:
+                    new_content.append({"type": "image_pil", "image_pil": img})
+            elif btype == "image" and hasattr(block.get("image"), "size"):
+                new_content.append({"type": "image_pil", "image_pil": block["image"]})
+            elif btype == "image_pil":
+                new_content.append(block)
+            else:
+                new_content.append(block)
+        out.append({**msg, "content": new_content})
+    return out
 
 
 def _flatten_messages_for_template(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -625,8 +700,15 @@ def _build_engine_kwargs(cfg) -> Dict[str, Any]:
     _raw_ek = getattr(cfg.model, "engine_kwargs", {})
     ek = _OC.to_container(_raw_ek, resolve=True) if _OC.is_config(_raw_ek) else dict(_raw_ek)
 
-    # Model
-    ek["model"] = model_source
+    # Model. This is the LOAD BOUNDARY: the model registry sends the weight
+    # read to a node-local /scratch mirror when the node holds one, and gives
+    # back the original path when it does not. Only `ek["model"]` changes —
+    # `model_source` keeps the canonical /share path, so each later test that
+    # reads the path (the multimodal test, the AWQ test, the gemma4-unified
+    # test) and each record in W&B stays on the canonical value.
+    from dagspaces.common.model_registry import resolve_model_source
+
+    ek["model"] = resolve_model_source(model_source, stage_name="vllm_inference")
 
     # Tensor parallelism
     if "tensor_parallel_size" not in ek:
@@ -2471,6 +2553,13 @@ def _run_data_parallel_embed(
 # Model families that bypass vLLM entirely and use transformers generate().
 _TRANSFORMERS_FALLBACK_FAMILIES = {"llama-vision"}
 
+# Multimodal families whose image placeholders the manual single-GPU
+# apply_chat_template → TokensPrompt path fails to insert (0 placeholders →
+# "Failed to apply prompt replacement for mm_items['image'][0]"). These must be
+# routed through llm.chat() on the single-process path, matching the DP path.
+# (gemma4_unified is excluded at the use-site — it works on the manual path.)
+_CHAT_PLACEHOLDER_MM_FAMILIES = {"gemma-4", "phi-4"}
+
 
 def _run_transformers_text_inference(
     df: pd.DataFrame,
@@ -2489,6 +2578,11 @@ def _run_transformers_text_inference(
 
     model_source = str(cfg.model.model_source)
     print(f"[{stage_name}] Using native transformers fallback for {model_source}")
+
+    # Load boundary — see the note in _build_engine_kwargs.
+    from dagspaces.common.model_registry import resolve_model_source
+
+    model_source = resolve_model_source(model_source, stage_name=stage_name)
 
     tokenizer = AutoTokenizer.from_pretrained(model_source, trust_remote_code=True)
     if tokenizer.pad_token is None:
@@ -2982,6 +3076,30 @@ def run_vllm_inference(
             # on a pre-decoded image list.
             _has_any_images = _is_mm
 
+            # Some multimodal families' image placeholders are only inserted
+            # correctly by vLLM's first-class llm.chat() API. The manual
+            # apply_chat_template → tokenizer.encode → TokensPrompt → generate
+            # path below emits 0 placeholders for their image_url blocks
+            # (→ "Failed to apply prompt replacement for mm_items['image'][0]" on
+            # multi-image prompts). Observed on gemma-4 (non-unified e2b/e4b) and
+            # phi-4/multimodal-instruct. Route those through llm.chat() — the same
+            # API the DP path (_run_data_parallel_full) uses for all models, which
+            # is why the 2-GPU path never hit this. qwen keeps the existing
+            # TokensPrompt path; gemma4_unified (encoder-free 12B) also stays on it.
+            _g4u_model_is, _ = _gemma4_unified_chat_template(_model_source)
+            _mm_family = str(getattr(cfg.model, "model_family", "") or "").lower()
+            _use_chat_for_mm = (
+                _has_any_images
+                and _mm_family in _CHAT_PLACEHOLDER_MM_FAMILIES
+                and not (_mm_family == "gemma-4" and _g4u_model_is)
+            )
+            if _use_chat_for_mm:
+                print(
+                    f"[{stage_name}] {_mm_family} multimodal → routing single-process "
+                    f"inference through llm.chat() for correct image-placeholder "
+                    f"insertion"
+                )
+
             if batch_size <= 0:
                 if _has_any_images:
                     # Multimodal: cap the batch so at most this many images are
@@ -2997,58 +3115,106 @@ def run_vllm_inference(
                 f"[{stage_name}] Running inference on {len(prompts)} prompts "
                 f"(batch_size={batch_size}, multimodal={_has_any_images})..."
             )
-            outputs = []
-            shared_sp = sampling_params_list if not isinstance(sampling_params_list, list) else None
-            for start in range(0, len(prompts), batch_size):
-                end = min(start + batch_size, len(prompts))
-                prompt_batch = prompts[start:end]
-                sampling_batch = shared_sp if shared_sp else sampling_params_list[start:end]
-                print(
-                    f"[{stage_name}] Generating batch {start // batch_size + 1}: "
-                    f"rows {start}-{end - 1}",
-                )
+            # Resume is off unless `model.resume_dir` is set, thus this block
+            # changes nothing for a run that does not ask for it.
+            _resume_dir, _resume_rows = _resume_settings(cfg, batch_size)
+            if _resume_dir:
+                _resume_guard(_resume_dir, prompts, stage_name)
+                print(f"[{stage_name}] resume ON: dir={_resume_dir}, "
+                      f"chunk={_resume_rows} rows", flush=True)
+            else:
+                _resume_rows = max(len(prompts), 1)
 
-                if _has_any_images:
-                    # Multimodal path: decode this batch's images on demand and
-                    # build per-prompt dicts with multi_modal_data. Decoding here
-                    # (rather than up front) bounds peak image memory to one
-                    # batch — see batch_size cap above.
-                    import gc
-                    from vllm import TokensPrompt
-                    mm_prompts = []
-                    _batch_imgs: List[Any] = []  # keep refs alive until generate() returns
-                    for j in range(start, end):
-                        msgs_j = preprocessed_rows[valid_indices[j]].get("messages")
-                        imgs = _extract_images_from_messages(msgs_j) if msgs_j else None
-                        if imgs:
-                            _batch_imgs.extend(imgs)
-                            # Tokenize with image placeholders to get token IDs
-                            token_ids = tokenizer.encode(prompt_batch[j - start])
-                            mm_prompts.append(TokensPrompt(
-                                prompt_token_ids=token_ids,
-                                multi_modal_data={"image": imgs if len(imgs) > 1 else imgs[0]},
-                            ))
-                        else:
-                            mm_prompts.append(prompt_batch[j - start])
-                    outputs.extend(llm.generate(mm_prompts, sampling_batch, lora_request=lora_request))
-                    # Free this batch's decoded images before decoding the next.
-                    del mm_prompts, _batch_imgs
-                    gc.collect()
-                else:
-                    outputs.extend(llm.generate(prompt_batch, sampling_batch, lora_request=lora_request))
+            gen_records: List[Dict[str, Any]] = []
+            shared_sp = sampling_params_list if not isinstance(sampling_params_list, list) else None
+            for _chunk_start in range(0, len(prompts), _resume_rows):
+                _chunk_end = min(_chunk_start + _resume_rows, len(prompts))
+                _cached = _read_resume_chunk(
+                    _resume_dir, _chunk_start, _chunk_end, stage_name,
+                )
+                if _cached is not None:
+                    print(f"[{stage_name}] resume: rows {_chunk_start}-"
+                          f"{_chunk_end - 1} exist, skipped", flush=True)
+                    gen_records.extend(_cached)
+                    continue
+                _chunk_records: List[Dict[str, Any]] = []
+                for start in range(_chunk_start, _chunk_end, batch_size):
+                    end = min(start + batch_size, _chunk_end)
+                    prompt_batch = prompts[start:end]
+                    sampling_batch = shared_sp if shared_sp else sampling_params_list[start:end]
+                    print(
+                        f"[{stage_name}] Generating batch {start // batch_size + 1}: "
+                        f"rows {start}-{end - 1}",
+                    )
+                    batch_outputs: List[Any] = []
+
+                    if _use_chat_for_mm:
+                        # gemma-4: mirror the DP path — hydrate images into the
+                        # messages and let llm.chat() insert the placeholders.
+                        import gc
+                        batch_messages = []
+                        for j in range(start, end):
+                            msgs_j = preprocessed_rows[valid_indices[j]].get("messages") or []
+                            batch_messages.append(_hydrate_messages_for_chat(msgs_j))
+                        _ctk = dict(getattr(cfg.model, "chat_template_kwargs", {}) or {})
+                        _chat_extra = {"chat_template_kwargs": _ctk} if _ctk else {}
+                        batch_outputs = list(llm.chat(
+                            batch_messages, sampling_batch, use_tqdm=False, **_chat_extra,
+                        ))
+                        del batch_messages
+                        gc.collect()
+                    elif _has_any_images:
+                        # Multimodal path: decode this batch's images on demand and
+                        # build per-prompt dicts with multi_modal_data. Decoding here
+                        # (rather than up front) bounds peak image memory to one
+                        # batch — see batch_size cap above.
+                        import gc
+                        from vllm import TokensPrompt
+                        mm_prompts = []
+                        _batch_imgs: List[Any] = []  # keep refs alive until generate() returns
+                        for j in range(start, end):
+                            msgs_j = preprocessed_rows[valid_indices[j]].get("messages")
+                            imgs = _extract_images_from_messages(msgs_j) if msgs_j else None
+                            if imgs:
+                                _batch_imgs.extend(imgs)
+                                # Tokenize with image placeholders to get token IDs
+                                token_ids = tokenizer.encode(prompt_batch[j - start])
+                                mm_prompts.append(TokensPrompt(
+                                    prompt_token_ids=token_ids,
+                                    multi_modal_data={"image": imgs if len(imgs) > 1 else imgs[0]},
+                                ))
+                            else:
+                                mm_prompts.append(prompt_batch[j - start])
+                        batch_outputs = list(llm.generate(mm_prompts, sampling_batch, lora_request=lora_request))
+                        # Free this batch's decoded images before decoding the next.
+                        del mm_prompts, _batch_imgs
+                        gc.collect()
+                    else:
+                        batch_outputs = list(llm.generate(prompt_batch, sampling_batch, lora_request=lora_request))
+
+                    # Reduce to raw text + token counts and drop the outputs.
+                    # A run of 1,000,000 rows cannot hold a RequestOutput for
+                    # each row: each one carries its prompt token ids.
+                    _chunk_records.extend(_records_from_outputs(batch_outputs))
+                    del batch_outputs
+
+                _write_resume_chunk(
+                    _resume_dir, _chunk_start, _chunk_end, _chunk_records, stage_name,
+                )
+                gen_records.extend(_chunk_records)
 
             # Verify output count matches input count
-            if len(outputs) != len(prompts):
+            if len(gen_records) != len(prompts):
                 raise RuntimeError(
                     f"[{stage_name}] vLLM output count mismatch: "
                     f"expected {len(prompts)} outputs for {len(prompts)} prompts, "
-                    f"got {len(outputs)}. This indicates silent data loss."
+                    f"got {len(gen_records)}. This indicates silent data loss."
                 )
 
             # Postprocess — merge inference outputs back with failed rows
-            print(f"[{stage_name}] Postprocessing {len(outputs)} outputs...")
+            print(f"[{stage_name}] Postprocessing {len(gen_records)} outputs...")
             results: List[Dict[str, Any]] = []
-            output_iter = iter(outputs)
+            output_iter = iter(gen_records)
             for idx, row in enumerate(preprocessed_rows):
                 if idx in failed_set:
                     row["generated_text"] = ""
@@ -3061,9 +3227,12 @@ def run_vllm_inference(
                     results.append(result)
                     continue
 
-                output = next(output_iter)
-                if output.outputs:
-                    raw_text = output.outputs[0].text
+                # A record holds the raw text and the token counts. See
+                # `_records_from_outputs`; a resumed job reads the same shape
+                # back from its chunk parquet.
+                record = next(output_iter)
+                raw_text = record.get("raw_text") or ""
+                if raw_text:
                     reasoning, content = _split_reasoning(
                         raw_text, _model_source, _thinking_enabled, tokenizer,
                     )
@@ -3074,10 +3243,8 @@ def run_vllm_inference(
                     row["generated_reasoning"] = ""
 
                 try:
-                    prompt_tokens = len(output.prompt_token_ids) if output.prompt_token_ids else 0
-                    completion_tokens = (
-                        len(output.outputs[0].token_ids) if output.outputs and output.outputs[0].token_ids else 0
-                    )
+                    prompt_tokens = int(record.get("prompt_tokens") or 0)
+                    completion_tokens = int(record.get("completion_tokens") or 0)
                     row["usage"] = {
                         "prompt_tokens": prompt_tokens,
                         "completion_tokens": completion_tokens,
@@ -3102,6 +3269,184 @@ def run_vllm_inference(
 # ---------------------------------------------------------------------------
 # Embedding inference via LLM.encode()
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Resume: an opt-in cache of finished generations
+# ---------------------------------------------------------------------------
+#
+# A stage on a PREEMPTABLE partition loses its GPU without a warning. The
+# single-process path holds every output in memory and writes 1 parquet at the
+# end, thus a preemption throws away the whole job. With a resume dir the path
+# writes a small parquet for each row range, and a job that starts again reads
+# the ranges that exist and generates only the rest.
+#
+# The cache holds the RAW text and the token counts, not the postprocessed row.
+# Postprocessing stays at the end of the run, where it was. Thus a change to a
+# postprocess function does not make a cache stale, but a change to the PROMPT
+# does — see `_resume_guard` below, which stores a fingerprint of the prompts
+# and refuses a cache that does not match.
+
+_RESUME_CHUNK_DEFAULT_ROWS = 2000
+
+
+def _resume_settings(cfg, batch_size: int) -> Tuple[Optional[str], int]:
+    """Read the resume dir and the chunk size from the model config.
+
+    Returns ``(None, 0)`` when `model.resume_dir` is absent, which is the
+    default and keeps the old behaviour exactly.
+    """
+    try:
+        resume_dir = getattr(cfg.model, "resume_dir", None)
+    except Exception:
+        resume_dir = None
+    if not resume_dir:
+        return None, 0
+    resume_dir = str(resume_dir)
+    try:
+        rows = int(getattr(cfg.model, "resume_chunk_rows", 0) or 0)
+    except Exception:
+        rows = 0
+    if rows <= 0:
+        rows = _RESUME_CHUNK_DEFAULT_ROWS
+    # A chunk boundary must fall on a batch boundary, or a resumed job would
+    # cut a batch in half and change how many sequences vLLM sees at once.
+    if batch_size > 0:
+        rows = max(batch_size, (rows // batch_size) * batch_size)
+    os.makedirs(resume_dir, exist_ok=True)
+    return resume_dir, rows
+
+
+def _resume_guard(resume_dir: str, prompts: List[str], stage_name: str) -> None:
+    """Refuse a cache that another set of prompts wrote.
+
+    A resumed job must ask the same questions in the same order. The guard
+    stores the count of the prompts and a hash of every 97th prompt. A prompt
+    change, a shard change, or a seed change moves the hash, and the stage stops
+    instead of mixing 2 runs in 1 parquet.
+    """
+    import hashlib
+    digest = hashlib.sha256()
+    digest.update(str(len(prompts)).encode())
+    for i in range(0, len(prompts), 97):
+        digest.update(prompts[i].encode("utf-8", "replace"))
+    want = {"n_prompts": len(prompts), "fingerprint": digest.hexdigest()}
+    path = os.path.join(resume_dir, "_resume_guard.json")
+    if os.path.exists(path):
+        try:
+            with open(path) as fh:
+                have = json.load(fh)
+        except Exception:
+            have = None
+        if have and have != want:
+            raise RuntimeError(
+                f"[{stage_name}] the resume dir {resume_dir} belongs to another "
+                f"run: it holds {have.get('n_prompts')} prompts with fingerprint "
+                f"{str(have.get('fingerprint'))[:12]}, and this job has "
+                f"{want['n_prompts']} with {want['fingerprint'][:12]}. "
+                "Empty the dir, or point `model.resume_dir` somewhere else."
+            )
+        return
+    try:
+        with open(path, "w") as fh:
+            json.dump(want, fh)
+    except Exception as exc:
+        print(f"[{stage_name}] WARN: could not write the resume guard: {exc}",
+              flush=True)
+
+
+def _resume_chunk_path(resume_dir: str, start: int, end: int) -> str:
+    return os.path.join(resume_dir, f"gen_{start:09d}_{end:09d}.parquet")
+
+
+def _read_resume_chunk(
+    resume_dir: Optional[str], start: int, end: int, stage_name: str,
+) -> Optional[List[Dict[str, Any]]]:
+    """Give back the finished rows of 1 range, or None when there are none."""
+    if not resume_dir:
+        return None
+    path = _resume_chunk_path(resume_dir, start, end)
+    if not os.path.exists(path):
+        return None
+    try:
+        frame = pd.read_parquet(path)
+    except Exception as exc:
+        # A parquet that a preemption cut in half is not readable. Drop it and
+        # generate the range again.
+        print(f"[{stage_name}] resume: {os.path.basename(path)} is damaged "
+              f"({type(exc).__name__}), so the rows run again", flush=True)
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+        return None
+    if len(frame) != end - start:
+        print(f"[{stage_name}] resume: {os.path.basename(path)} holds "
+              f"{len(frame)} rows and needs {end - start}, so the rows run again",
+              flush=True)
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+        return None
+    return frame.to_dict("records")
+
+
+def _write_resume_chunk(
+    resume_dir: Optional[str], start: int, end: int,
+    records: List[Dict[str, Any]], stage_name: str,
+) -> None:
+    """Write the finished rows of 1 range, through a temporary name.
+
+    The rename is atomic on the same file system. Thus a preemption during the
+    write leaves either no file or a whole file, and never a half file that a
+    later job would trust.
+    """
+    if not resume_dir:
+        return
+    path = _resume_chunk_path(resume_dir, start, end)
+    tmp = f"{path}.tmp{os.getpid()}"
+    try:
+        pd.DataFrame(records).to_parquet(tmp, index=False)
+        os.replace(tmp, path)
+    except Exception as exc:
+        print(f"[{stage_name}] WARN: resume flush FAILED for rows "
+              f"{start}-{end} ({type(exc).__name__}: {exc})", flush=True)
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+
+
+def _records_from_outputs(outputs: List[Any]) -> List[Dict[str, Any]]:
+    """Reduce vLLM outputs to what the postprocess step reads.
+
+    This also frees the outputs early. A run of 1,000,000 rows cannot hold a
+    RequestOutput for each row, because each one carries its prompt token ids.
+    """
+    records: List[Dict[str, Any]] = []
+    for output in outputs:
+        raw_text = ""
+        completion_tokens = 0
+        if getattr(output, "outputs", None):
+            first = output.outputs[0]
+            raw_text = first.text or ""
+            try:
+                completion_tokens = len(first.token_ids) if first.token_ids else 0
+            except Exception:
+                completion_tokens = 0
+        try:
+            prompt_tokens = (
+                len(output.prompt_token_ids) if output.prompt_token_ids else 0
+            )
+        except Exception:
+            prompt_tokens = 0
+        records.append({
+            "raw_text": raw_text,
+            "prompt_tokens": int(prompt_tokens),
+            "completion_tokens": int(completion_tokens),
+        })
+    return records
+
 
 def run_vllm_embed(
     df: pd.DataFrame,

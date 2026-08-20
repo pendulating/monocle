@@ -1,0 +1,458 @@
+{
+ "schema_name": "ic_ingredients",
+ "schema_version": "v2",
+ "source_parquet": "/share/pierson/matt/mllmsci/multirun/2026-08-13_URBANPAIRVQA/01-37-12/0/outputs/pairwise/subway_safety_mvp_20260813_013722.parquet",
+ "examples": [
+  {
+   "pair_id": "unit_00004632",
+   "trace": "The user wants me to compare the safety of two subway station entrances in New York City.\n\n**Image A analysis:**\n- Shows a subway entrance under construction or renovation.\n- There are orange construction barriers and fences.\n- A mobile ticket booth/guard station is visible.\n- A person is standing near it.\n- Construction debris or materials might be around.\n- There is a \"DANGER\" sign.\n- It looks less public and potentially more hazardous due to active construction.\n\n**Image B analysis:**\n- Shows a typical, well-maintained subway entrance (MTA booth and stairs).\n- It's on a busy street with pedestrians and cars.\n- The street is clear, and the station area is standard.\n- No visible construction hazards.\n\n**Comparison:**\n- Image A has active construction, barriers, and a \"DANGER\" sign. This indicates a potential safety hazard compared to a standard, finished station entrance.\n- Image B is a standard operational entrance.\n\nTherefore, the station entrance in Image A is *less* safe than the one in Image B due to the construction activity.\n\nLet's re-evaluate.\nImage A: Active construction site. Construction sites are generally less safe for the general public due to tripping hazards, falling objects, etc.\nImage B: Standard city street and subway entrance.\n\nComparing Image A to Image B:\nImage A is \"Less\" safe than Image B.\n\nWait, let me check if there's any other factor.\nImage A shows a \"Danger\" sign and construction fencing.\nImage B shows a standard street scene.\n\nUsually, construction zones are considered less safe for pedestrians.\nSo Image A is \"Less\" safe than Image B.\n\nLet's re-read the prompt: \"Interpret this as 'the station entrance in Image A is <label> safe than the one in Image B'\".\nSo \"Less\" means Image A is less safe than Image B.\n\nLet me double check.\nImage A: construction zone, orange barrels, barriers.\nImage B: normal sidewalk, subway entrance.\nConstruction zones are inherently less safe for the general public.\n\nIs there anything else?\nImage A might be perceived as safer because of the guard booth? Probably not, construction hazards usually outweigh a guard.\nImage B is a very standard, open public space.\n\nComparison:\nImage A: Construction zone.\nImage B: Finished street/station.\nImage A is Less safe.",
+   "answer": {
+    "dimensions": [
+     {
+      "name": "construction",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "bad",
+      "quote": "subway entrance under construction or renovation"
+     },
+     {
+      "name": "construction",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "bad",
+      "quote": "orange construction barriers and fences"
+     },
+     {
+      "name": "security_presence",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "good",
+      "quote": "A mobile ticket booth/guard station is visible"
+     },
+     {
+      "name": "signage",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "bad",
+      "quote": "There is a \"DANGER\" sign"
+     },
+     {
+      "name": "hazard",
+      "type": "evaluative",
+      "image": "A",
+      "valence": "bad",
+      "quote": "It looks less public and potentially more hazardous due to active construction"
+     },
+     {
+      "name": "upkeep",
+      "type": "evaluative",
+      "image": "B",
+      "valence": "good",
+      "quote": "a typical, well-maintained subway entrance (MTA booth and stairs)"
+     },
+     {
+      "name": "people",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "neutral",
+      "quote": "It's on a busy street with pedestrians and cars"
+     },
+     {
+      "name": "hazard",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "good",
+      "quote": "No visible construction hazards"
+     }
+    ],
+    "perspectives": [
+     {
+      "name": "construction_hazard",
+      "favors": "B",
+      "is_winner": true,
+      "quote": "Construction sites are generally less safe for the general public due to tripping hazards, falling objects, etc.",
+      "supporting_quotes": [
+       "Usually, construction zones are considered less safe for pedestrians",
+       "Construction zones are inherently less safe for the general public"
+      ]
+     }
+    ],
+    "dismissals": [
+     {
+      "quote": "Probably not, construction hazards usually outweigh a guard",
+      "target": "guard booth"
+     }
+    ],
+    "reconsiderations": [
+     {
+      "quote": "Let's re-evaluate"
+     },
+     {
+      "quote": "Wait, let me check if there's any other factor"
+     },
+     {
+      "quote": "Let me double check"
+     },
+     {
+      "quote": "Is there anything else?"
+     }
+    ],
+    "verdicts": [
+     {
+      "label": "Less",
+      "is_final": false,
+      "quote": "the station entrance in Image A is *less* safe than the one in Image B due to the construction activity"
+     },
+     {
+      "label": "Less",
+      "is_final": false,
+      "quote": "So Image A is \"Less\" safe than Image B"
+     },
+     {
+      "label": "Less",
+      "is_final": true,
+      "quote": "Image A is Less safe"
+     }
+    ],
+    "hedges": [
+     {
+      "quote": "Construction debris or materials might be around",
+      "marker_type": "qualifier",
+      "justification_quotes": [],
+      "affects_conclusion": false
+     },
+     {
+      "quote": "Image A might be perceived as safer because of the guard booth",
+      "marker_type": "qualifier",
+      "justification_quotes": [
+       "Probably not, construction hazards usually outweigh a guard"
+      ],
+      "affects_conclusion": false
+     }
+    ],
+    "weighings": [
+     {
+      "quote": "construction hazards usually outweigh a guard",
+      "mechanism": "trade_off",
+      "justification_quotes": [],
+      "condition_quotes": []
+     }
+    ]
+   }
+  },
+  {
+   "pair_id": "unit_00002504",
+   "trace": "The user wants me to compare the safety of two subway station entrances shown in two different images.\n\n- **Image A**: Shows a subway entrance located under an elevated train structure. It's dark and shaded. There are cars and some people visible. The entrance itself is not clearly visible, but the area is a busy street under an elevated track.\n- **Image B**: Shows a subway entrance (indicated by \"Now Drop Start to Tottenville\") on a sunny day. It's located on a sidewalk next to a street. There's a fence/railing. It looks like a standard, well-lit outdoor entrance.\n\n**Comparing safety:**\n- **Image A** is very dark, under an elevated structure. This can be a factor in perceived safety (visibility, lighting).\n- **Image B** is well-lit, in the sun, and clearly marked.\n- Generally, well-lit and clearly visible areas are considered safer than dark, shaded areas under heavy infrastructure.\n- However, the prompt asks \"Which station entrance is safer?\".\n- In Image A, the entrance is actually quite far back or obscured by the structures.\n- In Image B, the entrance is very clear and in an open area.\n\nLet's re-examine:\nImage A: Dark, shadowed, heavy industrial feel.\nImage B: Bright, sunny, open area.\n\nUsually, bright and open areas are safer. Therefore, Image A would be \"Less\" or \"MuchLess\" safe than Image B.\n\nWait, let's look closer at Image A. It's a very busy road. The subway entrance might be the one on the right with the stairs.\nImage B is also a busy road but much brighter.\n\nMost safety assessments for urban environments prioritize visibility. Image B has much better visibility.\nSo Image A is \"Less\" safe than Image B.\n\nLet's check if there's any reason Image A would be safer. Maybe more people around? It's hard to tell.\nIn many urban safety contexts, shadows and underpasses are higher-risk areas.\n\nLet's re-read the options.\n\"the station entrance in Image A is <label> safe than the one in Image B\".\nIf Image B is safer, Image A is \"Less\" safe.\n\nActually, Image A shows a very dark, shadowed environment which can be associated with higher crime rates in some studies, whereas Image B is very open and sunny.\nI'll go with \"Less\".\n\nWait, \"MuchLess\"? It's quite dark in Image A.\nLet's look at the \"entrance\" specifically.\nIn Image A, the entrance is the structure on the right. It's in deep shadow.\nIn Image B, the entrance is on the right, very visible.\n\nComparing \"Same\" vs \"Less\".\nUsually, lighting is a key factor. Image B is much better lit.\nI will choose \"Less\".",
+   "answer": {
+    "dimensions": [
+     {
+      "name": "infrastructure",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "neutral",
+      "quote": "subway entrance located under an elevated train structure"
+     },
+     {
+      "name": "light",
+      "type": "evaluative",
+      "image": "A",
+      "valence": "bad",
+      "quote": "It's dark and shaded"
+     },
+     {
+      "name": "people",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "neutral",
+      "quote": "There are cars and some people visible"
+     },
+     {
+      "name": "light",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "good",
+      "quote": "on a sunny day"
+     },
+     {
+      "name": "infrastructure",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "neutral",
+      "quote": "There's a fence/railing"
+     },
+     {
+      "name": "light",
+      "type": "evaluative",
+      "image": "B",
+      "valence": "good",
+      "quote": "It looks like a standard, well-lit outdoor entrance"
+     },
+     {
+      "name": "light",
+      "type": "evaluative",
+      "image": "B",
+      "valence": "good",
+      "quote": "well-lit, in the sun, and clearly marked"
+     },
+     {
+      "name": "visibility",
+      "type": "evaluative",
+      "image": "A",
+      "valence": "bad",
+      "quote": "the entrance is actually quite far back or obscured by the structures"
+     },
+     {
+      "name": "visibility",
+      "type": "evaluative",
+      "image": "B",
+      "valence": "good",
+      "quote": "the entrance is very clear and in an open area"
+     }
+    ],
+    "perspectives": [
+     {
+      "name": "visibility",
+      "favors": "B",
+      "is_winner": true,
+      "quote": "Generally, well-lit and clearly visible areas are considered safer than dark, shaded areas under heavy infrastructure",
+      "supporting_quotes": [
+       "Usually, bright and open areas are safer",
+       "Most safety assessments for urban environments prioritize visibility"
+      ]
+     },
+     {
+      "name": "crime_risk",
+      "favors": "B",
+      "is_winner": false,
+      "quote": "In many urban safety contexts, shadows and underpasses are higher-risk areas",
+      "supporting_quotes": []
+     }
+    ],
+    "dismissals": [
+     {
+      "quote": "Maybe more people around? It's hard to tell",
+      "target": "people present"
+     }
+    ],
+    "reconsiderations": [
+     {
+      "quote": "Let's re-examine:"
+     },
+     {
+      "quote": "Wait, let's look closer at Image A"
+     },
+     {
+      "quote": "Wait, \"MuchLess\"?"
+     },
+     {
+      "quote": "Let's re-read the options."
+     }
+    ],
+    "verdicts": [
+     {
+      "label": "Less",
+      "is_final": false,
+      "quote": "So Image A is \"Less\" safe than Image B"
+     },
+     {
+      "label": "Less",
+      "is_final": false,
+      "quote": "I'll go with \"Less\""
+     },
+     {
+      "label": "Less",
+      "is_final": true,
+      "quote": "I will choose \"Less\""
+     }
+    ],
+    "hedges": [
+     {
+      "quote": "The entrance itself is not clearly visible",
+      "marker_type": "explicit_doubt",
+      "justification_quotes": [],
+      "affects_conclusion": false
+     },
+     {
+      "quote": "However, the prompt asks",
+      "marker_type": "contrastive",
+      "justification_quotes": [],
+      "affects_conclusion": false
+     },
+     {
+      "quote": "Maybe more people around? It's hard to tell",
+      "marker_type": "explicit_doubt",
+      "justification_quotes": [],
+      "affects_conclusion": false
+     }
+    ],
+    "weighings": [
+     {
+      "quote": "Most safety assessments for urban environments prioritize visibility",
+      "mechanism": "prioritization",
+      "justification_quotes": [
+       "Image B has much better visibility"
+      ],
+      "condition_quotes": []
+     }
+    ]
+   }
+  },
+  {
+   "pair_id": "unit_00001205",
+   "trace": "The user wants to compare the safety of two subway station entrances in New York City.\n\n- **Image A:** Shows a subway entrance (likely a plaza/park area) with a high iron fence around it. There are people walking nearby. It looks like a relatively open, well-lit area during the day.\n- **Image B:** Shows a subway entrance (\"Delancey St - Essex St\" is visible on a sign). It's a smaller kiosk/entrance. There's a car parked right in front with its trunk open. It's also a daytime shot.\n\nComparing safety:\n- Image A has a prominent fence, which might be seen as a security feature.\n- Image B is a more standard street-level entrance, possibly less \"secure\" in terms of physical barriers, but also very public.\n- Both look like normal, busy city streets during the day.\n- Usually, a fenced-off area (A) might be considered \"safer\" from some perspectives (controlled access), but a standard open entrance (B) is also standard.\n- Looking closely at Image A, there's a lot of space and visibility.\n- Image B has a car with an open trunk right next to it, which could be a security concern, or just someone loading/unloading.\n- Actually, Image A's fence might be to keep people *out* of the subway area or to secure the area at night.\n- Image B is just a normal entrance.\n- It's hard to say one is definitively \"safer\" without more context. They look like standard NYC subway entrances in different neighborhoods.\n- Image A's fence might be seen as a protective measure, making it \"More\" safe in some contexts.\n- Let's re-examine. Image A looks like a very open public space with a fence. Image B is a tight street corner with a kiosk.\n- Usually, \"safer\" in these VQA tasks might refer to visibility or physical barriers.\n- Image A has a large fence.\n- Image B has no fence.\n- I'll go with \"Same\" as they are both standard city subway entrances in broad daylight. Or \"More\" if I prioritize the fence.\n- Let's look for any signs of danger. Nothing obvious in either.\n- Actually, Image A has a lot of \"eyes on the street\".\n- Let's re-read the prompt: \"Which station entrance is safer?\".\n- They look about the same in terms of general public safety in a busy city.\n\nLet's look at the prompts for these types of tasks. Often, \"Same\" is the default if there's no clear hazard.\nHowever, sometimes fences imply more security.\nLet's re-examine Image A. It's the Canal St station entrance maybe? No, it's a plaza.\nImage B is Delancey St - Essex St.\nNeither has glaring safety issues.\nI will choose \"Same\".",
+   "answer": {
+    "dimensions": [
+     {
+      "name": "barrier",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "neutral",
+      "quote": "a high iron fence around it"
+     },
+     {
+      "name": "people",
+      "type": "descriptive",
+      "image": "A",
+      "valence": "good",
+      "quote": "There are people walking nearby"
+     },
+     {
+      "name": "light",
+      "type": "evaluative",
+      "image": "A",
+      "valence": "good",
+      "quote": "It looks like a relatively open, well-lit area during the day"
+     },
+     {
+      "name": "infrastructure",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "neutral",
+      "quote": "It's a smaller kiosk/entrance"
+     },
+     {
+      "name": "traffic",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "bad",
+      "quote": "There's a car parked right in front with its trunk open"
+     },
+     {
+      "name": "visibility",
+      "type": "evaluative",
+      "image": "A",
+      "valence": "good",
+      "quote": "a lot of space and visibility"
+     },
+     {
+      "name": "barrier",
+      "type": "descriptive",
+      "image": "B",
+      "valence": "neutral",
+      "quote": "Image B has no fence"
+     },
+     {
+      "name": "people",
+      "type": "evaluative",
+      "image": "A",
+      "valence": "good",
+      "quote": "Image A has a lot of \"eyes on the street\""
+     }
+    ],
+    "perspectives": [
+     {
+      "name": "controlled_access",
+      "favors": "A",
+      "is_winner": false,
+      "quote": "a fenced-off area (A) might be considered \"safer\" from some perspectives (controlled access)",
+      "supporting_quotes": [
+       "Image A has a prominent fence, which might be seen as a security feature",
+       "Image A's fence might be seen as a protective measure"
+      ]
+     },
+     {
+      "name": "visibility",
+      "favors": "neither",
+      "is_winner": false,
+      "quote": "Usually, \"safer\" in these VQA tasks might refer to visibility or physical barriers",
+      "supporting_quotes": []
+     },
+     {
+      "name": "no_clear_hazard",
+      "favors": "neither",
+      "is_winner": true,
+      "quote": "Often, \"Same\" is the default if there's no clear hazard",
+      "supporting_quotes": [
+       "Let's look for any signs of danger. Nothing obvious in either",
+       "Neither has glaring safety issues"
+      ]
+     }
+    ],
+    "dismissals": [],
+    "reconsiderations": [
+     {
+      "quote": "Actually, Image A's fence might be to keep people *out*"
+     },
+     {
+      "quote": "Let's re-examine."
+     },
+     {
+      "quote": "Actually, Image A has a lot of \"eyes on the street\""
+     },
+     {
+      "quote": "Let's re-examine Image A"
+     }
+    ],
+    "verdicts": [
+     {
+      "label": "More",
+      "is_final": false,
+      "quote": "Image A's fence might be seen as a protective measure, making it \"More\" safe in some contexts"
+     },
+     {
+      "label": "Same",
+      "is_final": false,
+      "quote": "I'll go with \"Same\" as they are both standard city subway entrances in broad daylight"
+     },
+     {
+      "label": "Same",
+      "is_final": true,
+      "quote": "I will choose \"Same\""
+     }
+    ],
+    "hedges": [
+     {
+      "quote": "which could be a security concern, or just someone loading/unloading",
+      "marker_type": "qualifier",
+      "justification_quotes": [],
+      "affects_conclusion": false
+     },
+     {
+      "quote": "It's hard to say one is definitively \"safer\" without more context",
+      "marker_type": "explicit_doubt",
+      "justification_quotes": [
+       "They look like standard NYC subway entrances in different neighborhoods"
+      ],
+      "affects_conclusion": true
+     },
+     {
+      "quote": "However, sometimes fences imply more security",
+      "marker_type": "contrastive",
+      "justification_quotes": [],
+      "affects_conclusion": false
+     }
+    ],
+    "weighings": [
+     {
+      "quote": "Or \"More\" if I prioritize the fence",
+      "mechanism": "conditional",
+      "justification_quotes": [],
+      "condition_quotes": [
+       "if I prioritize the fence"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -8,8 +8,6 @@ from typing import Iterable, List, Optional, Tuple
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
-from dagspaces.urbanvqa.orchestrator import prepare_stage_input
-
 
 GEPA_ROW_COLUMNS: Tuple[str, ...] = (
     "prompt",
@@ -64,6 +62,11 @@ def materialize_supervised_frame(
 
     local_cfg = _clone_with_dataset_overrides(cfg, split_cfg)
     parquet_path = getattr(local_cfg.data, "parquet_path", "") or ""
+    # Lazy import: prepare_stage_input predates the trawler orchestrator
+    # refactor. Importing here keeps the package importable (the pairwise GEPA
+    # path never calls this) while surfacing a clear error if the legacy
+    # single-image path is exercised against the refactored orchestrator.
+    from dagspaces.urbanvqa.orchestrator import prepare_stage_input
     df, ds, use_streaming = prepare_stage_input(local_cfg, parquet_path, stage=f"gepa_{split}")
     frame = _to_pandas(df)
 
