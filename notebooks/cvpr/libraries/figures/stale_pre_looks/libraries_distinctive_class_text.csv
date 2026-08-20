@@ -1,0 +1,61 @@
+unit,score,count,count_elsewhere
+visual_evidence:sidewalk is clean,42.66,1901,171
+visual_evidence:sidewalk is clear,32.72,973,169
+visual_evidence:clean,26.53,704,294
+visual_evidence:very clean,24.34,604,264
+visual_evidence:clean and well-maintained,22.6,569,297
+visual_evidence:well-kept,20.8,432,47
+visual_evidence:street is clean,20.35,373,81
+visual_evidence:very well-maintained,19.51,347,97
+visual_evidence:well-maintained,17.02,1596,2438
+visual_evidence:windows are clean,15.96,946,6
+visual_evidence:very clean and well-maintained,15.62,233,83
+visual_evidence:brickwork is clean,14.97,417,10
+visual_evidence:clean sidewalk,13.96,301,234
+visual_evidence:windows are intact,13.66,1600,1
+visual_evidence:clean facade,13.6,202,101
+visual_evidence:good condition,13.55,184,76
+visual_evidence:facade is clean,13.25,435,6
+visual_evidence:large glass windows,13.19,195,102
+visual_evidence:clean windows,13.05,203,13
+visual_evidence:relatively clean,12.55,212,143
+visual_evidence:pristine,12.3,216,9
+visual_evidence:sidewalk is very clean,11.58,191,8
+visual_evidence:clean and well-kept,11.4,154,10
+visual_evidence:signage is clear,11.04,206,6
+visual_evidence:brickwork looks clean,10.83,401,3
+visual_evidence:brick structure,10.48,106,39
+visual_evidence:very tidy,10.39,111,11
+visual_evidence:windows are clear,9.68,635,1
+visual_evidence:weathered,9.65,174,158
+uncertainty:it's hard to say one is significantly better than the other,9.61,100,49
+visual_evidence:very clean and modern,9.55,97,46
+visual_evidence:brick facade,9.46,132,98
+visual_evidence:street is clear,9.38,81,24
+visual_evidence:building looks well-maintained,9.17,77,22
+visual_evidence:sidewalk looks clean,9.15,104,6
+visual_evidence:tidy,9.12,103,6
+visual_evidence:very clean facade,8.99,98,6
+visual_evidence:very well-kept,8.99,84,8
+visual_evidence:brickwork looks good,8.85,172,3
+visual_evidence:red brick building with arched windows,8.72,69,18
+visual_evidence:sidewalk and street look clean,8.69,81,7
+visual_evidence:clean and modern,8.63,71,25
+visual_evidence:red banner,8.57,67,12
+visual_evidence:red brick building,8.57,298,407
+visual_evidence:brickwork looks okay,8.55,233,2
+visual_evidence:very pristine,8.5,72,8
+visual_evidence:brickwork looks solid,8.5,227,2
+visual_evidence:car parked in front,8.41,193,221
+visual_evidence:brick building on the left,8.4,74,34
+visual_evidence:fence is intact,8.34,210,2
+visual_evidence:relatively clean and well-maintained,8.32,124,109
+visual_evidence:signs of age,8.18,65,8
+visual_evidence:very clean sidewalk,8.08,59,13
+visual_evidence:no obvious signs of decay,8.01,114,3
+visual_evidence:reasonably well-maintained,7.91,69,35
+visual_evidence:no obvious issues,7.86,56,11
+uncertainty:they both look well-maintained,7.84,105,3
+visual_evidence:brick building on the right,7.81,63,28
+visual_evidence:sidewalk is relatively clean,7.79,55,11
+visual_evidence:no obvious signs of neglect,7.77,101,3

@@ -1,0 +1,47 @@
+{
+    "0": {
+        "name": "Privately Owned Public Spaces (POPS)",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/rvih-nhyn/query.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn",
+        "role": "reference",
+        "key": "bbl",
+        "note": "392 rows, which matches the 392 dcp_pops units in FacDB exactly. Holds the address, the building, and the required amenities. It carries NO condition or maintenance rating, so it cannot serve as a proxy for upkeep."
+    },
+    "1": {
+        "name": "NYC DOT Pedestrian Plazas - Polygon",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/k5k6-6jex/query.json",
+        "documentation": "https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas-Polygon/k5k6-6jex",
+        "role": "reference",
+        "key": "plazaname",
+        "note": "93 rows against the 92 dot_pedplazas units in FacDB. Holds the plaza name, the maintenance partner, and the shape. It carries NO condition rating."
+    },
+    "2": {
+        "name": "ACS 5-Year 2024, table S1901 \u2014 median household income by census tract",
+        "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
+        "role": "proxy",
+        "key": "geoid",
+        "note": "An area proxy. Only the census-tract layer carries a true median."
+    },
+    "3": {
+        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
+        "role": "proxy",
+        "key": "latitude,longitude",
+        "note": "An area proxy. Crime is point data, so every layer gets a true value."
+    },
+    "_note": {
+        "name": "Why this case has no unit-level proxy",
+        "role": "documentation",
+        "note": "The Parks Inspection Program rates DPR property only, and it never rates a plaza. Entries 0 and 1 are the 2 city sources that define the plaza set, and neither one rates condition. Thus the plazas case can compare the model against the AREA only. It cannot test the model against an inspector, the way the parks, schools, and restaurants cases can. Search for a plaza condition source before you read a weak correlation here as a finding about the model."
+    },
+    "4": {
+        "name": "Privately Owned Public Spaces (POPS) \u2014 year completed",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/rvih-nhyn/query.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn",
+        "role": "proxy",
+        "key": "bbl",
+        "joins_to": "bbl",
+        "column": "year_completed",
+        "note": "The vintage of a plaza. This is the year of the SPACE, not of the tower beside it, thus it describes the plaza directly. It reaches 347 of the 392 POPS units (88.5%); the other 45 carry a BBL that the POPS table does not hold. WARNING: 1 plaza source of 3 has a year. The 92 DOT pedestrian plazas and the 20 city-state parks carry no vintage in any NYC source, thus this proxy covers 68.8% of the case. WARNING: a year is not oriented."
+    }
+}

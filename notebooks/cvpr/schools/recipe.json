@@ -1,0 +1,30 @@
+{
+    "0": {
+        "name": "School Quality Reports Data",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/dnpx-dfnc/query.json",
+        "documentation": "https://dev.socrata.com/foundry/data.cityofnewyork.us/dnpx-dfnc",
+        "role": "proxy",
+        "key": "dbn",
+        "note": "Long format. 1 row for each school, metric, and year. The source holds more than 1,000,000 rows, so filter on the server with fetch_metric."
+    },
+    "1": {
+        "name": "School Point Locations (APS 2024-08-28)",
+        "file": "SchoolPoints_APS_2024_08_28.zip",
+        "documentation": "https://data.cityofnewyork.us/Education/School-Point-Locations/jfju-ynrr",
+        "role": "geocode",
+        "key": "ATS",
+        "joins_to": "dbn",
+        "note": "Gives each DBN a point. The ATS column is the DBN. Use it to put the proxy on the map. It covers public schools only, so it never matches a private or postgraduate school in the FacDB unit set."
+    },
+    "2": {
+        "name": "NYC Building Footprints (BUILDING)",
+        "file": "data/geo/nyc_buildings.parquet",
+        "endpoint": "https://data.cityofnewyork.us/resource/5zhs-2jue.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/BUILDING/5zhs-2jue",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "construction_year",
+        "note": "On disk, pulled 2026-04-12 by data/geo/download_nyc_buildings.py. 1,082,872 footprints and 99.1% carry a usable year; the source writes 0 for an unknown year and _proxies drops it. FacDB gives each unit a BIN, thus this is a key join and not a spatial one. WARNING: a year is NOT oriented. Every other proxy points 'higher is better', so a positive value means agreement. A positive value here says the model calls a NEWER unit better, which is a finding and not a test."
+    }
+}

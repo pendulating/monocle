@@ -1,0 +1,3 @@
+case,question,model,sweep,state,created_at,rows,readable,wandb_id,results_path,wandb_url,notes
+restaurants,Which restaurant would you rather eat at?,gemma-4-12b/instruct_thinking,looks_thinking_gemma12b,finished,2026-08-16T19:18:23,11000,True,canon:trace:restaurants:gemma-4-12b,/share/pierson/matt/mllmsci/notebooks/cvpr/canonical_data/trace/restaurants__gemma-4-12b/results.parquet,,
+restaurants,Which restaurant would you rather eat at?,qwen3.5-9b/instruct_thinking,looks_thinking_qwen9b,finished,2026-08-17T15:52:24,11000,True,canon:trace:restaurants:qwen3.5-9b,/share/pierson/matt/mllmsci/notebooks/cvpr/canonical_data/trace/restaurants__qwen3.5-9b/results.parquet,,

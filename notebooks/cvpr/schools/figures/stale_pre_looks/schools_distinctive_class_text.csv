@@ -1,0 +1,61 @@
+unit,score,count,count_elsewhere
+visual_evidence:trees,38.79,1334,970
+visual_evidence:large windows,38.19,995,267
+visual_evidence:brick building,34.47,1018,694
+visual_evidence:fence,33.68,1035,780
+visual_evidence:cars parked in front,30.75,762,460
+visual_evidence:well-maintained,27.96,1602,2432
+visual_evidence:yellow school bus,25.65,476,81
+visual_evidence:large brick building,22.81,358,109
+visual_evidence:large tree,22.24,395,231
+visual_evidence:school bus,21.65,346,54
+visual_evidence:many windows,21.12,388,35
+visual_evidence:multi-story brick building,20.57,291,84
+visual_evidence:construction site,20.48,380,279
+visual_evidence:black fence,19.93,301,154
+visual_evidence:brick building with many windows,19.43,284,41
+visual_evidence:tree,19.27,342,257
+visual_evidence:cars parked on the street,18.5,256,126
+visual_evidence:red brick building,18.4,367,338
+"visual_evidence:large, multi-story brick building",17.93,230,42
+inference:well-maintained,17.35,296,243
+visual_evidence:modern-looking building,17.15,212,91
+visual_evidence:modern-looking brick building,17.14,208,82
+uncertainty:it's hard to read,16.87,232,141
+visual_evidence:brick building with large windows,16.33,220,137
+visual_evidence:black metal fence,15.63,196,115
+visual_evidence:large brick building with many windows,15.59,184,26
+visual_evidence:trees in front,14.98,210,161
+visual_evidence:scaffolding,14.28,262,284
+visual_evidence:greenery,14.07,214,196
+visual_evidence:some trees,13.73,153,92
+"visual_evidence:""no parking"" sign",13.51,172,133
+visual_evidence:gated entrance,13.24,146,15
+visual_evidence:street with parked cars,12.01,118,72
+visual_evidence:sidewalk,11.9,482,910
+uncertainty:this is subjective,11.77,137,9
+visual_evidence:tree in front,11.74,141,121
+visual_evidence:modern-looking building with large windows,11.72,95,30
+visual_evidence:modern-looking brick building with large windows,11.66,100,16
+visual_evidence:older brick building,11.22,128,109
+visual_evidence:fence in front,11.2,93,44
+visual_evidence:blue fence,11.15,138,7
+visual_evidence:clear entrance,11.12,96,52
+visual_evidence:air conditioning units,10.83,142,6
+visual_evidence:car parked in front,10.82,183,231
+visual_evidence:black suv,10.77,162,188
+visual_evidence:black suv parked in front,10.69,93,56
+inference:prestigious,10.45,88,52
+uncertainty:hard to read,10.38,76,29
+uncertainty:it's hard to say,10.34,78,35
+"visual_evidence:large, multi-story brick building with many windows",10.17,91,8
+visual_evidence:small tree,10.08,76,37
+visual_evidence:several cars parked in front,9.99,77,41
+visual_evidence:blue door,9.97,104,6
+visual_evidence:construction fence,9.89,109,103
+uncertainty:it's subjective,9.87,90,7
+visual_evidence:lots of trees,9.85,76,42
+visual_evidence:building under construction or renovation,9.75,68,28
+visual_evidence:large trees,9.71,68,12
+visual_evidence:some greenery,9.68,69,32
+visual_evidence:tree in the foreground,9.65,77,48

@@ -1,0 +1,34 @@
+{
+    "0": {
+        "name": "ACS 5-Year 2024, table S1901 \u2014 median household income by census tract",
+        "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
+        "role": "proxy",
+        "key": "geoid",
+        "column": "Estimate!!Households!!Median income (dollars)",
+        "note": "On disk. scripts/pairwise_socioeconomic_regression.py reads the same file, so the 2 analyses share one income source. The geoid is the 11-digit tract code and it matches the tract layer for 100% of tracts."
+    },
+    "1": {
+        "name": "ACS 5-Year 2024, table B01003 \u2014 total population by census tract",
+        "file": "data/external/acs_tract_population/acs_b01003_nyc_tract.parquet",
+        "role": "weight",
+        "key": "geoid",
+        "note": "Weights for the NTA and community-district aggregation. You cannot average medians, so those 2 layers report a population-weighted mean of the tract medians, not a median."
+    },
+    "2": {
+        "name": "NYC Atomic Polygons",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/wgbs-damt/query.json",
+        "role": "unused",
+        "note": "NOT needed. Atomic polygons would be necessary only if a census tract split across an NTA or a community district. Checked 2026-08-12: every one of the 2,325 tracts puts its interior point in exactly 1 NTA and exactly 1 community district, and no tract falls in 2 polygons. Keep this entry so the next reader knows the check happened and why the source stays unused."
+    },
+    "3": {
+        "name": "NYC Building Footprints (BUILDING)",
+        "file": "data/geo/nyc_buildings.parquet",
+        "endpoint": "https://data.cityofnewyork.us/resource/5zhs-2jue.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/BUILDING/5zhs-2jue",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "construction_year",
+        "note": "On disk, pulled 2026-04-12 by data/geo/download_nyc_buildings.py. 1,082,872 footprints and 99.1% carry a usable year; the source writes 0 for an unknown year and _proxies drops it. FacDB gives each unit a BIN, thus this is a key join and not a spatial one. WARNING: a year is NOT oriented. Every other proxy points 'higher is better', so a positive value means agreement. A positive value here says the model calls a NEWER unit better, which is a finding and not a test."
+    }
+}

@@ -1,0 +1,4 @@
+valence,cues,decided_comparisons,win_rate
+bad,6720,8887,0.0578
+good,12780,21456,0.8832
+neutral,29006,47591,0.4263

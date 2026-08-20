@@ -1,0 +1,20 @@
+{
+    "0":
+    {
+        "name": "DOHMH New York City Restaurant Inspection Results",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/43nn-pn8j/query.json",
+        "documentation": "https://dev.socrata.com/foundry/data.cityofnewyork.us/43nn-pn8j",
+        "role": "reference",
+        "key": "camis",
+        "note": "The upstream source. The notebook does NOT call it. The curation tooling in dagspaces/common/curation/dohmh already got it, cleaned it, and aggregated it to 1 row for each restaurant."
+    },
+    "1":
+    {
+        "name": "DOHMH restaurants, aggregated by the curation tooling",
+        "file": "curation/dohmh_restaurants_inspected_all/restaurants_aggregated.parquet",
+        "role": "proxy",
+        "key": "uid",
+        "joins_to": "unit_uid",
+        "note": "Holds the inspection history AND the position, so this case needs no network call and no name join. The uid matches unit_uid in the pairs manifest exactly. Build it again with: python -m dagspaces.common.curation aggregate-restaurants."
+    }
+}

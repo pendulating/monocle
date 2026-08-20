@@ -1,0 +1,42 @@
+{
+    "0": {
+        "name": "Parks Inspection Program \u2014 Inspections",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/yg3y-7juh/query.json",
+        "documentation": "https://dev.socrata.com/foundry/data.cityofnewyork.us/yg3y-7juh",
+        "role": "proxy",
+        "key": "prop_id",
+        "note": "The only proxy that measures the park itself. Ratings are A for acceptable and U for unacceptable, on cleanliness and overall_condition. 151,484 inspections in total, about 6,500 each year, so filter the year on the server. PIP inspects a ZONE and names it B007-01; cut the suffix to reach the parent property B007."
+    },
+    "1": {
+        "name": "DPR Parks Properties",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/enfh-gkve/query.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/Parks-Properties/enfh-gkve",
+        "role": "geocode",
+        "key": "gispropnum",
+        "joins_to": "prop_id",
+        "note": "2,059 sites with shapes. FacDB carries no prop_id, so the proxy reaches a geography on its own, the same way the schools case uses the DOE point file. After the zone rollup, 1,428 of 2,406 PIP sites match a shape (59.4%), and those carry 83.1% of all inspections. Of the 978 misses, 974 use a non-standard id (BT## tree districts, BR borough-wide, _temp) and are not discrete parks; only 4 are true property ids."
+    },
+    "2": {
+        "name": "ACS 5-Year 2024, table S1901 \u2014 median household income by census tract",
+        "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
+        "role": "context",
+        "key": "geoid",
+        "note": "An area proxy. It describes the households around a park, not the park. Only the census-tract layer carries a true median."
+    },
+    "3": {
+        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
+        "role": "context",
+        "key": "latitude,longitude",
+        "note": "An area proxy. Crime is point data, so every layer gets a true value."
+    },
+    "4": {
+        "name": "DPR Parks Properties \u2014 acquisition date",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/enfh-gkve/query.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/Parks-Properties/enfh-gkve",
+        "role": "proxy",
+        "key": "gispropnum",
+        "column": "acquisitiondate",
+        "note": "The vintage of a park. A park is land, not a building, thus it carries no construction year: only 33% of the park units hold a BIN at all, and that BIN is a comfort station or a recreation building. The acquisition date is the year the land became a park. 1,972 of 2,059 properties carry one, and the units reach 93.6% through the same spatial join that PIP uses. WARNING: acquisition is not construction \u2014 a park acquired in 1936 can hold a playground of 2015. WARNING: a year is not oriented."
+    }
+}

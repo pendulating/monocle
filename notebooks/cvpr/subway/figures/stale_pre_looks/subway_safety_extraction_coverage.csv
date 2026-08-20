@@ -1,0 +1,5 @@
+case,traces,extractions,for_each_trace,judge_model,extractor_model,schema
+libraries,10998,230745,21.0,gemma-4-12b/instruct_thinking,gemma-4-12B-it,urban_cues/v1
+road_quality,11000,213819,19.4,gemma-4-12b/instruct_thinking,gemma-4-12B-it,urban_cues/v1
+schools,11000,215758,19.6,gemma-4-12b/instruct_thinking,gemma-4-12B-it,urban_cues/v1
+subway_safety,10999,268866,24.4,gemma-4-12b/instruct_thinking,gemma-4-12B-it,urban_cues/v1
