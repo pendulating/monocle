@@ -11,7 +11,7 @@ Content catalog for the MLLMSCI project wiki. Organized by category. Updated on 
 
 - [[urban-vqa]] — Core VQA pipeline: prompts, guided decoding, verification, prompt optimization (GEPA)
 - [[urban-ocr]] — Text spotting: pluggable data handlers, automatic tiling, flat detection output
-- [[urban-pair-vqa]] — Pairwise comparison: ordinal labels, counterbalancing, pair generation, diagnostics
+- [[urban-pair-vqa]] — Pairwise comparison: ordinal labels, counterbalancing, pair generation, diagnostics, always-on "Not sure" abstention, the consolidated 7-case ranking battery (subway/libraries/schools/road-quality/parks under the public-investment umbrella, plus restaurants + street photography) and its minimal prompt contract, `deprecated/` config sub-groups, `prompt.image_layout` presentation variants, Reviewer-2 robustness battery
 - [[urban-roam-vqa]] — Agent navigation: board-first street graph, legal-move walk simulation, absolute-frame faces, checkpointing
 - [[urban-embed]] — Image embedding: Ray actor pool, Qwen3-VL-Embedding, pooling strategies
 - [[urban-speech]] — Speech recognition over video: ffmpeg audio isolation + granite-speech 3.3 (2b/8b) or 4.1-2b via vLLM on JU partition A5000s
@@ -41,6 +41,7 @@ Content catalog for the MLLMSCI project wiki. Organized by category. Updated on 
 - [[guide-neighborhood-aggregation]] — NTA-level aggregation of pairwise rankings: `notebooks/css/neighborhoods.py`, join pairs.parquet, point-in-polygon (EPSG:2263), dual unit-first + zone-first TrueSkill
 - [[guide-pairwise-difference-testing]] — On-the-fly group t-tests over urbanpairvqa runs (`scripts/pairwise_vqa_difference_report.py`): head-to-head + rating-level tests, all-pairs matrix, multi-model replication via `--aggregation-dir`, JSONL experiment registry, W&B mirror to `URBANPAIRVQA-ANALYSIS`
 - [[guide-pairwise-regression-testing]] — Covariate regressions over urbanpairvqa ratings (`scripts/pairwise_vqa_regression_report.py`): unit-level OLS/WLS + pair-level Δx validation, controls/partial R², screen mode, school covariates builder (`scripts/build_school_covariates.py`, DOE + PLUTO joins); shares registry/W&B via `scripts/pairwise_analysis_common.py`
+- [[guide-cyclomedia-browser]] — Interactive marimo browser over the Cyclomedia imagery (`notebooks/cyclomedia/browser.py` + `dagspaces/common/cyclomedia/`): DuckDB-backed citywide density map → click → nearest recordings → cube faces, equirectangular panorama, depth maps. Recording-level index (5.24M rows) cached from the catalog
 
 ## Concepts
 
@@ -53,6 +54,11 @@ Content catalog for the MLLMSCI project wiki. Organized by category. Updated on 
 - [[concept-chunked-dp-worker]] — Why `llm.chat(big_list)` stalls + OOMs on multimodal batches, and the chunked DP-full worker pattern that fixes it
 - [[concept-trueskill]] — Bayesian rating aggregation of pairwise VQA outputs: ordinal-score → `rate_1vs1` recipe, `mu - 3*sigma` for ranking, gotchas
 - [[concept-facing-filter]] — Per-unit facing pipeline (A–E): attribution dedup, ray-vs-own-polygon, 22.5° bearing cone, 200-ft distance cap, quadratic `attribution_confidence` score feeding the weighted pair sampler
+- [[concept-self-explanation-ladder]] — GEPA self-distillation on the pairwise judges: escalating channels (labels → captions → contrastive captions → the image pairs themselves) recover only visual proxies, never the evaluative concept; the `[val-eval]` scoring trap
+- [[concept-cyclomedia-depth-maps]] — Depth PNG encoding (`code = R*256 + G`, `0` = no return) + the metric calibration, **resolved 2026-07-29**: `range_m = (code - 16384) / 250`, Euclidean range along the pixel ray, 4 mm quantum, 0–196.6 m. Scale from collinear camera baselines (249.86 ± 0.17 codes/m, flat 19→52 m, which is what ruled out log/inverse); zero-point from cross-projection consistency. Trap: `groundLevelOffset` is *not* the rendered camera height and anchoring on it is 24 σ off
+- [[concept-activation-probe]] — HF hidden-state extraction from `gemma4_unified` (48×3840, 0.33 s/pair); the Gemma massive-activation trap (raw cosine ≈1.0 is an artifact — always center); preliminary result: the judgment *is* represented, just not sayable
+- [[concept-monocle]] — Per-patch logit-lens word clouds over cyclomedia images (`monocle/`): encoder-free gemma-4 48-px patches → next-token top-k ÷ image-global distribution → PNG/SVG overlay; verified 16×16 row-major geometry; the substring-token-matching trap
+- [[concept-jlens-monocle]] — Depth-resolved patch readout via the Jacobian lens (`sub/jacobian-lens`, fitted for gemma-4-12b, 8 layers): per-layer overlays + depth GIF + HTML scrubber; text-reading ignites at L36 while color localizes at L12; the hidden_states double-norm and force_bos double-BOS traps
 
 ## Reference
 

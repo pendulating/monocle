@@ -36,13 +36,35 @@ dependencies = [
     "timm>=1.0.15",
     "webdataset>=0.2.100",
     "marimo>=0.23.3",
+    "duckdb>=1.5.4",
+    "plotly>=6.9.0",
     "silero-vad>=5.1",
+    "wordcloud>=1.9.6",
+    "nltk>=3.9.4",
 ]
 
 [project.optional-dependencies]
 # Ray is only needed for the Cambrian-13B sidecar inference path
 cambrian = [
     "ray>=2.53.0",
+]
+
+# LangExtract turns a reasoning trace into typed, grounded extractions
+# (dagspaces/common/langextract_backend.py).
+#
+# WARNING: install this group with --no-deps. A plain install pulls
+# google-genai and google-cloud-storage, which this project never calls, and
+# moves websockets down from 17.0.1 to 16.1.1.
+#
+#   uv pip install --no-deps langextract absl-py ml-collections more-itertools
+#
+# The 3 packages beside langextract are the only runtime imports it needs that
+# the base environment does not already hold.
+langextract = [
+    "langextract>=1.6.0",
+    "absl-py>=2.5.0",
+    "ml-collections>=1.1.0",
+    "more-itertools>=11.1.0",
 ]
 
 
