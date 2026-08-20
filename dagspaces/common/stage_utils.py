@@ -152,19 +152,30 @@ def serialize_arrow_unfriendly_in_row(
 ) -> None:
     """In-place convert non-Arrow-serializable column values to JSON strings.
 
-    Handles ``dict``, ``list``, ``tuple``, and vLLM ``GuidedDecodingParams`` /
-    ``SamplingParams`` objects.  The vLLM types are imported lazily so that
-    the function remains usable in environments where vLLM is not installed.
-    """
-    _GuidedDecodingParams = None
-    _SamplingParams = None
-    try:
-        from vllm.sampling_params import GuidedDecodingParams, SamplingParams  # type: ignore
+    Handles ``dict``, ``list``, ``tuple``, and the vLLM structured-output and
+    ``SamplingParams`` objects.  The vLLM types are imported lazily, so the
+    function stays usable where vLLM is not installed.
 
-        _GuidedDecodingParams = GuidedDecodingParams
-        _SamplingParams = SamplingParams
-    except Exception:
-        pass
+    The structured-output type has a different name in each vLLM generation:
+    ``GuidedDecodingParams`` up to 0.11, ``StructuredOutputsParams`` from 0.12.
+    vLLM 0.25 removed ``GuidedDecodingParams``.  Import each type on its own —
+    one import statement for both would lose ``SamplingParams`` as well when
+    only the structured-output name is absent.
+    """
+    _vllm_types: tuple = ()
+    for _mod, _name in (
+        ("vllm.sampling_params", "SamplingParams"),
+        ("vllm.sampling_params", "StructuredOutputsParams"),
+        ("vllm.sampling_params", "GuidedDecodingParams"),
+    ):
+        try:
+            import importlib
+
+            _t = getattr(importlib.import_module(_mod), _name, None)
+            if isinstance(_t, type):
+                _vllm_types = _vllm_types + (_t,)
+        except Exception:
+            pass
 
     for col in columns:
         if col not in row:
@@ -172,9 +183,7 @@ def serialize_arrow_unfriendly_in_row(
         val = row[col]
         if isinstance(val, (dict, list, tuple)):
             row[col] = to_json_str(val)
-        elif _GuidedDecodingParams is not None and isinstance(val, _GuidedDecodingParams):
-            row[col] = str(val)
-        elif _SamplingParams is not None and isinstance(val, _SamplingParams):
+        elif _vllm_types and isinstance(val, _vllm_types):
             row[col] = str(val)
 
 

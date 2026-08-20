@@ -965,8 +965,26 @@ def _create_submitit_executor(
             "submitit is not available but is required for SLURM job submission"
         )
 
+    # Stage interpreter. submitit writes `sys.executable` (an NFS path) into
+    # the sbatch script without a change. A cold import of torch, vllm and
+    # flashinfer over NFS costs about 13 minutes for each process spawn, and a
+    # vLLM stage spawns three processes. The bash expansion below moves the
+    # choice of interpreter to job runtime on the node that SLURM assigns:
+    # `activate_stage_venv.sh` (sourced from the launcher setup block) exports
+    # MLLMSCI_STAGE_PYTHON only when that node holds a complete /scratch mirror
+    # of the driver venv. If it does not, the expansion gives the same
+    # sys.executable that submitit would have used.
+    python_spec = launcher_cfg.get("python") or (
+        f'"${{MLLMSCI_STAGE_PYTHON:-{sys.executable}}}"'
+    )
     with _clean_slurm_env():
-        executor = submitit.AutoExecutor(folder=log_folder)
+        executor = submitit.AutoExecutor(folder=log_folder, slurm_python=python_spec)
+
+    # Tell the setup block which venv the driver runs from. The scratch mirror
+    # is then used only when it is a mirror of THIS venv, which stops a silent
+    # swap of the engine version on a cluster with more than one venv.
+    setup_lines: List[str] = [f"export MLLMSCI_DRIVER_VENV={sys.prefix}"]
+    setup_lines.extend(launcher_cfg.get("setup", []))
 
     params: Dict[str, Any] = dict(
         timeout_min=int(launcher_cfg.get("timeout_min", 120)),
@@ -979,7 +997,7 @@ def _create_submitit_executor(
         slurm_array_parallelism=int(launcher_cfg.get("array_parallelism", 1)),
         name=f"matt-{job_name}",
         slurm_additional_parameters=launcher_cfg.get("additional_parameters", {}),
-        slurm_setup=launcher_cfg.get("setup", []),
+        slurm_setup=setup_lines,
     )
     if not use_srun:
         params["slurm_use_srun"] = False
