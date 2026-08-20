@@ -1,0 +1,31 @@
+# Pinned CUDA stack for the vLLM 0.25 / CUDA 12.9 environment.
+#
+# Use this file as a uv CONSTRAINT when you build `.venv-vllm025cu129`
+# (see scripts/build_venv_vllm025.sh). It pins only the packages where the
+# version must match, because the vLLM 0.25 binary wheel links against them.
+# All other dependencies come from pyproject.toml and resolve freely.
+#
+# The versions come from the proven UAIR environment
+# (/share/pierson/matt/UAIR/.venv-vllm025cu129, frozen 2026-08-12).
+#
+# Warning: do not install torch from the default index. The default index
+# gives a cu128 build, which the vLLM 0.25 cu129 wheel cannot load.
+
+torch==2.11.0+cu129
+torchvision==0.26.0+cu129
+torchaudio==2.11.0+cu129
+triton==3.6.0
+
+# vLLM 0.25 imports FlashInfer at start. The cubin package is large
+# (1.9 GB, about 20k files) — this is the main reason a /scratch venv
+# mirror is necessary. See vlm-narratives-docs/scratch-venv-mirrors.md.
+flashinfer-python==0.6.13
+flashinfer-cubin==0.6.13
+
+transformers==5.13.1
+tokenizers==0.22.2
+huggingface-hub==1.23.0
+safetensors==0.8.0
+compressed-tensors==0.17.0
+xgrammar==0.2.3
+numpy==2.3.5
