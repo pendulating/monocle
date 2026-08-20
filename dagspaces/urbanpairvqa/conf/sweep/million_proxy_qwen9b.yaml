@@ -1,0 +1,100 @@
+# @package _global_
+# VALIDATION BY PROXY AT 1,000,000 PAIRS — rater 1 of 2, qwen3.5-9b, 7 cases.
+#
+# ─── What changes against `looks_proxy_qwen9b` ───────────────────────────────
+# The prompt, the model, the seed and the sampling are the SAME. Only the
+# number of pairs changes, 100,000 → 1,000,000. Thus a number from this sweep
+# and a number from the "looks like" battery answer the same question, and the
+# larger one carries less noise.
+#
+# The draw is a SUPERSET, not another draw: `pair_seed` is still 777. A
+# 1,000,000-pair draw does NOT hold the 100,000-pair draw as a prefix, because
+# the sampler draws against a larger target. Treat this as a new, larger
+# sample of the same pair space, and do not pool the 2.
+#
+# ┌─ WHY THIS SWEEP LOOKS DIFFERENT FROM EVERY EARLIER ONE ────────────────────┐
+# │ 1,100,000 rows need about 165 GPU-hours for 1 case. That does not fit 1    │
+# │ job, and it does not fit 1 node. Thus the case splits into 92 shards, and  │
+# │ the shards run on the PREEMPTABLE `gpu` partition, which is about 5x wider │
+# │ than `pierson`.                                                            │
+# │                                                                            │
+# │ 2 mechanisms make that safe, and both are new on 2026-08-18:               │
+# │   * `pair_sampler.shard_count/shard_index` — every shard builds the same   │
+# │     full pair table from seed 777, then keeps every 92nd CANONICAL pair.   │
+# │     Thus the shards partition the table exactly, and a canonical pair       │
+# │     never splits across 2 jobs (the repeat diagnostics need its rows       │
+# │     together).                                                             │
+# │   * `runtime.resume` — the stage writes a chunk parquet for each row range │
+# │     beside its results parquet. A preempted job that starts again reads    │
+# │     the chunks and generates only the rest. Without this a preemption      │
+# │     would throw away the whole job: the single-GPU path holds every output │
+# │     in memory and writes 1 parquet at the end.                             │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── Sizing, from the measured rate ──────────────────────────────────────────
+# qwen3.5-9b judges about 1.85 rows in 1 second on an A6000 (110,000 rows in
+# about 16.5 h, measured on schools 2026-08-13).
+#
+# | Quantity            | Value                                               |
+# |---------------------|-----------------------------------------------------|
+# | Rows for each case  | 1,100,000 (1,000,000 pairs + a 10% repeat fraction) |
+# | Shards for each case| 92, thus about 12,000 rows for each shard           |
+# | Work in 1 shard     | about 110 minutes, inside the 180-minute walltime   |
+# | Jobs                | 644 (7 cases x 92 shards)                           |
+# | Cost                | about 1,155 GPU-hours                               |
+# | Chunk               | 1,024 rows, about 9 minutes — what a preemption loses|
+#
+# A shard fills about 61% of the walltime. The rest pays the cold import: a
+# node of the `gpu` partition holds NO /scratch mirror of the venv, thus the
+# first import of torch and vLLM comes over NFS and costs about 13 minutes.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   bash scripts/launch_million_battery.sh --dry-run
+#   bash scripts/launch_million_battery.sh --smoke     # 2 shards, 1 case
+#   bash scripts/launch_million_battery.sh
+#
+# ─── When it lands ───────────────────────────────────────────────────────────
+#   python scripts/merge_pairwise_shards.py --sweep-dir <sweep> --out-dir <dir>
+# The merge REFUSES to write while a shard is missing. Do not pass
+# --allow-incomplete to a run that feeds the results table.
+
+sampling_params_vqa:
+  # The ordinal answer is about 10-15 tokens. 128 is ample headroom, and it
+  # keeps the KV window small, which is what sets how many sequences fit.
+  max_tokens: 128
+
+runtime:
+  # REQUIRED on the preemptable partition. See the box above.
+  resume: true
+  # About 9 minutes of work for this rater. The runner rounds this up to a
+  # whole number of batches, thus the true chunk is 1,024 rows.
+  resume_chunk_rows: 1024
+
+pair_sampler:
+  max_pairs: 1000000
+  shard_count: 92
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        # PREEMPTABLE. The `gpu` partition takes a node back when its owner
+        # wants it, and `requeue: true` starts the task again. The stage then
+        # reads its chunks and carries on.
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # How many shards run at one time. Each one holds 1 monitor CPU job and 1
+    # GPU job. Raise it when the partition is quiet; the launch script takes
+    # `--parallel`.
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct
+      # All 7 cases of the consolidated battery, in the battery order.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 92 shards for each case. `range` is Hydra override syntax, and it gives
+      # 0,1,...,91. This MUST match `pair_sampler.shard_count` above.
+      pair_sampler.shard_index: range(0,92)

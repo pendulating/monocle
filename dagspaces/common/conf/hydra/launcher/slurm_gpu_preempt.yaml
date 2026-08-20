@@ -1,0 +1,161 @@
+# Uses Hydra Submitit Slurm launcher
+# PREEMPTABLE, 1 GPU, on the cluster-wide `gpu` partition (143 nodes).
+#
+# ┌─ WHAT THIS BUYS, AND WHAT IT COSTS ────────────────────────────────────────┐
+# │ The `pierson` partition gives 8 GPUs on 1 node. The `gpu` partition gives  │
+# │ the whole cluster, and takes the job back when an owner wants the node     │
+# │ (`PreemptMode=REQUEUE`). A stage that can resume therefore runs 5x wider   │
+# │ for the same work.                                                         │
+# │                                                                            │
+# │ ONLY use this launcher for a stage that RESUMES. `ic_extract` and          │
+# │ `trace_extract` write a chunk parquet for each row range and skip a range  │
+# │ that already has one, thus a preemption costs 1 chunk. A stage that writes │
+# │ 1 parquet at the end would lose everything, every time.                    │
+# │                                                                            │
+# │ Cut `shard_rows` when you use this launcher. A chunk is the unit of loss.  │
+# │ 250 rows is about 11 minutes of work; 2,000 rows is about 1.4 hours.       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# The pattern comes from `/share/ju/cyclomedia/slurm/camera_sweep.sub`, which
+# runs the same way on this cluster:
+#
+#   --requeue           SLURM restarts a preempted task by itself
+#   --open-mode=append  a restarted task must not truncate its own log
+#   short walltime      a small task backfills into an idle gap that a 12-hour
+#                       job never reaches
+#   many small shards   nothing is shared, thus a task can start, die, and
+#                       start again on any free GPU
+#
+# Warning: a node here holds NO /scratch mirror of the venv, unlike klara. The
+# first import of torch and vLLM comes over NFS and costs about 13 minutes.
+# Thus a task must be big enough to pay that back: aim for 45 to 90 minutes of
+# work, and NOT for 10.
+#
+# Warning: the GPU model varies. Do not pin `TORCH_CUDA_ARCH_LIST` here — the
+# klara launchers pin sm_86, which is wrong on a 6000ada (sm_89) or an A100
+# (sm_80). The constraint below keeps the memory at 40 GB or more, which
+# Qwen3.5-9B at `max_model_len=24576` needs.
+_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
+submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+# 3 hours. Short on purpose: it backfills, and a preemption costs 1 chunk.
+timeout_min: 180
+nodes: 1
+tasks_per_node: 1
+# The extractor reads text, thus it needs few cores. A small ask schedules
+# sooner, and 4 cores are what the camera sweep uses on the same partition.
+cpus_per_task: 6
+mem_gb: ${runtime.job_memory_gb}
+partition: gpu
+array_parallelism: 1
+gpus_per_node: 1
+name: ${experiment.name}
+additional_parameters:
+  gres: gpu:1
+  # Let SLURM start the task again after a preemption. Without this the task
+  # dies and the sweep silently loses a shard.
+  requeue: true
+  # A requeued task writes to the same log. Truncation would hide the first run.
+  open-mode: append
+  # 40 GB or more of GPU memory. a5000, 3090, and 2080ti are too small for a
+  # 9B model with a 24,576-token window.
+  #
+  # `blackwell` and `6000maxq` name the RTX PRO 6000 Blackwell (96 GB, sm_120):
+  # owens-compute-01, owens-compute-02, shmatikov-compute-02, jjs533-compute-03.
+  # They add 24 GPUs. Every GPU on these 4 nodes is the same card, thus the
+  # mixed-node problem below does not apply. torch 2.11.0+cu129 compiles sm_120
+  # (`torch.cuda.get_arch_list()`), thus the card runs.
+  # Measured 2026-08-19 with scripts/gpu_census.py, over 30 days:
+  #   this pool           24 GPUs   0.1% preempted   median wait  1.7 min
+  #   the older 5 tags   396 GPUs   5.0% preempted   median wait 11.0 min
+  #
+  # b200, h200, and h100 stay OUT on purpose. They add 34 GPUs, but they
+  # preempt 51.3% of the time and the median wait is 87.9 minutes. A long shard
+  # almost never finishes on one.
+  constraint: "a6000|6000ada|a40|a100|l40s|blackwell|6000maxq"
+  # A constraint selects the NODE, not the GPU. These 2 nodes MIX GPU types, thus
+  # SLURM can hand out a card that the job did not plan for. Measured 2026-08-18:
+  # bhattacharjee-compute-02 gave a blackwell max-q where the tag said 6000ada,
+  # and vLLM died with "WorkerProc failed to start" in `init_device`.
+  #   bhattacharjee-compute-02  nvidia_rtx_6000_ada + blackwell_max-q
+  #   unicorn-compute-01        a6000 + 2080ti
+  # Note the fault is the MIX, not the Blackwell card: the 4 pure Blackwell
+  # nodes that `blackwell|6000maxq` adds above hold 1 card type each and work.
+  # 66 clean nodes stay. Check this list again when the cluster changes:
+  #   sinfo -p gpu -N -h -o "%N|%f|%G"
+  exclude: "bhattacharjee-compute-02,unicorn-compute-01"
+  wckey: ""
+setup:
+  - export HYDRA_FULL_ERROR=1
+  - source ~/.bashrc
+  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
+  # A node-local mirror of the venv, when the node holds one. Only klara does
+  # today, thus this is a no-op on the `gpu` partition and the import comes
+  # over NFS. See scripts/sync_venv_to_scratch.sh.
+  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/scripts/activate_stage_venv.sh
+  # `source ~/.bashrc` conda-activates anaconda base, whose old libstdc++.so.6
+  # lacks GLIBCXX_3.4.32 and shadows the system one. Force the system library
+  # ahead of it, but ONLY when the node really holds it: an LD_PRELOAD that
+  # names a missing file makes every command print a loader warning.
+  - if [ -f /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ]; then export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6; fi
+  - if [ -n "$SLURM_GPUS_ON_NODE" ] && [ "$SLURM_GPUS_ON_NODE" -gt 0 ]; then export CUDA_VISIBLE_DEVICES=$(seq -s, 0 $((SLURM_GPUS_ON_NODE - 1))); else unset CUDA_VISIBLE_DEVICES; fi
+  - export PYTHONUNBUFFERED=1
+  # KEEP THE COMPILE CACHE OFF THE HOME DIRECTORY.
+  # vLLM writes `torch_compile_cache` under VLLM_CACHE_ROOT, which defaults to
+  # ~/.cache/vllm. The home quota leaves about 38 GB, and 144 concurrent cold
+  # starts each write a compile artifact there. Measured 2026-08-18: about 11%
+  # of the tasks died with "[Errno 122] Disk quota exceeded" in
+  # `torch/_inductor/codecache.py`. The project file system holds 32 TB.
+  # The home directory is AT ITS QUOTA (measured 2026-08-18: a 200 MB write
+  # fails with EDQUOT). Every cache a job writes must go somewhere else, or the
+  # job dies in start-up. `df` on the home mount shows the export and NOT the
+  # quota, thus it looks like there is room when there is none.
+  - export VLLM_CACHE_ROOT=${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/.cache/vllm
+  # flashinfer builds its cache under FLASHINFER_WORKSPACE_BASE/.cache, and the
+  # base defaults to the home directory.
+  - export FLASHINFER_WORKSPACE_BASE=${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}
+  # Catches the libraries that follow the XDG rule.
+  - export XDG_CACHE_HOME=${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/.cache
+  # torch and triton write their JIT caches per node. TMPDIR is node-local, thus
+  # these stay off NFS and off the home quota.
+  - echo "=== GPU sanity (pre-job) ==="
+  # NB: no bash `${...}` anywhere in this block. OmegaConf reads a `${name}` as
+  # a config interpolation and the whole stage dies with
+  # "Unsupported interpolation type". Plain `$NAME` is safe.
+  - echo "HOST=$(hostname) DATE=$(date) RESTARTS=$SLURM_RESTART_COUNT"
+  - nvidia-smi -L || true
+  - unset WANDB_DISABLED
+  - if [ -n "$WANDB_MODE" ]; then export WANDB_MODE="$WANDB_MODE"; fi
+  - if [ -n "$WANDB_BASE_URL" ]; then export WANDB_BASE_URL="$WANDB_BASE_URL"; fi
+  - if [ -n "$WANDB_GROUP" ]; then export WANDB_GROUP="$WANDB_GROUP"; fi
+  - export WANDB_SILENT=true
+  - export WANDB_DISABLE_SERVICE=true
+  - export VLLM_WORKER_MULTIPROC_METHOD=spawn
+  # TP=1 here, thus NCCL carries nothing. The flags stay to keep a stray
+  # collective from hanging on a node with no NVLink.
+  - export NCCL_DEBUG=WARN
+  - export NCCL_P2P_DISABLE=1
+  - export NCCL_IB_DISABLE=1
+  - export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512,expandable_segments:True
+  - export TOKENIZERS_PARALLELISM=false
+  # /scratch is node-local and its free space varies. On a node where it is
+  # full, torch fails with "[Errno 28] No space left on device" before the model
+  # even loads. Measured 2026-08-18: 5 of 113 tasks died that way. Ask for 10 GB
+  # and fall back to /tmp.
+  # NB: `tr -dc 0-9` leaves an empty string when df fails, and the -n test then
+  # sends the job to /tmp. Do NOT write a bash `${VAR:-default}` here: OmegaConf
+  # reads `${` as an interpolation and the stage dies.
+  # Clear the JIT caches that earlier runs left on this node, THEN measure. A
+  # node whose /scratch is full is usually holding a stale torchinductor tree,
+  # thus the cleanup keeps the job on the fast node-local path instead of the
+  # /tmp fallback. It never touches the venv or the model mirror, and only 1 job
+  # for each node holds its lock. See scripts/prepare_scratch.sh.
+  - bash ${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/scripts/prepare_scratch.sh || true
+  - SCRATCH_FREE=$(df --output=avail -k /scratch 2>/dev/null | tail -1 | tr -dc 0-9)
+  - if [ -n "$SCRATCH_FREE" ] && [ "$SCRATCH_FREE" -gt 10485760 ]; then export TMPDIR=/scratch/$USER; else export TMPDIR=/tmp/$USER; fi
+  - mkdir -p $TMPDIR
+  # torch and triton write their JIT caches per node. TMPDIR is node-local, thus
+  # these stay off NFS and off the home quota. They must come AFTER TMPDIR.
+  - export TRITON_CACHE_DIR=$TMPDIR/triton
+  - export TORCHINDUCTOR_CACHE_DIR=$TMPDIR/inductor
+  - mkdir -p $TRITON_CACHE_DIR $TORCHINDUCTOR_CACHE_DIR
+  - export SLURM_CPU_BIND=none

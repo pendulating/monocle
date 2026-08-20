@@ -1,0 +1,77 @@
+# @package _global_
+# VALIDATION BY PROXY AT 1,000,000 PAIRS — rater 2 of 2, gemma-4-12b, 7 cases.
+#
+# The companion of `million_proxy_qwen9b.yaml`. Read that file for the shard
+# and resume mechanisms, which are the same here. This file states what is
+# different for this rater.
+#
+# ┌─ REQUIREMENT 1 — 1 GPU FOR EACH JOB, NEVER 2 ──────────────────────────────┐
+# │ gemma-4-12b is the encoder-free `gemma4_unified` arch. The `<|image|>`     │
+# │ chat-template fix lives only in the single-process apply_chat_template     │
+# │ site in vllm_inference.py. A 2-GPU stage starts the DP-worker path, which  │
+# │ is not gated for this arch, and the job dies with "Failed to apply prompt  │
+# │ replacement for mm_items['image'][0]". `slurm_gpu_preempt` asks for 1 GPU. │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ┌─ REQUIREMENT 2 — LAYOUT: interleaved_labels ───────────────────────────────┐
+# │ Under the default `images_then_text` layout, gemma-4-12b does not bind the │
+# │ second image, and a label-only run CANNOT SHOW the failure: it looks like  │
+# │ an honest abstention rate. Measured on 16 pairs with traces, 2026-08-13:   │
+# │   images_then_text    "only one image" in 15 of 18 traces,  83% NotSure    │
+# │   interleaved_labels  "only one image" in  0 of 18 traces, 5.6% NotSure    │
+# │ Do not remove this. See `looks_proxy_gemma12b.yaml`.                       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ┌─ REQUIREMENT 3 — GPU MEMORY ───────────────────────────────────────────────┐
+# │ gemma-4-12b holds about 24 GB in bf16. The `constraint` of                 │
+# │ `slurm_gpu_preempt` keeps the job on a card of 40 GB or more, thus the     │
+# │ a5000, the 3090 and the 2080ti of the `gpu` partition are excluded.        │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── Sizing, from the measured rate ──────────────────────────────────────────
+# gemma-4-12b judges about 3.97 rows in 1 second on an A6000 (110,000 rows in
+# about 7.7 h, measured on schools 2026-08-13). It is about 2.1x the rate of
+# qwen, thus a shard holds twice the rows for the same walltime.
+#
+# | Quantity            | Value                                               |
+# |---------------------|-----------------------------------------------------|
+# | Rows for each case  | 1,100,000 (1,000,000 pairs + a 10% repeat fraction) |
+# | Shards for each case| 46, thus about 24,000 rows for each shard           |
+# | Work in 1 shard     | about 100 minutes, inside the 180-minute walltime   |
+# | Jobs                | 322 (7 cases x 46 shards)                           |
+# | Cost                | about 539 GPU-hours                                 |
+# | Chunk               | 2,048 rows, about 9 minutes — what a preemption loses|
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  resume: true
+  # About 9 minutes for this rater, which is twice the rows of the qwen half
+  # because the rate is about twice as fast.
+  resume_chunk_rows: 2048
+
+prompt:
+  # REQUIRED for this arch. See requirement 2 above. Do not remove.
+  image_layout: interleaved_labels
+
+pair_sampler:
+  max_pairs: 1000000
+  shard_count: 46
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt   # 1 GPU — see requirement 1
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 46 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,46)
