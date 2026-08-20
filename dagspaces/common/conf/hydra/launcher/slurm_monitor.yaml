@@ -33,7 +33,13 @@ setup:
   - export PATH=$HOME/.local/bin:${oc.env:MLLMSCI_SLURM_BIN,/usr/local/slurm/current/bin}:$PATH
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv/bin/activate}
+  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
+  # This job runs the DRIVER, so it must keep the NFS venv: MLLMSCI_DRIVER_VENV
+  # comes from the driver sys.prefix, and a /scratch prefix would match no
+  # mirror marker on any stage node. The script is still necessary here for the
+  # FFmpeg library path, which torchcodec needs before `import vllm` on 0.25.
+  - export MLLMSCI_SKIP_SCRATCH_VENV=1
+  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/scripts/activate_stage_venv.sh
   - unset WANDB_DISABLED
   - if [ -n "$WANDB_MODE" ]; then export WANDB_MODE="$WANDB_MODE"; fi
   - if [ -n "$WANDB_BASE_URL" ]; then export WANDB_BASE_URL="$WANDB_BASE_URL"; fi
