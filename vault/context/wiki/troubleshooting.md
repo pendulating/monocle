@@ -2,11 +2,12 @@
 title: "Troubleshooting & Known Issues"
 category: troubleshooting
 created: 2026-04-06
-updated: 2026-06-18
+updated: 2026-08-11
 tags:
   - troubleshooting
   - performance
   - issues
+  - interpretability
 ---
 
 # Troubleshooting & Known Issues
@@ -182,6 +183,79 @@ Cascading stalls from disk reads. When the object store has spilled tens of GiB 
 
 ---
 
+## Issue 6: Every SLURM Launch Dies at Setup — Gutted `.venv`
+
+### Symptom
+
+Every job on every dagspace fails immediately in the submitit setup block; the
+`.err` shows `source: No such file or directory` for
+`/share/pierson/matt/mllmsci/.venv/bin/activate`. Nothing reaches Python, so
+there is no traceback and no W&B run — it does not look like a pipeline bug.
+
+### Root Cause
+
+`.venv` was gutted: empty `site-packages` (2 entries), no `bin/` at all. Every
+launcher's setup does
+`source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv/bin/activate}`,
+and **both** `server.env` and the hardcoded fallback default pointed there — so
+there was no surviving path.
+
+### Fix (applied 2026-08-11)
+
+Repointed to `.venv-3.12` (vllm 0.19.0, torch 2.10.0+cu128) in `server.env`,
+`server.env.example`, and the fallback default in all 16 launcher configs.
+Verify the resolved setup line rather than trusting the config text — the value
+is baked into the sbatch script at submit time, after `ensure_dotenv()` loads
+`server.env`:
+
+```python
+from dagspaces.common.stage_utils import ensure_dotenv; ensure_dotenv()
+# compose with return_hydra_config=True, then read cfg.hydra.launcher.setup
+```
+
+The nightly env stays an explicit per-run override (gemma-4-12b needs vLLM 0.23):
+
+```bash
+export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+```
+
+---
+
+## Issue 7: Shared TMPDIR — Fixed, and Must Stay Shared
+
+### Symptom (historical)
+
+Concurrent DP sweep jobs on one node silently ran the **wrong model** — the
+2026-06-13 schools sweep had two of six models never actually run, with result
+dirs duplicating a neighbour. Tell-tale: the parent logs the correct
+`streaming_output_dir`, but the per-rank `DP rank N/2: starting (...)` line
+shows a *different* subdir.
+
+### Root Cause + Fix
+
+DP workers wrote task/result pickles to a fixed, non-unique path inside the
+shared `TMPDIR` (`/scratch/$USER`), so concurrent jobs clobbered each other.
+**Fixed 2026-06-14**: every DP path now allocates a unique per-invocation
+`tempfile.mkdtemp()` subdir inside TMPDIR and `rmtree`s it —
+`vllm_inference.py:1781`, `1960`, `2378`, `3389`. Concurrent sweeps
+(`array_parallelism > 1`) are safe.
+
+### ⚠️ Do not "re-fix" this by isolating TMPDIR per job
+
+Re-verified 2026-08-11: `/scratch/$USER` holds **zero** orphaned dp workdirs, so
+cleanup works. The shared TMPDIR is also where torchinductor caches compiled
+kernels (`/scratch/$USER/torchinductor_$USER`, ~213 MB). Setting
+`TMPDIR=/scratch/$USER/$SLURM_JOB_ID` would fragment that cache and force a
+fresh `torch.compile` on every run (~256 s for qwen3.5-9b) — a straight
+regression. The correct design is the current one: **share the caches, isolate
+the mutable per-run state.**
+
+Note also that non-DP runs (`data_parallel_size` unset, `concurrency=1` — which
+is what every urbanpairvqa case pipeline pins) never touch the task-pickle path
+at all, so they were never exposed even before the fix.
+
+---
+
 ## General Debugging
 
 ### Enable Debug Mode
@@ -312,7 +386,64 @@ Propagated 2026-06-18 to all 12 GPU launchers (`slurm_gpu_{1x,2x,3x,4x,6x}`, `sl
 
 ### `AssertionError: Failed to apply prompt replacement for mm_items['image'][0]`
 
-Multimodal preprocessing dies for `gemma4_unified` only. Its image token is `<|image|>` (id 258880) and its `chat_template.jinja` inserts it only for `{"type":"image"}` content blocks — but stages send OpenAI `{"type":"image_url"}` and the single-process path uses `tokenizer.apply_chat_template`, whose default template omits images. Fixed in `dagspaces/common/vllm_inference.py` via `_gemma4_unified_chat_template()` (loads the model's own `chat_template.jinja`, cached) + `_to_image_type_blocks()`, **gated to the unified arch** so qwen/gemma-e2b/e4b are not regressed. Validated end-to-end on the klara_1x single-process path (110k-pair schools run). **Still pending:** the DP-full worker (`_DP_FULL_WORKER_SCRIPT`, used by `klara_2x`) is not yet gated, so DP launchers still fail for unified models — run them single-process for now. See [[vllm-inference]].
+Hits **all gemma-4 models** on the single-process (single-GPU) path — for two related reasons. The root cause is shared: stages send OpenAI `{"type":"image_url"}` blocks, but the single-process path builds the prompt with `tokenizer.apply_chat_template` → `tokenizer.encode` → `TokensPrompt` + `multi_modal_data`, and gemma's chat templates emit **zero** image placeholders for `image_url` blocks → N images, 0 placeholders → the assertion. The **DP path never had this bug** because it calls `llm.chat()`, which does vLLM's first-class multimodal placeholder insertion end-to-end.
+
+1. **`gemma4_unified` (12B)** — image token `<|image|>` (id 258880); its `chat_template.jinja` only emits it for `{"type":"image"}` blocks. Fixed via `_gemma4_unified_chat_template()` (loads the model's own `chat_template.jinja`, cached) + `_to_image_type_blocks()`, gated to the unified arch.
+2. **`gemma4` (e2b/e4b)** — same symptom on multi-image prompts (e.g. pairwise VQA's 2-image inputs). These ran fine in production only because the prior sweeps used `klara_2x` (DP/`llm.chat`); they crash on `klara_1x` (single-process). Fixed 2026-06-25 in `run_vllm_inference`: the single-process multimodal branch now **routes the non-unified gemma-4 family through `llm.chat()`** (new `_hydrate_messages_for_chat()` converts `image_url`→`image_pil` blocks, mirroring the DP path's `_hydrate_chunk_images`). Gated to `model_family == "gemma-4"` and not unified, so qwen / phi / unified keep their existing path. Validated: gemma-4-e2b 2-image smoke run on `.venv` (vLLM 0.19.1) + `klara_1x` renders + writes results (was crashing on both 0.19.1 and the 0.23 nightly — so this was **not** a venv issue; nightly does not fix it).
+
+**Still pending:** the DP-full worker (`_DP_FULL_WORKER_SCRIPT`, used by `klara_2x`) is not yet gated for `gemma4_unified` (12B) — run unified models single-process for now. The e2b/e4b fix above is single-process, so those run on `klara_1x` (1 GPU). See [[vllm-inference]].
+
+---
+
+## Analysis Traps (interpretability / prompt-search)
+
+These are not crashes — they are results that look real and are wrong. Both cost real time; one put wrong numbers in a paper draft.
+
+### Gemma residual-stream cosine is always ≈ 1.0 (massive activations)
+
+**Symptom.** You extract hidden states from gemma-4 and the pairwise cosine between activations for *completely different* inputs comes back `mean=1.0000, min=0.9993`. Read literally: "every activation is identical, the signal is dead, the probe is impossible."
+
+**It is an artifact.** Gemma has *massive activations* — a handful of residual dimensions with enormous magnitude. At layer 24 of gemma-4-12B, **dim 1750 alone has |mean| = 246.9** while the median dimension is **0.25**; `||mean vector|| = 251.8` vs `mean ||x − mean|| = 1.7`. The shared component is ~**150×** the input-specific signal, so cosine is dominated by it and everything looks parallel.
+
+**Fix.** **Center (and standardize) before probing or plotting.** Centered, the same states give mean cosine `0.0005`, range `−0.85 … 0.92` — pair-specific and near-orthogonal, exactly as they should be.
+
+**Tell.** If the model emits *different outputs* for those inputs, the activations *cannot* be identical. Trust the behavior, distrust the raw cosine. See [[concept-activation-probe]].
+
+### GEPA's last `[val-eval]` line is not the returned best
+
+**Symptom.** You read the final `[val-eval]` score from a GEPA log and report it as the optimized result. It is wrong — and plausibly wrong, which is worse.
+
+**Cause.** `evaluate()` logs a `[val-eval]` line on **every** full-val candidate evaluation. The last line is therefore the **last candidate tried**, not the winner GEPA returns.
+
+**Fix.** Read `max(val_aggregate_scores)` from `metrics.json` (task evals run at temperature 0, so they are deterministic). `gepa_pairwise.py` now also writes `best_val_ordinal` directly. See [[concept-self-explanation-ladder]].
+
+### Cyclomedia depth: do not calibrate against `groundLevelOffset`
+
+**Symptom.** You decode a depth PNG (`code = R*256 + G`), fit the down-face ground plane against the catalog's `groundLevelOffset` (≈ 2.23 m), and get a clean scale of 245.76 codes/m. The fit looks excellent (R² = 0.997) and the implied range tops out at a suspiciously round 200 m.
+
+**It is wrong by ~2%.** The depth render places the camera at a **fixed nominal ~2.18 m above the road for every vehicle fleet** — the down-face nadir code is ~16930 whether the catalog says 2.2259 m or 2.9856 m. So `groundLevelOffset` is not the rendered camera height and cannot anchor the scale. The correct value, measured from known camera baselines, is 249.86 ± 0.17 codes/m — **24 σ away**.
+
+Calibrating on the down face alone is also **not identifiable at all**: it spans only ~2.2–3.9 m, over which linear, log and inverse fits are indistinguishable while diverging wildly on extrapolation.
+
+**Fix.** Use `to_metres()`: `range_m = (code - 16384) / 250`. Anchor on *camera baselines*, not on the ground plane — if camera B sits on camera A's ray, `range_A - range_B == |AB|`, which is known from the catalog and needs no feature matching. See [[concept-cyclomedia-depth-maps]].
+
+Two more depth gotchas: `0` is the *no-return* sentinel, not "very close" (it would decode to −65.5 m — mask it, `to_metres` returns NaN); and the encoding is **not** IEEE float16, despite the down face landing at a plausible-looking 3.06–3.88 m under that reading.
+
+### DuckDB `USING SAMPLE` runs *before* `WHERE`
+
+**Symptom.** `SELECT * FROM t WHERE <bbox> USING SAMPLE 5000 ROWS` returns ~20 rows instead of 5000, and they cluster oddly.
+
+**Cause.** DuckDB applies the sample right after `FROM`, before the filter. It sampled 5000 rows from all 5.2M, then the bbox filter discarded almost all of them.
+
+**Fix.** Wrap the filtered set: `SELECT * FROM (SELECT * FROM t WHERE <bbox>) USING SAMPLE 5000 ROWS`. Related: `QUALIFY` requires a window function, so a plain computed-column filter (e.g. `dist_m <= r`) must go in a subquery.
+
+### Do not walk the Cyclomedia image tree
+
+**Symptom.** A `find` or recursive `ls` over `/share/ju/cyclomedia/raw/<dataset>` hangs; a 2-minute timeout is not enough.
+
+**Cause.** NFS directory listing over millions of small directories. Never enumerate it.
+
+**Fix.** Construct paths from the catalog instead — `{RAW_ROOT}/{dataset}/{group}/{recording_id}/` (see `catalog.recording_dir()` in [[guide-cyclomedia-browser]]). The catalog already carries `image_path` and `depthmap_present`, so the filesystem never needs to be asked.
 
 ---
 
@@ -321,3 +452,5 @@ Multimodal preprocessing dies for `gemma4_unified` only. Its image token is `<|i
 - [[vllm-inference]] -- vLLM engine configuration and tuning
 - [[slurm-deployment]] -- SLURM launcher configuration
 - [[config-system]] -- Hydra configuration system and overrides
+- [[concept-activation-probe]] -- HF hidden-state extraction from `gemma4_unified`; the massive-activation trap
+- [[concept-self-explanation-ladder]] -- GEPA self-distillation; the `[val-eval]` scoring trap

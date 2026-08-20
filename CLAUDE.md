@@ -2,33 +2,88 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Wiki Maintenance
+## Language: ASD-STE100
 
-This project has an Obsidian wiki at `vault/context/`. You are responsible for keeping it accurate and up to date. The full schema is in `vault/context/WIKI_SCHEMA.md` — read it before making wiki changes. Key rules:
+Write all text in ASD-STE100 Simplified Technical English (STE).
 
-**Structure:**
-- `vault/context/index.md` — Content catalog. Read this first to find relevant pages. Update it whenever you create, rename, or delete a page.
-- `vault/context/log.md` — Append-only activity log. Add an entry (`## [YYYY-MM-DD] action | Subject`) for every wiki change.
-- `vault/context/wiki/` — All wiki pages live here. You own this directory entirely.
-- `vault/context/sources/`, `vault/context/raw/` — Immutable source material. Read from these but never modify them.
+This rule applies to:
 
-**When to update the wiki:**
-- After any structural change to the codebase (new dagspace, new stage, new config group, renamed module)
-- After adding, removing, or significantly modifying a pipeline stage or shared utility
-- After resolving a bug or performance issue that's documented in the troubleshooting page
-- When the user asks you to document something or you discover the wiki is stale
+- Replies to the user
+- Code comments and docstrings
+- Comments in config files
+- Documentation in `vlm-narratives-docs/` and commit messages
 
-**How to update:**
-1. Read `vault/context/index.md` to find the relevant page(s)
-2. Read the page(s) and the current source code
-3. Edit the wiki page to reflect the current state — update the `updated:` frontmatter date
-4. Add/fix `[[wikilinks]]` cross-references
-5. Update `index.md` if the page scope changed or a new page was created
-6. Append to `log.md`
+### Writing rules
 
-**Page conventions:** Frontmatter with title/category/created/updated/tags. Filenames in `kebab-case.md`. Concept pages prefixed `concept-`, guide pages prefixed `guide-`. Use `[[wikilinks]]` (no `.md` extension). Prefer tables and bullets over prose.
+| Rule | Requirement |
+|------|-------------|
+| Words | Use only approved words. Technical names and technical verbs are permitted. |
+| One meaning | Give each word one meaning and one part of speech. |
+| Sentence length | Instructions: 20 words maximum. Descriptions: 25 words maximum. |
+| Paragraphs | Write one topic in one paragraph. Use 6 sentences maximum. |
+| Voice | Use the active voice. |
+| Tense | Use the simple tenses. Do not use the perfect or the progressive tenses. |
+| Verbs that end in -ing | Do not use them, unless they are a technical name. Write a clause. |
+| Instructions | Write one instruction in one sentence. |
+| Articles | Write `the` or `a` where you can. |
+| Noun clusters | Use 3 words maximum. |
+| Lists | Put complex data in a vertical list. |
+| Warnings | Write the warning before the step, not after it. |
 
-**Do not** update the wiki for trivial changes (typo fixes, comment edits, test-only changes). The wiki documents architecture, not every commit.
+### Words to replace
+
+| Do not write | Write |
+|--------------|-------|
+| utilize | use |
+| perform | do |
+| prior to | before |
+| in order to | to |
+| due to | because of |
+| ensure | make sure |
+| via | with, by |
+| obtain | get |
+| attempt | try |
+| terminate | stop |
+| initiate | start |
+| additional | more |
+| approximately | about |
+| however | but |
+| therefore | thus |
+
+### Examples
+
+| Do not write | Write |
+|--------------|-------|
+| Removing the persona changed the judgments. | The judgments changed when we removed the persona. |
+| The cache is being shared by concurrent jobs. | Concurrent jobs share the cache. |
+| It's uninterpretable without an anchor. | You cannot read this value without an anchor. |
+| This has been fixed. | We fixed this. |
+
+**Note:** The STE dictionary has about 900 approved words. Follow the rules and
+the style above. If a word is necessary for accuracy and no approved word is
+equivalent, use it as a technical name.
+
+## Documentation
+
+Project documentation lives in `vlm-narratives-docs/`. Write all project
+information there.
+
+**Warning:** The Obsidian wiki at `vault/context/` is no longer maintained.
+Do not write to it. Its content is stale. Read it only for history.
+
+**When to write documentation:**
+
+- After a structural change to the codebase. This includes a new dagspace, a new
+  stage, a new config group, or a module that you rename.
+- After you add, remove, or change a pipeline stage or a shared utility.
+- After you correct a bug or a performance problem.
+- When the user asks you to document something.
+
+**Do not** write documentation for a small change. A typo, a comment, or a change
+to a test does not need documentation. Document the architecture, not each commit.
+
+**Conventions:** Use `kebab-case.md` for file names. Prefer tables and lists.
+Write the text in STE (see the section above).
 
 ## Project Overview
 
@@ -139,6 +194,27 @@ Supports `${oc.env:VAR}` interpolation and optional defaults.
 - **SLURM** — Cluster job submission via hydra-submitit-launcher
 - **W&B** — Experiment tracking (in-process mode for SLURM compatibility)
 
+### Environments and node-local mirrors
+
+`.venv-vllm025cu129` (vLLM 0.25.0, torch 2.11.0+cu129) is the default for all
+launchers. `server.env` sets it. `.venv-3.12` (vLLM 0.19) and `.venv-nightly`
+(vLLM 0.23) stay on disk; override `MLLMSCI_VENV_ACTIVATE` to use one.
+
+A stage job starts from a node-local `/scratch` mirror of the venv when the
+node holds one. Weight loads go to a `/scratch` model mirror by the same rule.
+Each mirror carries a `.sync_complete` marker, and a user of the mirror trusts
+it only when the marker names the same source. If it does not, the stage falls
+back to NFS.
+
+| Command | Purpose |
+|---------|---------|
+| `bash scripts/build_venv_vllm025.sh` | Build the default environment again |
+| `bash scripts/sync_venv_to_scratch.sh` | Deploy the venv mirror on this node |
+| `bash scripts/sync_model_registry_to_scratch.sh` | Deploy the model mirror |
+
+See `vlm-narratives-docs/scratch-mirrors.md` and
+`vlm-narratives-docs/vllm-025-upgrade.md`.
+
 ### Image Input Formats
 
 The VQA stage accepts images as: PIL objects, local file paths, base64 strings, or HTTP URLs. Format is auto-detected in `_prepare_image_content()`.
@@ -158,4 +234,5 @@ Documented in `PIPELINE_ISSUES.md`:
 - `documentation/` and `docs/` — Detailed guides (user guide, config guide, custom stages)
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
-- `vault/context/` — Project knowledge wiki (Obsidian vault with index, schema, and wiki pages)
+- `vlm-narratives-docs/` — Project documentation. Write project information here.
+- `vault/context/` — Obsidian wiki. NOT MAINTAINED. Stale. Read only for history.

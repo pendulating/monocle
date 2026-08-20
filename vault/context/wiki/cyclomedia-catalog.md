@@ -262,3 +262,5 @@ python -m dagspaces.common.cyclomedia_catalog.cli query \
 - [[file-map]] — project layout
 - [[concept-street-graph]] — downstream consumer (uses `recordedAt` + `recorderDirection` for trajectory edges)
 - [[concept-facing-filter]] — downstream orientation filter consuming `face`, `bearing`, `latitude`, `longitude`
+- [[guide-cyclomedia-browser]] — downstream consumer: interactive marimo browser (DuckDB over this catalog; caches a recording-level index to `data/cyclomedia/browser/recordings_v1.parquet`)
+- [[concept-cyclomedia-depth-maps]] — how to decode the `depthmap_present` PNGs to metres (and why `groundLevelOffset` must not anchor the scale)
