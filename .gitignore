@@ -254,9 +254,10 @@ notebooks/**/results/
 # elsewhere gets a dead link.
 downstream-projects-wiki
 vault/urban-visual-analytics
-# Nested git repositories. Track these as a submodule, or not at all — git adds
-# a bare gitlink that no clone can resolve.
-sub/
+# Nested git repositories that are NOT a submodule. `sub/cambrian` and
+# `papers/uair_brief` ARE submodules, thus name only the other 2 here. A git
+# add of a plain nested repository writes a gitlink that no clone can resolve.
+sub/jacobian-lens/
 papers/cvpr27_machine-perception-public-spaces/
 # Reports that a notebook writes again. `think10k_reasoning_reports.zip` alone
 # holds 160 MB.
