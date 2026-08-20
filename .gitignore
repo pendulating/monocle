@@ -143,6 +143,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+# uv writes a `.gitignore` with `*` inside each venv it makes, so `.venv-*`
+# directories exclude themselves. The bootstrap tarballs do NOT — they are
+# multi-GB files that scripts/sync_venv_to_scratch.sh --make-tarball writes
+# beside the venvs. Keep them out of the repository.
+.venv-mirrors/
 
 # Spyder project settings
 .spyderproject
@@ -237,3 +242,25 @@ notebooks/**/results/
 *.pth
 *.ckpt
 *.safetensors
+.cache/
+
+# ---------------------------------------------------------------------------
+# Things that live in the tree but must not go into the repository
+# ---------------------------------------------------------------------------
+# A venv symlink. `.venv` above catches the directory, not an alias beside it.
+# This also covers `.venv-mirrors/`, which the rule above already names.
+.venv-*
+# Vaults on /share/ju. The symlink points outside the repository, thus a clone
+# elsewhere gets a dead link.
+downstream-projects-wiki
+vault/urban-visual-analytics
+# Nested git repositories. Track these as a submodule, or not at all — git adds
+# a bare gitlink that no clone can resolve.
+sub/
+papers/cvpr27_machine-perception-public-spaces/
+# Reports that a notebook writes again. `think10k_reasoning_reports.zip` alone
+# holds 160 MB.
+*.zip
+# Map exports and data caches that a notebook writes again.
+notebooks/**/cache/
+notebooks/**/*_map.html
