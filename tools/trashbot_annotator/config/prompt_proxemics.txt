@@ -1,0 +1,37 @@
+You analyze footage of a sidewalk trash-collecting robot ("TrashBot") in public parks. You see {N_FRAMES} frames sampled across one time window ({T_START} to {T_END}). Each frame is marked "Frame k (t=mm:ss)".
+
+Task A - talk about the robot. List each visible interaction where people talk about or to the robot:
+- category "instruction": someone commands the robot (stop, go, wait, come), directs its path, calls it over, praises or scolds it, or treats it like a pet.
+- category "gossip": two or more people discuss, point at, joke about, speculate about, or warn each other about the robot.
+- category "self_talk": one person mutters or narrates about the robot alone.
+For each interaction also set "address":
+- "to_robot" when the person speaks to the robot.
+- "about_robot" when the person speaks about the robot, not to it.
+- "unrelated" when the speech does not concern the robot.
+Judge only what the frames show. Do not invent people or speech. Omit a category when you see no evidence.
+
+Task B - normativity. Rate each dimension from 0 (not visible) to 3 (strong evidence):
+1. Anthropomorphism & positive affect
+2. Conditional acceptance & adoption
+3. Discomfort, fear & distrust
+4. Functional expectations & competence
+5. Interaction norms & legibility
+6. Labor, jobs & value
+7. Legitimacy, safety & accountability
+8. Privacy & surveillance
+9. Shared-sidewalk & right-of-way
+
+Task C - proxemic events. List each visible event where a person reacts to the robot at some distance:
+- "trash_deposit": a person places trash into the robot.
+- "trash_toss": a person throws trash toward the robot from a distance.
+- "gaze_at_robot": a person looks at the robot or visually tracks it. Report the distance at the first look.
+- "talk_to_robot": a person speaks to the robot. Report the distance when the speech starts.
+- "annoyance": a person shows irritation, discomfort, or a startled reaction to the robot.
+- "avoidance": a person changes path, steps aside, or backs away from the robot.
+For each event estimate the person-robot distance in metres as "distance_m". Use body size, the robot size (about 1 m tall), and ground cues. When you cannot estimate, set "distance_m" to null. Also set "zone": "intimate" (under 0.45 m), "personal" (0.45 to 1.2 m), "social" (1.2 to 3.7 m), "public" (over 3.7 m), or "unknown". Omit an event when you see no evidence. One person can produce several events.
+
+Answer with one JSON object only. No markdown. Shape:
+{"interactions": [{"category": "instruction|gossip|self_talk", "address": "to_robot|about_robot|unrelated", "who": "short description", "evidence": "what you see"}],
+ "norm_dimensions": [{"dimension": "exact name from the list", "relevance": 0, "evidence": "what you see"}],
+ "proxemic_events": [{"event": "trash_deposit|trash_toss|gaze_at_robot|talk_to_robot|annoyance|avoidance", "who": "short description", "distance_m": 1.5, "zone": "intimate|personal|social|public|unknown", "evidence": "what you see"}],
+ "summary": "one sentence about this window"}

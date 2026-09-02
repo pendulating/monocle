@@ -1,0 +1,171 @@
+#!/bin/bash
+#SBATCH --job-name=trashbot-albee
+#SBATCH --partition=pierson
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=64G
+#SBATCH --time=24:00:00
+#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-albee/%j.out
+#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-albee/%j.err
+
+# Process all Albee Square footage through the four channels.
+#
+# Phase 0: make 720p proxies of the 1080p interview videos. The model
+#          sees about 1 MP per frame, so a proxy changes no annotation,
+#          and each queued frame costs 4 times less memory.
+# Phase 1: annotate all shard manifests in parallel against the vLLM
+#          server, with two resume passes for transient failures.
+# Phase 2: consolidate the windows and build the proxemics report.
+# Phase 3: classify the Albee utterance corpus (speech channel).
+# Phase 4: cut event keyframes, embed them on a GPU node, and score
+#          the repeat pairs.
+#
+# Build the inputs first:
+#   trashbot-annotate manifest --data-root /share/ju/robot_norms/data \
+#       --out outputs/manifest_all.parquet
+#   python scripts/build_run_manifest.py --manifest outputs/manifest_all.parquet \
+#       --place albee-square --out-dir outputs/albee_v2 --shards 4
+#
+# The vLLM server must run already. Pass its URL:
+#   sbatch --export=ALL,SERVER_URL=http://klara:8001 scripts/albee_overnight.sub
+#
+# Warning: this cluster's sbatch does not forward the caller environment.
+# Always pass job variables with --export=ALL,VAR=value.
+
+set -uo pipefail
+
+REPO_DIR="/share/pierson/matt/mllmsci"
+TOOL_DIR="$REPO_DIR/tools/trashbot_annotator"
+CLI="$TOOL_DIR/.venv/bin/trashbot-annotate"
+OUT="${OUT:-$TOOL_DIR/outputs/albee_v2}"
+SERVER_URL="${SERVER_URL:-http://klara:8001}"
+N_SHARDS="${N_SHARDS:-4}"
+FFMPEG="/share/pierson/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg"
+export LD_LIBRARY_PATH="/share/pierson/matt/zoo/ffmpeg-libs/n7.1/lib:${LD_LIBRARY_PATH:-}"
+
+# Warning: do not write to /tmp. This cluster gives /tmp 15 GB for all
+# users, and one earlier run filled it. Both the per-call config file and
+# the VideoPipe log file go under the output folder instead.
+export TRASHBOT_TMPDIR="$OUT/work"
+export TRASHBOT_LOG_DIR="$OUT/work/vp_logs"
+
+# Cap for the analyser input queue. The source decodes faster than the
+# model answers, so without a cap the queue grows until the job dies.
+export TRASHBOT_MAX_PENDING_FRAMES="${TRASHBOT_MAX_PENDING_FRAMES:-48}"
+
+mkdir -p "$REPO_DIR/.slurm_jobs/trashbot-albee" \
+         "$OUT/logs" "$OUT/windows" "$OUT/proxies" "$TRASHBOT_LOG_DIR"
+cd "$TOOL_DIR"
+
+echo "=== Albee Square full processing ==="
+date
+echo "Server:  $SERVER_URL"
+echo "Out:     $OUT"
+echo "Scratch: $TRASHBOT_TMPDIR"
+
+if [ ! -f "$OUT/run_manifest.parquet" ]; then
+    echo "ERROR: no run manifest at $OUT/run_manifest.parquet" >&2
+    echo "Run scripts/build_run_manifest.py first." >&2
+    exit 1
+fi
+
+# The server must answer before the drivers start.
+if ! curl -s --max-time 10 "$SERVER_URL/v1/models" | grep -q gemma; then
+    echo "ERROR: no vLLM server at $SERVER_URL" >&2
+    exit 1
+fi
+
+# ----------------------- Phase 0: 720p proxies ----------------------- #
+echo "--- proxy transcode ---"
+"$TOOL_DIR/.venv/bin/python" - "$OUT" <<'PYEOF' > "$OUT/proxy_jobs.txt"
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+out = Path(sys.argv[1])
+df = pd.read_parquet(out / "run_manifest.parquet")
+for row in df.to_dict("records"):
+    dst = Path(row["video_path"])
+    if str(dst) != str(row["src_path"]) and not dst.is_file():
+        print(f"{row['src_path']}\t{dst}")
+PYEOF
+N_PROXY=$(wc -l < "$OUT/proxy_jobs.txt")
+echo "proxies to make: $N_PROXY"
+if [ "$N_PROXY" -gt 0 ]; then
+    while IFS=$'\t' read -r src dst; do
+        printf '%s\0%s\0' "$src" "$dst"
+    done < "$OUT/proxy_jobs.txt" | xargs -0 -n 2 -P 8 sh -c '
+        "'"$FFMPEG"'" -y -v error -i "$0" -vf scale=-2:720 \
+            -c:v libopenh264 -b:v 4M -an "$1.tmp.mp4" \
+        && mv "$1.tmp.mp4" "$1"'
+fi
+echo "proxies present: $(ls "$OUT/proxies"/*.mp4 2>/dev/null | wc -l)"
+
+# ------------------------- Phase 1: annotate ------------------------- #
+run_pass() {
+    local pass="$1"
+    echo "--- annotation pass $pass ---"
+    local pids=()
+    for i in $(seq 0 $((N_SHARDS - 1))); do
+        "$CLI" run \
+            --manifest "$OUT/shard_$i.parquet" \
+            --server-url "$SERVER_URL" \
+            --out-dir "$OUT/windows" \
+            --skip-existing \
+            > "$OUT/logs/shard_${i}_pass${pass}.log" 2>&1 &
+        pids+=($!)
+    done
+    local fails=0
+    for pid in "${pids[@]}"; do
+        wait "$pid" || fails=$((fails + 1))
+    done
+    echo "pass $pass: $fails shard driver(s) reported failures"
+    return 0
+}
+
+run_pass 1
+# The resume passes redo only the failed videos.
+run_pass 2
+run_pass 3
+
+DONE_COUNT=$(ls "$OUT/windows"/*.jsonl 2>/dev/null | wc -l)
+FAIL_COUNT=$(ls "$OUT/windows"/*.jsonl.failed 2>/dev/null | wc -l)
+echo "annotated videos: $DONE_COUNT; still failing: $FAIL_COUNT"
+
+# ------------------------ Phase 2: consolidate ----------------------- #
+echo "--- consolidate + report ---"
+"$CLI" consolidate \
+    --out-dir "$OUT/windows" \
+    --out "$OUT/annotations.parquet" \
+    --manifest "$OUT/run_manifest.parquet"
+"$CLI" report \
+    --annotations "$OUT/annotations.parquet" \
+    --out "$OUT/proxemics_report.parquet" \
+    --by capture_type | tee "$OUT/proxemics_report.txt"
+
+# --------------------------- Phase 3: speech ------------------------- #
+echo "--- speech channel ---"
+"$CLI" speech \
+    --corpus "$OUT/corpus.parquet" \
+    --server-url "$SERVER_URL" \
+    --jsonl "$OUT/speech/speech.jsonl" \
+    --out "$OUT/speech/speech.parquet"
+
+# -------------------------- Phase 4: repeats ------------------------- #
+echo "--- repeat channel ---"
+"$CLI" embed-frames \
+    --annotations "$OUT/annotations.parquet" \
+    --out-dir "$OUT/repeats"
+
+sbatch --wait \
+    --export=ALL,FRAMES_MANIFEST="$OUT/repeats/frames_manifest.parquet",OUT="$OUT/repeats/embeddings.parquet" \
+    "$TOOL_DIR/scripts/embed_events.sub"
+
+"$CLI" repeats \
+    --embeddings "$OUT/repeats/embeddings.parquet" \
+    --frames-manifest "$OUT/repeats/frames_manifest.parquet" \
+    --out "$OUT/repeats/pairs.parquet"
+
+echo "ALBEE PROCESSING COMPLETE"
+date > "$OUT/DONE"
+echo "annotated=$DONE_COUNT failed=$FAIL_COUNT" >> "$OUT/DONE"

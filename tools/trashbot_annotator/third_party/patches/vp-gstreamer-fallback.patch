@@ -1,0 +1,43 @@
+diff --git a/nodes/vp_file_des_node.cpp b/nodes/vp_file_des_node.cpp
+index 924b4cd..ae8a61e 100755
+--- a/nodes/vp_file_des_node.cpp
++++ b/nodes/vp_file_des_node.cpp
+@@ -62,9 +62,19 @@ namespace vp_nodes {
+                         /* code */
+                         file_writer.release();
+                     }
+-                    
++#ifdef VP_HAS_GSTREAMER
++                    // vp-gstreamer-fallback.patch: encode with a GStreamer pipeline
+                     auto gst_str = vp_utils::string_format(this->gst_template, gst_encoder_name.c_str(), bitrate, get_new_file_name().c_str());
+                     assert(file_writer.open(gst_str, cv::CAP_GSTREAMER, 0, meta->fps, {resize_frame.cols, resize_frame.rows}));
++#else
++                    // vp-gstreamer-fallback.patch: no GStreamer, write mp4 with the OpenCV default backend.
++                    // Call open without assert. Assert compiles out in Release builds.
++                    auto fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
++                    if (!file_writer.open(get_new_file_name(), fourcc, meta->fps,
++                                          cv::Size(resize_frame.cols, resize_frame.rows))) {
++                        VP_WARN(vp_utils::string_format("[%s] open video writer failed", node_name.c_str()));
++                    }
++#endif
+             }
+             
+             file_writer.write(resize_frame);
+diff --git a/nodes/vp_file_src_node.cpp b/nodes/vp_file_src_node.cpp
+index 67ff445..b11cf44 100755
+--- a/nodes/vp_file_src_node.cpp
++++ b/nodes/vp_file_src_node.cpp
+@@ -43,7 +43,13 @@ namespace vp_nodes {
+             auto last_time = std::chrono::system_clock::now();
+             // try to open capture
+             if (!file_capture.isOpened()) {
++#ifdef VP_HAS_GSTREAMER
++                // vp-gstreamer-fallback.patch: decode with a GStreamer pipeline
+                 if(!file_capture.open(this->gst_template, cv::CAP_GSTREAMER)) {
++#else
++                // vp-gstreamer-fallback.patch: no GStreamer, use the OpenCV default backend
++                if(!file_capture.open(this->file_path, cv::CAP_ANY)) {
++#endif
+                     VP_WARN(vp_utils::string_format("[%s] open file failed, try again...", node_name.c_str()));
+                     continue;
+                 }

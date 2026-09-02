@@ -1,0 +1,102 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6df9d74..de45b98 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -9,7 +9,9 @@ cmake_minimum_required(VERSION 3.10)
+ project(video_pipe VERSION 1.0)
+ 
+ set(CMAKE_CXX_STANDARD 17)
+-set(CMAKE_BUILD_TYPE Debug)
++if(NOT CMAKE_BUILD_TYPE) # vp-gstreamer-optional.patch: honor -DCMAKE_BUILD_TYPE
++    set(CMAKE_BUILD_TYPE Release)
++endif()
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC -w -fdiagnostics-color=always -pthread")
+ # save all libs(including third_party's) to 'libs'
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
+@@ -22,6 +24,8 @@ option(VP_WITH_KAFKA "prepared Kafka or not?" OFF)
+ option(VP_WITH_LLM "prepared LLM or not?" OFF)
+ option(VP_WITH_FFMPEG "prepared FFMPEG or not?" OFF)
+ option(VP_BUILD_COMPLEX_SAMPLES "build complex samples or not? (maybe source code not provided)" OFF)
++option(VP_WITH_GSTREAMER "prepared GStreamer or not?" OFF) # vp-gstreamer-optional.patch
++option(VP_BUILD_SAMPLES "build sample programs or not?" OFF) # vp-gstreamer-optional.patch
+ 
+ # OpenCV required
+ find_package(OpenCV REQUIRED)
+@@ -33,9 +37,13 @@ include_directories(${OpenCV_INCLUDE_DIRS})
+ 
+ # Gstreamer required
+ include(FindPkgConfig)
+-pkg_check_modules(GST   REQUIRED gstreamer-1.0)
+-pkg_check_modules(GSTAPP REQUIRED gstreamer-app-1.0)
+-pkg_check_modules(GST_RTSP REQUIRED gstreamer-rtsp-server-1.0)
++if(VP_WITH_GSTREAMER) # vp-gstreamer-optional.patch: GStreamer is optional
++    pkg_check_modules(GST   REQUIRED gstreamer-1.0)
++    pkg_check_modules(GSTAPP REQUIRED gstreamer-app-1.0)
++    pkg_check_modules(GST_RTSP REQUIRED gstreamer-rtsp-server-1.0)
++    # vp-gstreamer-optional.patch: node sources read this macro
++    add_definitions(-DVP_HAS_GSTREAMER)
++endif() # vp-gstreamer-optional.patch
+ message(STATUS "GStreamer library status:")
+ message(STATUS "    version: ${GST_VERSION}")
+ message(STATUS "    libraries: ${GST_LIBRARIES} ${GSTAPP_LIBRARIES} ${GST_RTSP_LIBRARIES}")
+@@ -161,6 +169,14 @@ file(GLOB_RECURSE NODES "nodes/*.cpp")
+ file(GLOB_RECURSE OBJECTS "objects/*.cpp")
+ file(GLOB_RECURSE UTILS "utils/*.cpp")
+ #...#
++# vp-gstreamer-optional.patch: drop sources with GStreamer headers when OFF
++if(NOT VP_WITH_GSTREAMER)
++    foreach(_src ${NODES})
++        if(_src MATCHES "vp_rtsp_des_node\\.cpp$")
++            list(REMOVE_ITEM NODES "${_src}")
++        endif()
++    endforeach()
++endif()
+ list(APPEND VP_CPPS_SOURCES ${NODES} ${OBJECTS} ${UTILS})
+ 
+ # build for videopipe
+@@ -168,4 +184,6 @@ add_library(${PROJECT_NAME} SHARED ${VP_CPPS_SOURCES})
+ target_link_libraries(${PROJECT_NAME} ${VP_DEPEND_LIBS})
+ 
+ # build for samples
+-add_subdirectory(samples)
+\ No newline at end of file
++if(VP_BUILD_SAMPLES) # vp-gstreamer-optional.patch: samples are optional
++    add_subdirectory(samples)
++endif()
+\ No newline at end of file
+diff --git a/samples/CMakeLists.txt b/samples/CMakeLists.txt
+index 0bd17b7..af4d1a5 100644
+--- a/samples/CMakeLists.txt
++++ b/samples/CMakeLists.txt
+@@ -54,8 +54,10 @@ target_link_libraries(openpose_sample ${PROJECT_NAME})
+ add_executable(record_sample "record_sample.cpp")
+ target_link_libraries(record_sample ${PROJECT_NAME})
+ 
++if(VP_WITH_GSTREAMER) # vp-gstreamer-optional.patch: sample needs GStreamer headers
+ add_executable(rtsp_des_sample "rtsp_des_sample.cpp")
+ target_link_libraries(rtsp_des_sample ${PROJECT_NAME})
++endif() # vp-gstreamer-optional.patch
+ 
+ add_executable(rtsp_src_sample "rtsp_src_sample.cpp")
+ target_link_libraries(rtsp_src_sample ${PROJECT_NAME})
+@@ -66,14 +68,20 @@ target_link_libraries(vp_logger_sample ${PROJECT_NAME})
+ add_executable(skip_sample "skip_sample.cpp")
+ target_link_libraries(skip_sample ${PROJECT_NAME})
+ 
++if(VP_WITH_GSTREAMER) # vp-gstreamer-optional.patch: sample needs GStreamer headers
+ add_executable(obstacle_detect_sample "obstacle_detect_sample.cpp")
+ target_link_libraries(obstacle_detect_sample ${PROJECT_NAME})
++endif() # vp-gstreamer-optional.patch
+ 
++if(VP_WITH_GSTREAMER) # vp-gstreamer-optional.patch: sample needs GStreamer headers
+ add_executable(multi_detectors_sample "multi_detectors_sample.cpp")
+ target_link_libraries(multi_detectors_sample ${PROJECT_NAME})
++endif() # vp-gstreamer-optional.patch
+ 
++if(VP_WITH_GSTREAMER) # vp-gstreamer-optional.patch: sample needs GStreamer headers
+ add_executable(firesmoke_detect_sample "firesmoke_detect_sample.cpp")
+ target_link_libraries(firesmoke_detect_sample ${PROJECT_NAME})
++endif() # vp-gstreamer-optional.patch
+ 
+ add_executable(face_swap_sample "face_swap_sample.cpp")
+ target_link_libraries(face_swap_sample ${PROJECT_NAME})

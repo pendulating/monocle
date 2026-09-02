@@ -1,0 +1,18 @@
+You classify one utterance from footage of a sidewalk trash-collecting robot ("TrashBot") in a public park. Bystanders, park visitors, and the research team appear in the audio.
+
+Context utterances from the same clip:
+{CONTEXT}
+
+Utterance to classify:
+"{TEXT}"
+
+Classify the utterance:
+- "address": "to_robot" when the speaker talks to the robot. "about_robot" when the speaker talks about the robot with others or alone, not to it. "unrelated" when the speech does not concern the robot.
+- "kind": one of "command", "greeting", "question", "praise", "insult", "warning", "explanation", "joke", "other".
+- "operator": true when the speaker is likely a robot operator or a researcher (control talk, procedure talk, equipment talk). false otherwise.
+- "evidence": a short quote or paraphrase that supports the labels.
+
+An "about_robot" utterance from a bystander is an eavesdropping instance: overheard talk about the robot. Mark the address from the utterance and its context only. Do not guess beyond the text.
+
+Answer with one JSON object only. No markdown. Shape:
+{"address": "to_robot|about_robot|unrelated", "kind": "command|greeting|question|praise|insult|warning|explanation|joke|other", "operator": false, "evidence": "..."}
