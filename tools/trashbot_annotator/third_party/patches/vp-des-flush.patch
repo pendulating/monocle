@@ -1,0 +1,111 @@
+--- a/nodes/vp_file_des_node.cpp
++++ b/nodes/vp_file_des_node.cpp
+@@ -30,8 +30,25 @@
+     }
+     
+     vp_file_des_node::~vp_file_des_node() {
++        // vp-des-flush patch: finalize even when teardown skips the queue.
++        std::lock_guard<std::mutex> lock(writer_mutex_);
++        if (file_writer.isOpened()) {
++            file_writer.release();
++        }
+         deinitialized();
+     }
++
++    // vp-des-flush patch: see the header note. Call once at end of stream,
++    // after the last frame was written. The mutex makes it safe against a
++    // straggler write on the handle thread.
++    void vp_file_des_node::release_writer() {
++        std::lock_guard<std::mutex> lock(writer_mutex_);
++        if (file_writer.isOpened()) {
++            file_writer.release();
++            VP_INFO(vp_utils::string_format(
++                "[%s] writer released on demand", node_name.c_str()));
++        }
++    }
+     
+     // re-implementation, return nullptr.
+     std::shared_ptr<vp_objects::vp_meta> 
+@@ -47,6 +64,7 @@
+             }
+ 
+             // new video file
++            std::lock_guard<std::mutex> writer_lock(writer_mutex_);
+             if (!file_writer.isOpened() ||
+                 frames_already_record >= frames_need_record) {
+                     // total frames need to be recorded
+@@ -62,9 +80,19 @@
+                         /* code */
+                         file_writer.release();
+                     }
+-                    
++#ifdef VP_HAS_GSTREAMER
++                    // vp-gstreamer-fallback.patch: encode with a GStreamer pipeline
+                     auto gst_str = vp_utils::string_format(this->gst_template, gst_encoder_name.c_str(), bitrate, get_new_file_name().c_str());
+                     assert(file_writer.open(gst_str, cv::CAP_GSTREAMER, 0, meta->fps, {resize_frame.cols, resize_frame.rows}));
++#else
++                    // vp-gstreamer-fallback.patch: no GStreamer, write mp4 with the OpenCV default backend.
++                    // Call open without assert. Assert compiles out in Release builds.
++                    auto fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
++                    if (!file_writer.open(get_new_file_name(), fourcc, meta->fps,
++                                          cv::Size(resize_frame.cols, resize_frame.rows))) {
++                        VP_WARN(vp_utils::string_format("[%s] open video writer failed", node_name.c_str()));
++                    }
++#endif
+             }
+             
+             file_writer.write(resize_frame);
+@@ -77,6 +105,20 @@
+     // re-implementation, return nullptr.
+     std::shared_ptr<vp_objects::vp_meta> 
+         vp_file_des_node::handle_control_meta(std::shared_ptr<vp_objects::vp_control_meta> meta) {
++            // vp-des-flush patch: finalize the container when the source
++            // signals end of stream. The mp4 moov atom is written on
++            // release, and node teardown does not guarantee that.
++            if (meta->control_type == vp_objects::vp_control_type::SPEAK) {
++                std::lock_guard<std::mutex> writer_lock(writer_mutex_);
++                VP_INFO(vp_utils::string_format(
++                    "[%s] SPEAK seen; writer open=%d",
++                    node_name.c_str(), file_writer.isOpened() ? 1 : 0));
++                if (file_writer.isOpened()) {
++                    file_writer.release();
++                    VP_INFO(vp_utils::string_format(
++                        "[%s] writer released", node_name.c_str()));
++                }
++            }
+             return nullptr;
+     }
+ 
+--- a/nodes/vp_file_des_node.h
++++ b/nodes/vp_file_des_node.h
+@@ -3,6 +3,7 @@
+ #include <iostream>
+ #include <memory>
+ #include <chrono>
++#include <mutex>
+ // compile tips:
+ // remove experimental/ if gcc >= 8.0
+ #include <experimental/filesystem>
+@@ -24,6 +25,10 @@
+         std::string gst_template = "appsrc ! videoconvert ! %s bitrate=%d ! mp4mux ! filesink location=%s";
+         cv::VideoWriter file_writer;
+ 
++        // vp-des-flush patch: serializes open/write/release across the
++        // handle thread and on-demand finalization.
++        std::mutex writer_mutex_;
++
+         int frames_already_record = -1;
+         int frames_need_record = 0;
+ 
+@@ -47,6 +52,11 @@
+                         std::string gst_encoder_name = "x264enc");
+         ~vp_file_des_node();
+ 
++        // vp-des-flush patch: finalize the container on demand. Writes the
++        // mp4 moov atom. Safe to call again; safe at end of stream when no
++        // frames flow.
++        void release_writer();
++
+         // save directory
+         std::string save_dir;
+         // prefix of file name

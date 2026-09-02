@@ -1,0 +1,144 @@
+#!/bin/bash
+#SBATCH --job-name=gemma4-vllm
+#SBATCH --partition=pierson
+#SBATCH --gres=gpu:1               # Gemma-4-12B serves on one GPU
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=48G
+#SBATCH --time=48:00:00
+#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-vllm/%j.out
+#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-vllm/%j.err
+
+# Serve google/gemma-4-12B-it for the TrashBot footage annotator.
+#
+# This launcher follows the two project conventions:
+#
+# 1. Node-local venv. scripts/activate_stage_venv.sh picks the /scratch
+#    mirror of .venv-mllmsci-vllm025cu129 when its marker agrees, syncs it
+#    on demand from .venv-mirrors/, sets CUDA_HOME to the 12.9 toolkit,
+#    and exposes the FFmpeg libs that torchcodec needs. A cold import over
+#    NFS costs about 13 minutes per process spawn; the mirror removes it.
+#
+# 2. Node-local model registry. The model resolves through the same
+#    marker convention as dagspaces/common/model_registry.py: prefer
+#    /scratch/$USER/registry/models/<name> when <mirror>/.sync_complete
+#    names the zoo source; otherwise load from the NFS zoo path.
+#
+# Mirror setup, one time per node:
+#   bash scripts/sync_venv_to_scratch.sh
+#   sbatch -p pierson -w klara -c 4 --mem=8G --wrap \
+#     'bash /share/pierson/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
+
+set -euo pipefail
+
+echo "=== Gemma-4-12B vLLM server for TrashBot annotation ==="
+date
+echo ""
+
+# ----------------------------- CONFIGURATION ----------------------------- #
+REPO_DIR="/share/pierson/matt/mllmsci"
+DRIVER_VENV="$REPO_DIR/.venv-mllmsci-vllm025cu129"
+ZOO="${MLLMSCI_MODEL_ZOO:-/share/pierson/matt/zoo/models}"
+REGISTRY="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
+
+# MODEL_NAME selects a zoo model by registry name. MODEL_ID overrides it
+# with an explicit HF id or path; then no registry resolution happens.
+MODEL_NAME="${MODEL_NAME:-gemma-4-12B-it}"
+PORT="${PORT:-8000}"
+HOST="${HOST:-0.0.0.0}"
+GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.90}"
+MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
+
+# Clients address the server by this name. It matches the default model
+# field in trashbot_annotator/runner.py.
+SERVED_NAME="${SERVED_NAME:-google/gemma-4-12B-it}"
+
+mkdir -p "$REPO_DIR/.slurm_jobs/trashbot-vllm"
+
+echo "Repository      : $REPO_DIR"
+echo "Host / Port     : $HOST:$PORT"
+echo "Max context     : $MAX_MODEL_LEN"
+echo "GPU util target : $GPU_MEM_UTIL"
+echo ""
+
+# ------------------------------ ENVIRONMENT ------------------------------ #
+cd "$REPO_DIR"
+
+if [ ! -f "$DRIVER_VENV/bin/activate" ]; then
+    echo "ERROR: driver venv not found at $DRIVER_VENV" >&2
+    exit 1
+fi
+
+# Select the fastest venv on this node and set up CUDA plus FFmpeg.
+# Sourced, not executed. See the header of activate_stage_venv.sh.
+export MLLMSCI_DRIVER_VENV="$DRIVER_VENV"
+# shellcheck disable=SC1091
+source "$REPO_DIR/scripts/activate_stage_venv.sh"
+
+if [ -n "${MLLMSCI_STAGE_PYTHON:-}" ] && [ -x "${MLLMSCI_STAGE_PYTHON}" ]; then
+    PY="$MLLMSCI_STAGE_PYTHON"
+else
+    # Fallback: run from the NFS driver venv, as before the mirror existed.
+    source "$DRIVER_VENV/bin/activate"
+    PY="$(which python)"
+fi
+export HF_HOME="${HF_HOME:-/share/pierson/matt/.cache/huggingface}"
+export TOKENIZERS_PARALLELISM=false
+export WANDB_MODE=disabled
+
+echo "Python          : $PY"
+"$PY" -c 'import vllm; print("vllm version      :", vllm.__version__)'
+echo ""
+
+# --------------------------- MODEL RESOLUTION ---------------------------- #
+# Same rule as dagspaces/common/model_registry.py::resolve_model_source.
+# A mirror is trusted only when its .sync_complete marker names the zoo
+# source. Anything else falls back to the NFS zoo path.
+resolve_model() {
+    local src="$1" mirror="$2" marker
+    marker="$mirror/.sync_complete"
+    if [ -f "$marker" ] && grep -q "src=$src\$" "$marker"; then
+        printf '%s' "$mirror"
+    else
+        printf '%s' "$src"
+    fi
+}
+
+if [ -n "${MODEL_ID:-}" ]; then
+    MODEL_PATH="$MODEL_ID"                 # explicit id or path: use as-is
+else
+    MODEL_PATH="$(resolve_model "$ZOO/$MODEL_NAME" "$REGISTRY/$MODEL_NAME")"
+fi
+
+echo "Model source    : $MODEL_PATH"
+case "$MODEL_PATH" in
+    /scratch/*) echo "                  (node-local registry mirror)" ;;
+    "$ZOO"/*)   echo "                  (NFS zoo; run scripts/sync_model_registry_to_scratch.sh on this node for local reads)" ;;
+esac
+echo ""
+
+# ------------------------------ LAUNCH VLLM ------------------------------ #
+
+# Call the vllm console script from the active environment.
+VLLM_BIN="$(dirname "$PY")/vllm"
+[ -x "$VLLM_BIN" ] || { echo "ERROR: vllm binary not found next to $PY" >&2; exit 1; }
+
+CMD=(
+    "$VLLM_BIN" serve "$MODEL_PATH"
+    --host "$HOST"
+    --port "$PORT"
+    --max-model-len "$MAX_MODEL_LEN"
+    --gpu-memory-utilization "$GPU_MEM_UTIL"
+    --limit-mm-per-prompt '{"image": 8}'
+    --served-model-name "$SERVED_NAME"
+)
+
+echo "Command line:"
+printf '  %q\n' "${CMD[@]}"
+echo ""
+
+# Run the server directly. The batch process is already tracked by
+# SLURM, and srun does not exist on all compute nodes here.
+"${CMD[@]}"
+
+echo ""
+echo "vLLM server exited at $(date)"

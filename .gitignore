@@ -265,3 +265,21 @@ papers/cvpr27_machine-perception-public-spaces/
 # Map exports and data caches that a notebook writes again.
 notebooks/**/cache/
 notebooks/**/*_map.html
+
+# Trashbot annotator local toolchain (see tools/trashbot_annotator/setup_env.sh)
+# Ignore the vendored trees and build outputs. Keep patches/ and tests/
+# trackable: setup_env.sh needs them on a fresh machine.
+tools/trashbot_annotator/third_party/*
+!tools/trashbot_annotator/third_party/patches
+!tools/trashbot_annotator/third_party/tests
+tools/trashbot_annotator/build/
+tools/trashbot_annotator/outputs/
+tools/trashbot_annotator/.venv/
+tools/trashbot_annotator/logs/
+# Core dumps from the C++ binary. One crash leaves a 160 MB file.
+tools/trashbot_annotator/core
+tools/trashbot_annotator/core.*
+
+# The phrase caches of notebooks/cvpr/_words_across.py. A phrase cache is
+# about 900 kB, against 30 kB for a word cache, and the word caches are tracked.
+notebooks/cvpr/.trace_cache/phrase_*.json

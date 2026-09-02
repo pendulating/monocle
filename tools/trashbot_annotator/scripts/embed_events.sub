@@ -1,0 +1,96 @@
+#!/bin/bash
+#SBATCH --job-name=trashbot-embed
+#SBATCH --partition=pierson
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=12:00:00
+#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-embed/%j.out
+#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-embed/%j.err
+
+# Embed TrashBot event keyframes with Qwen3-VL-Embedding-8B.
+#
+# Input : FRAMES_MANIFEST (parquet from `trashbot-annotate embed-frames`)
+# Output: OUT (embeddings parquet for `trashbot-annotate repeats`)
+#
+# The launcher follows the project conventions of serve_gemma4.sub:
+# node-local venv mirror through activate_stage_venv.sh, and model
+# resolution through the /scratch registry with marker validation.
+#
+# Usage. This cluster's sbatch does not forward the caller
+# environment, so pass the variables with --export:
+#   sbatch --export=ALL,FRAMES_MANIFEST=<path>,OUT=<path> scripts/embed_events.sub
+
+set -euo pipefail
+
+echo "=== TrashBot event keyframe embedding ==="
+date
+echo ""
+
+REPO_DIR="/share/pierson/matt/mllmsci"
+TOOL_DIR="$REPO_DIR/tools/trashbot_annotator"
+DRIVER_VENV="$REPO_DIR/.venv-mllmsci-vllm025cu129"
+ZOO="${MLLMSCI_MODEL_ZOO:-/share/pierson/matt/zoo/models}"
+REGISTRY="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
+
+# The 8B embedding model is the strongest multimodal embedder in the
+# zoo. Do not point this at a generative model (Qwen3-Omni, Qwen3-VL
+# Instruct): those carry no trained embedding head, and their pooled
+# states give uncalibrated similarities.
+MODEL_NAME="${MODEL_NAME:-Qwen3-VL-Embedding-8B}"
+FRAMES_MANIFEST="${FRAMES_MANIFEST:-$TOOL_DIR/outputs/repeats/frames_manifest.parquet}"
+OUT="${OUT:-$TOOL_DIR/outputs/repeats/embeddings.parquet}"
+
+mkdir -p "$REPO_DIR/.slurm_jobs/trashbot-embed"
+
+cd "$REPO_DIR"
+
+if [ ! -f "$DRIVER_VENV/bin/activate" ]; then
+    echo "ERROR: driver venv not found at $DRIVER_VENV" >&2
+    exit 1
+fi
+
+export MLLMSCI_DRIVER_VENV="$DRIVER_VENV"
+# shellcheck disable=SC1091
+source "$REPO_DIR/scripts/activate_stage_venv.sh"
+
+if [ -n "${MLLMSCI_STAGE_PYTHON:-}" ] && [ -x "${MLLMSCI_STAGE_PYTHON}" ]; then
+    PY="$MLLMSCI_STAGE_PYTHON"
+else
+    source "$DRIVER_VENV/bin/activate"
+    PY="$(which python)"
+fi
+export TOKENIZERS_PARALLELISM=false
+export WANDB_MODE=disabled
+
+# Same mirror rule as serve_gemma4.sub: trust the /scratch mirror only
+# when its marker names the zoo source.
+resolve_model() {
+    local src="$1" mirror="$2" marker
+    marker="$mirror/.sync_complete"
+    if [ -f "$marker" ] && grep -q "src=$src\$" "$marker"; then
+        printf '%s' "$mirror"
+    else
+        printf '%s' "$src"
+    fi
+}
+
+if [ -n "${MODEL_ID:-}" ]; then
+    MODEL_PATH="$MODEL_ID"
+else
+    MODEL_PATH="$(resolve_model "$ZOO/$MODEL_NAME" "$REGISTRY/$MODEL_NAME")"
+fi
+
+echo "Python          : $PY"
+echo "Model source    : $MODEL_PATH"
+echo "Frames manifest : $FRAMES_MANIFEST"
+echo "Output          : $OUT"
+echo ""
+
+"$PY" "$TOOL_DIR/scripts/embed_events.py" \
+    --frames-manifest "$FRAMES_MANIFEST" \
+    --out "$OUT" \
+    --model-path "$MODEL_PATH"
+
+echo ""
+echo "embedding job exited at $(date)"

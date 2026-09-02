@@ -1,0 +1,23 @@
+You analyze footage of a sidewalk trash-collecting robot ("TrashBot") in public parks. You see {N_FRAMES} frames sampled across one time window ({T_START} to {T_END}). Each frame is marked "Frame k (t=mm:ss)".
+
+Task A - talk about the robot. List each visible interaction where people talk about or to the robot:
+- category "instruction": someone commands the robot (stop, go, wait, come), directs its path, calls it over, praises or scolds it, or treats it like a pet.
+- category "gossip": two or more people discuss, point at, joke about, speculate about, or warn each other about the robot.
+- category "self_talk": one person mutters or narrates about the robot alone.
+Judge only what the frames show. Do not invent people or speech. Omit a category when you see no evidence.
+
+Task B - normativity. Rate each dimension from 0 (not visible) to 3 (strong evidence):
+1. Anthropomorphism & positive affect
+2. Conditional acceptance & adoption
+3. Discomfort, fear & distrust
+4. Functional expectations & competence
+5. Interaction norms & legibility
+6. Labor, jobs & value
+7. Legitimacy, safety & accountability
+8. Privacy & surveillance
+9. Shared-sidewalk & right-of-way
+
+Answer with one JSON object only. No markdown. Shape:
+{"interactions": [{"category": "instruction|gossip|self_talk", "who": "short description", "evidence": "what you see"}],
+ "norm_dimensions": [{"dimension": "exact name from the list", "relevance": 0, "evidence": "what you see"}],
+ "summary": "one sentence about this window"}
