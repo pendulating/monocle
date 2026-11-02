@@ -5,7 +5,7 @@ aesthetic prompts. The author asks for a shared axis of the aesthetic sense, wit
 temperature sense of `cool` removed. The work belongs to Task 7 of the F10.26 plan
 (`f10-14-prompt-analysis-plan.md`), but it uses its own script and output folder.
 
-**Status (2026-11-02):** All 3 models have all 14 prompts (script 1.2.0).
+**Status (2026-11-02):** All 3 models have all 14 prompts (script 1.2.0). F10.28 adds the words and the ACS test.
 
 **Changes:** Version 1.2.0 uses Bonferroni in place of Holm. With the first 30 held-out tests, this
 changed 1 side result (Qwen3.5-9B `place ordinary`, p .012 to .055).
@@ -195,6 +195,57 @@ it is the verdict. The table gives the partial r of the evidence score given bot
 F10.12 found the content of the arguments (the words of observations, evidence, criteria) in the
 readout, with fixed word lists. It peaked at the tokens before free text (`thought`, `<|channel>`),
 which the F10.26 summaries do not hold. A test of the evidence axis at those tokens needs the full stores.
+
+## The words of the direction, and the ACS gradients (F10.28)
+
+Script: `scripts/f10/hop_hierarchy.py` (1.1.0). Output: `figures/f10/hierarchy/` and
+`notebooks/facct/figures/f10/shared_direction_words{,_stacked}.{pdf,png,json}`.
+
+### Words
+
+We z-score the direction at each layer and take the mean over the layers. Thus no person
+selects a layer. The 20 words at each end are in `shared_direction_words.csv`.
+
+| Model | Up (examples) | Down (examples) |
+|-------|---------------|-----------------|
+| Gemma-4-31B | flower, beautiful, bouquet, cherished, ornaments | industrial, welding, smelting, trabajadores, contaminants |
+| Qwen3.5-9B | stunning, exquisite, majestic, elegant, queen, regal | unemployed, warehouses, dumpsters, abuses, slaughter, `hitam` |
+| Qwen3.6-27B | exquisite, beautifully, stunning, elegant, splendid | factory, warehouses, gang, thugs, dumpster, job |
+
+`hitam` is Indonesian for "black". The paper quotes it.
+
+**Rejected:** We also compared the direction with the net valence of the restaurant cues of
+F9 (Spearman over about 150 cues that are 1 lens word). rho is -.01 to .27 over the layers, and
+-.01 for Gemma at its test layer. This is weak, thus the paper does not use it.
+
+### ACS gradients
+
+For each NTA (197; 169 for Gemma `nice`, because Gemma gives no yes or no on many images):
+
+| Measure | Source |
+|---------|--------|
+| `yes_cool`, `yes_nice`, `yes_ordinary` | Share of yes answers to the one-word prompt |
+| `shared_direction` | NTA mean readout at `place`, test layer, projected on the direction |
+| `evidence_valence` | Net valence of the `visual_evidence` spans of the `cool` traces (Gemma, Qwen3.5-9B) |
+
+Test: Spearman rho with 4 ACS features (`data/f4_traces/nta_acs.parquet`). Bonferroni over 56
+tests. 18 tests pass.
+
+| Result | Values |
+|--------|--------|
+| `yes_nice` rises with income, bachelor's, White share | Gemma .37, .34, .30. Qwen3.6-27B .28, .27, .27 |
+| `yes_cool` rises with bachelor's and income | Gemma .32, .28 |
+| `shared_direction` rises with income | Gemma .32, Qwen3.5-9B .25. Gemma bachelor's .30 |
+| `evidence_valence` rises with income, bachelor's, White share | Gemma .32, .26, .24. Qwen3.5-9B .25, .28, .26 |
+| `yes_ordinary` falls with bachelor's | Qwen3.5-9B -.28 |
+| Black share | All aesthetic measures are negative (-.19 to -.01). No test passes |
+
+**Limit:** Neighboring NTAs are not independent. The p values assume that they are.
+
+### Paper
+
+The Results refactor of 2026-11-02 uses these results in section 4.2: Figure 3a (the words), and
+the paragraph on the J-space and the traces against the ACS features. Methods gives the test.
 
 ## What this changes for the paper
 
