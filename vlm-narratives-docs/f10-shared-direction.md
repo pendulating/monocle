@@ -307,11 +307,30 @@ words are not independent.
 | Agreement | `figures/f10/mechanism/borough_shared_agreement.csv` |
 | Paper copy | `paper/figures/facct/mech_borough_shared.pdf` (manifest entry in `artificial-aesthetic/manifest/assets.toml`) |
 
-## Each standard in the J-space (F10.31, the new Figure 1)
+## Each standard in the J-space (F10.31, Figure 2)
 
-Figure 1 (`fig:standards`) gives 1 row for each of the 7 adjectives (noun `place`), in words that
-the 3 models share. The old prompt figure (`fig:prompt-readout`) and the paragraph "Along the
-prompt" are now in Appendix B (`app:layers`).
+Figure 2 (`fig:standards`) gives 1 row for each of the 7 adjectives (noun `place`), in words that
+the 3 models share. It takes the place of the borough figure (F10.30), which is now in Appendix B
+(`app:borough-words`).
+
+**Figure 1** (`fig:prompt-readout`) is the TikZ prompt figure again (author decision, 2026-11-02).
+Its 8 callouts now give results that hold in the 3 models, with values in the order Gemma-4-31B
+(Qwen3.5-9B, Qwen3.6-27B) and counts over the 42 cells of F10.26. They have no layer tags and no
+Gemma-only word lists. Sources:
+
+| Callout | Result | Source |
+|---------|--------|--------|
+| 1 Scene | Mean-patch R2 .82 (.75, .56), at least .50 in 39 of 42 cells | F10.24, F10.26 task 2 |
+| 2 One aesthetic direction | Words that the 3 models share at the noun (up: elegant, exquisite, majestic; down: crude, salvage, garbage). Leave-1-out r and the reversal for `ugly` | F10.27; the words are a new computation with the F10.30 rule on `direction.npz` (not in a CSV) |
+| 3 The standard, embedded | Conception words with no image; embedded 42 of 42 | F10.31, F10.26 task 2 |
+| 4 A forecast of the answer | r .82 (.87, .66) at the adjective; yes to `ordinary` and `urban` (.39 to .97) | F10.27 |
+| 5 The question adds a step | Gain .07 to .12 to .13 (.08, .18, .18; .07, .19, .21); 41 of 42 cells | F10.24, F10.26 task 2 |
+| 6 The instruction adds little | Gain flat through the instruction, up at the last token | F10.7 |
+| 7 One direction for three models | At `place`, the direction of the other 2 models reads out the answers: r .47, .49 (.74, .79; .67, .62) on `nice`, `pretty`, near or above the own direction. Passes Bonferroni in 6 (14, 11) of 14 prompts. No lead line, because the callout sits far from `place` | F10.29 Q2, `transfer_test_layer.csv` |
+| 8 Verdict | r .99 (.98, .92) on `cool`; r at least .92 in 41 of 42 cells | `t2_grid.csv`, F10.29 Q6 |
+
+The Qwen3.5-9B verdict value is .98 with the 8-form margin (the old figure gave .96, from the
+4-form margin).
 
 | Column | Rule |
 |--------|------|
@@ -352,7 +371,7 @@ The body ends at the bottom of page 14 (manuscript class). No lines are free.
 |--------|-----------|
 | Figure 1 panel b (the layer bands) | Appendix B, `fig:prompt-layers`, with the band rules from Methods |
 | Figure 1 panel a | Qwen3.6-27B bars at `place`, `cool`, `?` (gain .072, .191, .206) and its values in the callouts |
-| Figure 2 | F10.30 (3 models) |
+| Figure 2 | F10.31 (each standard, 3 models). F10.30 (borough words) is in Appendix B |
 | Figure 3b (restaurant cue block) | Appendix B, `fig:restaurant-inference-block`. Figure 3a is a side figure |
 | Figure 4 (inference kinds) | Appendix B |
 | Table 1 (`tab:prompt-ses`) | Appendix B, with the reliability result (F10.29 Q3) |
@@ -398,3 +417,27 @@ The figure is `figures/f10/shared/shared_direction.png`, with the caption in `sh
 | Margins correlate | The `cool`, `nice` and `pretty` margins correlate at r .65 to .81. A held-out r shows a shared direction. It does not show a shared mechanism |
 | Fixed word lists | The yes and no lists, and the temperature and social lists, are our choice |
 | Test layer | 1 layer for each model and token, chosen on the fit prompts |
+
+## Words along the prompt for 3 models (F10.32)
+
+Appendix B ("Along the prompt") now gives words that the 3 models share, not Gemma words. Script:
+`scripts/f10/prompt_words_shared.py`. Output: `figures/f10/mechanism/prompt_shared_words.csv`.
+The script uses the `cool` store, the tokens `place`, `?` and the last token, and quarters of
+relative depth. It gives 2 scores: the mean readout, and the mean readout minus the no-image
+readout. It ranks by the lowest z over the 3 models (the F10.30 rule).
+
+| Token | Quarter | Result |
+|-------|---------|--------|
+| `place` | 1 | Function words (still, even, here) |
+| `place` | 2 | Place words: nearby, downtown, surroundings, location, town |
+| `place` | 3 | The image adds the setting: residential, urban, metropolitan, vicinity, suburbs. None is in the no-image top 100 of a model |
+| `?` | 3 | The image adds words of judgment: attractiveness, aesthetic, pleasant, fashionable, trendy, artistic |
+| `?` | 4 | subjective, depends |
+| last | 2 to 3 | answer, answers, opinion |
+| last | 4 | yeah, nope, affirmative |
+
+The image score in the first quarter gives multilingual noise, thus the paper does not use it.
+
+The appendix layer figure (`fig:prompt-layers`) has no "sense split" row now, and the text has
+no sense rule. The figure gives Gemma-4-31B and Qwen3.5-9B only, because F10 did not compute
+the scene band for Qwen3.6-27B.
