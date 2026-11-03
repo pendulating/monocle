@@ -267,9 +267,63 @@ removes the yes rates from this family, because the 14-prompt table holds them.
 
 ### Paper
 
-Section 4.2 uses Figure 3a (the words), the table `tab:prompt-ses`, and the readout and trace
-results. Section 4.3 starts with the table. The rank figure of Gemma (`fig:ranks`) is in Appendix B.
-Methods gives E, P_unsure and the 2 test families.
+Section 4.2 uses Figure 3 (the words), and the readout and trace results. The table
+`tab:prompt-ses` and the rank figure of Gemma (`fig:ranks`) are in Appendix B. Methods gives E,
+P_unsure and the 2 test families. Appendix A ("The shared direction and its tests") gives the fit,
+the transfer, the partial test and the reliability.
+
+## Borough words that 3 models share (F10.30)
+
+The old Figure 2 (`fig:borough-layers`) gave the C3 words of Gemma-4-31B only. The top-50 words
+of C3 do not agree between models (Jaccard about 0). F10.30 keeps only the words that all 3
+models raise.
+
+| Step | Rule |
+|------|------|
+| Contrast | C3 (`$C_L$` in the paper) as a Welch t over the 197 NTA means at the `cool` token: 1 borough against the other 4, for each word and saved layer |
+| Bands | The mean t over the saved layers in each quarter of relative depth (layer / number of layers: 60, 32, 64) |
+| Words | Join the 3 vocabularies on the word string. Keep lowercase words of 4 or more letters (33,965) |
+| Score | z-score the t in each model. The score of a word is its lowest z of the 3 models |
+
+The full t vectors agree between models. Median Spearman rho over pairs and boroughs: .15 (depth
+0 to .25), .36 (.25 to .50), .26 (.50 to .75), .21 (.75 to 1).
+
+| Borough | Shared words (from the figure) |
+|---------|--------------------------------|
+| Manhattan | marketed, secured, allure, venues, fama |
+| Brooklyn | comunidade, socially, sociale, barrio, sidewalk, street, marijuana, prostitution |
+| Bronx | music, playground, recreation, then disappointed, unsafe, dangerous, berbahaya (Indonesian "dangerous") |
+| Queens, Staten Island | Few shared words. Science words and word pieces in other languages |
+
+**Limits.** We did not test single words: a word is in the figure because it ranks high in each
+model, not because it passes a test. The rho values between models are descriptive, because the
+words are not independent.
+
+| Item | Path |
+|------|------|
+| Script | `scripts/f10/plot_borough_shared.py` 1.0.0 |
+| Figure | `figures/f10/mechanism/mech_borough_shared.{pdf,png,json}` |
+| Words | `figures/f10/mechanism/borough_shared_words.csv` (top 20 for each borough and band, with the t of each model) |
+| Agreement | `figures/f10/mechanism/borough_shared_agreement.csv` |
+| Paper copy | `paper/figures/facct/mech_borough_shared.pdf` (manifest entry in `artificial-aesthetic/manifest/assets.toml`) |
+
+## Paper edits for the 14-page limit (2026-11-02)
+
+The body ends at the bottom of page 14 (manuscript class). No lines are free.
+
+| Change | Where now |
+|--------|-----------|
+| Figure 1 panel b (the layer bands) | Appendix B, `fig:prompt-layers`, with the band rules from Methods |
+| Figure 1 panel a | Qwen3.6-27B bars at `place`, `cool`, `?` (gain .072, .191, .206) and its values in the callouts |
+| Figure 2 | F10.30 (3 models) |
+| Figure 3b (restaurant cue block) | Appendix B, `fig:restaurant-inference-block`. Figure 3a is a side figure |
+| Figure 4 (inference kinds) | Appendix B |
+| Table 1 (`tab:prompt-ses`) | Appendix B, with the reliability result (F10.29 Q3) |
+| Added to Results | F10.29 Q1 (partial test), F10.29 Q2 (transfer), C1.10 (name x image), C5.3 (image controls), C5.6 (H9) |
+| Removed from Results | Greenery with % Black (now % White), the inference kinds other than brand knowledge, the 34,072 wealth spans, the Gemma-only Bronx and Brooklyn lists, the layer numbers of "Along the prompt", the `model` C2 list |
+| Methods fixes | The prompt reads "Answer with one word", and the adjective list holds `fancy` |
+
+The removed text is in `paper/sec/scratch.tex`, word for word.
 
 ## What this changes for the paper
 
