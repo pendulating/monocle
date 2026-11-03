@@ -450,12 +450,12 @@ figure used the R-lens on Gemma-4-12B. The new figure uses the J++ Lens on Gemma
 
 | Item | Value |
 |------|-------|
-| Script | `scripts/f10/plot_patch_teaser.py` (1.2.0) |
+| Script | `scripts/f10/plot_patch_teaser.py` (1.3.0) |
 | Output | `figures/f10/mechanism/mech_patch_teaser.{pdf,png,json}`, `patch_teaser_words.csv`, `patch_teaser_images.csv` |
 | Data | `data/f10/hop_all/gemma-4-31b/patches/ids-*.npy`: the top 30 token ids of each of 256 patches (16 x 16, row-major), 15 layers |
 | Pole words | The 300 words (lowercase, 4 or more letters) at each end of the Gemma-4-31B direction at `place` (F10.27 `direction.npz`, z-scored at each layer, then the mean over layers, as in F10.28) |
 | Hit | A patch holds a pole word in its top 30 at a layer of relative depth .25 to .75 (L16 to L44) |
-| Images | In each borough, among the images with the answer of the panel, the image with the largest signed (up - down) patch count. Yes: Manhattan, Staten Island. No: Bronx, Queens, Brooklyn (author decisions, 2026-11-03) |
+| Images | In each borough, rank the images with the answer of the panel by the signed (up - down) patch count. Yes: Manhattan, Staten Island. No: Bronx, Queens, Brooklyn. The panel shows a street scene from the top 15, picked by eye (`PICKS` in the script). The top images of 4 boroughs were a park or warehouse yards (author decisions, 2026-11-03) |
 | Word of a block | Score: the share of the (patch, layer) top-30 lists of the block that hold the word, minus the share over all images. Pole words go to blocks greedily by score. A word shows at most 2 times in an image, and only words of 11 letters or fewer show |
 
 **Result.** The patches do not see the question, but their pole words follow the answer. Over the
@@ -463,13 +463,17 @@ figure used the R-lens on Gemma-4-12B. The new figure uses the J++ Lens on Gemma
 r = .46 (p < 1e-31), and the number that hold a down word at r = -.47 (Pearson). The caption
 gives these values.
 
-| Borough | Image | NTA | Answer | Margin | Up patches | Down patches |
-|---------|-------|-----|--------|--------|------------|--------------|
-| Manhattan | W0EHI5DW | SoHo-Little Italy-Hudson Square | yes | 12.2 | 126 | 11 |
-| Staten Island | W0EL0RUQ | West New Brighton-Silver Lake-Grymes Hill | yes | 17.0 | 122 | 3 |
-| Bronx | W0E983QM | Mott Haven-Port Morris | no | -15.9 | 24 | 123 |
-| Queens | W0EBII3R | Ozone Park (North) | no | -14.4 | 16 | 134 |
-| Brooklyn | W0EGPAB6 | Carroll Gardens-Cobble Hill-Gowanus-Red Hook | no | -16.0 | 28 | 113 |
+| Borough | Image | NTA | Answer | Margin | Up patches | Down patches | Rank |
+|---------|-------|-----|--------|--------|------------|--------------|------|
+| Manhattan | W0ECNCTD | Upper West Side (Central) | yes | 15.9 | 97 | 11 | 2 of 64 |
+| Staten Island | W0EL0RUQ | West New Brighton-Silver Lake-Grymes Hill | yes | 17.0 | 122 | 3 | 1 of 15 |
+| Bronx | W0EDUW80 | Allerton | no | -4.4 | 53 | 88 | 11 of 84 |
+| Queens | W0EA3B36 | Astoria (North)-Ditmars-Steinway | no | -15.2 | 35 | 83 | 14 of 118 |
+| Brooklyn | W0EH7YSV | Sheepshead Bay-Manhattan Beach-Gerritsen Beach | no | -9.6 | 29 | 80 | 10 of 103 |
+
+The first version (1.2.0) showed the top image of each borough: a park in SoHo, and warehouse
+or truck yards in Mott Haven, Ozone Park and Carroll Gardens. The street scenes hold fewer
+pole words, and their "no" images also hold some up words.
 
 The pole words that patches hold most are concrete. Up: gardens, ornament, balkon, jardins,
 pastel, decorations, arched, hydrangea. Down: truck, trucks, forklift, warehouse, rusted, tanker,
@@ -486,3 +490,93 @@ text width (430 pt), so it prints at 100%.
 on a GPU.
 
 Qwen3.5-9B and Qwen3.6-27B have the same patch files (1024 patches, 32 x 32).
+
+### The pole words by layer (F10.33b, 2026-11-03)
+
+Script `scripts/f10/patch_layers.py` (1.0.0). Outputs `figures/f10/mechanism/patch_layers.csv`,
+`patch_layer_words.csv`, `patch_layer_teaser.csv`. The teaser counts a hit at any layer of the
+band L16 to L44. This table gives each saved layer on its own: the mean number of patches (of 256)
+with an up or a down word, the Pearson r of the per-image counts with the `cool` margin, and the
+words that the patches hold most.
+
+| Layer | Up patches | Down patches | r up | r down | Up words | Down words |
+|-------|------------|--------------|------|--------|----------|------------|
+| 8 | 2 | 5 | .16 | -.27 | antlers, floral, alpine | trucker, truck, tanker |
+| 12 | 8 | 9 | .23 | -.39 | balkon, hydrangea, antlers, ornament | truck, trucker, tanker, warehouse |
+| 16 | 12 | 16 | .31 | -.40 | balkon, antlers, gardens, jardins | truck, trucks, tanker, warehouse |
+| 24 | 14 | 21 | .36 | -.42 | gardens, jardins, balkon | truck, trucks, forklift, warehouse |
+| 32 | 34 | 8 | .44 | -.37 | gardens, ornament, decorations, pastel | truck, trucks, warehouse, filth |
+| 36 | 25 | 8 | .43 | -.36 | gardens, balkon, ornament, pastel | truck, rusted, warehouse, forklift |
+| 40 | 14 | 7 | .49 | -.39 | pastel, arched, gardens, turquoise | forklift, rusted, truck, tarp |
+| 44 | 11 | 4 | .44 | -.33 | arched, hydrangea, turquoise, emerald | truck, metal, warehouse |
+| 48 | 5 | 6 | .40 | -.33 | leaf, balkon, arched | metal, industrial, truck |
+| 56 | 8 | 5 | .40 | -.33 | leaf, arched, turquoise | metal, truck, industrial |
+| band L16-44 | 58 | 33 | .46 | -.47 | | |
+
+1. The words move with the depth. Up to L24 the patches hold objects: trucks, tankers and
+   forklifts at the down end, antlers, balconies and gardens at the up end. At L32 to L36 the
+   up end turns to ornament and decoration, and the up count peaks (34 patches). From L40 the
+   words are colours and materials: pastel, arched, turquoise, leaf against metal, rusted, tarp,
+   industrial.
+2. The down count peaks early (L24, 21 patches) and the up count late (L32, 34 patches). Thus
+   "middle layers" mixes 2 regimes: the down words of the band come mostly from L16 to L28, and
+   the up words from L32 to L36.
+3. The hit patches change from layer to layer: the Jaccard overlap of the hit mask with the next
+   saved layer is .14 to .47 (up) and .27 to .50 (down). The same patch seldom keeps its word.
+4. The correlation with the answer is flat over the band (r up .31 to .49, r down -.33 to -.42),
+   and the band count adds little (.46, -.47). One layer gives nearly the same test as the band.
+5. In the 5 teaser images, the "no" images hold their down words at L16 to L24 (Bronx 51 to 70
+   patches, Brooklyn 50 to 67) and the "yes" images their up words at L32 (Manhattan 67,
+   Staten Island 83).
+
+The figure draws the words of the whole band, so a block can show an L16 truck beside an L32
+ornament. A figure at 1 layer, or 1 layer for each end, would be easier to state.
+
+### The severe words on innocuous scenes (F10.33c, 2026-11-03)
+
+The author did not want the object words (truck, warehouse) of the top 300 at the down end. The
+teaser now shows the severe words: the social words that fire on innocuous scenes.
+
+Script `scripts/f10/patch_severe.py` (1.0.0). It keeps a hand list of 92 severe candidates
+(criminal, sewage, filth, slaughter, stench, gangs, trafficking, rape, abuse, trash) and finds 79
+of them within rank 2,000 of the down end. For each image it counts the patches with a severe
+word at each layer, and it draws a contact sheet for each borough
+(`figures/f10/mechanism/severe_sheet_*.png`). Outputs `patch_severe_words.csv` (hits by layer)
+and `patch_severe_images.csv` (counts by image).
+
+| Layer | Severe hits | Images with a hit (of 591) | Top severe words |
+|-------|-------------|----------------------------|------------------|
+| 12 | 660 | 200 | sewage, sludge, criminal, rotten, gangs, stench |
+| 16 | 1,305 | 448 | sewage, slaughter, filth, punk, gangs, dumped |
+| 24 | 1,184 | 261 | sewage, vandalism, punk, criminal, trash |
+| 32 | 1,702 | 357 | filth, vandalism, sewage, trash, criminal |
+| 36 | 1,466 | 351 | vandalism, sewage, trash, filth, criminal |
+| 40 | 644 | 223 | sewage, vandalism, deteriorating, filth, unclean |
+| 52 | 1,263 | 325 | trash, garbage, waste, trafficking, dirty |
+| 56 | 1,096 | 351 | trash, garbage, dirty, trafficking, brutality |
+
+1. Severe words fire on 571 of the 591 images. The count of severe patches over all layers
+   correlates with the `cool` margin at r = -.28.
+2. The severe words have 2 regimes. From L12 to L40 the patches hold sewage, slaughter,
+   filth, vandalism, criminal and stench. From L48 the words turn to trash, garbage, dirty and
+   trafficking.
+3. Layer 16 reaches the most images (448). Thus the teaser reads the down end at L16.
+4. "homeless" is not a word of the direction (rank 22,561 from the down end). The Norwood image
+   `street_967` that showed it in an earlier lens run is not in the 591-image store.
+
+Teaser 2.0.0 (`scripts/f10/plot_patch_teaser.py`). One layer for each end: teal words from the
+top 30 at L32, where the up words peak; coral words from the severe list at L16. A block that
+holds a severe word shows it, and the up words fill the other blocks. A fragment (scav, crimin,
+kriminal) counts but does not show. Five innocuous scenes with the answer no, picked by eye from
+the contact sheets:
+
+| Borough | Image | Scene | Margin | Coral words | Teal words |
+|---------|-------|-------|--------|-------------|------------|
+| Manhattan | W0ECRHA2 | East Harlem (North): parked cars, trees, a wall | -12.3 | criminal, slaughter | gardens, flower, ornament, peacock |
+| Brooklyn | W0EH7V8S | Madison: a street of houses | -2.4 | filth, sewage, slaughter | gardens, ornament, pastel, balkon |
+| Queens | W0EGLDPC | South Ozone Park: a lawn and houses | -13.9 | sewage, slaughter, stench | gardens, ornament, pastel, daffodils |
+| Bronx | W0EO3CHO | Castle Hill-Unionport: a wall with trees behind it | -13.4 | sewage, slaughter, stench | gardens, ornament, vacation |
+| Staten Island | W0EM3XGY | Todt Hill: houses behind a white fence | -12.1 | sewage, dumped, dump | gardens, flower, ornament, pastel |
+
+The margin test of F10.33 (band counts, r = .46 and -.47 over 591 images) does not change. The
+caption in `main.tex` names the 2 layers and the severe list. Paper commit: see the runbook.
