@@ -605,6 +605,11 @@ get no on 3 of the 4 and 19 on all 4. The new picks, all urban scenes:
 The Queens and Staten Island images also get yes on ugly. The caption is 2 sentences: the scenes
 the model calls not cool, nice or pretty, and the 2 word ends with their layers.
 
+**Removed (2026-11-03).** After the 2.2.0 round the author decided that the figure does not make
+sense, and we took it out of the paper. The `teaserfigure` block is gone from `main.tex`, the
+figure file from `paper/figures/facct/`, and the asset from `manifest/assets.toml`. The script
+and its outputs in `figures/f10/mechanism/` stay for the record. The paper has no teaser.
+
 ## Steering the image patches (F10.35, interim: 19 of 44 images)
 
 **Status (2026-11-03):** job 120840 (g3, 1 B300) runs. These values are from the first 19
