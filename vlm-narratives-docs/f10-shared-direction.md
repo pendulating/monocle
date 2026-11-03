@@ -587,6 +587,24 @@ title is the borough alone, and the NTA name and the answer label below the imag
 The caption keeps the question, the 2 layers, the 2 correlations and the order of image and
 question.
 
+Teaser 2.2.0 (same day): the author wanted urban street scenes, and images that the model calls
+not nice, not pretty, or ugly. `select` now joins the margins of cool, nice, pretty and ugly
+(`ADJECTIVES`) and requires the answer no to cool, nice and pretty (`MUST_BE_NO`) for each pick.
+The patch words do not depend on the question, so the same store serves all 4 adjectives. Of the
+591 images, 60% get no on nice, 65% no on pretty, 63% no on cool, and 3% yes on ugly; 276 images
+get no on 3 of the 4 and 19 on all 4. The new picks, all urban scenes:
+
+| Borough | Image | Scene | cool | nice | pretty | ugly | Coral words at L16 |
+|---------|-------|-------|------|------|--------|------|--------------------|
+| Manhattan | W0E65GB6 | Midtown: an office tower and a coach | -4.0 | -0.3 | -11.2 | -5.7 | trash |
+| Brooklyn | W0E8V32I | Prospect Lefferts Gardens: a laundromat corner | -4.2 | -16.1 | -18.1 | -5.3 | sewage, dumping |
+| Queens | W0E4I5X2 | Astoria (East): a commercial street | -9.3 | -22.4 | -23.9 | +1.7 | sewage, sludge, punk, slaughter |
+| Bronx | W0E983QM | Mott Haven: a shop front and parked cars | -15.9 | -18.4 | -23.8 | -0.1 | sewage, gangs |
+| Staten Island | W0EL0NBS | St. George: garage doors and a walker | -16.5 | -22.2 | -24.4 | +1.8 | sewage, slaughter |
+
+The Queens and Staten Island images also get yes on ugly. The caption is 2 sentences: the scenes
+the model calls not cool, nice or pretty, and the 2 word ends with their layers.
+
 ## Steering the image patches (F10.35, interim: 19 of 44 images)
 
 **Status (2026-11-03):** job 120840 (g3, 1 B300) runs. These values are from the first 19
