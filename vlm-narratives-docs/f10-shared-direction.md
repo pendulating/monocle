@@ -610,6 +610,12 @@ sense, and we took it out of the paper. The `teaserfigure` block is gone from `m
 figure file from `paper/figures/facct/`, and the asset from `manifest/assets.toml`. The script
 and its outputs in `figures/f10/mechanism/` stay for the record. The paper has no teaser.
 
+Teaser 2.3.0 (same day): the author wanted a Bronx image that shows an urban scene, not a
+warehouse. The new Bronx pick is W0EM9QBY (Belmont: apartment towers over a shop street; cool
+-5.7, nice -12.2, pretty -17.4, ugly -3.8; slaughter, sewage at L16). It comes from the 30 Bronx
+images with no on cool, nice and pretty and the most severe patches at L16. The other picks do
+not change. The teaser stays out of the paper; its 5 images are the columns of the F10.35 matrix.
+
 ## Steering the image patches (F10.35, interim: 19 of 44 images)
 
 **Status (2026-11-03):** job 120840 (g3, 1 B300) runs. These values are from the first 19
@@ -655,3 +661,34 @@ of the noun projection.
 reads. It is not the same as the content words of the patches. A push along it changes the
 verdict, while the lens still names the same objects. Thus the "truck" and "gardens" words of
 the teaser are signs of the scene, and the value sits on a separate axis.
+
+### The steering matrix (2026-11-03)
+
+`scripts/f10/plot_patch_steer_matrix.py` makes a full-page figure (5.4 x 6.4 in): the 5 teaser
+2.3.0 images in the columns, and 6 rows. The rows are no addition, then +96 sigma of `shared`,
+`cool`, `pretty`, `ugly` and the random control, added to all 256 patches at L32. Job 121146
+(and 121201 for the new Bronx image) gives the data. Output: `figures/f10/steer_patches/`
+(`patch_steer_matrix.{png,pdf,json}`, `patch_steer_matrix_counts.csv`).
+
+| Item | Rule |
+|------|------|
+| Design | The teaser: the word lists, the 4 x 4 block rule, the veil and the answer frame |
+| Read layer | Both ends at L32, the hook layer, in all rows. The teaser reads the severe words at L16, which a hook at L32 cannot change |
+| Frame | The answer to "Is this place cool?" in that condition |
+| Rows | Only +96 sigma. Six rows fit the text height with a caption; nine rows (+-96) do not |
+
+Mean patches with a word, over the 5 images:
+
+| Row | Up words, L32 | Severe words, L32 | Up, L40 | Severe, L40 |
+|-----|---------------|-------------------|---------|-------------|
+| no addition | 19.6 | 7.2 | 4.8 | 3.2 |
+| + shared | 70.4 | 1.6 | 13.0 | 0.8 |
+| + cool | 21.4 | 5.6 | 6.0 | 2.2 |
+| + pretty | 67.0 | 3.0 | 11.8 | 1.4 |
+| + ugly | 2.8 | 52.0 | 4.6 | 9.4 |
+| + random | 2.2 | 0.0 | 0.0 | 0.0 |
+
+The `cool` margin goes from -4.0 to -5.7 (no addition) to +0.9 to +1.5 with `shared` in
+Manhattan, Brooklyn and the Bronx; these 3 frames turn teal. Staten Island stays no in all rows
+(-12.2 to -19.4). With `ugly` the margins fall by 3 to 7. The random vector removes nearly all
+words of both lists, and it does not move the margin in one direction.

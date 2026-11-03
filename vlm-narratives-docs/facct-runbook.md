@@ -4158,6 +4158,21 @@ The steering table of the paper (`tab:steering-dose`) comes from
 the severe words of the no end at L16 (sewage, slaughter, stench, criminal, filth) and the up
 words at L32 (gardens, ornament, pastel). See `f10-shared-direction.md`, F10.33b and F10.33c.
 
+**Results made shorter (2026-11-03, after paper `c37e0c7`):** on the author's request, section 4
+is 2,148 words of prose, not 3,376. Each paragraph starts with its claim, then gives the evidence
+and an appendix pointer. We moved these details to the appendix, so no number is lost:
+
+| Detail | New place |
+|--------|-----------|
+| Steering: 'nice' dose, the sign change at L16 of Qwen3.6-27B, the random vector, the 197-image run | `app:steering`, paragraph "Specificity" |
+| Subjectivity notes, the "it depends" rule (42 of 48), refusal words, refusals by ACS feature | new `app:refusals` in appendix B |
+| The noun check ('scene' against 'place'), the Manhattan t on 'ordinary' and 'urban' | `app:borough-order` |
+| The 'ugly'/'pretty' mirror and cosines | `app:pair-cosines` |
+| Brooklyn borough words, rho = .36 | `app:borough-words` |
+| New York yes shares by borough, other-city captions | `app:place-probes` |
+
+Not kept: the Spearman .23 for 'ordinary' (conceptions) and the lighting-income rho (.25 to .44).
+
 ## F11. Judgment consistency: pairwise against single-image (D150)
 
 **Status (2026-10-30):** done (R4 shard 0). D151 answers Q122 to Q125. The
