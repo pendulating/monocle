@@ -198,7 +198,7 @@ which the F10.26 summaries do not hold. A test of the evidence axis at those tok
 
 ## The words of the direction, and the ACS gradients (F10.28)
 
-Script: `scripts/f10/hop_hierarchy.py` (1.1.0). Output: `figures/f10/hierarchy/` and
+Script: `scripts/f10/hop_hierarchy.py` (1.2.0). Output: `figures/f10/hierarchy/` and
 `notebooks/facct/figures/f10/shared_direction_words{,_stacked}.{pdf,png,json}`.
 
 ### Words
@@ -218,34 +218,58 @@ selects a layer. The 20 words at each end are in `shared_direction_words.csv`.
 F9 (Spearman over about 150 cues that are 1 lens word). rho is -.01 to .27 over the layers, and
 -.01 for Gemma at its test layer. This is weak, thus the paper does not use it.
 
-### ACS gradients
+### ACS gradients of the answers (14 prompts)
 
-For each NTA (197; 169 for Gemma `nice`, because Gemma gives no yes or no on many images):
+The margin of an `unable` answer is empty (D167). Thus the margin cannot order all of the images
+for Gemma-4-31B. For each image, the script uses the probabilities of the 4 yes and the 4 no forms
+over the full vocabulary (`data/f10/hop_logit/{store}/answers.parquet`):
 
-| Measure | Source |
-|---------|--------|
-| `yes_cool`, `yes_nice`, `yes_ordinary` | Share of yes answers to the one-word prompt |
-| `shared_direction` | NTA mean readout at `place`, test layer, projected on the direction |
-| `evidence_valence` | Net valence of the `visual_evidence` spans of the `cool` traces (Gemma, Qwen3.5-9B) |
+| Score | Formula | Meaning |
+|-------|---------|---------|
+| E | P(yes) - P(no) | The expected answer, yes = +1, unsure = 0, no = -1. An `unable` answer sits near 0 |
+| P_unsure | 1 - P(yes) - P(no) | The mass on all other tokens. For `place nice`, 278 of 295 `unable` answers start with `Subject` |
 
-Test: Spearman rho with 4 ACS features (`data/f4_traces/nta_acs.parquet`). Bonferroni over 56
-tests. 18 tests pass.
+Checks (Gemma): the median P_unsure is .85 to 1.00 for `unable` answers and about 0 for the other
+answers. Among the answered images, rho(E, margin) is .96 (`nice`, `pretty`) and 1.00 (`cool`).
+
+Test: Spearman rho over NTAs of the NTA mean with 4 ACS features. E for 3 models and 14 prompts,
+and P_unsure for Gemma where 5% or more of the answers are `unable` (`place nice`, `place pretty`,
+`place ugly`, `scene nice`, `scene ugly`). Bonferroni over 188 tests: 81 pass.
+Output: `ses_prompts.csv` and the table `notebooks/facct/tables/f10_prompt_ses.tex`.
 
 | Result | Values |
 |--------|--------|
-| `yes_nice` rises with income, bachelor's, White share | Gemma .37, .34, .30. Qwen3.6-27B .28, .27, .27 |
-| `yes_cool` rises with bachelor's and income | Gemma .32, .28 |
-| `shared_direction` rises with income | Gemma .32, Qwen3.5-9B .25. Gemma bachelor's .30 |
+| E of `cool`, `nice`, `pretty`, `fancy` rises with income | 23 of 24 model and prompt pairs pass, rho .16 to .46 |
+| The same, with bachelor's and White share | 16 and 14 of 24 pass |
+| E of `ugly` falls with income | All 6 pairs, rho -.44 to -.34 |
+| `ordinary`, `urban` | No test passes |
+| Gemma P_unsure falls with income | `nice` -.36 (scene -.38), `ugly` -.39 (scene -.44) |
+| Gemma P_unsure of `place ugly` rises with Black share | rho +.28. The only Black-share test that passes |
+| Black share and the aesthetic E | All negative (-.19 to -.04). No test passes |
+
+On `scene ugly`, Gemma puts almost no mass on yes. Thus E = -P(no) and P_unsure = 1 - P(no), and
+the 2 rows have the same rho.
+
+### ACS gradients of the readout and the traces
+
+Measures: `shared_direction` (the NTA mean readout at `place`, test layer, projected on the
+direction) and `evidence_valence` (the net valence of the `visual_evidence` spans of the `cool`
+traces, Gemma and Qwen3.5-9B). Spearman rho, Bonferroni over 20 tests: 10 pass. Version 1.2.0
+removes the yes rates from this family, because the 14-prompt table holds them.
+
+| Result | Values |
+|--------|--------|
+| `shared_direction` rises with income | Gemma .32, Qwen3.5-9B .25. Gemma bachelor's .30, White .23 |
 | `evidence_valence` rises with income, bachelor's, White share | Gemma .32, .26, .24. Qwen3.5-9B .25, .28, .26 |
-| `yes_ordinary` falls with bachelor's | Qwen3.5-9B -.28 |
-| Black share | All aesthetic measures are negative (-.19 to -.01). No test passes |
+| Black share | All negative. No test passes |
 
 **Limit:** Neighboring NTAs are not independent. The p values assume that they are.
 
 ### Paper
 
-The Results refactor of 2026-11-02 uses these results in section 4.2: Figure 3a (the words), and
-the paragraph on the J-space and the traces against the ACS features. Methods gives the test.
+Section 4.2 uses Figure 3a (the words), the table `tab:prompt-ses`, and the readout and trace
+results. Section 4.3 starts with the table. The rank figure of Gemma (`fig:ranks`) is in Appendix B.
+Methods gives E, P_unsure and the 2 test families.
 
 ## What this changes for the paper
 
