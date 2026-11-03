@@ -267,7 +267,7 @@ removes the yes rates from this family, because the 14-prompt table holds them.
 
 ### Paper
 
-Section 4.2 uses Figure 3 (the words), and the readout and trace results. The table
+Section 4.2 used the words as Figure 3 until 2026-11-03; now Figure 3 is the restaurant cue block, and the words figure is in Appendix B (`app:direction-words`) with the full word description. Section 4.2 also uses the readout and trace results. The table
 `tab:prompt-ses` and the rank figure of Gemma (`fig:ranks`) are in Appendix B. Methods gives E,
 P_unsure and the 2 test families. Appendix A ("The shared direction and its tests") gives the fit,
 the transfer, the partial test and the reliability.
@@ -372,7 +372,7 @@ The body ends at the bottom of page 14 (manuscript class). No lines are free.
 | Figure 1 panel b (the layer bands) | Appendix B, `fig:prompt-layers`, with the band rules from Methods |
 | Figure 1 panel a | Qwen3.6-27B bars at `place`, `cool`, `?` (gain .072, .191, .206) and its values in the callouts |
 | Figure 2 | F10.31 (each standard, 3 models). F10.30 (borough words) is in Appendix B |
-| Figure 3b (restaurant cue block) | Appendix B, `fig:restaurant-inference-block`. Figure 3a is a side figure |
+| Figure 3 (restaurant cue block) | Section 4.2, `fig:restaurant-inference-block`, a side figure since 2026-11-03. The words figure moved to Appendix B |
 | Figure 4 (inference kinds) | Appendix B |
 | Table 1 (`tab:prompt-ses`) | Appendix B, with the reliability result (F10.29 Q3) |
 | Added to Results | F10.29 Q1 (partial test), F10.29 Q2 (transfer), C1.10 (name x image), C5.3 (image controls), C5.6 (H9) |
@@ -441,3 +441,48 @@ The image score in the first quarter gives multilingual noise, thus the paper do
 The appendix layer figure (`fig:prompt-layers`) has no "sense split" row now, and the text has
 no sense rule. The figure gives Gemma-4-31B and Qwen3.5-9B only, because F10 did not compute
 the scene band for Qwen3.6-27B.
+
+## The teaser figure: J++ Lens words on image patches (F10.33)
+
+The paper has a teaser figure again (`fig:teaser`, in `main.tex`). It has the form of the old
+R-lens figure (`notebooks/facct/_rq.py`, `plot_patch_words`), in 1 row of 5 images. The old
+figure used the R-lens on Gemma-4-12B. The new figure uses the J++ Lens on Gemma-4-31B.
+
+| Item | Value |
+|------|-------|
+| Script | `scripts/f10/plot_patch_teaser.py` (1.2.0) |
+| Output | `figures/f10/mechanism/mech_patch_teaser.{pdf,png,json}`, `patch_teaser_words.csv`, `patch_teaser_images.csv` |
+| Data | `data/f10/hop_all/gemma-4-31b/patches/ids-*.npy`: the top 30 token ids of each of 256 patches (16 x 16, row-major), 15 layers |
+| Pole words | The 300 words (lowercase, 4 or more letters) at each end of the Gemma-4-31B direction at `place` (F10.27 `direction.npz`, z-scored at each layer, then the mean over layers, as in F10.28) |
+| Hit | A patch holds a pole word in its top 30 at a layer of relative depth .25 to .75 (L16 to L44) |
+| Images | In each borough, among the images with the answer of the panel, the image with the largest signed (up - down) patch count. Yes: Manhattan, Staten Island. No: Bronx, Queens, Brooklyn (author decisions, 2026-11-03) |
+| Word of a block | Score: the share of the (patch, layer) top-30 lists of the block that hold the word, minus the share over all images. Pole words go to blocks greedily by score. A word shows at most 2 times in an image, and only words of 11 letters or fewer show |
+
+**Result.** The patches do not see the question, but their pole words follow the answer. Over the
+591 images, the number of patches that hold an up word correlates with the answer margin at
+r = .46 (p < 1e-31), and the number that hold a down word at r = -.47 (Pearson). The caption
+gives these values.
+
+| Borough | Image | NTA | Answer | Margin | Up patches | Down patches |
+|---------|-------|-----|--------|--------|------------|--------------|
+| Manhattan | W0EHI5DW | SoHo-Little Italy-Hudson Square | yes | 12.2 | 126 | 11 |
+| Staten Island | W0EL0RUQ | West New Brighton-Silver Lake-Grymes Hill | yes | 17.0 | 122 | 3 |
+| Bronx | W0E983QM | Mott Haven-Port Morris | no | -15.9 | 24 | 123 |
+| Queens | W0EBII3R | Ozone Park (North) | no | -14.4 | 16 | 134 |
+| Brooklyn | W0EGPAB6 | Carroll Gardens-Cobble Hill-Gowanus-Red Hook | no | -16.0 | 28 | 113 |
+
+The pole words that patches hold most are concrete. Up: gardens, ornament, balkon, jardins,
+pastel, decorations, arched, hydrangea. Down: truck, trucks, forklift, warehouse, rusted, tanker,
+bulldozer, filth. Thus the down end of the direction reads trucks and industry in the scene.
+
+The raw top-1 word of a patch is not usable. It is "own" or a punctuation id in most patches,
+the same problem that the R-lens had. A test on 1 image (`W0EFVJ3D`) shows that the grid is
+row-major: the sky blocks give "clouds", and the bicycle block gives "bicycle".
+
+The selection is for a teaser, and it does not give a typical image. The figure is drawn at the
+text width (430 pt), so it prints at 100%.
+
+**Warning:** the 8 images of the old figure are not in the 591. To use them, run the lens again
+on a GPU.
+
+Qwen3.5-9B and Qwen3.6-27B have the same patch files (1024 patches, 32 x 32).
