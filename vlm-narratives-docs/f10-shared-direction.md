@@ -307,6 +307,43 @@ words are not independent.
 | Agreement | `figures/f10/mechanism/borough_shared_agreement.csv` |
 | Paper copy | `paper/figures/facct/mech_borough_shared.pdf` (manifest entry in `artificial-aesthetic/manifest/assets.toml`) |
 
+## Each standard in the J-space (F10.31, the new Figure 1)
+
+Figure 1 (`fig:standards`) gives 1 row for each of the 7 adjectives (noun `place`), in words that
+the 3 models share. The old prompt figure (`fig:prompt-readout`) and the paragraph "Along the
+prompt" are now in Appendix B (`app:layers`).
+
+| Column | Rule |
+|--------|------|
+| Conception, no image | The no-image readout at the adjective token, minus the mean no-image readout of the 7 adjectives. The figure leaves out the adjective and its forms |
+| Toward yes, toward no | At the `place` token, before the model reads the adjective, r over the 197 NTAs of the NTA mean readout of each word with the NTA mean E = P(yes) - P(no) of that prompt. The 7 prompts have the same activations at this token. Only the answer differs |
+| Grey numbers | `embedded_mid` of F10.26 (`t2_grid.csv`): of the top 100 words at the adjective, the number that are also in the no-image top 100 |
+
+All values are means over the saved layers at relative depth .25 to .75. Words are joined on the
+string, z-scored in each model, and ranked by the lowest z of the 3 models (the F10.30 rule).
+
+| Agreement between 2 models, Spearman rho over 33,965 words | Min | Median | Max |
+|------------------------------------------------------------|-----|--------|-----|
+| Conception | .49 | .54 | .79 |
+| Scene words (toward yes or no) | .22 | .46 | .63 |
+
+`ordinary` has the lowest scene agreement (median .23). The other 6 adjectives are .41 to .50.
+
+**Why not the adjective token for the yes and no words.** At the adjective, the words that go with
+E are answer words (`nope`, `none`) and function words in other languages. This agrees with
+F10.27: at the adjective, the direction is a forecast of the answer.
+
+**Limits.** We did not test single words. Gemma-4-31B declines `ugly` on 97% of the images, thus
+its E on `ugly` is near 0 for most images. The `cool` temperature sense is not in the figure or in
+the body of the paper (author decision, 2026-11-02).
+
+| Item | Path |
+|------|------|
+| Script | `scripts/f10/plot_standards.py` 1.0.0 |
+| Figure | `figures/f10/mechanism/mech_standards.{pdf,png,json}` |
+| Words | `figures/f10/mechanism/standards_words.csv` |
+| Agreement | `figures/f10/mechanism/standards_agreement.csv` |
+
 ## Paper edits for the 14-page limit (2026-11-02)
 
 The body ends at the bottom of page 14 (manuscript class). No lines are free.
