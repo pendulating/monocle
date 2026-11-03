@@ -580,3 +580,55 @@ the contact sheets:
 
 The margin test of F10.33 (band counts, r = .46 and -.47 over 591 images) does not change. The
 caption in `main.tex` names the 2 layers and the severe list. Paper commit: see the runbook.
+
+Teaser 2.1.0 (same day): the frame of each image carries the answer, teal for yes and coral for
+no, with the frame width of the win block photographs (`_extractions._photo_row`). The panel
+title is the borough alone, and the NTA name and the answer label below the image are gone.
+The caption keeps the question, the 2 layers, the 2 correlations and the order of image and
+question.
+
+## Steering the image patches (F10.35, interim: 19 of 44 images)
+
+**Status (2026-11-03):** job 120840 (g3, 1 B300) runs. These values are from the first 19
+images. Run `scripts/f10/patch_steer_report.py` again when the job ends.
+
+| Item | Value |
+|------|-------|
+| Directions | `hop_steer.py patch_dirs` (CPU): a ridge of the 8-form margin on the mean image patch of the 591 images, at L16 and L32. `shared` = the first singular vector of the 14 prompt weights (+ = the `nice` side). `cool`, `pretty`, `ugly` = the weight of that prompt (+ = toward yes). A random control at the sigma of `shared`. Output: `data/f10/steer/gemma-4-31b/patch_dirs.{npz,json}` |
+| Fit test | Held-out NTA folds: the projection predicts its own margin at r = .84 (cool, L16) to .93 (pretty, ugly, shared, L32) |
+| Text against image | The cosine of each patch direction with the noun-token direction (`dirs.npz`) at the same layer is .03 to .09. The image patches and the text token carry the value on nearly orthogonal directions |
+| Dose | alpha times sigma of the mean-patch projection (.16 to .39), added to all 256 patches at 1 layer. 96 sigma is 8% (L16) to 14% (L32) of the patch norm (about 260) |
+| Run | `hop_steer.py patches` (GPU): 5 teaser images (v1.3.0) and the 40 `dose` images (44 in all), prompts `cool`, `pretty`, `ugly` with `place`, alpha +-12, 24, 48, 96. Output: `data/f10/steer/gemma-4-31b/patches/` |
+| Report | `scripts/f10/patch_steer_report.py`. Output: `figures/f10/steer_patches/` (`margins.csv`, `pole_shares.csv`, `words.csv`, `margins.*`, `teaser_rows.*`) |
+
+**Result 1: the patch direction moves the answer, and the control does not.** Mean change of
+the `cool` margin at -96 / +96 sigma (paired t over 19 images, Bonferroni over 192 tests):
+
+| Hook | shared | cool | pretty | ugly | control |
+|------|--------|------|--------|------|---------|
+| L16 | -5.2 / +7.7 (yes share .16 / .84) | -3.3 / +5.5 | -3.9 / +6.1 | +5.5 / -2.5 | +0.3 / -7.0 (no answer at +96) |
+| L32 | -6.7 / +6.2 (yes .16 / .79) | -4.2 / +4.6 | -4.1 / +4.1 | +2.6 / -6.0 | +1.5 / -1.6 |
+
+The base yes share is .26. All shared, cool and pretty rows pass Bonferroni (p < .02). The
+`ugly` direction moves the answer the other way. The control does not order the answer, and
+at L16 +96 it breaks the yes/no output. The same pattern holds for the `pretty` prompt. On the
+`ugly` prompt the changes are smaller (about 2 to 3), because Gemma refuses most `ugly` images.
+
+**Result 2: the answer moves, but the patch words change little.** With the hook at L16, the
+share of patches that hold a pole word at L40 does not change (up .061, down .028 at -96, 0
+and +96 sigma). In the teaser rows, the words stay the same, but the margin of Queens goes
+from -15.2 to +10.5, and the Bronx goes from -4.4 to +8.8. With the hook at L32 the words
+change more: at L40 the up share goes from .024 (-96) to .081 (+96), and the down share from
+.078 to .007. The words that rise at -96 sigma are asbestos, basement, grime, radiator,
+grey, garage. At +96 sigma they are wildflower, foliage, canopy, ornamental, ornate, cedar.
+
+**Result 3: the model removes the push from the patches, but the push reaches the text.** With
+the hook at L32 and 96 sigma (+-37 units), the projection on the direction is +-37 at L32,
+about +-4 at L40, and close to 0 at L56. With the hook at L16, the projection of the noun
+token on the text direction at L32 moves from -2.94 (-96) to -1.95 (+96), about 1.2 sigma
+of the noun projection.
+
+**Reading.** The aesthetic value of the image is a direction in the patches that the question
+reads. It is not the same as the content words of the patches. A push along it changes the
+verdict, while the lens still names the same objects. Thus the "truck" and "gardens" words of
+the teaser are signs of the scene, and the value sits on a separate axis.
