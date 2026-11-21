@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name=matt-image-pack
+#SBATCH --partition=pierson
+#SBATCH --nodes=1 --ntasks=1 --cpus-per-task=8 --mem=16G
+#SBATCH --time=24:00:00
+#SBATCH --output=/share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack/build.log --open-mode=append
+# Build the image pack of the 1M-pair battery. One sequential read of the
+# 1.1 million unique images on /share/ju, written as blobs under multirun/ (also on
+# /share/ju since the 2026-10 move off /share/pierson).
+# See vlm-narratives-docs/nfs-load-pairvqa-sweeps.md.
+cd /share/ju/matt/mllmsci
+source /share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate
+python scripts/build_image_pack.py \
+    --tables '/share/ju/matt/mllmsci/multirun/pair_tables_1m/*_pairs.parquet' \
+    --out-dir /share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack --workers 8 --per-blob 16384

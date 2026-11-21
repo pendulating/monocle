@@ -14,15 +14,15 @@
 #
 # Run this one time on each node:
 #   klara:  sbatch -p pierson -w klara -c 4 --mem=8G \
-#             --wrap 'bash /share/pierson/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
+#             --wrap 'bash /share/ju/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
 #   ju:     sbatch -p ju -c 4 --mem=8G \
-#             --wrap 'bash /share/pierson/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
+#             --wrap 'bash /share/ju/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
 #
 # The zoo models do not change after the download. If one IS replaced in place,
 # run this script again on each node — the mirrors do not test freshness.
 set -euo pipefail
 
-ZOO="${MLLMSCI_MODEL_ZOO:-/share/pierson/matt/zoo/models}"
+ZOO="${MLLMSCI_MODEL_ZOO:-/share/ju/matt/zoo/models}"
 REG="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
 # The canonical urbanpairvqa roster (the 5-model klara2x sweep, plus the

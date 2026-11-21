@@ -1,0 +1,28 @@
+#!/bin/bash
+#SBATCH -J f6-render
+#SBATCH -o /share/ju/matt/mllmsci/data/f6_restaurant_depiction/v4/logs/render_best_%A_%a.out
+#SBATCH -e /share/ju/matt/mllmsci/data/f6_restaurant_depiction/v4/logs/render_best_%A_%a.err
+#SBATCH -N 1 -n 1
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=8G
+#SBATCH -t 04:00:00
+#SBATCH --partition=pierson
+#SBATCH --array=0-15
+# Render the best view of each F6 restaurant (v4: 18,242) for the model
+# check of the pixels (D63, D67). 1 array task is 1 shard of the restaurants,
+# about 1,000 views and 15 minutes.
+#
+# Warning: do not use default_partition. Many of its CPU nodes (snavely-cpu,
+# luxlab-cpu, unicorn-cpu) have no AVX, and polars stops there with
+# "Illegal instruction".
+#
+#   sbatch scripts/f6_render_best_views.sub
+#
+# A shard skips the views that exist on disk, so you can submit a failed
+# task again with --array=<k>. Keep NUM_SHARDS equal to the array size.
+set -euo pipefail
+NUM_SHARDS=16
+cd /share/ju/matt/mllmsci
+export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2
+.venv-mllmsci-vllm025cu129/bin/python scripts/f6_select_storefront_views.py render-best \
+    --shard "${SLURM_ARRAY_TASK_ID}" --num-shards "${NUM_SHARDS}"

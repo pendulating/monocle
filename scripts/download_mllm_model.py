@@ -4,12 +4,12 @@
 Usage:
     python scripts/download_mllm_model.py \
         --model_name Qwen/Qwen2.5-VL-7B-Instruct \
-        --zoo_path /share/pierson/matt/zoo/models
+        --zoo_path /share/ju/matt/zoo/models
     
     Or use a smaller model:
     python scripts/download_mllm_model.py \
         --model_name Qwen/Qwen2.5-VL-3B-Instruct \
-        --zoo_path /share/pierson/matt/zoo/models
+        --zoo_path /share/ju/matt/zoo/models
 """
 
 import argparse
@@ -78,8 +78,8 @@ def main():
     parser.add_argument(
         "--zoo_path",
         type=str,
-        default="/share/pierson/matt/zoo/models",
-        help="Path to zoo models directory (default: /share/pierson/matt/zoo/models)",
+        default="/share/ju/matt/zoo/models",
+        help="Path to zoo models directory (default: /share/ju/matt/zoo/models)",
     )
     parser.add_argument(
         "--use_symlinks",

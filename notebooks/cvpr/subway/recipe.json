@@ -6,15 +6,17 @@
         "role": "proxy",
         "key": "geoid",
         "column": "Estimate!!Households!!Median income (dollars)",
+        "window": "2020-2024 ACS 5-year",
         "note": "On disk. The libraries case reads the same file. Only the census-tract layer carries a true median; NTA and community district carry a population-weighted mean of tract medians."
     },
     "1":
     {
-        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "name": "NYPD complaints, 2026 Q1, pulled 2026-06-29",
         "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
         "role": "proxy",
         "key": "latitude,longitude",
-        "note": "133,114 complaints, every one geocoded. Severity weights felony 3, misdemeanor 2, violation 1, the same as scripts/pairwise_socioeconomic_regression.py. Crime is point data, so a count and an area aggregate exactly. Thus every layer gets a true value, unlike the income proxy."
+        "window": "2026Q1",
+        "note": "133,114 complaints, every one geocoded. Severity weights felony 3, misdemeanor 2, violation 1, the same as scripts/pairwise_socioeconomic_regression.py. Crime is point data, so a count and an area aggregate exactly. Thus every layer gets a true value, unlike the income proxy. WARNING: the file name says year to date, but the record stops on 2026-03-31. 94.8% of the complaints fall in January to March 2026, and the rest are late reports of older events. Read this source as 1 winter quarter, never as a full year."
     },
     "2":
     {
@@ -22,6 +24,71 @@
         "file": "data/external/acs_tract_population/acs_b01003_nyc_tract.parquet",
         "role": "weight",
         "key": "geoid",
+        "window": "2020-2024 ACS 5-year",
         "note": "Weights the income aggregation, and supplies the denominator of the per-capita crime rate. A sum aggregates exactly, so the population of a polygon needs no approximation."
+    },
+    "3":
+    {
+        "name": "NYPD Complaint Data Historic — transit premise only",
+        "endpoint": "https://data.cityofnewyork.us/resource/qgea-i56i.json",
+        "resource_id": "qgea-i56i",
+        "host": "data.cityofnewyork.us",
+        "role": "proxy",
+        "key": "latitude,longitude",
+        "where": "prem_typ_desc='TRANSIT - NYC SUBWAY' AND cmplnt_fr_dt >= '2024-01-01' AND cmplnt_fr_dt < '2026-07-01'",
+        "window": "2024-01 to 2025-12",
+        "file": "data/external/nypd_transit_complaints_pulled20260831/transit_complaints.parquet",
+        "note": "59,555 complaints inside the subway system. This table stops on 2025-12-31, thus source 4 carries the rest of the window. The premise filter runs on the server. The record puts each complaint at its station, and it also names the station in `station_name`."
+    },
+    "4":
+    {
+        "name": "NYPD Complaint Data Current (Year To Date) — transit premise only",
+        "endpoint": "https://data.cityofnewyork.us/resource/5uac-w243.json",
+        "resource_id": "5uac-w243",
+        "host": "data.cityofnewyork.us",
+        "role": "proxy",
+        "key": "latitude,longitude",
+        "where": "prem_typ_desc='TRANSIT - NYC SUBWAY' AND cmplnt_fr_dt >= '2024-01-01' AND cmplnt_fr_dt < '2026-07-01'",
+        "window": "2026-01 to 2026-06",
+        "file": "data/external/nypd_transit_complaints_pulled20260831/transit_complaints.parquet",
+        "note": "17,174 complaints. Sources 3 and 4 together give 76,729 rows, and no complaint number repeats. The 2026Q1 file of source 1 holds 8,903 transit rows, which is too thin to grade a station."
+    },
+    "5":
+    {
+        "name": "MTA Subway Hourly Ridership: 2020-2024",
+        "endpoint": "https://data.ny.gov/resource/wujg-7c2s.json",
+        "resource_id": "wujg-7c2s",
+        "host": "data.ny.gov",
+        "role": "weight",
+        "key": "station_complex_id",
+        "where": "transit_timestamp >= '2024-01-01T00:00:00' AND transit_timestamp < '2025-01-01T00:00:00'",
+        "window": "2024-01 to 2024-12",
+        "file": "data/external/mta_subway_ridership_pulled20260831/ridership_by_complex.parquet",
+        "note": "120,855,567 rows. The pull sums `ridership` on the SERVER and groups by `station_complex_id`, thus the network carries 428 rows. This is the exposure of the crime rate."
+    },
+    "6":
+    {
+        "name": "MTA Subway Hourly Ridership: Beginning 2025",
+        "endpoint": "https://data.ny.gov/resource/5wq4-mkjj.json",
+        "resource_id": "5wq4-mkjj",
+        "host": "data.ny.gov",
+        "role": "weight",
+        "key": "station_complex_id",
+        "where": "transit_timestamp >= '2025-01-01T00:00:00' AND transit_timestamp < '2026-07-01T00:00:00'",
+        "window": "2025-01 to 2026-06",
+        "file": "data/external/mta_subway_ridership_pulled20260831/ridership_by_complex.parquet",
+        "note": "The MTA cuts the hourly record at the end of 2024, thus sources 5 and 6 together cover the crime window. 428 complexes report, and the 19 Staten Island Railway complexes do not."
+    },
+    "7":
+    {
+        "name": "MTA Subway Stations",
+        "endpoint": "https://data.ny.gov/resource/39hk-dx4f.json",
+        "resource_id": "39hk-dx4f",
+        "host": "data.ny.gov",
+        "role": "geocode",
+        "key": "station_id",
+        "window": "current",
+        "file": "data/external/mta_subway_stations_pulled20260831/stations.parquet",
+        "note": "496 stations. The table maps `station_id` to `complex_id` and gives each station its GTFS point, thus it is both the roll-up table and the target of the complaint join. `entrances.parquet` carries the same 2 ids, so the join needs no name match."
     }
 }

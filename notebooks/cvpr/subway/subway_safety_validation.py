@@ -43,14 +43,20 @@ def _():
     import _geography as geo
     import _provenance as prov
     import _proxies as px
+    import _proxies_subway as subx
 
-    return Path, geo, mo, pd, prov, px
+    return Path, geo, mo, pd, prov, px, subx
 
 
 @app.cell
 def _():
     # Raise NOTEBOOK_VERSION when you change how a number is computed.
-    NOTEBOOK_VERSION = "1.0.0"
+    #
+    # 1.1.0: the proxy export carries `proxy_metric`, `proxy_source`, and
+    # `proxy_window`.
+    # 1.2.0: the export adds the 3 station proxies of `_proxies_subway`, and
+    # the notebook writes the station table and the unit correlations.
+    NOTEBOOK_VERSION = "1.2.0"
     CASE = "subway"
     CURATION_ROOT = "curation/subway_entrances_all"
     # The subway curation writes `entrances.parquet`, not `facilities.parquet`.
@@ -75,8 +81,10 @@ def _(NOTEBOOK_VERSION, geo, mo, prov, px):
     **Notebook version {NOTEBOOK_VERSION}** · provenance {prov.__version__} ·
     geography {geo.__version__} · proxies {px.__version__}
 
-    The model answers "which station entrance is safer". The proxies are median
-    household income and the NYPD complaint record.
+    The model answers "which station entrance is safer". The case carries 2
+    area proxies, income and the complaint record, and 3 station proxies from
+    `_proxies_subway`. The headline is transit crime for each 100,000 rider
+    entries, because it grades the STATION and not the blocks around it.
     """
     )
     return
@@ -188,6 +196,11 @@ def _(CASE, mo, px):
     mo.md("## 4. The 2 proxies")
 
     recipe = px.load_recipe(CASE)
+    # 1 recipe entry for each proxy. The export copies the id and the window of
+    # the entry, so a reader of the parquet never has to open this notebook.
+    income_entry = next(e for e in recipe if "S1901" in e["name"])
+    crime_entry = next(e for e in recipe if "NYPD" in e["name"])
+
     mo.md(
         f"""
     `{CASE}/recipe.json` names {len(recipe)} sources. All of them sit on disk,
@@ -218,9 +231,45 @@ def _(CASE, mo, px):
     wealth. Crime carries a sign of -1, so a low crime count gives a high value.
     A **positive** correlation therefore always means the model agrees with the
     proxy. Do not flip a sign again.
+
+    ### Warning: the crime source is 1 winter quarter
+
+    The file name says year to date 2026, but the record stops on 2026-03-31.
+    94.8% of the 133,114 complaints fall in January to March 2026. Thus the
+    export writes `2026Q1` in `proxy_window`. Never call it a year.
     """
     )
-    return (recipe,)
+    return crime_entry, income_entry, recipe
+
+
+@app.cell
+def _(Path):
+    # The provenance contract of the proxy export, from notebook version
+    # 1.1.0. Every row of the export carries 3 more columns:
+    #
+    # | Column | Holds |
+    # |--------|-------|
+    # | `proxy_metric` | The metric or the column that this run selected |
+    # | `proxy_source` | The dataset id, or the file stem, from `recipe.json` |
+    # | `proxy_window` | The time window of the source |
+    #
+    # Warning: never write a fixed proxy name beside a dropdown. Derive the
+    # name from the selection. A fixed name lets a run export one metric under
+    # the name of another.
+    def source_id(entry):
+        """The dataset id of a recipe source, or the stem of its file."""
+        return entry.get("resource_id") or Path(entry["file"]).stem
+
+    def stamp(frame, proxy, metric, entry, window=None):
+        """Add the proxy name and the 3 provenance columns to 1 frame."""
+        out = frame.copy()
+        out["proxy"] = proxy
+        out["proxy_metric"] = metric
+        out["proxy_source"] = source_id(entry)
+        out["proxy_window"] = window or entry["window"]
+        return out
+
+    return source_id, stamp
 
 
 @app.cell
@@ -235,21 +284,86 @@ def _(mo, px):
 
 
 @app.cell
-def _(crime_metric_ui, geo, pd, px):
-    _frames = []
-    for _layer in geo.LAYERS:
-        _inc = px.income_by_layer(_layer)
-        if not _inc.empty:
-            _inc = _inc.copy()
-            _inc["proxy"] = "median_household_income"
-            _frames.append(_inc)
-        _cri = px.crime_by_layer(_layer, metric=crime_metric_ui.value)
-        if not _cri.empty:
-            _cri = _cri.copy()
-            _cri["proxy"] = crime_metric_ui.value
-            _frames.append(_cri)
-    proxy_agg = pd.concat(_frames, ignore_index=True) if _frames else pd.DataFrame()
+def _(crime_metric_ui, subx):
+    # One builder makes the whole export, thus the notebook and
+    # `_proxies_subway.build_area_proxy` cannot part company. The crime name IS
+    # the dropdown value, so a felony run cannot leave this notebook under the
+    # name of a density run. The 3 station proxies ride along on every layer.
+    proxy_agg = subx.build_area_proxy(crime_metric=crime_metric_ui.value)
     return (proxy_agg,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### 4b. The station proxies
+
+    Income and crime describe the AREA around an entrance. A correlation
+    against them supports 1 claim only: the look of an entrance tracks the
+    blocks around it. The station proxies grade the STATION itself.
+
+    | Proxy | Holds | Orientation |
+    |-------|-------|-------------|
+    | `transit_crime_per_rider` | Subway-premise complaints for each 100,000 rider entries | Negated; higher = safer |
+    | `transit_felony_per_rider` | The felony subset of the same rate | Negated; higher = safer |
+    | `subway_ridership` | The rider entries of the complex | NONE. Context only. |
+
+    The window is 2024-01 to 2026-06 for both the complaints and the riders,
+    thus the rate divides like by like. The roll-up key is the station complex.
+
+    **Warning: do not read `subway_ridership` as agreement.** A busy station
+    is not a better station. The row exists so a reader can see the exposure
+    beside the rate.
+
+    **Warning: the Staten Island Railway drops.** Neither source covers it,
+    thus a SIR station would take a rate of 0 on an absence of data. The 21
+    SIR complexes and 5 geocode-unreached stations leave the proxy. See
+    `_proxies_subway.station_proxy`.
+    """)
+    return
+
+
+@app.cell
+def _(mo, subx):
+    station_table_export = subx.build_station_table()
+    _n = station_table_export.groupby("proxy")["proxy_key"].nunique()
+    mo.vstack([
+        mo.md("**The station table.** 1 row for each station key and metric. "
+              "This is the unit export of the case."),
+        _n.rename("stations").reset_index(),
+    ])
+    return (station_table_export,)
+
+
+@app.cell
+def _(pd, per_model, subx):
+    # The unit correlation: the station score of each rater against the
+    # headline rate. The roll-up is `subx.station_scores`, the SAME function
+    # `_unit_validation` calls, thus the 2 paths cannot part company.
+    from scipy import stats as _stats
+
+    _prx = subx.station_proxy()[["proxy_key", "proxy_value"]]
+    _rows = []
+    for _model, _scores in per_model.items():
+        _st = subx.station_scores(_scores)
+        _j = _st.merge(_prx, left_on="unit_uid", right_on="proxy_key",
+                       how="inner").dropna(subset=["mean_score",
+                                                   "proxy_value"])
+        if len(_j) < 3:
+            continue
+        _rows.append({
+            "scope": "unit",
+            "n": int(len(_j)),
+            "pearson_r": round(float(
+                _stats.pearsonr(_j.mean_score, _j.proxy_value)[0]), 4),
+            "spearman_rho": round(float(
+                _stats.spearmanr(_j.mean_score, _j.proxy_value)[0]), 4),
+            "model": _model,
+            "proxy": subx.HEADLINE_METRIC,
+        })
+    unit_correlations = pd.DataFrame(_rows)
+    unit_correlations
+    return (unit_correlations,)
 
 
 @app.cell
@@ -303,13 +417,27 @@ def _(mo):
 
 The next cell writes the tables to `notebooks/cvpr/outputs/`. Give the paper
 these files together. The numbers mean nothing without the provenance.
+
+The proxy table carries `proxy_metric`, `proxy_source`, and `proxy_window`.
+Read them before you name a proxy in the paper.
 """
     )
     return
 
 
 @app.cell
-def _(CASE, NOTEBOOK_VERSION, Path, aggregated, correlations, mo, proxy_agg, table):
+def _(
+    CASE,
+    NOTEBOOK_VERSION,
+    Path,
+    aggregated,
+    correlations,
+    mo,
+    proxy_agg,
+    station_table_export,
+    table,
+    unit_correlations,
+):
     out_dir = Path(__file__).resolve().parent / "outputs"
     out_dir.mkdir(exist_ok=True)
 
@@ -318,6 +446,8 @@ def _(CASE, NOTEBOOK_VERSION, Path, aggregated, correlations, mo, proxy_agg, tab
         ("aggregated", aggregated),
         ("proxy", proxy_agg),
         ("correlations", correlations),
+        ("station_proxy", station_table_export),
+        ("unit_correlations", unit_correlations),
     ]:
         if _frame is not None and not _frame.empty:
             _p = out_dir / f"{CASE}_{_name}_v{NOTEBOOK_VERSION}.parquet"

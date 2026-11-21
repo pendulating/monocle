@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=matt-resume-noabstain
+#SBATCH --partition=pierson
+#SBATCH --nodes=1 --ntasks=1 --cpus-per-task=2 --mem=32G
+#SBATCH --time=02:00:00
+#SBATCH --output=/share/ju/matt/mllmsci/multirun/noabstain_battery_20260902_231642/gemma/resume_submit.log --open-mode=append
+# Submit the shards of the noabstain gemma battery that hold no final output,
+# with the image pack. Runs after the pack build (SLURM dependency).
+# Warning: the compose of 200 shard configs needs more than 8 GB; an 8 GB job
+# was OOM-killed on 2026-09-03. Keep 32 GB.
+cd /share/ju/matt/mllmsci
+source /share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate
+test -f /share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack/manifest.json || { echo "no manifest; the pack is not complete"; exit 1; }
+python -m dagspaces.urbanpairvqa.submit_shards \
+    --sweep million_noabstain_gemma12b_il \
+    --base-dir /share/ju/matt/mllmsci/multirun/noabstain_battery_20260902_231642/gemma \
+    --pairs-dir /share/ju/matt/mllmsci/multirun/pair_tables_1m \
+    --only-missing --timeout-min 480 --parallel 32 \
+    --set runtime.image_pack=/share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack

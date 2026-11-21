@@ -32,11 +32,71 @@ else
     _scratch_venv="/scratch/$USER/venvs/$(basename "$MLLMSCI_DRIVER_VENV" | sed 's/^\.//')"
   fi
 
-  if [ -n "$_scratch_venv" ] \
-     && [ -f "$_scratch_venv/.sync_complete" ] \
-     && [ -x "$_scratch_venv/bin/python" ] \
-     && [ -n "${MLLMSCI_DRIVER_VENV:-}" ] \
-     && grep -q "src=$MLLMSCI_DRIVER_VENV\$" "$_scratch_venv/.sync_complete"; then
+  # A mirror is valid only when the marker names the SAME source venv.
+  _mllmsci_mirror_ok() {
+    [ -n "$1" ] \
+      && [ -f "$1/.sync_complete" ] \
+      && [ -x "$1/bin/python" ] \
+      && [ -n "${MLLMSCI_DRIVER_VENV:-}" ] \
+      && grep -q "src=$MLLMSCI_DRIVER_VENV\$" "$1/.sync_complete"
+  }
+
+  # ── the sync on demand ──────────────────────────────────────────────
+  # A node that holds no mirror builds one HERE, before python starts. The
+  # first job on a node pays about 2 minutes; every later job on that node
+  # starts from local disk. Only klara was ever synced by hand, thus every
+  # `gpu` partition node paid a cold NFS import of about 4 to 5 minutes, for
+  # each job, for ever.
+  #
+  # Four guards keep this safe:
+  #   1. A lock. Many tasks land on 1 node together. One syncs; the others
+  #      wait for it and then use the mirror it made.
+  #   2. The tarball. Without it the script would rsync 90k files from NFS,
+  #      and 60 nodes would do that at once. No tarball, no sync — the job
+  #      runs from NFS, as before.
+  #   3. Free space. The venv needs about 15 GB.
+  #   4. Every failure falls back to NFS. The stage always runs.
+  #
+  # Set MLLMSCI_SCRATCH_AUTOSYNC=0 to turn this off.
+  _mllmsci_autosync() {
+    local dst="$1" src="${MLLMSCI_DRIVER_VENV:-}" root
+    [ "${MLLMSCI_SCRATCH_AUTOSYNC:-1}" = "1" ] || { echo "[stage_venv] autosync off"; return 1; }
+    [ -n "$src" ] || return 1
+    [ -d /scratch ] && [ -w /scratch ] || { echo "[stage_venv] no writable /scratch on $(hostname -s)"; return 1; }
+
+    local tarball="${SYNC_VENV_TARBALL:-$(dirname "$src")/.venv-mirrors/$(basename "$src" | sed 's/^\.//').tar.zst}"
+    if [ ! -f "$tarball" ]; then
+      echo "[stage_venv] no bootstrap tarball ($tarball); NOT syncing from NFS by rsync"
+      return 1
+    fi
+
+    local need_gb="${MLLMSCI_SCRATCH_MIN_FREE_GB:-25}" free_kb
+    free_kb=$(df --output=avail -k /scratch 2>/dev/null | tail -1 | tr -dc 0-9)
+    if [ -z "$free_kb" ] || [ "$free_kb" -lt $((need_gb * 1024 * 1024)) ]; then
+      echo "[stage_venv] /scratch holds less than ${need_gb} GB free on $(hostname -s); the stage runs from NFS"
+      return 1
+    fi
+
+    root="${MLLMSCI_PROJECT_ROOT:-/share/ju/matt/mllmsci}"
+    mkdir -p "$(dirname "$dst")" 2>/dev/null
+    echo "[stage_venv] no mirror on $(hostname -s) — sync starts (tarball $(du -h "$tarball" 2>/dev/null | cut -f1))"
+    local t0=$SECONDS
+    flock -w "${MLLMSCI_SCRATCH_AUTOSYNC_WAIT:-900}" "$(dirname "$dst")/.autosync.lock" \
+      bash -c "if [ -f '$dst/.sync_complete' ] && grep -q 'src=$src\$' '$dst/.sync_complete'; then \
+                 echo '[stage_venv] another task synced it while this one waited'; \
+               else \
+                 bash '$root/scripts/sync_venv_to_scratch.sh' '$src' '$dst'; \
+               fi"
+    local rc=$?
+    echo "[stage_venv] sync ended rc=$rc after $((SECONDS - t0))s"
+    return $rc
+  }
+
+  if ! _mllmsci_mirror_ok "$_scratch_venv"; then
+    _mllmsci_autosync "$_scratch_venv" || true
+  fi
+
+  if _mllmsci_mirror_ok "$_scratch_venv"; then
     # shellcheck disable=SC1091
     source "$_scratch_venv/bin/activate"
     export MLLMSCI_STAGE_PYTHON="$_scratch_venv/bin/python"
@@ -45,7 +105,44 @@ else
     echo "[stage_venv] no matching scratch mirror on $(hostname -s) (driver venv: ${MLLMSCI_DRIVER_VENV:-unset}); the stage runs from NFS"
   fi
   unset _scratch_venv
+  unset -f _mllmsci_mirror_ok _mllmsci_autosync
 fi
+
+# ── 1b. the CUDA toolkit that FlashInfer compiles with ────────────────
+# FlashInfer builds its kernels by JIT, and it takes the CUDA version from the
+# nvcc it finds: CUDA_HOME, then `which nvcc`, then /usr/local/cuda. The system
+# toolkit on these nodes is 12.8, and 12.8 CANNOT build `compute_120f` — the
+# family target that FlashInfer picks for Blackwell (sm_120). The job then dies
+# in start-up with a message that names the wrong cause:
+#
+#   RuntimeError: FlashInfer requires GPUs with sm75 or higher
+#
+# What really happens: `_normalize_cuda_arch` raises "SM 12.x requires
+# CUDA >= 12.9", `__init__` swallows it, the target-arch set ends up EMPTY, and
+# the later check reports the sm75 message. Measured 2026-08-20 on
+# jjs533-compute-03 (RTX PRO 6000 Blackwell, sm_120).
+#
+# `scripts/install_cuda_129_toolkit.sh` assembles a 12.9 toolkit from the
+# NVIDIA redistributables. It also MATCHES torch, which is built against 12.9;
+# the 12.8 system toolkit never did. The PyPI wheel `nvidia-cuda-nvcc-cu12`
+# does NOT help — it ships ptxas with no nvcc.
+#
+# Every node reads the same path, thus no node uses a different kernel path.
+# Warning: the launchers `source ~/.bashrc` BEFORE this script, and that sets
+# CUDA_HOME=/usr/local/cuda-12.8. Thus a "set it only when it is empty" test
+# NEVER fires on a compute node, and the Blackwell bug stays. Our toolkit wins
+# whenever it is present. Override with MLLMSCI_CUDA_HOME.
+_mllmsci_cuda="${MLLMSCI_CUDA_HOME:-/share/ju/matt/cuda-12.9}"
+if [ -x "$_mllmsci_cuda/bin/nvcc" ]; then
+  if [ "${CUDA_HOME:-}" != "$_mllmsci_cuda" ]; then
+    echo "[stage_venv] CUDA_HOME ${CUDA_HOME:-unset} -> $_mllmsci_cuda (nvcc $("$_mllmsci_cuda/bin/nvcc" --version | sed -n 's/.*release \([0-9.]*\),.*/\1/p' | tail -1))"
+  fi
+  export CUDA_HOME="$_mllmsci_cuda"
+  export CUDA_PATH="$_mllmsci_cuda"
+else
+  echo "[stage_venv] WARNING no 12.9 toolkit at $_mllmsci_cuda; FlashInfer will fail on any sm_120 node"
+fi
+unset _mllmsci_cuda
 
 # ── 2. the FFmpeg shared libraries for torchcodec ─────────────────────
 # vLLM 0.25 imports `vllm.multimodal.video`, which imports torchcodec, which
@@ -66,7 +163,7 @@ fi
 # Prepend ONLY the ffmpeg directory. A general library directory could hide the
 # CUDA or torch libraries. The guard keeps the entry unique across repeat
 # sources.
-_ff_libdir="${MLLMSCI_FFMPEG_LIBDIR:-/share/pierson/matt/zoo/ffmpeg-libs/n7.1/lib}"
+_ff_libdir="${MLLMSCI_FFMPEG_LIBDIR:-/share/ju/matt/zoo/ffmpeg-libs/n7.1/lib}"
 if [ -d "$_ff_libdir" ] && [ -e "$_ff_libdir/libavutil.so.59" ]; then
   case ":${LD_LIBRARY_PATH:-}:" in
     *":$_ff_libdir:"*) : ;;                       # already there — do nothing

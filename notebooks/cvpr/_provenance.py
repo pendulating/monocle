@@ -72,14 +72,24 @@ CANONICAL_MODELS = ("qwen3.5-9b/instruct", "gemma-4-12b/instruct")
 CONSOLIDATION_DATE = "2026-08-14"
 
 # The sweep configs that produce a canonical run. This list now guards the W&B
-# path only: the registry decides what is canonical, and it holds `looks_proxy_*`
+# path only: the registry decides what is canonical, and it holds `million_proxy_*`
 # runs alone.
 #
-# `looks_proxy_*` came on 2026-08-14 with the "looks like" prompts. A prompt now
-# asks what the image SHOWS, not what is true of the place. The 2 older names
-# stay for a reader of a 2026-08-11..14 run; CONSOLIDATION_DATE already keeps
-# those runs out of a figure.
+# `million_proxy_*` came on 2026-08-18 and is the CURRENT battery: 1,000,000
+# pairs for each case, against 100,000 before. The prompt, the model, the seed
+# and the sampling do not change, thus it asks the same question with less
+# noise. It REPLACES `looks_proxy_*` everywhere.
+#
+# Warning: a 1,000,000-pair draw does NOT hold the 100,000-pair draw as a
+# prefix. The sampler draws against a larger target, thus the 2 are separate
+# samples of the same pair space. Do not pool them, and do not read a
+# difference between them as a result.
+#
+# The older names stay so a reader of an archived run still resolves it.
+# CONSOLIDATION_DATE and the registry keep those runs out of a figure.
 CANONICAL_SWEEPS = (
+    "million_proxy_qwen9b",
+    "million_proxy_gemma12b",
     "looks_proxy_qwen9b",
     "looks_proxy_gemma12b",
     "canonical_qwen9b",
@@ -112,6 +122,9 @@ class RunRecord:
     sweep: Optional[str] = None
     total_rows: Optional[int] = None
     notes: List[str] = field(default_factory=list)
+    #: Which prompt arm this run belongs to. The W&B path cannot tell, thus it
+    #: leaves the default; the registry path sets it from the resolved config.
+    arm: str = "canonical"
 
     @property
     def is_usable(self) -> bool:
@@ -294,21 +307,28 @@ def scan_runs(
 RUN_SOURCE = os.environ.get("CVPR_RUN_SOURCE", "canonical")
 
 
-def _records_from_registry(case: str, only_canonical: bool) -> List[RunRecord]:
+def _records_from_registry(case: str, only_canonical: bool,
+                           arm: Optional[str] = "canonical") -> List[RunRecord]:
     """Build RunRecords from the canonical registry.
 
     The record points at the SYMLINK under `canonical_data/`, not at the run
     directory. Thus a provenance table names the registry, and a reader can see
     at once whether a figure used a canonical run.
+
+    `arm` selects the prompt arm and defaults to `canonical`. Pass `None` to
+    read every arm at once, which an ablation table needs and a paper number
+    must not use.
     """
     import _canonical as C
 
     C.verify_or_raise()
     out: List[RunRecord] = []
-    for r in C.runs(kind="proxy" if only_canonical else None, case=case or None):
+    for r in C.runs(kind="proxy" if only_canonical else None,
+                    case=case or None, arm=arm):
         out.append(RunRecord(
+            arm=r.arm,
             wandb_id=r.run_id,
-            wandb_name=f"{r.kind}:{r.case}:{r.model}",
+            wandb_name=f"{r.kind}:{r.arm}:{r.case}:{r.model}",
             wandb_url="",
             state="finished",
             created_at=r.created_at,
@@ -338,6 +358,7 @@ def discover_runs(
     cache_dir: Optional[str] = None,
     refresh: bool = False,
     source: Optional[str] = None,
+    arm: Optional[str] = "canonical",
 ) -> List[RunRecord]:
     """Find every run of one case, newest first.
 
@@ -347,6 +368,9 @@ def discover_runs(
         only_finished: Keep only runs that W&B marks `finished`. Set it to False
             to see runs that are still in progress.
         only_canonical: Keep only the canonical rater set.
+        arm: Which prompt arm to read from the registry — `canonical` (the
+            default), `noabstain`, `nocity`, or None for every arm. It has no
+            effect on the W&B path, which cannot see an arm.
         cache_dir: Where to put the downloaded `wandb-metadata.json` files.
         refresh: Read the network again instead of the cached scan.
 
@@ -356,7 +380,7 @@ def discover_runs(
     if (source or RUN_SOURCE) == "canonical":
         # The registry already holds 1 run for each cell, so the filters below
         # have nothing left to drop. Return it as it is.
-        return _records_from_registry(case, only_canonical)
+        return _records_from_registry(case, only_canonical, arm)
 
     records = scan_runs(
         entity=entity, project=project,
@@ -383,8 +407,9 @@ def provenance_table(records: List[RunRecord]) -> pd.DataFrame:
     df = pd.DataFrame([asdict(r) for r in records])
     df["notes"] = df["notes"].apply(lambda x: "; ".join(x) if x else "")
     df["usable"] = [r.is_usable for r in records]
-    cols = ["model", "pipeline", "sweep", "state", "created_at", "total_rows",
-            "usable", "wandb_id", "git_commit", "stage_dir", "wandb_url", "notes"]
+    cols = ["arm", "model", "pipeline", "sweep", "state", "created_at",
+            "total_rows", "usable", "wandb_id", "git_commit", "stage_dir",
+            "wandb_url", "notes"]
     return df[[c for c in cols if c in df.columns]]
 
 

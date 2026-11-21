@@ -59,7 +59,7 @@ def _imports():
 
     import polars as pl
 
-    REPO_ROOT = Path("/share/pierson/matt/mllmsci")
+    REPO_ROOT = Path("/share/ju/matt/mllmsci")
     CACHE_DIR = REPO_ROOT / "notebooks" / "machine-beholder" / ".cache"
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     FACDB_CACHE = CACHE_DIR / "facdb_full.parquet"

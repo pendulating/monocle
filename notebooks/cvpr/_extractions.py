@@ -17,8 +17,10 @@ What a word count cannot answer, and this can:
 
 Where the data is
 -----------------
-`scripts/merge_trace_extractions.py` writes 1 parquet for each case, under
-`data/trace_extractions/`. Point `load` somewhere else with `root`.
+`scripts/merge_trace_extractions.py` writes 1 parquet for each case. The
+default root is the primary cell of the gemma-4-12b judge,
+`data/trace_extractions_v2_gemma12b_by_qwen27b/`. The other cells of the
+2 x 2 are in `ARMS`; point `load` at one with `root`, or use `compare_arms`.
 
 Warning: count `is_quotable` rows only. A `match_lesser` row holds a sentence
 the model COMPOSED out of the text plus its own words, and its offsets point at
@@ -47,35 +49,153 @@ import pandas as pd
 import _provenance as P
 import _traces as T
 
-__version__ = "1.0.0"
+__version__ = "1.4.0"
+
+# The project moved from /share/pierson to /share/ju (2026-10). A corpus built
+# before the move names its source run under the old root. Some nodes still
+# mount the old root and some do not, thus `relocated` always reads such a
+# path under the repo root, and the registry (which holds the new root) can
+# compare it.
+OLD_ROOTS = ("/share/pierson/matt/mllmsci",)
+
+
+def relocated(path: str | os.PathLike) -> str:
+    """Give `path`, or the same path under the repo root when it starts with a root of `OLD_ROOTS`."""
+    path = str(path)
+    for old in OLD_ROOTS:
+        if path.startswith(old + "/"):
+            return str(REPO_ROOT) + path[len(old):]
+    return path
 
 REPO_ROOT = P.REPO_ROOT
-DEFAULT_ROOT = REPO_ROOT / "data" / "trace_extractions"
+# The primary cell of the gemma-4-12b judge: its traces read by Qwen3.8-27B,
+# the strongest model of the other family, under schema version 2. Fixed on
+# 2026-09-22 when the version 2 arms finished. The qwen3.5-9b judge's primary
+# cell is `ARMS["qwen_by_gemma31_v2"]`. The version 1 corpus stays at
+# `data/trace_extractions/` for the record.
+DEFAULT_ROOT = REPO_ROOT / "data" / "trace_extractions_v3_gemma12b_by_qwen27b"
 
-# The schema this module reads. A parquet of another version does not pool with
-# this one: a class or an attribute may mean something else.
+# The schema versions this module reads. The 2 versions share the classes,
+# the attribute names, and the value lists, thus 1 vocabulary serves both.
+# Version 2 (2026-09-20) puts an enum on each value and holds a qwen trace in
+# 1 chunk. A load still takes 1 version at a time: 2 versions never pool,
+# because the extractor behaves differently under each.
 SCHEMA_NAME = "urban_cues"
-SCHEMA_VERSION = "v1"
+SCHEMA_VERSIONS = ("v1", "v2", "v3", "single-v1", "single-v2", "street-v3")
+SCHEMA_VERSION = "v3"
 
-# The declared vocabulary, from `conf/extract/urban_cues_v1.yaml`.
+# The 2 x 2 of judge and extractor, 1 corpus root for each cell. A rate that
+# holds along a row comes from the traces; a rate that changes along a row
+# comes from the extractor. `compare_arms` reads them side by side.
 #
-# Warning: keep this in step with the config, and raise `SCHEMA_VERSION` when
-# either one changes. A value that is absent here becomes `other`, thus a stale
-# list quietly moves real signal into the `other` bucket.
+# The v2 roots fill as the version 2 arms finish (2026-09-20 on).
+ARMS: Dict[str, Dict[str, str]] = {
+    "gemma_by_qwen": {
+        "root": "data/trace_extractions", "judge": "gemma-4-12b",
+        "extractor": "qwen3.5-9b", "schema_version": "v1",
+    },
+    "gemma_self": {
+        "root": "data/trace_extractions_gemma12b_self", "judge": "gemma-4-12b",
+        "extractor": "gemma-4-12b", "schema_version": "v1",
+    },
+    "qwen_by_gemma": {
+        "root": "data/trace_extractions_qwen9b", "judge": "qwen3.5-9b",
+        "extractor": "gemma-4-12b", "schema_version": "v1",
+    },
+    "qwen_self": {
+        "root": "data/trace_extractions_qwen9b_self", "judge": "qwen3.5-9b",
+        "extractor": "qwen3.5-9b", "schema_version": "v1",
+    },
+    "gemma_by_qwen_v2": {
+        "root": "data/trace_extractions_v2", "judge": "gemma-4-12b",
+        "extractor": "qwen3.5-9b", "schema_version": "v2",
+    },
+    "gemma_self_v2": {
+        "root": "data/trace_extractions_v2_gemma12b_self", "judge": "gemma-4-12b",
+        "extractor": "gemma-4-12b", "schema_version": "v2",
+    },
+    "qwen_by_gemma_v2": {
+        "root": "data/trace_extractions_v2_qwen9b", "judge": "qwen3.5-9b",
+        "extractor": "gemma-4-12b", "schema_version": "v2",
+    },
+    "qwen_self_v2": {
+        "root": "data/trace_extractions_v2_qwen9b_self", "judge": "qwen3.5-9b",
+        "extractor": "qwen3.5-9b", "schema_version": "v2",
+    },
+    # The primary extractors (2026-09-20): the strongest model of the OTHER
+    # family reads each judge. The same-family 27B/31B cells are the control
+    # for the family effect.
+    "gemma_by_qwen27_v2": {
+        "root": "data/trace_extractions_v2_gemma12b_by_qwen27b", "judge": "gemma-4-12b",
+        "extractor": "qwen3.8-27b", "schema_version": "v2",
+    },
+    "qwen_by_gemma31_v2": {
+        "root": "data/trace_extractions_v2_qwen9b_by_gemma31b", "judge": "qwen3.5-9b",
+        "extractor": "gemma-4-31b", "schema_version": "v2",
+    },
+    "gemma_by_gemma31_v2": {
+        "root": "data/trace_extractions_v2_gemma12b_by_gemma31b", "judge": "gemma-4-12b",
+        "extractor": "gemma-4-31b", "schema_version": "v2",
+    },
+    "qwen_by_qwen27_v2": {
+        "root": "data/trace_extractions_v2_qwen9b_by_qwen27b", "judge": "qwen3.5-9b",
+        "extractor": "qwen3.8-27b", "schema_version": "v2",
+    },
+    # Version 3 (2026-09-28): the IC classes, 1,000 traces for each case.
+    "gemma_by_qwen27_v3": {
+        "root": "data/trace_extractions_v3_gemma12b_by_qwen27b", "judge": "gemma-4-12b",
+        "extractor": "qwen3.8-27b", "schema_version": "v3",
+    },
+    "qwen_by_gemma31_v3": {
+        "root": "data/trace_extractions_v3_qwen9b_by_gemma31b", "judge": "qwen3.5-9b",
+        "extractor": "gemma-4-31b", "schema_version": "v3",
+    },
+    "gemma_by_gemma31_v3": {
+        "root": "data/trace_extractions_v3_gemma12b_by_gemma31b", "judge": "gemma-4-12b",
+        "extractor": "gemma-4-31b", "schema_version": "v3",
+    },
+    "qwen_by_qwen27_v3": {
+        "root": "data/trace_extractions_v3_qwen9b_by_qwen27b", "judge": "qwen3.5-9b",
+        "extractor": "qwen3.8-27b", "schema_version": "v3",
+    },
+}
+
+# The primary cell for each judge, in the 2 x 2 of the paper.
+PRIMARY_ARMS = {"gemma-4-12b": "gemma_by_qwen27_v3", "qwen3.5-9b": "qwen_by_gemma31_v3"}
+PRIMARY_ARMS_V2 = {"gemma-4-12b": "gemma_by_qwen27_v2", "qwen3.5-9b": "qwen_by_gemma31_v2"}
+
+# The declared vocabulary: the union of the `attribute_values` blocks of
+# every schema version (`conf/extract/urban_cues_*.yaml`). A value that one
+# version lacks stays here when another version declares it. For example,
+# `single-v1` drops `uncertainty.reason=cannot_see`, and v1 and v2 keep it.
+#
+# Warning: keep this in step with the config, and add a version to
+# `SCHEMA_VERSIONS` when either one changes. A value that is absent here
+# becomes `other`, thus a stale list quietly moves real signal into the
+# `other` bucket. `tests/test_langextract_backend.py` tests that the v2 enums
+# and this dict agree.
 VOCABULARY: Dict[str, Dict[str, tuple]] = {
     "visual_evidence": {
         "image": ("A", "B", "both", "unclear"),
         "valence": ("good", "bad", "neutral"),
         "category": (
             "people", "cleanliness", "upkeep", "greenery", "light", "signage",
-            "traffic", "construction", "commerce", "architecture", "other",
+            "traffic", "construction", "commerce", "architecture",
+            # single-v1 (F4, 2026-10-24) adds these 2.
+            "color", "activity",
+            "other",
         ),
     },
     "inference": {
         "image": ("A", "B", "both", "unclear"),
         "kind": (
             "safety", "quality", "upkeep", "wealth", "class", "crime",
-            "demographic", "other",
+            "demographic",
+            # single-v1 (F4, 2026-10-24) adds these 4.
+            "location", "time", "brand_knowledge", "institution_knowledge",
+            # single-v2 and street-v3 (F4 x2 round, D130) add these 4.
+            "atmosphere", "business_type", "neighborhood_character", "popularity",
+            "other",
         ),
     },
     "person_reference": {
@@ -92,11 +212,83 @@ VOCABULARY: Dict[str, Dict[str, tuple]] = {
         "hedged": ("yes", "no"),
     },
     "uncertainty": {
-        "reason": ("looks_equal", "cannot_see", "out_of_view", "other"),
+        "reason": ("looks_equal", "cannot_see", "out_of_view", "other",
+                   # single-v2 and street-v3 (F4 x2 round, D130) add these 3.
+                   "illegible", "identity", "knowledge"),
+        # Version 3 adds the marker: what kind of doubt the span carries.
+        "marker": ("qualifier", "contrastive", "explicit_doubt", "reconsideration"),
     },
     "decision": {
         "label": T.LABELS,
     },
+    # ---- Version 3 (2026-09-28): the classes on the IC codebook. -----------
+    # `visual_evidence` became `dimension`, with a free `name` in place of the
+    # `category` enum; `perspective` and the differentiation classes are new.
+    # A free attribute (`name`, `target`, `comparison.dimension`) is absent
+    # here on purpose: `normalize` lowers it and leaves it.
+    "dimension": {
+        "image": ("A", "B", "both", "unclear"),
+        "valence": ("good", "bad", "neutral"),
+    },
+    "perspective": {
+        "favors": ("A", "B", "neither"),
+        "wins": ("yes", "no"),
+        "source": ("world_knowledge", "task_convention", "other"),
+    },
+    "weighing": {
+        "mechanism": ("weighing", "balancing", "prioritization", "trade_off", "conditional"),
+        "favors": ("A", "B", "neither"),
+    },
+    "justification": {
+        "of": ("weighing", "perspective", "uncertainty", "dismissal"),
+        "role": ("reason", "condition"),
+    },
+    "dismissal": {
+        "about": ("cue", "perspective", "premise"),
+    },
+    "verdict": {
+        # v3 gives the pairwise labels; single-subj-v1 and street-subj-v1 (F9,
+        # D142) give the answer to a yes-or-no question.
+        "label": tuple(T.LABELS) + ("yes", "no", "mixed", "graded", "not_applicable"),
+    },
+    # ---- street-v1 (F4, 2026-10-26): the camera advice of the street case.
+    "photo_advice": {
+        "kind": ("position", "framing", "equipment", "timing", "effect", "other"),
+    },
+    # ---- single-v2 and street-v3 (F4 x2 round, D130): a text part with no cue
+    # gives 1 `none` item. The class has no attributes. Drop it before a count.
+    "none": {},
+}
+
+# The classes of each schema version, in the order the reasoning uses them.
+CLASSES_BY_VERSION = {
+    "v1": ("visual_evidence", "inference", "person_reference", "image_artifact",
+           "comparison", "uncertainty", "decision"),
+    "v2": ("visual_evidence", "inference", "person_reference", "image_artifact",
+           "comparison", "uncertainty", "decision"),
+    "v3": ("dimension", "inference", "perspective", "weighing", "justification", "dismissal",
+           "verdict", "decision", "comparison", "uncertainty", "person_reference",
+           "image_artifact"),
+    # The single-image schema of F4 (`urban_cues_single_v1.yaml`): no image
+    # attribute, no comparison, no decision.
+    "single-v1": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                  "uncertainty"),
+    # The street (angle) schema of F4 (`urban_cues_street_v1.yaml`): the
+    # classes of single-v1 and the camera advice.
+    "street-v1": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                  "uncertainty", "photo_advice"),
+    "street-v2": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                  "uncertainty", "photo_advice"),
+    # The x2 round (D130): the same classes and the `none` class.
+    "single-v2": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                  "uncertainty", "none"),
+    "street-v3": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                  "uncertainty", "photo_advice", "none"),
+    # F9 (D142): the x2 classes and the answer to the yes-or-no question.
+    "single-subj-v1": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                       "uncertainty", "verdict", "none"),
+    "street-subj-v1": ("visual_evidence", "inference", "person_reference", "image_artifact",
+                       "uncertainty", "photo_advice", "verdict", "none"),
 }
 
 CLASSES = tuple(VOCABULARY)
@@ -150,7 +342,7 @@ def registry_mismatch(root: Optional[str | Path] = None) -> List[str]:
             if want is None:
                 problems.append(
                     f"{r.case}: no registered trace run for {r.judge_model}")
-            elif os.path.realpath(str(r.source_results_path)) != want:
+            elif os.path.realpath(relocated(r.source_results_path)) != want:
                 problems.append(
                     f"{r.case}: extractions come from sweep {r.sweep} "
                     f"({Path(str(r.source_results_path)).name}), not from the "
@@ -165,6 +357,11 @@ def load(
     attributes: bool = True,
     normalize_values: bool = True,
     require_canonical: bool = True,
+    last_decision_only: bool = True,
+    promote_verdict: bool = True,
+    verbatim_only: bool = False,
+    answered_only: bool = True,
+    dedupe: bool = True,
 ) -> pd.DataFrame:
     """Read every case, and give 1 row for each extraction.
 
@@ -178,10 +375,27 @@ def load(
             vocabulary, and keep the original in `<attribute>_raw`.
         require_canonical: Stop when the corpus does not come from the
             canonical trace runs. Keep this True for every paper figure.
+        promote_verdict: In a version 3 trace with no `decision` row, make
+            the last `verdict` the decision (`promote_last_verdict`). Off,
+            the trace has no decision.
+        last_decision_only: Keep 1 `decision` row for each trace: the one
+            that sits last in the text. A qwen trace names 2 or 3 candidate
+            labels, and a version 1 corpus split a long trace into chunks that
+            each wrote a decision. The last one is the answer.
+        verbatim_only: Keep only the rows whose text IS the source text at
+            the offsets. A quote needs this. A count does not.
+        answered_only: Drop the traces whose judge wrote no answer. Such a
+            row carries the label `Same` as a fallback, not as a judgment.
+            The qwen3.5-9b thinking runs hold up to 5.7% of them, and they
+            are 73% of the `Same` labels in the subway case. `trace_totals`
+            drops them from the denominator too.
+        dedupe: Drop every later copy of the same class and text inside 1
+            trace. An extractor that reaches its token cap loops, and the
+            loop writes 1 span hundreds of times.
 
     Raises:
         FileNotFoundError: when no parquet is under `root`.
-        ValueError: when a file carries another schema version.
+        ValueError: when a file carries another schema version, or 2.
     """
     files = find_files(root)
     if not files:
@@ -203,10 +417,15 @@ def load(
     df = pd.concat(frames, ignore_index=True)
 
     versions = set(df.get("schema_version", pd.Series(dtype=str)).dropna().unique())
-    if versions and versions != {SCHEMA_VERSION}:
+    if versions and not versions <= set(SCHEMA_VERSIONS):
         raise ValueError(
-            f"this module reads {SCHEMA_NAME}/{SCHEMA_VERSION}, and the data holds "
-            f"{sorted(versions)}. Two schema versions do not pool."
+            f"this module reads {SCHEMA_NAME}/{list(SCHEMA_VERSIONS)}, and the "
+            f"data holds {sorted(versions)}."
+        )
+    if len(versions) > 1:
+        raise ValueError(
+            f"the corpus under {root or DEFAULT_ROOT} holds {sorted(versions)}. "
+            "Two schema versions do not pool."
         )
 
     if cases:
@@ -215,11 +434,88 @@ def load(
     df = df[df.extraction_class.notna()].copy()
     if quotable_only and "is_quotable" in df.columns:
         df = df[df.is_quotable].copy()
+    if verbatim_only and "is_verbatim" in df.columns:
+        df = df[df.is_verbatim].copy()
+    if answered_only and "judge_answered" in df.columns:
+        df = df[df.judge_answered.fillna(True).astype(bool)].copy()
+    if dedupe and "is_duplicate" in df.columns:
+        df = df[~df.is_duplicate.fillna(False).astype(bool)].copy()
+    if last_decision_only and promote_verdict:
+        df = promote_last_verdict(df)
+    if last_decision_only:
+        df = keep_last_decision(df)
     if attributes:
         df = attach_attributes(df)
         if normalize_values:
             df = normalize(df)
     return df.reset_index(drop=True)
+
+
+def promote_last_verdict(df: pd.DataFrame) -> pd.DataFrame:
+    """In a trace with no `decision` row, make the LAST `verdict` row the
+    decision.
+
+    Version 3 names an earlier answer a `verdict` and the final answer the
+    `decision`. On the 64k smoke of 2026-09-29 the Qwen3.8-27B extractor wrote
+    the final line as a verdict on 4 of 59 answered qwen traces ("Therefore,
+    \"More\".", "So A is MuchLess safe."). The schema's own rule says the
+    last statement of the answer IS the decision, thus the promotion reads
+    the rule, and it costs no GPU. A version 1 or 2 corpus has no verdict
+    row, and this is a no-op there.
+    """
+    if df.empty or "extraction_class" not in df.columns or not (df.extraction_class == "verdict").any():
+        return df
+    keys = [c for c in ("case", "pair_id") if c in df.columns]
+    has_decision = df[df.extraction_class == "decision"][keys].drop_duplicates()
+    verdicts = df[df.extraction_class == "verdict"]
+    if has_decision.empty:
+        without = verdicts
+    else:
+        merged = verdicts.merge(has_decision.assign(_has=True), on=keys, how="left")
+        without = verdicts[merged._has.isna().values]
+    if without.empty:
+        return df
+    order = without.char_start.fillna(-1).astype(float) if "char_start" in without.columns else pd.Series(-1.0, index=without.index)
+    last = without.assign(_order=order).sort_values("_order").groupby(keys, sort=False).tail(1)
+    out = df.copy()
+    out.loc[last.index, "extraction_class"] = "decision"
+    return out
+
+
+def keep_last_decision(df: pd.DataFrame) -> pd.DataFrame:
+    """Keep 1 `decision` row for each trace: the one that sits last in the text.
+
+    A trace is `(case, pair_id)`. The 7 cases draw from 1 pair table, thus
+    `pair_id` alone pools 7 traces. A row with no offset sorts first, so a
+    grounded decision wins over an ungrounded one.
+
+    Measured on 2026-09-20: a qwen3.5-9b trace under version 1 carried 2.0 to
+    3.6 decision rows, because the trace names a label, says "Wait", and names
+    another, and because a split trace wrote 1 decision for each chunk. The
+    last decision agrees with `presented_label` on 91% to 99% of traces.
+    """
+    if df.empty or "extraction_class" not in df.columns:
+        return df
+    is_decision = df.extraction_class == "decision"
+    if not is_decision.any():
+        return df
+    decisions = df[is_decision]
+    if "char_start" in decisions.columns:
+        order = decisions.char_start.fillna(-1).astype(float)
+    else:
+        order = pd.Series(-1.0, index=decisions.index)
+    if "extraction_index" in decisions.columns:
+        # 2 decisions at 1 offset cannot happen, but a null offset can. The
+        # index of the extraction breaks the tie in the order of the answer.
+        tiebreak = decisions.extraction_index.fillna(-1).astype(float)
+    else:
+        tiebreak = pd.Series(0.0, index=decisions.index)
+    ranked = decisions.assign(_order=order, _tie=tiebreak).sort_values(
+        ["_order", "_tie"]
+    )
+    keys = [c for c in ("case", "pair_id") if c in ranked.columns]
+    last = ranked.groupby(keys, sort=False).tail(1).index
+    return pd.concat([df[~is_decision], df.loc[last]]).sort_index()
 
 
 def attach_attributes(df: pd.DataFrame) -> pd.DataFrame:
@@ -355,12 +651,21 @@ def trace_totals(root: Optional[str | Path] = None) -> pd.Series:
     """
     key = str(root or DEFAULT_ROOT)
     if key not in _TOTALS_CACHE:
-        frames = [
-            pd.read_parquet(f, columns=["case", "pair_id"]) for f in find_files(root)
-        ]
+        frames = []
+        for f in find_files(root):
+            columns = ["case", "pair_id"]
+            try:
+                part = pd.read_parquet(f, columns=columns + ["judge_answered"])
+            except Exception:
+                part = pd.read_parquet(f, columns=columns)
+            frames.append(part)
         if not frames:
             return pd.Series(dtype=int)
         whole = pd.concat(frames, ignore_index=True)
+        # A trace whose judge wrote no answer leaves the denominator, as it
+        # leaves the frame under `load(answered_only=True)`.
+        if "judge_answered" in whole.columns:
+            whole = whole[whole.judge_answered.fillna(True).astype(bool)]
         _TOTALS_CACHE[key] = whole.groupby("case").pair_id.nunique()
     return _TOTALS_CACHE[key]
 
@@ -378,13 +683,19 @@ def trace_counts(df: pd.DataFrame, root: Optional[str | Path] = None) -> pd.Seri
     return totals.reindex(present.index).fillna(present).astype(int)
 
 
-def class_rates(df: pd.DataFrame, per: int = 100) -> pd.DataFrame:
+def class_rates(df: pd.DataFrame, per: int = 100,
+                root: Optional[str | Path] = None) -> pd.DataFrame:
     """Give the number of extractions of each class, for each `per` traces.
 
     A rate, never a raw count: the cases hold the same 11,000 traces today, but
     a later case may not, and a raw count would then compare 2 different things.
+
+    Warning: `root` must name the corpus that `df` came from. The denominator
+    is every trace of that corpus. A control arm holds 2,000 traces for each
+    case, and with the default root its rates read 5.5x too low. Measured
+    2026-09-22. `compare_arms` passes the root of each arm.
     """
-    traces = trace_counts(df)
+    traces = trace_counts(df, root)
     table = pd.crosstab(df.extraction_class, df.case).astype(float)
     for case in table.columns:
         table[case] = table[case] / max(1, int(traces.get(case, 0))) * per
@@ -392,20 +703,22 @@ def class_rates(df: pd.DataFrame, per: int = 100) -> pd.DataFrame:
 
 
 def attribute_rates(
-    df: pd.DataFrame, extraction_class: str, attribute: str, per: int = 100
+    df: pd.DataFrame, extraction_class: str, attribute: str, per: int = 100,
+    root: Optional[str | Path] = None,
 ) -> pd.DataFrame:
     """Give the rate of each value of 1 attribute, for each `per` traces."""
     part = df[df.extraction_class == extraction_class]
     if part.empty or attribute not in part.columns:
         return pd.DataFrame()
-    traces = trace_counts(df)
+    traces = trace_counts(df, root)
     table = pd.crosstab(part[attribute], part.case).astype(float)
     for case in table.columns:
         table[case] = table[case] / max(1, int(traces.get(case, 0))) * per
     return table.round(2)
 
 
-def risk_panel(df: pd.DataFrame, per: int = 100) -> pd.DataFrame:
+def risk_panel(df: pd.DataFrame, per: int = 100,
+               root: Optional[str | Path] = None) -> pd.DataFrame:
     """The result the framework exists to find, for each `per` traces.
 
     2 things a word count cannot see, because their words are ordinary:
@@ -413,7 +726,7 @@ def risk_panel(df: pd.DataFrame, per: int = 100) -> pd.DataFrame:
     - the model infers wealth, class, a demographic, or crime from a street,
     - the model reasons about the people in the photograph.
     """
-    traces = trace_counts(df)
+    traces = trace_counts(df, root)
     rows: Dict[str, Dict[str, float]] = {}
 
     inference = df[(df.extraction_class == "inference") & df.get("kind").notna()]
@@ -444,6 +757,127 @@ def _rate_by_case(part: pd.DataFrame, traces: pd.Series, per: int) -> Dict[str, 
 
 
 # ---------------------------------------------------------------------------
+# The 2 x 2: the same rate under the other extractor
+# ---------------------------------------------------------------------------
+
+# The ratio of the larger rate to the smaller one, above which a rate is a
+# property of the extractor and not of the traces. Measured on 2026-09-20 on
+# the same gemma-4-12b traces: `uncertainty` differed 6x between the 2
+# extractors, `image_artifact` 8x, and `visual_evidence` 1.07x.
+STABLE_RATIO = 1.5
+
+
+def arm_roots(arms: Optional[Sequence[str]] = None,
+              present_only: bool = True) -> Dict[str, Dict[str, str]]:
+    """Give the arms of `ARMS` to read, with an absolute `root`."""
+    names = list(arms) if arms else list(ARMS)
+    out: Dict[str, Dict[str, str]] = {}
+    for name in names:
+        spec = dict(ARMS[name])
+        root = Path(spec["root"])
+        if not root.is_absolute():
+            root = REPO_ROOT / root
+        spec["root"] = str(root)
+        if present_only and not find_files(root):
+            continue
+        out[name] = spec
+    return out
+
+
+def compare_arms(
+    table_fn=None,
+    arms: Optional[Sequence[str]] = None,
+    per: int = 100,
+    require_canonical: bool = True,
+    **load_kwargs,
+) -> pd.DataFrame:
+    """Give 1 rate table for each arm, in 1 long frame.
+
+    `table_fn` takes a loaded frame and gives a table with 1 row for each
+    thing rated and 1 column for each case. `class_rates` is the default, and
+    `risk_panel` is the other one that matters.
+
+    The columns: `arm`, `judge`, `extractor`, `schema_version`, `row`, `case`,
+    `rate`. A rate is for each `per` traces, over EVERY trace of the arm.
+
+    Warning: this reads every corpus named. 4 arms of 7 cases take about a
+    minute and about 6 GB.
+    """
+    table_fn = table_fn or class_rates
+    frames: List[pd.DataFrame] = []
+    for name, spec in arm_roots(arms).items():
+        df = load(root=spec["root"], require_canonical=require_canonical,
+                  **load_kwargs)
+        # The denominator is every trace of THIS arm's corpus. A control arm
+        # holds 2,000 traces for each case, not 11,000.
+        table = table_fn(df, per=per, root=spec["root"])
+        long = table.reset_index().melt(
+            id_vars=table.index.name or "index", var_name="case", value_name="rate"
+        )
+        long = long.rename(columns={table.index.name or "index": "row"})
+        long.insert(0, "arm", name)
+        long.insert(1, "judge", spec["judge"])
+        long.insert(2, "extractor", spec["extractor"])
+        long.insert(3, "schema_version", spec["schema_version"])
+        frames.append(long)
+        # Each arm's denominator is its own root.
+        _TOTALS_CACHE.pop(str(spec["root"]), None)
+    if not frames:
+        return pd.DataFrame(
+            columns=["arm", "judge", "extractor", "schema_version", "row", "case", "rate"]
+        )
+    return pd.concat(frames, ignore_index=True)
+
+
+def rate_stability(long: pd.DataFrame, ratio: float = STABLE_RATIO) -> pd.DataFrame:
+    """Say which rates hold when the extractor changes and the traces do not.
+
+    For each `(judge, schema_version, row, case)` with 2 or more extractors,
+    the frame gives the smallest and the largest rate, their ratio, and
+    `stable`, which is True when the ratio is at most `ratio`.
+
+    Read `stable` before a rate enters the paper. A rate that is not stable
+    is a fact about the extractor. Report it from both extractors, or not at
+    all.
+    """
+    if long.empty:
+        return pd.DataFrame()
+    keys = ["judge", "schema_version", "row", "case"]
+    grouped = long.groupby(keys)
+    out = grouped.rate.agg(["min", "max", "count"]).reset_index()
+    out = out[out["count"] >= 2].copy()
+    if out.empty:
+        return out
+    wide = long.pivot_table(index=keys, columns="extractor", values="rate",
+                            aggfunc="first")
+    wide.columns = [f"rate_{c}" for c in wide.columns]
+    out = out.join(wide, on=keys)
+    floor = 1.0 / 100  # 1 span in 10,000 traces: a rate this small has no ratio
+    out["ratio"] = (out["max"] / out["min"].clip(lower=floor)).round(2)
+    out["stable"] = out["ratio"] <= ratio
+    return out.rename(columns={"min": "rate_min", "max": "rate_max",
+                               "count": "extractors"}).reset_index(drop=True)
+
+
+def stability_summary(stability: pd.DataFrame) -> pd.DataFrame:
+    """Count, for each rated row, the cases where the rate holds."""
+    if stability.empty:
+        return pd.DataFrame()
+    out = stability.groupby(["judge", "schema_version", "row"]).agg(
+        cases=("case", "size"),
+        stable_cases=("stable", "sum"),
+        ratio_median=("ratio", "median"),
+        ratio_max=("ratio", "max"),
+    ).reset_index()
+    out["stable_cases"] = out["stable_cases"].astype(int)
+    out["verdict"] = [
+        "holds" if s == n else ("mixed" if s else "extractor")
+        for s, n in zip(out.stable_cases, out.cases)
+    ]
+    return out
+
+
+# ---------------------------------------------------------------------------
 # The distinctive score, over claims instead of words
 # ---------------------------------------------------------------------------
 
@@ -455,7 +889,8 @@ UNITS = ("class", "class_attr", "text", "class_text")
 # with "Same"", thus the span says nothing about the case. The label of that
 # decision is already a column, so nothing is lost by leaving it out of a
 # distinctive table.
-SCAFFOLD_CLASSES = ("decision",)
+# The classes that state an answer, not a cue: a word ladder leaves them out.
+SCAFFOLD_CLASSES = ("decision", "verdict")
 
 
 def counters(
@@ -624,10 +1059,16 @@ def quotes(
 ) -> pd.DataFrame:
     """Give quotable spans, with the pair and the offsets that locate them.
 
-    Every row here passed the alignment test, thus the text is the model's own
-    text and a reader can find it in the trace.
+    Every row here is verbatim: the source text at the offsets IS the span,
+    thus a reader can find the words in the trace. `is_quotable` alone is not
+    enough, because a `match_fuzzy` row can differ from the source in up to
+    25% of its tokens. A corpus from before 2026-09-20 has no `is_verbatim`
+    column until `scripts/verify_span_text.py` adds it, and then the rows pass
+    on `is_quotable` alone.
     """
     part = df[(df.case == case) & (df.extraction_class == extraction_class)]
+    if "is_verbatim" in part.columns:
+        part = part[part.is_verbatim.fillna(False).astype(bool)]
     if attribute and value is not None and attribute in part.columns:
         part = part[part[attribute] == value]
     if part.empty:
@@ -635,7 +1076,7 @@ def quotes(
     take = part.sample(n=min(n, len(part)), random_state=seed)
     columns = [
         "pair_id", "presented_label", "extraction_text", "char_start", "char_end",
-        "alignment_status",
+        "alignment_status", "is_verbatim",
     ]
     extra = [a for a in _attribute_names() if a in take.columns]
     return take[[c for c in columns + extra if c in take.columns]].reset_index(drop=True)
@@ -773,6 +1214,7 @@ def unit_win_rates(
     case: str,
     min_pairs: int = 8,
     prior_strength: float = 8.0,
+    proxy_rank: bool = False,
 ) -> pd.DataFrame:
     """Score the UNITS, not the cues: how often does each place win?
 
@@ -796,24 +1238,47 @@ def unit_win_rates(
     part = df[df.case == case]
     if part.empty or "source_results_path" not in part.columns:
         return pd.DataFrame()
-    results_path = str(part.source_results_path.iloc[0])
+    results_path = relocated(part.source_results_path.iloc[0])
     pairs_path = os.path.join(os.path.dirname(results_path), "pairs.parquet")
     if not (os.path.exists(results_path) and os.path.exists(pairs_path)):
         return pd.DataFrame()
 
+    # The trace run holds about 11,000 pairs. In a case with many units (the
+    # restaurants) few units reach `min_pairs` in it. With `proxy_rank`, the
+    # ranking comes from the registered proxy run of the same judge instead
+    # (1,000,000 pairs, the same question and layout, no thinking), and the
+    # table says so in `rank_source`.
+    #
     # Warning: a case that pairs IMAGES has no unit at all. `road_quality` and
     # `street_photography` run `pair_sampler.mode=image`, and their manifest
     # carries no `unit_uid_a`, because a block of street is not a facility.
-    # There is nothing to rank, thus this returns empty and the figure keeps
-    # its words.
+    # With `proxy_rank`, each IMAGE of such a case is the unit (the trace run
+    # judges each image about 1 time, thus it cannot rank images). Without
+    # it, this returns empty and the figure keeps its words.
     import pyarrow.parquet as pq
 
+    rank_source = "trace"
+    if proxy_rank:
+        import _canonical as C
+
+        judge = str(part.judge_model.iloc[0]).split("/")[0]
+        proxy = [r for r in C.runs(kind="proxy", case=case, model=judge) if r.case == case]
+        if len(proxy) != 1:
+            print(f"[{case}] no single registered proxy run for {judge}; no ranking")
+            return pd.DataFrame()
+        results_path, pairs_path = proxy[0].results_path, proxy[0].pairs_path
+        rank_source = f"proxy:{proxy[0].sweep}"
     columns = [
         "pair_id", "is_swapped", "unit_uid_a", "unit_uid_b",
         "unit_name_a", "unit_name_b", "presented_left_path", "presented_right_path",
     ]
     available = set(pq.ParquetFile(pairs_path).schema_arrow.names)
     missing = [c for c in columns if c not in available]
+    image_units = bool(missing) and proxy_rank and "sample_id_a" in available
+    if image_units:
+        columns = ["pair_id", "is_swapped", "sample_id_a", "sample_id_b",
+                   "presented_left_path", "presented_right_path"]
+        missing = [c for c in columns if c not in available]
     if missing:
         print(
             f"[{case}] the pair manifest has no {missing[0]}; this case pairs "
@@ -833,6 +1298,10 @@ def unit_win_rates(
     joined = labels.merge(manifest, on="pair_id", how="inner")
     if joined.empty:
         return pd.DataFrame()
+    if image_units:
+        # Each image is its own unit, with no name.
+        joined = joined.rename(columns={"sample_id_a": "unit_uid_a", "sample_id_b": "unit_uid_b"})
+        joined["unit_name_a"] = joined["unit_name_b"] = ""
 
     swapped = joined.is_swapped.fillna(False).astype(bool)
     # The model's image A is the one it saw first, thus the swap decides which
@@ -906,6 +1375,7 @@ def unit_win_rates(
         (table.wins + prior_strength * base) / (table.n + prior_strength)
     ).round(4)
     table["base_rate"] = round(base, 4)
+    table["rank_source"] = rank_source
     return table.sort_values("shrunk_rate", ascending=False).reset_index()
 
 
@@ -1105,6 +1575,13 @@ def plot_win_block(
     separator: str = "  ·  ",
     unit_photos: int = 0,
     photo_in: float = 1.15,
+    proxy_rank: bool = False,
+    units: Optional[pd.DataFrame] = None,
+    crop_bottom: float = 0.0,
+    table: Optional[pd.DataFrame] = None,
+    bar_label: Optional[str] = None,
+    center_words: bool = False,
+    photo_names: bool = True,
 ):
     """Set the cues as a block of text, best win rate first. Return `(fig, table)`.
 
@@ -1123,6 +1600,9 @@ def plot_win_block(
         unit_photos: Put a row of this many photographs above the block, from
             the units the model ranks highest, and the same number below it,
             from the units it ranks lowest. 0 leaves them out.
+        center_words: Centre each line of the block. False aligns the lines left.
+        photo_names: Put the unit name under each photograph. False keeps only
+            the second caption line, and the band is 1 line shorter.
 
     Warning: a photograph row shows UNITS, and the words show CUES. They are 2
     different statistics of the same run, and the middle of each scale differs:
@@ -1135,7 +1615,8 @@ def plot_win_block(
 
     import _style as S
 
-    table = win_rates(df, case, classes=classes, min_count=min_count)
+    if table is None:  # the caller can give another score: `cue`, `shrunk_rate`, `base_rate`
+        table = win_rates(df, case, classes=classes, min_count=min_count)
     if table.empty:
         raise ValueError(f"no cue of {case} reaches min_count={min_count}")
     if max_words:
@@ -1161,7 +1642,7 @@ def plot_win_block(
     # fixed fraction leaves the axes too short as the line count grows, and the
     # last lines then run under the colour bar.
     line_in = fontsize / 72.0 * 1.55
-    lines = _layout_words(words, fontsize, width_in, block_in=12.0, ax=None, fig=None)
+    lines = _layout_words(words, fontsize, width_in, block_in=12.0, ax=None, fig=None, center=center_words)
 
     # The margins follow the type sizes. A title of 11.5 pt needs more room
     # than one of 9 pt, and the colour bar needs its tick row AND its label.
@@ -1176,7 +1657,8 @@ def plot_win_block(
 
     # The photograph rows, when asked for. Each row is 1 band of images plus a
     # caption line.
-    units = unit_win_rates(df, case) if unit_photos else pd.DataFrame()
+    if units is None:  # the caller can give a prepared table, with the columns of `unit_win_rates`
+        units = unit_win_rates(df, case, proxy_rank=proxy_rank) if unit_photos else pd.DataFrame()
     if unit_photos and units.empty:
         print(f"[{case}] no unit manifest on disk; the figure keeps the words only")
     photos = unit_photos if (unit_photos and not units.empty) else 0
@@ -1186,7 +1668,7 @@ def plot_win_block(
     # says which row is which. `head_in` is now plain separation from the
     # words, not room for text.
     head_in = 0.12
-    cap_in = label_fontsize / 72.0 * 3.4
+    cap_in = label_fontsize / 72.0 * (3.4 if photo_names else 2.2)
     row_in = (head_in + photo_in + cap_in) if photos else 0.0
 
     height_in = block_in + top_in + bottom_in + 2 * row_in
@@ -1196,7 +1678,7 @@ def plot_win_block(
         0.01, (bottom_in + row_in) / height_in, 0.98, block_in / height_in,
     ])
     ax.axis("off")
-    _layout_words(words, fontsize, width_in, block_in, ax=ax, fig=fig)
+    _layout_words(words, fontsize, width_in, block_in, ax=ax, fig=fig, center=center_words)
     if title:
         if photos:
             # A photograph band takes the top of the figure, thus the title
@@ -1215,7 +1697,7 @@ def plot_win_block(
     bar = fig.colorbar(
         ScalarMappable(norm=norm, cmap=ramp), cax=cbar_ax, orientation="horizontal",
     )
-    bar.set_label(f"win rate  (base rate {base:.2f})", fontsize=label_fontsize)
+    bar.set_label(bar_label or f"win rate  (base rate {base:.2f})", fontsize=label_fontsize)
     bar.ax.tick_params(labelsize=label_fontsize - 1.0)
 
     if photos:
@@ -1224,14 +1706,152 @@ def plot_win_block(
             fig, units.head(photos), width_in, height_in, photo_in,
             band_bottom_in=height_in - top_in - row_in,
             cap_in=cap_in, head_in=head_in,
-            fontsize=label_fontsize - 1.0, ramp=ramp,
+            fontsize=label_fontsize - 1.0, ramp=ramp, crop_bottom=crop_bottom,
+            show_name=photo_names,
         )
         _photo_row(
             fig, units.tail(photos).iloc[::-1], width_in, height_in, photo_in,
             band_bottom_in=bottom_in,
             cap_in=cap_in, head_in=head_in,
-            fontsize=label_fontsize - 1.0, ramp=ramp,
+            fontsize=label_fontsize - 1.0, ramp=ramp, crop_bottom=crop_bottom,
+            show_name=photo_names,
         )
+    return fig, table
+
+
+def plot_win_block_column(
+    df: pd.DataFrame,
+    case: str,
+    classes: Sequence[str] = ("visual_evidence",),
+    min_count: int = 25,
+    end_words: int = 20,
+    middle_words: int = 6,
+    cmap=None,
+    fontsize: float = 6.2,
+    label_fontsize: float = 6.0,
+    photo_label_fontsize: float = 6.5,
+    width_in: float = 3.25,
+    separator: str = "  ·  ",
+    unit_photos: int = 3,
+    photo_in: float = 0.90,
+    proxy_rank: bool = False,
+    units: Optional[pd.DataFrame] = None,
+    crop_bottom: float = 0.0,
+    table: Optional[pd.DataFrame] = None,
+    bar_label: Optional[str] = None,
+):
+    """The win block at the width of 1 column. Return `(fig, table)`.
+
+    `plot_win_block` fills a 2-column float: 6 photographs in each band, and
+    every cue that passes `min_count`. This form fits `\\columnwidth`, thus it
+    can sit in the body of the paper beside the text that reads it. Keep both:
+    the wide form is the record, and this one is the figure.
+
+    Three cuts make it fit, and each one costs something:
+
+    1. **3 photographs in each band, not 6.** A band shows the units the model
+       ranks highest and lowest. Three of them already show the pattern.
+    2. **The cues at each end, and a sample of the middle.** A cue near the
+       base rate prints grey, and grey carries the least: it says the cue does
+       not separate the 2 images. `end_words` cues come from each end, and
+       `middle_words` cues sample the band between them at an even step.
+    3. **No camera distance under a photograph.** The caption holds the name
+       and the win rate alone. The wide form keeps the distance.
+
+    The colour scale does not move. The norm runs over EVERY cue that passes
+    `min_count`, thus one colour means one win rate in both forms, and the
+    ticks of the colour bar stay comparable.
+
+    Warning: the cut changes what the block is a sample of. Say in the caption
+    how many cues the figure shows, and how many passed `min_count`.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import TwoSlopeNorm, to_hex
+    from matplotlib.ticker import MaxNLocator
+
+    import _style as S
+
+    full = win_rates(df, case, classes=classes, min_count=min_count) if table is None else table
+    if full.empty:
+        raise ValueError(f"no cue of {case} reaches min_count={min_count}")
+    full = full.sort_values("shrunk_rate", ascending=False).reset_index(drop=True)
+
+    # The scale comes from the full table, never from the sample.
+    base = float(full.base_rate.iloc[0])
+    lo = min(float(full.shrunk_rate.min()), base - 1e-3)
+    hi = max(float(full.shrunk_rate.max()), base + 1e-3)
+    norm = TwoSlopeNorm(vmin=lo, vcenter=base, vmax=hi)
+    ramp = cmap if cmap is not None else S.CMAP_DIV
+
+    n_full = len(full)
+    keep = set(range(min(end_words, n_full)))
+    keep |= set(range(max(0, n_full - end_words), n_full))
+    middle = [i for i in range(n_full) if i not in keep]
+    if middle_words > 0 and middle:
+        step = max(1, len(middle) // middle_words)
+        keep |= set(middle[::step][:middle_words])
+    table = full.loc[sorted(keep)].reset_index(drop=True)
+
+    words = [
+        (cue + (separator if i < len(table) - 1 else ""), to_hex(ramp(norm(rate))))
+        for i, (cue, rate) in enumerate(zip(table.cue, table.shrunk_rate))
+    ]
+
+    # 2 passes, as in the wide form: the first learns the line count at this
+    # width, and the second draws on a figure of exactly that height.
+    line_in = fontsize / 72.0 * 1.55
+    lines = _layout_words(words, fontsize, width_in, block_in=12.0, ax=None, fig=None)
+
+    bar_in = 0.13
+    top_in = 0.08
+    bottom_in = bar_in + label_fontsize / 72.0 * 4.2
+    block_in = lines * line_in + 0.10
+
+    if units is None:  # the caller can give a prepared table, with the columns of `unit_win_rates`
+        units = unit_win_rates(df, case, proxy_rank=proxy_rank) if unit_photos else pd.DataFrame()
+    if unit_photos and units.empty:
+        print(f"[{case}] no unit manifest on disk; the figure keeps the words only")
+    photos = unit_photos if (unit_photos and not units.empty) else 0
+    head_in = 0.10
+    cap_in = photo_label_fontsize / 72.0 * 3.2
+    row_in = (head_in + photo_in + cap_in) if photos else 0.0
+
+    height_in = block_in + top_in + bottom_in + 2 * row_in
+
+    fig = plt.figure(figsize=(width_in, height_in))
+    ax = fig.add_axes([
+        0.01, (bottom_in + row_in) / height_in, 0.98, block_in / height_in,
+    ])
+    ax.axis("off")
+    _layout_words(words, fontsize, width_in, block_in, ax=ax, fig=fig)
+
+    cbar_ax = fig.add_axes([
+        0.16, (bottom_in - bar_in - label_fontsize / 72.0 * 1.6) / height_in,
+        0.68, bar_in / height_in,
+    ])
+    bar = fig.colorbar(
+        ScalarMappable(norm=norm, cmap=ramp), cax=cbar_ax, orientation="horizontal",
+    )
+    # A narrow bar cannot carry the default tick row: the labels collide.
+    bar.locator = MaxNLocator(nbins=5)
+    bar.update_ticks()
+    bar.set_label(bar_label or f"win rate  (base rate {base:.2f})", fontsize=label_fontsize,
+                  labelpad=1.5)
+    bar.ax.tick_params(labelsize=label_fontsize - 0.8, pad=1.2)
+    bar.outline.set_linewidth(0.5)
+
+    if photos:
+        for frame, bottom in (
+            (units.head(photos), height_in - top_in - row_in),
+            (units.tail(photos).iloc[::-1], bottom_in),
+        ):
+            _photo_row(
+                fig, frame, width_in, height_in, photo_in,
+                band_bottom_in=bottom, cap_in=cap_in, head_in=head_in,
+                fontsize=photo_label_fontsize, ramp=ramp,
+                name_chars=14, show_distance=False, crop_bottom=crop_bottom,
+            )
     return fig, table
 
 
@@ -1246,8 +1866,15 @@ def _photo_row(
     head_in: float,
     fontsize: float,
     ramp,
+    name_chars: int = 16,
+    show_distance: bool = True,
+    crop_bottom: float = 0.0,
+    show_name: bool = True,
 ) -> None:
     """Draw 1 horizontal band of unit photographs, with a caption under each.
+
+    `show_name=False` leaves out the unit name, for example the name of a business,
+    and keeps only the second caption line.
 
     The band runs from `band_bottom_in` upward: the caption, then the images.
     It carries NO heading: the LaTeX caption names the rows, and the frame
@@ -1256,6 +1883,10 @@ def _photo_row(
     Warning: a unit win rate has its own scale, and it is NOT the scale of the
     colour bar. A unit wins half its decided comparisons by construction, so
     the frames use a norm centred on 0.5 of their own.
+
+    `crop_bottom` removes that share of the image height at the bottom, where
+    a raw face shows the capture vehicle, and the same width at the 2 sides in
+    equal parts, thus the photograph stays square.
     """
     from matplotlib.colors import TwoSlopeNorm
     from PIL import Image
@@ -1285,6 +1916,11 @@ def _photo_row(
                 # about 1 inch, thus a full read is wasted work and a large
                 # file.
                 image = image.convert("RGB")
+                if crop_bottom:
+                    w, h = image.size
+                    keep = int(h * (1.0 - crop_bottom))
+                    left = (w - keep) // 2
+                    image = image.crop((left, 0, left + keep, keep))
                 image.thumbnail((420, 420))
                 ax.imshow(image)
         except Exception as exc:
@@ -1304,14 +1940,22 @@ def _photo_row(
         # 1.15 in holds about 16 characters at this size. Measured, not
         # guessed: at 22 the captions of 2 neighbours ran into each other.
         name = str(row.unit_name)
-        if len(name) > 16:
-            name = name[:8] + "…" + name[-7:]
+        if len(name) > name_chars:
+            # Keep the default identical to the wide figure: 8 characters, the
+            # ellipsis, then 7. A shift of 1 character changes every caption of
+            # every figure already on disk.
+            tail = (name_chars - 1) // 2
+            name = name[:name_chars - 1 - tail] + "…" + name[-tail:]
         # The camera stands about 117 ft away at the median, thus the distance
         # is part of what the reader needs to judge the picture.
         distance = getattr(row, "image_distance_ft", None)
-        far = "" if distance is None or pd.isna(distance) else f", {int(distance)} ft"
+        far = ""
+        if show_distance and distance is not None and not pd.isna(distance):
+            far = f", {int(distance)} ft"
+        # A table with a `caption` column gives its own second line.
+        second = getattr(row, "caption", None) or f"{row.win_rate:.0%} of {int(row.n)}{far}"
         ax.set_xlabel(
-            f"{name}\n{row.win_rate:.0%} of {int(row.n)}{far}",
+            f"{name}\n{second}" if show_name else second,
             fontsize=fontsize - 1.5, color=S.EDGE, labelpad=2,
         )
 
@@ -1323,8 +1967,11 @@ def _layout_words(
     block_in: float,
     ax=None,
     fig=None,
+    center: bool = False,
 ) -> int:
     """Flow coloured words across lines. Return the number of lines used.
+
+    `center=True` moves each line to the middle of the axes. The wrap does not change.
 
     `block_in` is the height of the TEXT BLOCK in inches, which fixes the line
     spacing in axes units. The wrap itself depends only on the width, thus the
@@ -1345,17 +1992,30 @@ def _layout_words(
 
     line_height = (fontsize / 72.0 * 1.55) / block_in
     x, y, lines = 0.0, 1.0, 1
+    row: list = []  # the items of the current line, for `center`
+
+    def finish(row: list, used: float) -> None:
+        # Move the items of 1 line right by half of the free width.
+        if center and row:
+            for it in row:
+                px, py = it.get_position()
+                it.set_position((px + (1.0 - used) / 2.0, py))
+
     for text, colour in words:
         item = ax.text(x, y, text, color=colour, fontsize=fontsize,
                        va="top", ha="left", transform=ax.transAxes)
         width = item.get_window_extent(renderer=renderer).width / ax.bbox.width
         if x > 0 and x + width > 1.0:
             item.remove()
+            finish(row, x)
+            row = []
             x, y, lines = 0.0, y - line_height, lines + 1
             item = ax.text(x, y, text, color=colour, fontsize=fontsize,
                            va="top", ha="left", transform=ax.transAxes)
             width = item.get_window_extent(renderer=renderer).width / ax.bbox.width
+        row.append(item)
         x += width
+    finish(row, x)
     if own_figure:
         plt.close(fig)
     return lines
@@ -1465,6 +2125,10 @@ def export(
         (f"{case}_win_block.png",
          lambda: plot_win_block(df, case, min_count=min_count,
                                 unit_photos=unit_photos)[0]),
+        # The same statistic at the width of 1 column, for the body of a paper.
+        # The wide form above stays the record.
+        (f"{case}_win_block_column.png",
+         lambda: plot_win_block_column(df, case, min_count=min_count)[0]),
         (f"{case}_win_bars.png", lambda: plot_win_bars(df, case, min_count=min_count)),
     ):
         try:

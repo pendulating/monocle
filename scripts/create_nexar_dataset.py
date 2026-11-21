@@ -9,13 +9,13 @@ This script scans a directory of images and creates a parquet file with:
 Usage:
     python scripts/create_nexar_dataset.py \
         --image_dir /share/ju/nexar_data/2023/2023-08-20/604222321527357439/frames \
-        --output_path /share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
+        --output_path /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
         --prompt "What urban planning features are visible in this dashcam image?"
     
     Or generate directly from config:
     python scripts/create_nexar_dataset.py \
         --config dagspaces/urbanvqa/conf/data/nexar_dashcam.yaml \
-        --output_path /share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet
+        --output_path /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet
     
     Note: Use a path accessible from GPU nodes (not /tmp)
 """

@@ -7,6 +7,12 @@ scores into 3 NYC geographies.
 The notebook discovers its runs from W&B. It does not name run directories. Thus
 it picks up the qwen3.5-9b run as soon as that run finishes, with no edit.
 
+From version 1.2.0 the case carries the building record. FacDB gives 99.0% of
+the schools a BIN, thus the DOB and ECB violations and the DOB permits reach
+each school by key. A teacher survey item adds the only city measurement of
+school cleanliness, and the Economic Need Index replaces tract income as the
+socio-economic control. Read section 4.
+
 Run it:
     .venv-nightly/bin/marimo edit notebooks/cvpr/schools_validation.py
 
@@ -39,15 +45,24 @@ def _():
     import _geography as geo
     import _provenance as prov
     import _proxies as px
+    import _proxies_buildings as pb
 
-    return Path, geo, mo, pd, prov, px
+    return Path, geo, mo, pb, pd, prov, px
 
 
 @app.cell
 def _():
     # Raise NOTEBOOK_VERSION when you change how a number is computed. The
     # export file names carry it.
-    NOTEBOOK_VERSION = "1.0.0"
+    #
+    # 1.1.0: the proxy export carries `proxy_metric`, `proxy_source`, and
+    # `proxy_window`, and the attendance rows carry the name
+    # `school_attendance`. Version 1.0.0 named them `school_report_card`.
+    # 1.2.0: 3 building-condition proxies join by BIN, the teacher survey adds
+    # `school_kept_clean`, and the Economic Need Index adds
+    # `school_economic_need`. The attendance row stays for context. See
+    # `vlm-narratives-docs/building-condition-proxies.md`.
+    NOTEBOOK_VERSION = "1.2.0"
     CASE = "schools"
     CURATION_ROOT = "curation/facdb_schools_k_12"
     MIN_UNITS_PER_POLYGON = 3
@@ -55,17 +70,31 @@ def _():
 
 
 @app.cell
-def _(NOTEBOOK_VERSION, geo, mo, prov):
+def _(NOTEBOOK_VERSION, geo, mo, pb, prov):
     mo.md(
         f"""
     # Schools — validation via statistical proxy
 
     **Notebook version {NOTEBOOK_VERSION}** ·
-    provenance module {prov.__version__} · geography module {geo.__version__}
+    provenance module {prov.__version__} · geography module {geo.__version__} ·
+    building proxies {pb.__version__}
 
     This notebook reads every canonical run of the schools prompt, scores each
     school from the pairwise labels, and aggregates the scores into
     neighborhood tabulation areas, community districts, and census tracts.
+
+    | Proxy | Source | What it grades |
+    |-------|--------|----------------|
+    | `building_violations_open` | DOB and ECB violations | The building |
+    | `building_violations_total` | DOB and ECB violations | The building |
+    | `alteration_permits` | DOB permit issuance | The building |
+    | `school_kept_clean` | 2017-18 teacher survey | The building |
+    | `school_economic_need` | Demographic Snapshot | The student body |
+    | `school_attendance` | School Quality Reports | The students |
+    | `construction_year` | Building footprints | The age of the building |
+
+    The first 4 rows answer the prompt, which asks which school BUILDING looks
+    better kept. The last 3 stay for context.
     """
     )
     return
@@ -224,21 +253,59 @@ def _(aggregated):
 
 
 @app.cell
-def _(CASE, mo, px):
-    mo.md("## 4. Statistical proxy")
+def _(CASE, mo, pb, px):
+    mo.md("## 4. Statistical proxies")
 
     # `recipe.json` in the case directory names the proxy sources. Add a source
     # there. Do not name an endpoint in this notebook.
     recipe = px.load_recipe(CASE)
-    proxy_entry = next(e for e in recipe if e.get("role", "proxy") == "proxy")
+    proxy_entry = next(e for e in recipe
+                       if e.get("resource_id") == "dnpx-dfnc")
     geocode_entry = next((e for e in recipe if e.get("role") == "geocode"), None)
+    # The context proxy. It is a different source, thus the export must name it
+    # apart from the School Quality Reports.
+    building_entry = next(
+        e for e in recipe if e.get("column") == "construction_year"
+    )
+    dob_entry = next(e for e in recipe
+                     if e.get("resource_id") == pb.DOB_VIOLATIONS)
+    ecb_entry = next(e for e in recipe
+                     if e.get("resource_id") == pb.ECB_VIOLATIONS)
+    permit_entry = next(e for e in recipe
+                        if e.get("resource_id") == pb.PERMIT_ISSUANCE)
+    survey_entry = next(e for e in recipe
+                        if e.get("resource_id") == pb.SURVEY_TEACHER_2018)
+    eni_entry = next(e for e in recipe
+                     if e.get("resource_id") == pb.DEMOGRAPHIC_SNAPSHOT)
+
+    # The recipe stays the authority on the id and the window. The module holds
+    # the metric text, thus the 2 halves of the provenance never drift.
+    building_entries = {
+        "building_violations_open": {
+            "resource_id": f"{dob_entry['resource_id']} + "
+                           f"{ecb_entry['resource_id']}",
+            "window": dob_entry["window"],
+        },
+        "building_violations_total": {
+            "resource_id": f"{dob_entry['resource_id']} + "
+                           f"{ecb_entry['resource_id']}",
+            "window": dob_entry["window"],
+        },
+        "alteration_permits": {
+            "resource_id": permit_entry["resource_id"],
+            "window": permit_entry["window"],
+        },
+    }
+    school_entries = {
+        "school_kept_clean": survey_entry,
+        "school_economic_need": eni_entry,
+    }
 
     mo.md(
         f"""
-    The proxy comes from `{CASE}/recipe.json`. It names
-    **{proxy_entry['name']}** (`{proxy_entry['resource_id']}`), and
-    **{geocode_entry['name'] if geocode_entry else 'no geocode source'}** to put
-    each school on the map.
+    The proxies come from `{CASE}/recipe.json`, which names {len(recipe)}
+    sources. **{geocode_entry['name'] if geocode_entry else 'No geocode source'}**
+    puts each DBN-keyed proxy on the map.
 
     Credentials present: **{px.has_credentials()}**. The notebook reads the
     SODA key from the environment variables `NYC_API_ID` and `NYC_API_SKEY`.
@@ -246,7 +313,49 @@ def _(CASE, mo, px):
     repository, and never print one.
     """
     )
-    return geocode_entry, proxy_entry, recipe
+    return (
+        building_entries,
+        building_entry,
+        dob_entry,
+        ecb_entry,
+        eni_entry,
+        geocode_entry,
+        permit_entry,
+        proxy_entry,
+        recipe,
+        school_entries,
+        survey_entry,
+    )
+
+
+@app.cell
+def _(Path):
+    # The provenance contract of the proxy export, from notebook version
+    # 1.1.0. Every row of the export carries 3 more columns:
+    #
+    # | Column | Holds |
+    # |--------|-------|
+    # | `proxy_metric` | The metric or the column that this run selected |
+    # | `proxy_source` | The dataset id, or the file stem, from `recipe.json` |
+    # | `proxy_window` | The time window of the source |
+    #
+    # Warning: never write a fixed proxy name beside a dropdown. Derive the
+    # name from the selection. A fixed name lets a run export one metric under
+    # the name of another, which is the fault this version corrects.
+    def source_id(entry):
+        """The dataset id of a recipe source, or the stem of its file."""
+        return entry.get("resource_id") or Path(entry["file"]).stem
+
+    def stamp(frame, proxy, metric, entry, window=None):
+        """Add the proxy name and the 3 provenance columns to 1 frame."""
+        out = frame.copy()
+        out["proxy"] = proxy
+        out["proxy_metric"] = metric
+        out["proxy_source"] = source_id(entry)
+        out["proxy_window"] = window or entry["window"]
+        return out
+
+    return source_id, stamp
 
 
 @app.cell
@@ -265,12 +374,60 @@ def _(DEFAULT_METRIC, PROXY_YEAR, mo, proxy_entry, px):
 
 
 @app.cell
-def _():
+def _(pb):
     # The proxy year and the default metric. Change them here, not in a cell
     # that also computes something.
     PROXY_YEAR = "2024"
     DEFAULT_METRIC = "Average Student Attendance"
-    return DEFAULT_METRIC, PROXY_YEAR
+
+    # The export name of each metric. The School Quality Reports hold 404
+    # metrics for school year 2024, thus 1 fixed name cannot describe the
+    # export.
+    #
+    # Warning: the name before version 1.1.0 was `school_report_card`, and it
+    # named no metric at all. The paper thus called an attendance rate a
+    # report card. Do not bring that name back.
+    METRIC_PROXY_NAME = {
+        "Average Student Attendance": "school_attendance",
+    }
+
+    # Version 1.2.0 extends the contract to the sources outside the School
+    # Quality Reports. `_proxies_buildings` states the metric text of each
+    # proxy it builds, thus the name of a building proxy also follows its
+    # selection and never a literal in this notebook.
+    OTHER_METRIC_NAME = {
+        spec["metric"]: name
+        for name, spec in {**pb.BUILDING_METRICS, **pb.SCHOOL_METRICS}.items()
+    }
+
+    def proxy_name_of_metric(metric: str) -> str:
+        """Give a metric the export name that describes it.
+
+        The function reads 3 tables, in order:
+
+        1. `METRIC_PROXY_NAME`, the School Quality Reports metrics.
+        2. `OTHER_METRIC_NAME`, the building and school metrics of
+           `_proxies_buildings`.
+        3. A slug of the metric text.
+
+        A metric that no table names takes a name from its own text. Thus a new
+        selection can never leave under an old name.
+        """
+        known = METRIC_PROXY_NAME.get(metric) or OTHER_METRIC_NAME.get(metric)
+        if known:
+            return known
+        slug = "".join(c if c.isalnum() else "_" for c in metric.lower())
+        while "__" in slug:
+            slug = slug.replace("__", "_")
+        return "school_" + slug.strip("_")
+
+    return (
+        DEFAULT_METRIC,
+        METRIC_PROXY_NAME,
+        OTHER_METRIC_NAME,
+        PROXY_YEAR,
+        proxy_name_of_metric,
+    )
 
 
 @app.cell
@@ -310,14 +467,127 @@ def _(CASE, PROXY_YEAR, geocode_entry, metric_ui, mo, proxy_entry, px):
     return join_result, proxy_wide, school_points
 
 
+@app.cell
+def _(CURATION_ROOT, geo, mo, pb):
+    mo.md("### The building record")
+
+    # The building of a school IS the unit, thus FacDB gives the BIN by key and
+    # no spatial join is necessary. 1 pull serves all 3 building proxies.
+    facilities = geo.load_facilities(CURATION_ROOT)
+    building_bins = pb.facility_bins(facilities)
+    record = pb.building_record(building_bins)
+    record_coverage = pb.record_coverage(facilities, record)
+    return building_bins, facilities, record, record_coverage
+
+
+@app.cell(hide_code=True)
+def _(mo, pb, record_coverage):
+    _c = record_coverage.iloc[0]
+    mo.md(
+        f"""
+    `_proxies_buildings` reads 3 city sources for the BINs of this case only.
+    The window is **{pb.WINDOW_LABEL}**.
+
+    | Measure | Value |
+    |---------|-------|
+    | Units | {int(_c["units"])} |
+    | Units with a usable BIN | {int(_c["with_bin"])} ({_c["bin_rate"]:.1%}) |
+    | Units the record reached | {int(_c["with_record"])} |
+    | Units with 1+ violation | {int(_c["with_violation"])} ({_c["violation_rate"]:.1%}) |
+    | Units with 1+ alteration job | {int(_c["with_permit"])} ({_c["permit_rate"]:.1%}) |
+
+    **These 3 proxies cover the whole unit set, and the DBN proxies do not.**
+    Attendance, cleanliness, and economic need all need a DBN, which a private
+    or a postgraduate school has not. A BIN reaches 99.0% of the case.
+
+    **A count is a raw count for 1 building, and this notebook divides it by
+    nothing.** The unit IS the building, thus the count already describes 1
+    object.
+
+    **Warning: a violation count carries a sign of -1.** Every value arrives
+    oriented "higher is better", thus a positive correlation always means that
+    the model and the city record agree.
+
+    **Warning: a school campus can hold 2 units in 1 building.** Both units
+    then take the same value, which is correct: the record grades the building.
+
+    **Warning: the 2 building rows are not independent.** Over the school BINs
+    the total violation count and the permit count agree at Spearman 0.47,
+    because both rise when work happens on a building.
+    """
+    )
+    return
 
 
 @app.cell
-def _(CURATION_ROOT, MIN_UNITS_PER_POLYGON, geo, join_result, pd, px):
-    # The building of a school IS the unit, thus FacDB gives the year by key
-    # and no spatial join is necessary.
-    facilities = geo.load_facilities(CURATION_ROOT)
+def _(CASE, geocode_entry, mo, pb, px):
+    mo.md("### The 2 school-level proxies")
+
+    # `school_kept_clean` is the only city measurement of a school BUILDING
+    # that names a school. `school_economic_need` is the control that belongs
+    # beside it, and it beats tract income here: a school draws its students
+    # from a zone and not from its own block.
+    clean_wide = pb.school_cleanliness().rename(columns={"dbn": "proxy_key"})
+    eni_wide = pb.school_economic_need().rename(columns={"dbn": "proxy_key"})
+
+    school_points_2 = px.load_geocode(geocode_entry, CASE)
+    clean_join = px.join_proxy_points(clean_wide, school_points_2,
+                                      key="proxy_key")
+    eni_join = px.join_proxy_points(eni_wide, school_points_2, key="proxy_key")
+
+    school_joins = {"school_kept_clean": clean_join,
+                    "school_economic_need": eni_join}
+
+    mo.md(
+        f"""
+    | Proxy | Schools with a value | Matched by DBN | Match rate |
+    |-------|---------------------|----------------|------------|
+    | `school_kept_clean` | {clean_join['n_proxy']} | {clean_join['n_matched']} | {clean_join['match_rate']:.1%} |
+    | `school_economic_need` | {eni_join['n_proxy']} | {eni_join['n_matched']} | {eni_join['match_rate']:.1%} |
+
+    **`school_kept_clean` is the teacher answer to `6f. This school is kept
+    clean.`** The value is the share of teachers who agree or strongly agree.
+    This is the one item-level building measurement that a city school source
+    holds.
+
+    **Warning: the survey window is 2017-18.** The city stopped publishing the
+    item-level survey after that year, and the 2019 file holds only the 6
+    framework scores. Thus this proxy sits about 7 years before the run. State
+    the year in the paper.
+
+    **Warning: `school_economic_need` is a control, not a building measure.**
+    The index rises with need, thus `_proxies_buildings` negates it and a
+    positive correlation says that the model prefers a building in a wealthier
+    school community.
+    """
+    )
+    return clean_join, clean_wide, eni_join, eni_wide, school_joins
+
+
+@app.cell
+def _(
+    MIN_UNITS_PER_POLYGON,
+    building_entries,
+    building_entry,
+    facilities,
+    geo,
+    join_result,
+    metric_ui,
+    pb,
+    pd,
+    proxy_entry,
+    proxy_name_of_metric,
+    px,
+    record,
+    school_entries,
+    school_joins,
+    stamp,
+):
     vintage = px.building_vintage(facilities)
+
+    # The export name follows the dropdown. Thus a different metric cannot
+    # leave this notebook under the name of the default metric.
+    proxy_name = proxy_name_of_metric(metric_ui.value)
 
     _frames = []
     for _layer in geo.LAYERS:
@@ -325,24 +595,40 @@ def _(CURATION_ROOT, MIN_UNITS_PER_POLYGON, geo, join_result, pd, px):
             join_result["joined"], _layer, min_units=MIN_UNITS_PER_POLYGON
         )
         if not _out.empty:
-            _out = _out.copy()
-            _out["proxy"] = "school_report_card"
-            _frames.append(_out)
+            _frames.append(stamp(_out, proxy_name, metric_ui.value, proxy_entry))
         _vin = px.vintage_by_layer(vintage, _layer,
                                    min_units=MIN_UNITS_PER_POLYGON)
         if not _vin.empty:
-            _vin = _vin.copy()
-            _vin["proxy"] = "construction_year"
-            _frames.append(_vin)
+            _frames.append(stamp(_vin, "construction_year",
+                                 building_entry["column"], building_entry))
+        # The building proxies. The name IS the key of `BUILDING_METRICS`, and
+        # `proxy_name_of_metric` gives that same name back from the metric
+        # text, thus the export name follows the selection.
+        for _name, _spec in pb.BUILDING_METRICS.items():
+            _unit = pb.building_condition(facilities, _name, record=record)
+            _bld = pb.condition_by_layer(_unit, _layer,
+                                         min_units=MIN_UNITS_PER_POLYGON)
+            if not _bld.empty:
+                _frames.append(stamp(_bld, proxy_name_of_metric(_spec["metric"]),
+                                     _spec["metric"], building_entries[_name]))
+        # The 2 school-level proxies. They reach a polygon through the DOE
+        # point file, the same road the attendance row takes.
+        for _name, _spec in pb.SCHOOL_METRICS.items():
+            _sch = px.aggregate_proxy(school_joins[_name]["joined"], _layer,
+                                      min_units=MIN_UNITS_PER_POLYGON)
+            if not _sch.empty:
+                _frames.append(stamp(_sch, proxy_name_of_metric(_spec["metric"]),
+                                     _spec["metric"], school_entries[_name],
+                                     window=_spec["window"]))
     proxy_agg = pd.concat(_frames, ignore_index=True) if _frames else pd.DataFrame()
-    return facilities, proxy_agg, vintage
+    return proxy_agg, proxy_name, vintage
 
 
 @app.cell(hide_code=True)
-def _(facilities, mo, vintage):
+def _(facilities, metric_ui, mo, proxy_name, vintage):
     mo.md(
         f"""
-    ### The second proxy: the year the building went up
+    ### The context proxy: the year the building went up
 
     `data/geo/nyc_buildings.parquet` is the local copy of the city BUILDING
     footprints. It gives each BIN a `construction_year`, and FacDB gives each
@@ -354,14 +640,24 @@ def _(facilities, mo, vintage):
     | Units with a year | {len(vintage)} ({len(vintage) / len(facilities):.1%}) |
     | Median year | {int(vintage.vintage_year.median())} |
 
-    **Warning: a year is not a quality measure.** The report card points one
-    way, and a positive number means agreement. This one does not. A positive
-    number here says that the model calls a NEWER school better, which is a
-    finding about the model and not a test of it.
+    **Warning: a year is not a quality measure.** The building proxies point
+    one way, and a positive number means agreement. This one does not. A
+    positive number here says that the model calls a NEWER school better,
+    which is a finding about the model and not a test of it.
 
-    **Warning: the report card covers public schools only.** The construction
-    year covers every school with a BIN, thus the 2 proxies do not describe the
-    same unit set. Read the `n` of each row.
+    **Warning: the DBN proxies cover public schools only.** The BIN proxies
+    cover every school with a BIN, thus the 2 groups do not describe the same
+    unit set. Read the `n` of each row.
+
+    ### What the attendance proxy measures
+
+    The export names it `{proxy_name}`, and `proxy_metric` holds the exact
+    School Quality Reports metric: **{metric_ui.value}**. That source holds 404
+    metrics for school year 2024 and NONE of them measure a building — the
+    metric names cover attendance, test proficiency, course pass rates, and
+    Regents scores. Thus attendance stays as a CONTEXT row, and the building
+    rows carry the case. Do not call this row a report card: that word names
+    the whole source, and this row holds 1 metric of it.
     """
     )
     return
@@ -384,14 +680,25 @@ def _(aggregated, geo, mo, pd, proxy_agg, px):
 
     mo.md(
         """
-    ### Model score against the proxy
+    ### Model score against each proxy
 
     Read the Spearman value first. The model score is an ordinal mean, so a
     monotone agreement matters more than a linear one.
 
+    | Proxy | What a POSITIVE value says |
+    |-------|----------------------------|
+    | `building_violations_open` | The model prefers a building with fewer open faults |
+    | `building_violations_total` | The model prefers a building with fewer faults |
+    | `alteration_permits` | The model prefers a building the city worked on |
+    | `school_kept_clean` | The model prefers a school the teachers call clean |
+    | `school_economic_need` | The model prefers a school of a wealthier community |
+    | `school_attendance` | The model prefers a school with better attendance |
+    | `construction_year` | The model prefers a NEWER school |
+
     **Warning:** a correlation here is not a causal claim. The model sees a
-    facade. The proxy measures an outcome. A weak value can mean that the
-    facade carries little signal, or that the abstention rate cut the sample.
+    facade. Most of these proxies measure an outcome. A weak value can mean
+    that the facade carries little signal, or that the abstention rate cut the
+    sample.
     """
     )
     return (correlations,)
@@ -404,6 +711,39 @@ def _(correlations):
 
 
 @app.cell
+def _(clean_wide, eni_wide, facilities, mo, pb, pd, per_model, record,
+      school_points_2):
+    mo.md("### Unit-level correlations")
+
+    # The unit layer is the headline: the area layer can make or destroy
+    # agreement. The BIN proxies join by key. The 2 DBN proxies join with
+    # `pb.school_unit_key`, which maps each unit to the nearest DBN point
+    # inside 200 ft. The interval is a bootstrap over units.
+    _key = pb.school_unit_key(school_points_2, facilities)
+
+    _rows = []
+    for _model, _scores in per_model.items():
+        _s = _scores[["unit_uid", "mean_score"]]
+        for _metric in pb.BUILDING_METRICS:
+            _unit = pb.building_condition(facilities, _metric, record=record)
+            _r = pb.unit_correlation(_s, _unit)
+            _r["model"], _r["proxy"] = _model, _metric
+            _rows.append(_r)
+        for _name, _wide in [
+            ("school_kept_clean", clean_wide),
+            ("school_economic_need", eni_wide),
+        ]:
+            _unit = _key.merge(_wide[["proxy_key", "proxy_value"]],
+                               on="proxy_key", how="inner")
+            _r = pb.unit_correlation(_s, _unit[["unit_uid", "proxy_value"]])
+            _r["model"], _r["proxy"] = _model, _name
+            _rows.append(_r)
+    unit_correlations = pd.DataFrame(_rows)
+    unit_correlations
+    return (unit_correlations,)
+
+
+@app.cell
 def _(mo):
     mo.md(
         """
@@ -412,13 +752,26 @@ def _(mo):
 The next cell writes the aggregated table, the proxy table, the correlations,
 and the provenance table to `notebooks/cvpr/outputs/`. Give the paper these
 files together. The numbers mean nothing without the provenance.
+
+The proxy table carries `proxy_metric`, `proxy_source`, and `proxy_window`.
+Read them before you name a proxy in the paper.
 """
     )
     return
 
 
 @app.cell
-def _(CASE, NOTEBOOK_VERSION, Path, aggregated, correlations, mo, proxy_agg, table):
+def _(
+    CASE,
+    NOTEBOOK_VERSION,
+    Path,
+    aggregated,
+    correlations,
+    mo,
+    proxy_agg,
+    table,
+    unit_correlations,
+):
     out_dir = Path(__file__).resolve().parent / "outputs"
     out_dir.mkdir(exist_ok=True)
 
@@ -427,6 +780,7 @@ def _(CASE, NOTEBOOK_VERSION, Path, aggregated, correlations, mo, proxy_agg, tab
         ("aggregated", aggregated),
         ("proxy", proxy_agg),
         ("correlations", correlations),
+        ("unit_correlations", unit_correlations),
     ]:
         if _frame is not None and not _frame.empty:
             _p = out_dir / f"{CASE}_{_name}_v{NOTEBOOK_VERSION}.parquet"

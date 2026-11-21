@@ -33,7 +33,7 @@ from typing import Dict, List
 
 import pandas as pd
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 # The 2 extraction schemas write different directories and different columns.
@@ -151,6 +151,13 @@ def merge(sweep_dir: str | List[str], out_dir: str,
             "extractions": len(real),
             "per_trace": round(len(real) / max(1, traces), 1),
             "quotable_rate": round(float(real[quality].mean()), 4) if len(real) else 0.0,
+            # The share whose text IS the source text at the offsets. A quote
+            # needs this; a count needs `quotable_rate`. An older shard has no
+            # such column, and `scripts/verify_span_text.py` adds it.
+            "verbatim_rate": (
+                round(float(real["is_verbatim"].mean()), 4)
+                if len(real) and "is_verbatim" in real.columns else None
+            ),
             "silent_traces": int(part[class_col].isna().sum()),
             "repeated_traces": repeated,
             "file": os.path.basename(path),

@@ -20,7 +20,7 @@
 #   bash scripts/sync_venv_to_scratch.sh --make-tarball
 set -euo pipefail
 
-ROOT="${MLLMSCI_PROJECT_ROOT:-/share/pierson/matt/mllmsci}"
+ROOT="${MLLMSCI_PROJECT_ROOT:-/share/ju/matt/mllmsci}"
 VENV="${VENV:-$ROOT/.venv-vllm025cu129}"
 CONSTRAINTS="$ROOT/requirements-vllm025cu129.txt"
 VLLM_WHEEL="https://github.com/vllm-project/vllm/releases/download/v0.25.0/vllm-0.25.0%2Bcu129-cp38-abi3-manylinux_2_28_x86_64.whl"
@@ -29,7 +29,7 @@ TORCH_INDEX="https://download.pytorch.org/whl/cu129"
 # flash-attn has no published wheel for torch 2.11+cu129, and a source build
 # costs about an hour. UAIR built it once; copy that result, because both
 # environments use CPython 3.12 and the same torch ABI.
-FA_SRC="${FA_SRC:-/share/pierson/matt/UAIR/.venv-vllm025cu129/lib/python3.12/site-packages}"
+FA_SRC="${FA_SRC:-/share/ju/matt/normative-simulacra/.venv-vllm025cu129/lib/python3.12/site-packages}"
 
 command -v uv >/dev/null || { echo "build_venv_vllm025: uv is not on PATH" >&2; exit 1; }
 [ -f "$CONSTRAINTS" ] || { echo "build_venv_vllm025: no constraints file at $CONSTRAINTS" >&2; exit 1; }

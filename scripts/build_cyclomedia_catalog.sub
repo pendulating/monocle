@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J cyclo-catalog
-#SBATCH -o /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog/%j.out
-#SBATCH -e /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog/%j.err
+#SBATCH --output=/share/ju/matt/mllmsci/logs/build_cyclomedia_catalog-%j.out
+#SBATCH --error=/share/ju/matt/mllmsci/logs/build_cyclomedia_catalog-%j.err
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=mwf62@cornell.edu
 #SBATCH -N 1
@@ -29,7 +29,7 @@
 
 set -euo pipefail
 
-mkdir -p /share/pierson/matt/mllmsci/.slurm_jobs/cyclomedia_catalog
+mkdir -p /share/ju/matt/mllmsci/.slurm_jobs/cyclomedia_catalog
 
 echo "=== job info ==="
 echo "HOST=$(hostname) DATE=$(date)"
@@ -37,7 +37,7 @@ echo "SLURM_JOB_ID=${SLURM_JOB_ID:-?} SLURM_CPUS_ON_NODE=${SLURM_CPUS_ON_NODE:-?
 echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
 
 source ~/.bashrc
-cd /share/pierson/matt/mllmsci
+cd /share/ju/matt/mllmsci
 source .venv/bin/activate
 
 # fd/cargo live under /share/ju/matt; prepend so subprocess PATH lookups work.

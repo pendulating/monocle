@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=4         # Increased CPUs for parallel workers
 #SBATCH --mem=64G                  # Increased memory for parallel processes
 #SBATCH --time=24:00:00
-#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/nli-classify/%j.out
-#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/nli-classify/%j.err
+#SBATCH --output=/share/ju/matt/mllmsci/logs/run_nli_classify-%j.out
+#SBATCH --error=/share/ju/matt/mllmsci/logs/run_nli_classify-%j.err
 
 set -euo pipefail
 
@@ -15,14 +15,14 @@ date
 echo ""
 
 # ----------------------------- CONFIGURATION ----------------------------- #
-REPO_DIR="/share/pierson/matt/mllmsci"
+REPO_DIR="/share/ju/matt/mllmsci"
 INPUT_FILE="${INPUT_FILE:-}"      # Path to input parquet file (required)
 OUTPUT_FILE="${OUTPUT_FILE:-}"    # Path to output parquet file (required)
 BATCH_SIZE="${BATCH_SIZE:-16}"    # Batch size for classification
 NUM_WORKERS="${NUM_WORKERS:-4}"    # Number of parallel workers (matches GPU count)
 MODEL="${MODEL:-facebook/bart-large-mnli}"  # HuggingFace model to use
 LIMIT="${LIMIT:-}"                # Optional: limit number of rows for testing
-HF_HOME="${HF_HOME:-/share/pierson/matt/.cache/huggingface}"
+HF_HOME="${HF_HOME:-/share/ju/matt/.cache/huggingface}"
 LOG_DIR="${LOG_DIR:-$REPO_DIR/logs/nli-classify}"
 
 mkdir -p "$LOG_DIR"

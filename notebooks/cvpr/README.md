@@ -1,15 +1,41 @@
 # CVPR notebooks
 
-These marimo notebooks are load-bearing for the CVPR paper. They come in 2
+These marimo notebooks are load-bearing for the CVPR paper. They come in these
 kinds:
 
 | Kind | Notebook | Question it answers |
 |------|----------|---------------------|
 | Validation by proxy | `<case>_validation.py` | Does the model score agree with an outside measurement? |
 | Trace analysis | `<case>_traces.py` | What does the model say while it decides? |
+| Cross-case trace analysis | `master/cue_hierarchy.py` | Does the model price the same visual attributes in every case? |
+| The other trace channels | `master/trace_channels.py` | Which axis binds the vote? Where does an abstention come from? |
+| IC perspectives (v3) | `master/ic_perspectives.py` | Which perspectives, inferences, and dimensions go with a win of the image they count for? |
+| Judge vocabulary (v3) | `master/judge_vocabulary.py` | Which keys does 1 judge use that the other does not, with the extractor held fixed? |
+| IC grounding (v3) | `master/ic_grounding.py` | Which inferences and dimensions ground each perspective, by co-occurrence and by nesting? |
+| IC differentiation (v3) | `master/ic_differentiation.py` | How often does the model doubt a verdict and keep it? What does it dismiss? |
+| Span attributes (v3) | `master/aesthetic_consistency.py` | Which names take good or bad valence in each case? Does the same image keep its valence in 2 pairs? |
+| Spans against the proxy (v3) | `master/reasoning_vs_proxy.py` | Which spans mark the traces that agree with the outside measurement, inside a band of difficulty? |
+| Gold-set alignment | `master/gold_alignment.py` | How well do the extractors line up with a human on the gold set? |
+| Cross-case word analysis | `master/aesthetic_hierarchy.py` | Does the model use the same vocabulary in every case? |
+| Corpus descriptives | `master/corpus_descriptives.py` | How large is the imagery corpus, and what qualifies for each prompt? |
+| Camera effect | `master/face_effect.py` | Does the direction the camera pointed move the judgment? |
+| Proxy overview | `master/proxy_overview.py` | The paper figure: validation, geography layer, ablations, and cross-model agreement in 1 place |
 
-Every figure and every table comes from the **canonical run registry**. Read
-the next section before you run anything.
+The 7 v3 notebooks (the gold set, the trace channels, the 3 IC notebooks, and the 2 span-attribute notebooks) write paper-ready LaTeX tables (`<tag>_<table>_v<version>.tex`, made with `_latex.py`) into `master/outputs/`, or into `master/outputs/explore/` for `aesthetic_consistency` and `reasoning_vs_proxy`. They never write a table into `master/figures/`.
+
+The figures of these 7 notebooks carry no caption text. Each PNG has a `.json` sidecar with the same stem (`plot-title`, `plot-caption`, `plot-latex-label`, `plot-tags`), written by `_figmeta.save_figure`.
+
+A validation notebook, a trace notebook, and the cross-case notebook read the
+**canonical run registry**. Read the next section before you run one of them.
+
+The corpus notebook reads no run. It reads the v1 Cyclomedia catalog and the
+curation manifests, thus it stays correct when the battery runs again:
+
+```bash
+.venv-mllmsci-vllm025cu129/bin/marimo export html \
+    notebooks/cvpr/master/corpus_descriptives.py \
+    -o notebooks/cvpr/master/outputs/corpus_descriptives.html
+```
 
 **Warning:** Run these notebooks from the canonical venv
 `.venv-mllmsci-vllm025cu129`. It has marimo, geopandas, wordcloud, and
@@ -30,7 +56,7 @@ fixes 1 run for each cell of the grid:
 | Kind | Cases | Models | What reads it |
 |------|-------|--------|---------------|
 | `proxy` | 7 | 2 | the validation notebooks and the results table |
-| `trace` | 7 | 2 | the word figures and the extraction panels |
+| `trace` | 7 | 2 | the word figures, the extraction panels, and `master/aesthetic_hierarchy.py` |
 
 ```
 notebooks/cvpr/canonical_data/
@@ -42,17 +68,41 @@ notebooks/cvpr/canonical_data/
 └── trace/<case>__<model>/  ... the same 3 links
 ```
 
+### The proxy runs come from the 1,000,000-pair battery
+
+Since 2026-08-20 the `proxy` cells hold `million_proxy_*` runs: 1,000,000
+pairs for each case, against 100,000 before. The prompt, the model, the seed
+and the sampling do not change, thus the question is the same and the number
+carries less noise.
+
+A 1,000,000-pair case runs as 92 shards, thus it is NOT 1 stage directory.
+Join the shards first, and the merge writes the shape that `register` reads:
+
+```bash
+python scripts/merge_pairwise_shards.py \
+    --sweep-dir multirun/million_battery_<stamp>/qwen/runs \
+    --sweep million_proxy_qwen9b --out-dir multirun/million_merged
+```
+
+**Warning:** a 1,000,000-pair draw does NOT hold the 100,000-pair draw as a
+prefix. The 2 are separate samples of the same pair space. Do not pool them,
+and do not read a difference between them as a result.
+
 ### The commands
 
 ```bash
-# after a new battery lands
-python scripts/register_canonical_runs.py register --stage-root '<glob>'
+# after a new battery lands: join the shards, once for each rater
+python scripts/merge_pairwise_shards.py --sweep-dir <rater>/runs \
+    --sweep <sweep> --out-dir multirun/million_merged
+python scripts/register_canonical_runs.py register \
+    --stage-root 'multirun/million_merged/*' --force
 python scripts/register_canonical_runs.py verify     # the gate
 python scripts/register_canonical_runs.py show       # what is registered
 
 # then the exports, in this order
 marimo export html notebooks/cvpr/<case>/<case>_validation.py -o /dev/null
 python scripts/export_cvpr_results_table.py          # the LaTeX table
+python notebooks/cvpr/_reliability.py                # positional bias, test-retest
 python scripts/export_cvpr_trace_figures.py          # the word figures
 ```
 
@@ -155,20 +205,38 @@ never its own directory.
 | `_extractions.py` | Typed extractions over the traces: rates, the risk panel, and the distinctive-claim score |
 | `_ic.py` | The Integrative Complexity report: corpus, codes, and figures |
 | `_ic_words.py` | Word blocks over the IC spans, 1 for each ingredient type |
+| `_words_across.py` | Word and phrase rates across the 7 cases, and the vocabulary scatter |
+| `_cues_across.py` | The PRICE of each urban cue, across the cases, and the hierarchy ladder |
+| `_trace_channels.py` | The 4 other trace channels: the axes, the abstention, the inference, the artifact |
 | `_cuisine.py` | The restaurants ranking by cuisine, and its 3 bands |
 | `_maps.py` | Choropleths of a case on 1 layer, and the small-multiples pair |
 | `_ic_link.py` | Does a complex trace agree with the proxy more often? |
+| `_ic_metadata.py` | The v3 span attributes: the image join, valence by name, same-image consistency, and the band-controlled proxy contrasts |
+| `_judge_vocab.py` | The keys of each judge under each extractor: document counts, the log-odds z, the both-extractor flag, the agreement, and the tables |
+| `master/judge_vocabulary.py` | The judge-vocabulary notebook; outputs in `master/outputs/judge_vocab/` (also `scripts/export_judge_vocab.py`) |
 | `master/ic_linking.py` | The IC-to-proxy link notebook |
 | `master/ic_complexity.py` | The IC notebook over every case |
+| `master/face_effect.py` | The camera-face notebook: the effect, the grid and the sun test |
+| `master/cue_hierarchy.py` | Does 1 aesthetic hierarchy serve every prompt? The cue report |
+| `master/trace_channels.py` | What the cue count cannot read: axes, abstention, inference, artifact |
+| `master/gold_alignment.py` | The extractors against the human gold set: characters, ledger, nesting, decisions |
+| `master/aesthetic_hierarchy.py` | Does 1 vocabulary serve all 7 prompts? The word report |
 | `_style.py` | The house palette and the camera-ready figure style |
+| `_figmeta.py` | The caption of a figure as a `.json` sidecar beside the image (`save_figure`) |
 | `_results_table.py` | The 3 metrics and the camera-ready results table |
+| `_quantile_shift.py` | How far an arm moved the score of a PLACE, quantile by quantile |
+| `_faces.py` | Does the camera direction move the judgment? The face effect |
+| `_proxy_arms.py` | Validation by proxy, run again on every ablation arm |
+| `_reliability.py` | Positional bias and test-retest reliability, and their LaTeX tables |
 | `master/results_table.py` | The table over every prompt |
+| `master/reliability.py` | The positional-bias and test-retest notebook over every canonical run |
 | `_trace_notebook.py` | The shared body of a per-prompt trace notebook |
 | `_gen_trace_notebooks.py` | Writes each `<case>_traces.py` from 1 template |
 | `scripts/register_canonical_runs.py` | Registers the runs and holds the gate |
 | `scripts/export_cvpr_results_table.py` | Writes the LaTeX table without marimo |
 | `scripts/export_cvpr_trace_figures.py` | Writes every word figure without marimo |
 | `scripts/export_cvpr_ic_figures.py` | Writes the IC tables and figures without marimo |
+| `scripts/export_face_effect.py` | Writes the camera-face tables and figures without marimo |
 | `scripts/launch_ic_corpus.sh` | Submits the IC extraction over the registered trace runs |
 | `<prompt>/recipe.json` | The proxy sources for that prompt |
 | `<prompt>/<case>_validation.py` | Validation by proxy |
@@ -711,3 +779,38 @@ minutes. Discovery goes through W&B, which names each stage directory.
 Each module and each notebook carries a `__version__` or a `NOTEBOOK_VERSION`.
 The export file names carry the notebook version. Raise the version when you
 change how a number is computed.
+
+## Figures: where they live, and the `paper_` label (2026-10-01)
+
+Every figure of a notebook lives in the project tree, never in a scratch
+folder. The master notebooks write into `master/figures/` (the trace
+channels and the IC notebooks), `master/outputs/` (tables, and the proxy
+overview), `master/outputs/explore/`, and `master/outputs/judge_vocab/`. A
+case notebook writes into `<case>/figures/` and `<case>/outputs/`.
+
+A figure whose name starts with `paper_` could go into the final paper. The
+list is `PAPER_CANDIDATES` in `scripts/curate_notebook_figures.py`: the
+figures the paper holds now, and the headline figure of each version 3
+analysis. `figure_index.csv` lists every figure, its folder, whether it is a
+candidate, whether the paper holds it now, and whether it has a `.json`
+caption sidecar.
+
+Run the curation after an export:
+
+    python scripts/curate_notebook_figures.py            # dry run: print the plan
+    python scripts/curate_notebook_figures.py --apply
+
+An export writes the name without the prefix; the curation then replaces the
+`paper_` copy with the new file. It also moves stale files (a `stale` folder
+or name, a superseded version, a replaced file) into
+`data/archive/notebook_outputs_<stamp>.tar.gz` with a manifest. A superseded
+version that code reads by name stays. The first run (2026-10-01) archived
+138 files and removed the 4 `stale_pre_looks/` folders.
+
+**Warning: 4 figures of the paper come from a stale run.** The paper's
+`figures/wordblocks/{libraries,schools,subway_safety}_win_block.png` and
+`road_quality_win_bars.png` are byte for byte the files of the
+`stale_pre_looks/` folders, which read the traces of the prompts BEFORE the
+"looks like" wording of 2026-08-14. Their README said: do not put one in the
+paper. The curation kept them, as `<case>/figures/paper_<name>.png`, so that
+the paper's source stays on disk. **Fixed the same day:** `scripts/export_wordblocks.py` draws the 7 word-block figures (the wide and the 1-column blocks of libraries, schools and subway, and the road win bars) again from the version 2 primary corpus of the "looks" runs, with caption sidecars, and the paper's `figures/wordblocks/` now holds them.

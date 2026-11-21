@@ -6,9 +6,16 @@ network can silently read a run that answers a question the paper no longer
 asks. This module reads `canonical_data/manifest.json` instead, which names
 exactly 1 run for each cell of the grid:
 
-    kind   x  case  x  model
-    proxy     7        2      -> the label-only runs behind the results table
-    trace     7        2      -> the thinking runs behind the word figures
+    kind   x  arm  x  case  x  model
+    proxy    canonical   7        2   -> the label-only runs behind the results table
+    trace    canonical   7        2   -> the thinking runs behind the word figures
+    proxy    noabstain   7        2   -> the forced-choice ablation
+    proxy    nocity      7        2   -> the ablation with no place name
+
+The ARM says which prompt a run used. Every arm runs the same 2 model strings,
+thus a notebook that asks only for `kind="proxy"` gets 3 arms at once. Ask for
+the arm you want: `runs(kind="proxy", arm="canonical")` for a paper number, and
+`arm="nocity"` or `arm="noabstain"` for an ablation.
 
 `scripts/register_canonical_runs.py` writes the registry and the symlinks under
 `canonical_data/`. That tool also verifies them, and every export script calls
@@ -38,7 +45,7 @@ __version__ = "1.0.0"
 HERE = Path(__file__).resolve().parent
 REGISTRY_DIR = HERE / "canonical_data"
 MANIFEST = REGISTRY_DIR / "manifest.json"
-SCHEMA = 1
+SCHEMA = 2
 
 # The environment variable that turns the guard off. It exists for a debug
 # session only. A paper figure must never run with it set.
@@ -50,6 +57,7 @@ class CanonicalRun:
     """One registered run. The fields mirror the manifest."""
 
     kind: str
+    arm: str              # canonical, noabstain, nocity
     case: str
     model: str            # short name, e.g. gemma-4-12b
     model_config: str     # the Hydra model string, e.g. gemma-4-12b/instruct
@@ -89,8 +97,13 @@ class CanonicalRun:
 
     @property
     def run_id(self) -> str:
-        """A stable id that stands where a W&B id used to stand."""
-        return f"canon:{self.kind}:{self.case}:{self.model}"
+        """A stable id that stands where a W&B id used to stand.
+
+        The arm is part of the id. Without it a `nocity` run and a canonical
+        run of the same cell carry the SAME id, and a provenance table cannot
+        say which one a figure read.
+        """
+        return f"canon:{self.kind}:{self.arm}:{self.case}:{self.model}"
 
 
 def load(path: Optional[Path] = None) -> Dict[str, Any]:
@@ -110,7 +123,8 @@ def load(path: Optional[Path] = None) -> Dict[str, Any]:
 
 def runs(kind: Optional[str] = None,
          case: Optional[str] = None,
-         model: Optional[str] = None) -> List[CanonicalRun]:
+         model: Optional[str] = None,
+         arm: Optional[str] = "canonical") -> List[CanonicalRun]:
     """Return the registered runs, filtered.
 
     Args:
@@ -119,20 +133,36 @@ def runs(kind: Optional[str] = None,
             `parks` thus matches `parks_plazas`, and an empty string matches
             every case.
         model: The short model name.
+        arm: `canonical` (the default), `noabstain`, `nocity`, or None for
+            every arm. The default is `canonical` on purpose: a caller that
+            does not know about arms must not get an ablation run.
+
+    Warning: pass `arm=None` only when you mean to read arms together. Mixed
+    arms in one table give a number that no prompt produced.
     """
     out: List[CanonicalRun] = []
     for rec in load()["runs"]:
+        rec = dict(rec)
+        rec.setdefault("arm", "canonical")
         r = CanonicalRun(**{k: v for k, v in rec.items()
                             if k in CanonicalRun.__dataclass_fields__})
         if kind and r.kind != kind:
+            continue
+        if arm and r.arm != arm:
             continue
         if case and case.lower() not in r.case.lower():
             continue
         if model and r.model != model:
             continue
         out.append(r)
-    out.sort(key=lambda r: (r.kind, r.case, r.model))
+    out.sort(key=lambda r: (r.kind, r.arm, r.case, r.model))
     return out
+
+
+def arms() -> List[str]:
+    """The arms the registry holds, `canonical` first."""
+    have = sorted({r.get("arm", "canonical") for r in load()["runs"]})
+    return sorted(have, key=lambda a: (a != "canonical", a))
 
 
 def verify_or_raise(quick: bool = True) -> None:
@@ -150,7 +180,8 @@ def verify_or_raise(quick: bool = True) -> None:
     blob = load()
     problems: List[str] = []
     for rec in blob["runs"]:
-        tag = f"{rec['kind']}/{rec['case']}/{rec['model']}"
+        tag = (f"{rec['kind']}/{rec.get('arm', 'canonical')}"
+               f"/{rec['case']}/{rec['model']}")
         link = REGISTRY_DIR / rec["link"] / "results.parquet"
         if not link.exists():
             problems.append(f"{tag}: the link does not resolve")
@@ -184,10 +215,10 @@ def summary() -> str:
 def provenance_rows() -> List[Dict[str, Any]]:
     """The registry as plain rows, for a provenance table in an export."""
     return [
-        {"kind": r.kind, "case": r.case, "model": r.model_config,
+        {"kind": r.kind, "arm": r.arm, "case": r.case, "model": r.model_config,
          "sweep": r.sweep, "rows": r.rows, "not_sure_rate": r.not_sure_rate,
          "image_layout": r.image_layout, "question": r.question,
          "results_path": r.results_path, "sha256": r.results_sha256,
          "problems": "; ".join(r.problems)}
-        for r in runs()
+        for r in runs(arm=None)
     ]

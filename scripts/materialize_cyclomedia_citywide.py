@@ -33,7 +33,7 @@ import polars as pl
 from dagspaces.common.cyclomedia_catalog import CyclomediaCatalog
 
 
-DEFAULT_OUTPUT = "/share/pierson/matt/mllmsci/data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet"
+DEFAULT_OUTPUT = "/share/ju/matt/mllmsci/data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet"
 DEFAULT_DATASETS = (
     "manhattan_2025_1k",
     "brooklyn_2025_1k",

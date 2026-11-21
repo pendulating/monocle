@@ -40,7 +40,7 @@ def main():
     parser = argparse.ArgumentParser(description="Copy Cyclomedia images to /scratch (flat layout)")
     parser.add_argument(
         "--parquet",
-        default="/share/pierson/matt/mllmsci/data/cyclomedia/manhattan_2025_1k.parquet",
+        default="/share/ju/matt/mllmsci/data/cyclomedia/manhattan_2025_1k.parquet",
         help="Path to existing parquet manifest",
     )
     parser.add_argument(
@@ -50,7 +50,7 @@ def main():
     )
     parser.add_argument(
         "--output-parquet",
-        default="/share/pierson/matt/mllmsci/data/cyclomedia/manhattan_2025_1k_scratch.parquet",
+        default="/share/ju/matt/mllmsci/data/cyclomedia/manhattan_2025_1k_scratch.parquet",
         help="Path for updated parquet manifest with /scratch paths",
     )
     parser.add_argument("--workers", type=int, default=64, help="Number of parallel copy threads")

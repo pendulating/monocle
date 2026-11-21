@@ -7,7 +7,8 @@
         "role": "proxy",
         "key": "the_geom",
         "column": "systemrating",
-        "note": "The primary proxy. DOT scores a street segment from 0 to 10, and a HIGH score is a GOOD road, so it needs no sign flip. 514,521 rows in total, so filter the year on the server: inspections since 2024 give 125,924 rated segments. WARNING: a rating of exactly 0.0 means NOT RATED, not worst pavement. 72,768 rows carry it. The zeros fall from 11,043 in 2021 to 1,358 in 2026 while rated rows hold steady, which is a backlog that clears. pavement_segments drops them."
+        "window": "2024-01 to 2026-07 inspections",
+        "note": "The window above must match PAVEMENT_SINCE_YEAR in road_quality_validation.py. The primary proxy. DOT scores a street segment from 0 to 10, and a HIGH score is a GOOD road, so it needs no sign flip. 514,521 rows in total, so filter the year on the server: inspections since 2024 give 125,924 rated segments. WARNING: a rating of exactly 0.0 means NOT RATED, not worst pavement. 72,768 rows carry it. The zeros fall from 11,043 in 2021 to 1,358 in 2026 while rated rows hold steady, which is a backlog that clears. pavement_segments drops them."
     },
     "1":
     {
@@ -16,7 +17,8 @@
         "documentation": "https://data.cityofnewyork.us/Transportation/Street-Pothole-Work-Orders-Closed-Dataset/x9wy-ing4",
         "role": "proxy",
         "key": "the_geom",
-        "note": "A secondary proxy, aggregated as repairs for each km^2 with a sign of -1. WARNING: it counts REPAIRS, not defects. A borough that fixes potholes quickly looks worse here than one that ignores them. Read it beside the pavement rating, never alone."
+        "window": "2024-01 to 2026-07 work orders",
+        "note": "The supply side. 49,589 closed work orders, 2024-01-01 to 2026-07-30. Version 1.2.0 divides them by the centerline mile (source 4) and gives pothole_repairs_per_mile with a sign of -1. The old row, pothole_repairs, divides by km^2 and stays in the export so history reconciles. WARNING: it counts REPAIRS, not defects. A borough that fixes potholes quickly looks worse here than one that ignores them. Read it beside the pavement rating, never alone."
     },
     "2":
     {
@@ -24,14 +26,50 @@
         "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
         "role": "context",
         "key": "geoid",
+        "column": "Estimate!!Households!!Median income (dollars)",
+        "window": "2020-2024 ACS 5-year",
         "note": "An area proxy. Only the census-tract layer carries a true median."
     },
     "3":
     {
-        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "name": "NYPD complaints, 2026 Q1, pulled 2026-06-29",
         "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
         "role": "context",
         "key": "latitude,longitude",
-        "note": "An area proxy. Crime is point data, so every layer gets a true value."
+        "window": "2026Q1",
+        "note": "An area proxy. Crime is point data, so every layer gets a true value. WARNING: the file name says year to date, but the record stops on 2026-03-31. 94.8% of the 133,114 complaints fall in January to March 2026, and the rest are late reports of older events. Read this source as 1 winter quarter, never as a full year."
+    },
+    "4":
+    {
+        "name": "NYC Street Centerline (CSCL)",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/inkn-q76z/query.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/Centerline/inkn-q76z",
+        "role": "denominator",
+        "key": "the_geom",
+        "column": "rw_type",
+        "window": "the centerline of 2026-08, pulled 2026-08-31",
+        "note": "The denominator of every rate of this case. A pothole happens on a roadway, not on land, thus a count for each km^2 partly measures street density. The filter keeps rw_type 1 (street) and 2 (highway) with status 2 (constructed): 103,429 of 122,263 segments, and 6,838.2 centerline miles. Each line is CUT at the polygon border, so a segment that crosses 2 areas gives each one its true part. The result is cached at data/external/nyc_street_centerline/centerline_miles_by_layer.parquet, and any case can read it."
+    },
+    "5":
+    {
+        "name": "311 Service Requests from 2010 to Present — pothole complaints",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/erm2-nwe9/query.json",
+        "documentation": "https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9",
+        "role": "proxy",
+        "key": "latitude,longitude",
+        "column": "descriptor",
+        "window": "2024-01 to 2026-08 complaints",
+        "note": "The demand side. WARNING: this source holds more than 40,000,000 rows, so filter on the server and never fetch the whole table. The filter is complaint_type in ('Street Condition','Highway Condition') AND descriptor like POTHOLE AND created_date >= 2024-01-01: 147,824 complaints, and 68,108 of them carry a latitude. WARNING: 54% of the rows carry no coordinate, and the share differs by borough (Queens 42% located, Manhattan 54%). The located subset ranks the community districts almost the same as the whole set: the rate of the located rows and the rate of every row agree at Spearman 0.92 over the 59 districts. Thus the subset is safe for an order and not for a level. WARNING: this counts a REPORT, not a pothole. A neighborhood that calls 311 often looks worse than a quiet one with the same pavement."
+    },
+    "6":
+    {
+        "name": "DOT In-house Street Resurfacing Projects",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/ffaf-8mrv/query.json",
+        "documentation": "https://data.cityofnewyork.us/Transportation/DOT-In-house-Street-Resurfacing-Projects/ffaf-8mrv",
+        "role": "proxy",
+        "key": "location_wkt",
+        "column": "location_actual_paving_end_date",
+        "window": "2002-03 to 2026-08 paving, age as of 2026-08-14",
+        "note": "The maintenance cycle. The filter is project_type='Block' AND an actual paving end date: 252,054 jobs on 92,087 blocks. The builder keeps the NEWEST job of each block and takes the length-weighted mean age of an area, with a sign of -1. location_wkt already holds EPSG:2263 coordinates. WARNING: the record holds the IN-HOUSE work of DOT only, from 2002. A block that a capital contract rebuilt is absent, and a block that DOT never paved since 2002 is absent. Thus the age is right-censored, and the proxy reads 'how long since DOT last paved this block', never 'how old the pavement is'."
     }
 }

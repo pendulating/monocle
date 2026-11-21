@@ -5,7 +5,7 @@
         "documentation": "https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn",
         "role": "reference",
         "key": "bbl",
-        "note": "392 rows, which matches the 392 dcp_pops units in FacDB exactly. Holds the address, the building, and the required amenities. It carries NO condition or maintenance rating, so it cannot serve as a proxy for upkeep."
+        "note": "392 rows, which matches the 392 dcp_pops units in FacDB exactly. Holds the address, the building, and the required amenities. It carries NO condition or maintenance rating, so it cannot serve as a proxy for upkeep. It DOES carry the tax lot, and entries 7 and 8 use that lot to count the orders against it."
     },
     "1": {
         "name": "NYC DOT Pedestrian Plazas - Polygon",
@@ -13,35 +13,81 @@
         "documentation": "https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas-Polygon/k5k6-6jex",
         "role": "reference",
         "key": "plazaname",
-        "note": "93 rows against the 92 dot_pedplazas units in FacDB. Holds the plaza name, the maintenance partner, and the shape. It carries NO condition rating."
+        "note": "93 rows against the 92 dot_pedplazas units in FacDB. Holds the plaza name, the maintenance partner, and the shape. It carries NO condition rating. Entry 5 reads the partner field."
     },
     "2": {
-        "name": "ACS 5-Year 2024, table S1901 \u2014 median household income by census tract",
+        "name": "ACS 5-Year 2024, table S1901 — median household income by census tract",
         "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
         "role": "proxy",
         "key": "geoid",
+        "column": "Estimate!!Households!!Median income (dollars)",
+        "window": "2020-2024 ACS 5-year",
         "note": "An area proxy. Only the census-tract layer carries a true median."
     },
     "3": {
-        "name": "NYPD complaints, year to date 2026, pulled 2026-06-29",
+        "name": "NYPD complaints, 2026 Q1, pulled 2026-06-29",
         "file": "data/external/nypd_complaints_ytd/nypd_complaint_ytd_2026_pulled20260629.csv",
         "role": "proxy",
         "key": "latitude,longitude",
-        "note": "An area proxy. Crime is point data, so every layer gets a true value."
+        "window": "2026Q1",
+        "note": "An area proxy. Crime is point data, so every layer gets a true value. WARNING: the file name says year to date, but the record stops on 2026-03-31. 94.8% of the 133,114 complaints fall in January to March 2026, and the rest are late reports of older events. Read this source as 1 winter quarter, never as a full year."
     },
     "_note": {
-        "name": "Why this case has no unit-level proxy",
+        "name": "What this case can and cannot test",
         "role": "documentation",
-        "note": "The Parks Inspection Program rates DPR property only, and it never rates a plaza. Entries 0 and 1 are the 2 city sources that define the plaza set, and neither one rates condition. Thus the plazas case can compare the model against the AREA only. It cannot test the model against an inspector, the way the parks, schools, and restaurants cases can. Search for a plaza condition source before you read a weak correlation here as a finding about the model."
+        "note": "NO NYC source RATES the condition of a plaza, and none exists. The Parks Inspection Program rates DPR property only and never rates a plaza. Entries 0 and 1 define the plaza set and neither one grades it. Thus this case cannot test the model against an inspector, the way the parks, schools, and restaurants cases can. Version 1.2.0 does not change that. It adds 3 MAINTENANCE CAPACITY proxies instead — entries 5, 6, 7, and 8 — which measure who pays to keep a plaza and how many orders stand against its lot. Capacity is not condition: a plaza with money can still be dirty. Write `maintenance capacity` in the paper. The 3 proxies key on the unit, thus the case gained its first unit-level comparison, and the violation row is the one that both raters agree with."
     },
     "4": {
-        "name": "Privately Owned Public Spaces (POPS) \u2014 year completed",
+        "name": "Privately Owned Public Spaces (POPS) — year completed",
         "endpoint": "https://data.cityofnewyork.us/api/v3/views/rvih-nhyn/query.json",
         "documentation": "https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn",
         "role": "proxy",
         "key": "bbl",
         "joins_to": "bbl",
         "column": "year_completed",
+        "window": "vintage; pulled 2026-08-19",
         "note": "The vintage of a plaza. This is the year of the SPACE, not of the tower beside it, thus it describes the plaza directly. It reaches 347 of the 392 POPS units (88.5%); the other 45 carry a BBL that the POPS table does not hold. WARNING: 1 plaza source of 3 has a year. The 92 DOT pedestrian plazas and the 20 city-state parks carry no vintage in any NYC source, thus this proxy covers 68.8% of the case. WARNING: a year is not oriented."
+    },
+    "5": {
+        "name": "NYC DOT Pedestrian Plazas — maintenance partner",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/k5k6-6jex/query.json",
+        "documentation": "https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas-Polygon/k5k6-6jex",
+        "role": "proxy",
+        "key": "plazaname",
+        "column": "partner",
+        "window": "maintenance partner; pulled 2026-08-31",
+        "note": "WHO maintains a DOT pedestrian plaza. Every one of the 93 rows names a partner, thus `the share with a named partner` is degenerate — it would only report which source a plaza came from. The proxy reports the TYPE instead: 32 districts, 20 city agencies, and 41 community groups. `_proxies_parks.partner_type` reads the BID register (entry 6) and not a keyword, because `Village Alliance` is a district and `North Brooklyn Parks Alliance` is not. The export value is 1.0 for a district partner and 0.0 for the other 2, thus the area value is a SHARE. WARNING: only the 92 DOT units carry a partner, which is 18.3% of the case, and the code restricts the join to them — the nearest-plaza rule alone would give 28 POPS units the partner of a DOT plaza beside them. WARNING: this is maintenance MONEY, not a measured condition."
+    },
+    "6": {
+        "name": "Business Improvement Districts",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/7jdm-inj8/query.json",
+        "documentation": "https://data.cityofnewyork.us/dataset/7jdm-inj8",
+        "role": "proxy",
+        "key": "bid_polygon",
+        "column": "bid_polygon",
+        "window": "districts as of 2026-08-31",
+        "note": "The 76 business improvement district polygons. A district raises an assessment on the property owners inside its boundary and spends it on supplemental cleaning, on graffiti removal, and on public space upkeep, thus membership measures maintenance MONEY. The export value is 1.0 inside a district and 0.0 outside it, and every one of the 504 plaza units takes a value — the first plaza proxy that covers the whole case. 228 of 504 sit inside one. WARNING: a district boundary follows the sidewalks and the lots, and a DOT plaza sits in the ROADBED, thus a strict `within` test finds only 5 of the 92 DOT plazas. The loader uses a 100 ft tolerance, which finds 43. Sensitivity over the 504 units: 0 ft gives 181, 50 ft gives 213, 100 ft gives 228, 250 ft gives 276. WARNING: the publisher exported the columns from a shapefile, so the names carry no meaning; `_proxies_parks.BID_COLUMNS` renames them."
+    },
+    "7": {
+        "name": "DOB Violations",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/3h2n-5cm9/query.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-Violations/3h2n-5cm9",
+        "role": "proxy",
+        "key": "boro,block,lot",
+        "joins_to": "bbl",
+        "column": "violation_count",
+        "window": "2021-2026 issue dates; pulled 2026-08-31",
+        "note": "Orders that the Department of Buildings issued against the tax lot of a plaza. 2.5 million rows in total, thus the pull filters the borough, the tax blocks of the plazas, and the first date on the server, and it matches the exact lot afterward. The `where` clause names BLOCKS and not lots, because the 2 violation sources pad the lot differently. This entry and entry 8 make 1 export row, `dob_ecb_violations`, and its `proxy_source` names both ids. 419 of the 504 plaza units carry a tax lot: 390 of 392 POPS, 19 of 20 special district spaces, and 10 of 92 DOT plazas. A DOT plaza sits in the roadbed, which owns no lot, thus its absence is by construction. WARNING: the count carries a sign of -1 and leaves the loader oriented `higher is better`. WARNING: an order names the LOT, not the plaza surface. A POPS plaza shares its lot with the tower that had to build it, thus most orders describe an elevator, a boiler, or a facade, and a large tower collects more for that reason alone. Read it as `how much trouble the owner is in`."
+    },
+    "8": {
+        "name": "ECB Violations",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/6bgk-3dad/query.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-ECB-Violations/6bgk-3dad",
+        "role": "proxy",
+        "key": "boro,block,lot",
+        "joins_to": "bbl",
+        "column": "violation_count",
+        "window": "2021-2026 issue dates; pulled 2026-08-31",
+        "note": "Environmental Control Board orders against the same tax lots as entry 7. 1.8 million rows in total, filtered on the server the same way. The 2 sources sum into 1 export row named `dob_ecb_violations`. Measured 2026-08-31 over the 419 plaza lots: the median lot carries 9 orders across the 2 sources since 2021, and the largest carries 107. 27 lots carry none."
     }
 }

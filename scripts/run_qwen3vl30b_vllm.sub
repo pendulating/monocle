@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G                  # Higher memory for vision processing
 #SBATCH --time=48:00:00
-#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/qwen3vl30b-vllm/%j.out
-#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/qwen3vl30b-vllm/%j.err
+#SBATCH --output=/share/ju/matt/mllmsci/logs/run_qwen3vl30b_vllm-%j.out
+#SBATCH --error=/share/ju/matt/mllmsci/logs/run_qwen3vl30b_vllm-%j.err
 
 set -euo pipefail
 
@@ -15,8 +15,8 @@ date
 echo ""
 
 # ----------------------------- CONFIGURATION ----------------------------- #
-REPO_DIR="/share/pierson/matt/mllmsci"
-MODEL_PATH="${MODEL_PATH:-/share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct}"
+REPO_DIR="/share/ju/matt/mllmsci"
+MODEL_PATH="${MODEL_PATH:-/share/ju/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct}"
 PORT="${PORT:-8000}"
 HOST="${HOST:-0.0.0.0}"
 TP_SIZE="${TP_SIZE:-2}"              # Tensor-parallel workers (match number of GPUs)
@@ -24,7 +24,7 @@ CONCURRENCY="${CONCURRENCY:-4}"       # Max concurrent requests
 GPU_MEM_UTIL="${GPU_MEM_UTIL:-0.85}"  # Leave headroom for vision processing
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-32768}"  # 32k context for reflection with images
 MAX_BATCHED_TOKENS="${MAX_BATCHED_TOKENS:-4096}"  # Conservative for multimodal
-HF_HOME="${HF_HOME:-/share/pierson/matt/.cache/huggingface}"
+HF_HOME="${HF_HOME:-/share/ju/matt/.cache/huggingface}"
 LOG_DIR="${LOG_DIR:-$REPO_DIR/logs/vllm}"
 RUN_NAME="${RUN_NAME:-qwen3-vl-30b-reflection}"
 

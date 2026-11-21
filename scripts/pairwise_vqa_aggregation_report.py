@@ -13,7 +13,7 @@ TrueSkill, and disagreement drill-downs.
 Example:
 
     python scripts/pairwise_vqa_aggregation_report.py \\
-        /share/pierson/matt/mllmsci/machine-beholder/aggregations/libraries_well-maintained \\
+        /share/ju/matt/mllmsci/machine-beholder/aggregations/libraries_well-maintained \\
         --attribute maintained --unit-label library --unit-label-plural libraries \\
         --title "Libraries · well-maintained · multi-model aggregation"
 """

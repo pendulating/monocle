@@ -589,7 +589,7 @@ if __name__ == "__main__":
     app.run()
 '''
 
-out = Path("/share/pierson/matt/mllmsci/notebooks/cvpr")
+out = Path("/share/ju/matt/mllmsci/notebooks/cvpr")
 for case, (title, folder) in CASES.items():
     body = TEMPLATE.replace("@@CASE@@", case).replace("@@TITLE@@", title)
     # Every artifact of a prompt lives inside that prompt's folder.

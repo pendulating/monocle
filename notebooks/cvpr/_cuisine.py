@@ -27,7 +27,7 @@ import _style as S
 __version__ = "1.0.0"
 
 CASE = "restaurants"
-UNIT_TABLE = ("/share/pierson/matt/mllmsci/curation/dohmh_restaurants_inspected_all"
+UNIT_TABLE = ("/share/ju/matt/mllmsci/curation/dohmh_restaurants_inspected_all"
               "/restaurants_aggregated.parquet")
 
 # A cuisine needs this many scored restaurants from EACH rater. Below it a mean

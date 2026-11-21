@@ -5,7 +5,8 @@
         "documentation": "https://dev.socrata.com/foundry/data.cityofnewyork.us/dnpx-dfnc",
         "role": "proxy",
         "key": "dbn",
-        "note": "Long format. 1 row for each school, metric, and year. The source holds more than 1,000,000 rows, so filter on the server with fetch_metric."
+        "window": "school year 2024",
+        "note": "The window above must match PROXY_YEAR in schools_validation.py. WARNING: this source holds 404 distinct metrics for school year 2024 and 677 across 2015-2024, and NONE of them measure a building. Checked 2026-08-31 against the words facility, building, clean, safe, maintain, condition, physical, and survey: 0 hits. The metric names cover attendance, test proficiency, course pass rates, and Regents scores. Thus from notebook version 1.2.0 the attendance row is a CONTEXT row and the building record carries the case. The export names the metric in the proxy_metric column, and the proxy name follows the selection. Before notebook version 1.1.0 the export wrote the fixed name school_report_card, which hid which metric the paper cited. Long format. 1 row for each school, metric, and year. The source holds more than 1,000,000 rows, so filter on the server with fetch_metric."
     },
     "1": {
         "name": "School Point Locations (APS 2024-08-28)",
@@ -25,6 +26,77 @@
         "key": "bin",
         "joins_to": "bin",
         "column": "construction_year",
+        "window": "vintage; pulled 2026-04-12",
         "note": "On disk, pulled 2026-04-12 by data/geo/download_nyc_buildings.py. 1,082,872 footprints and 99.1% carry a usable year; the source writes 0 for an unknown year and _proxies drops it. FacDB gives each unit a BIN, thus this is a key join and not a spatial one. WARNING: a year is NOT oriented. Every other proxy points 'higher is better', so a positive value means agreement. A positive value here says the model calls a NEWER unit better, which is a finding and not a test."
+    },
+    "3": {
+        "name": "DOB Violations",
+        "endpoint": "https://data.cityofnewyork.us/resource/3h2n-5cm9.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-Violations/3h2n-5cm9",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "violation_category",
+        "window": "2016-01-01 to 2026-08-31 (pull date)",
+        "note": "A fault that the Department of Buildings recorded against this building. FacDB gives 99.0% of the schools a BIN, thus this is a key join and not a spatial one. The source holds more than 2,000,000 rows, so the query sends the BIN list of this case to the server and groups there. A category that ends in ACTIVE is an open violation. WARNING: a count rises when a building gets worse, thus _proxies_buildings applies a sign of -1 and the exported value points 'higher is better'."
+    },
+    "4": {
+        "name": "DOB ECB Violations",
+        "endpoint": "https://data.cityofnewyork.us/resource/6bgk-3dad.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-ECB-Violations/6bgk-3dad",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "ecb_violation_status",
+        "window": "2016-01-01 to 2026-08-31 (pull date)",
+        "note": "An Environmental Control Board violation carries a fine, thus it marks a fault that reached a hearing. The status is ACTIVE or RESOLVE. The export adds these counts to the DOB counts, and proxy_source names the 2 ids together."
+    },
+    "5": {
+        "name": "DOB Permit Issuance",
+        "endpoint": "https://data.cityofnewyork.us/resource/ipu4-2q9a.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-Permit-Issuance/ipu4-2q9a",
+        "role": "proxy",
+        "key": "bin__",
+        "joins_to": "bin",
+        "column": "job__",
+        "window": "2016-01-01 to 2026-08-31 (pull date)",
+        "note": "A permit says that somebody spent money on this building, thus it is a positive measure and it needs no sign. The count is over the distinct job number and not over the permit rows, because 1 job takes an initial permit, a renewal, and 1 permit for each trade. Job types A1, A2, and A3 only: a new building and a demolition are not investments in the building the model looked at. WARNING: issuance_date holds 2 shapes, MM/DD/YYYY and an ISO timestamp, thus the server cannot filter the year and the module filters it in pandas."
+    },
+    "6": {
+        "name": "2017 - 2018 NYC School Survey Teacher Data",
+        "endpoint": "https://data.cityofnewyork.us/api/views/sjxh-har6.json",
+        "documentation": "https://data.cityofnewyork.us/Education/2017-2018-NYC-School-Survey-Teacher-Data/sjxh-har6",
+        "role": "proxy",
+        "key": "dbn",
+        "joins_to": "dbn",
+        "column": "6f. This school is kept clean.",
+        "window": "2017-18 school year",
+        "note": "The only item-level measurement of a school BUILDING that a city school source holds. The value is the share of teachers who agree or strongly agree, from the sheet 'Teacher Pos & Neg %'. WARNING: the asset is an .xlsx blob and not a table, thus SODA cannot query it; _proxies_buildings downloads it to data/external/nyc_school_survey_2018/ and reads the workbook XML. WARNING: the city stopped publishing the item-level survey after 2017-18. The 2019 files (k2zg-756q, uzmq-2khh, 4fcz-jias) hold only the 6 framework scores and no building item. Thus this proxy sits about 7 years before the model run."
+    },
+    "7": {
+        "name": "2017-18 - 2021-22 Demographic Snapshot",
+        "endpoint": "https://data.cityofnewyork.us/resource/c7ru-d68s.json",
+        "documentation": "https://data.cityofnewyork.us/Education/2017-18-2021-22-Demographic-Snapshot/c7ru-d68s",
+        "role": "proxy",
+        "key": "dbn",
+        "joins_to": "dbn",
+        "column": "economic_need_index",
+        "window": "2021-22 school year",
+        "note": "The Economic Need Index of the students who attend the school. It beats tract income as the socio-economic control of this case: a school draws its students from a zone and not from its own block, and a charter or a specialized school draws from the whole city. The source writes a percent string such as 87.9%. WARNING: the index rises with need, thus _proxies_buildings negates it and a positive correlation means the model prefers a school of a wealthier community. This is a CONTROL and not a building measure. 2021-22 is the newest year the source holds."
+    },
+    "8": {
+        "name": "DOB NOW: Safety - Facades Compliance Filings (FISP)",
+        "endpoint": "https://data.cityofnewyork.us/resource/xubg-57si.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-NOW-Safety-Facades-Compliance-Filings/xubg-57si",
+        "role": "unused",
+        "key": "bin",
+        "note": "NOT used as a proxy. Local Law 11 applies to a building of more than 6 storeys, and a school is mostly low. Measured 2026-08-31: 189 of the 2,375 school BINs (8.0%) carry any filing. A correlation over 8% of the case would describe the tall schools alone. _proxies_buildings.facade_status_by_bin builds the frame for a reader who wants it, and no export row comes from it."
+    },
+    "9": {
+        "name": "2019 NYC School Survey (student, teacher, and parent files)",
+        "endpoint": "https://data.cityofnewyork.us/resource/k2zg-756q.json",
+        "role": "unused",
+        "key": "dbn",
+        "note": "NOT used. Checked 2026-08-31. The 3 files (k2zg-756q, uzmq-2khh, 4fcz-jias) each hold 11 columns: the DBN, the school name, 3 response rates, and the 6 Framework for Great Schools scores. No building item, no cleanliness item. The 3 files also return identical rows, which is a publication fault of the source. The 2017-18 item file (sjxh-har6) is the newest one that names item 6f."
     }
 }

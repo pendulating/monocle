@@ -28,7 +28,7 @@ sys.path.insert(0, str(REPO))
 from dagspaces.common import ic_schema as S  # noqa: E402
 
 SOURCE_PARQUET = (
-    "/share/pierson/matt/mllmsci/multirun/2026-08-13_URBANPAIRVQA/01-37-12/0/"
+    "/share/ju/matt/mllmsci/multirun/2026-08-13_URBANPAIRVQA/01-37-12/0/"
     "outputs/pairwise/subway_safety_mvp_20260813_013722.parquet"
 )
 

@@ -15,7 +15,11 @@ from typing import Dict, List
 import matplotlib.colors as mcolors
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
+
+# Computer Modern Roman, as in the LaTeX paper. CMU Serif is the Unicode form
+# of the font (it has the minus sign and the curly quotes). TeX Live holds it.
+CM_FONT_DIR = "/share/ju/texlive/texmf-dist/fonts/opentype/public/cm-unicode"
 
 # The sampled palette. Keep the names: the other notebooks use them.
 PAL: Dict[str, str] = {
@@ -138,11 +142,27 @@ def _check_ramp(cmap=None, max_luminance: float = 0.45, steps: int = 21) -> List
 
 def apply_house_style() -> None:
     """Set the camera-ready rcParams. Call it one time in a notebook."""
-    import matplotlib.pyplot as plt
+    import glob
+    import logging
 
+    import matplotlib.pyplot as plt
+    from matplotlib import font_manager
+
+    import dataclasses
+
+    for f in glob.glob(f"{CM_FONT_DIR}/cmun*.otf"):
+        font_manager.fontManager.addfont(f)
+    # The regular CMU files give weight 500. Set 400 ("normal"), else each text warns.
+    font_manager.fontManager.ttflist = [
+        dataclasses.replace(e, weight=400) if e.name.startswith("CMU") and e.weight == 500 else e
+        for e in font_manager.fontManager.ttflist]
+    font_manager.fontManager._findfont_cached.cache_clear()
+    logging.getLogger("fontTools.subset").setLevel(logging.ERROR)  # the PDF embeds the full font
     plt.rcParams.update({
         "font.family": "serif",
-        "font.serif": ["Times New Roman", "DejaVu Serif"],
+        "font.serif": ["CMU Serif", "Computer Modern Roman", "DejaVu Serif"],
+        "mathtext.fontset": "cm",
+        "pdf.fonttype": 42,
         "font.size": 8,
         "axes.titlesize": 8.5,
         "axes.labelsize": 8,

@@ -14,8 +14,8 @@ the downstream weighted sampler is most likely to actually pick.
 Example (libraries):
 
     python scripts/facing_audit_report.py \\
-        --parquet /share/pierson/matt/mllmsci/curation/facdb_libraries/cyclomedia_near_libraries_facing.parquet \\
-        --out     /share/pierson/matt/mllmsci/machine-beholder/audits/libraries_facing_sample.pdf \\
+        --parquet /share/ju/matt/mllmsci/curation/facdb_libraries/cyclomedia_near_libraries_facing.parquet \\
+        --out     /share/ju/matt/mllmsci/machine-beholder/audits/libraries_facing_sample.pdf \\
         --unit-label library --unit-label-plural libraries
 """
 from __future__ import annotations

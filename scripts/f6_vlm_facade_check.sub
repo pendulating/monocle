@@ -1,0 +1,27 @@
+#!/bin/bash
+#SBATCH -J f6-facade
+#SBATCH -o /share/ju/matt/mllmsci/data/f6_restaurant_depiction/v4/logs/facade_%j.out
+#SBATCH -e /share/ju/matt/mllmsci/data/f6_restaurant_depiction/v4/logs/facade_%j.err
+#SBATCH -N 1 -n 1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --gres=gpu:1
+#SBATCH -t 12:00:00
+#SBATCH --partition=pierson
+#SBATCH --nodelist=klara
+# Ask Gemma-4-12B-it the F6 facade question about the best view of each
+# restaurant (D63 to D69). The weights (about 24 GB bf16) fit 1 A6000.
+#
+#   sbatch scripts/f6_vlm_facade_check.sub
+#
+# Run `render-best` first. The job writes 1 parquet part per chunk and skips
+# the parts that exist, so you can submit it again after a failure.
+set -euo pipefail
+cd /share/ju/matt/mllmsci
+export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129
+source "${MLLMSCI_DRIVER_VENV}/bin/activate"
+source scripts/activate_stage_venv.sh
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+export PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
+nvidia-smi -L || true
+"${MLLMSCI_STAGE_PYTHON:-python}" scripts/f6_vlm_facade_check.py ask "$@"

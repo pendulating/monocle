@@ -73,7 +73,7 @@ def _imports():
 
 @app.cell
 def _config(Path):
-    REPO = Path("/share/pierson/matt/mllmsci")
+    REPO = Path("/share/ju/matt/mllmsci")
 
     # Each dataset: the consolidated pairwise output parquet + its sibling
     # pairs.parquet (geo + unit identity) live in the same run directory.

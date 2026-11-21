@@ -24,7 +24,7 @@ differ, thus a table from other settings cannot quietly change the science.
 Use
 ---
     python scripts/prebuild_pair_tables.py --sweep million_proxy_qwen9b \\
-        --out-dir /share/pierson/matt/mllmsci/multirun/pair_tables_1m
+        --out-dir /share/ju/matt/mllmsci/multirun/pair_tables_1m
     python scripts/prebuild_pair_tables.py --sweep ... --cases pairwise_schools_mvp
     python scripts/prebuild_pair_tables.py --sweep ... --force
 """
@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -61,7 +62,12 @@ def build_one(sweep: str, case: str, out_dir: str, extra: List[str],
         _load_pairwise_manifest, build_pair_table, pair_fingerprint,
     )
 
-    short = case.replace("pairwise_", "").replace("_mvp", "")
+    # Strip everything from `_mvp` onward, thus a variant pipeline such as
+    # `pairwise_schools_mvp_nocity` writes and reads the SAME table as its base
+    # case. The table comes from the data and the sampler, never from the
+    # prompt. This MUST match `submit_shards.pairs_path_for`, or a run draws
+    # one file and reads another.
+    short = re.sub(r"_mvp(_.*)?$", "", case.replace("pairwise_", ""))
     out_parquet = os.path.join(out_dir, f"{short}_pairs.parquet")
     out_json = os.path.join(out_dir, f"{short}_pairs.json")
 
@@ -73,9 +79,17 @@ def build_one(sweep: str, case: str, out_dir: str, extra: List[str],
     if os.path.exists(out_parquet) and os.path.exists(out_json) and not force:
         try:
             with open(out_json) as fh:
-                have = json.load(fh).get("fingerprint")
+                doc = json.load(fh)
+            have = doc.get("fingerprint")
         except Exception:
-            have = None
+            doc, have = {}, None
+        if doc.get("subset"):
+            # A subset table is a cut of a larger draw, not a draw. A redraw
+            # here would replace it with a fresh draw and break the identity
+            # with its parent. See scripts/subset_pair_tables.py.
+            raise SystemExit(
+                f"{out_json} is a SUBSET table. Do not prebuild over it; "
+                "use another --out-dir.")
         if have == want:
             return {"case": short, "status": "kept", "path": out_parquet,
                     "seconds": round(time.time() - t0, 1)}

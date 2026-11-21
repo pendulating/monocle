@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path("/share/pierson/matt/mllmsci")
+ROOT = Path("/share/ju/matt/mllmsci")
 FACILITIES = ROOT / "curation/facdb_schools_k_12/facilities.parquet"
 LOCATIONS = ROOT / "curation/external/doe_schools/school_point_locations_2019_2020_a3nt-yts4.csv"
 DEMO = ROOT / "curation/external/doe_schools/demographic_snapshot_school_2017_2022_c7ru-d68s.csv"
