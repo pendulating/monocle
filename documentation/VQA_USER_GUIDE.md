@@ -393,7 +393,7 @@ prompt:
 Use local models from model zoo:
 
 ```bash
-export MODEL_ZOO_BASE=/share/pierson/matt/zoo/models
+export MODEL_ZOO_BASE=/share/ju/matt/zoo/models
 python -m dagspaces.urbanvqa.cli pipeline=vqa
 ```
 

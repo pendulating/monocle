@@ -20,12 +20,12 @@ All existing dagspaces wrap VLM inference via vLLM. UrbanViT is the home for pur
 
 | Axis | Decision |
 |------|----------|
-| Models | DINOv3 ViT-L/16 HF native (`/share/pierson/matt/zoo/models/dinov3-vitl16-pretrain-lvd1689m/`), TIPSv2 ViT-B/14 (`/share/pierson/matt/zoo/models/tipsv2-b14/`) |
+| Models | DINOv3 ViT-L/16 HF native (`/share/ju/matt/zoo/models/dinov3-vitl16-pretrain-lvd1689m/`), TIPSv2 ViT-B/14 (`/share/ju/matt/zoo/models/tipsv2-b14/`) |
 | Fine-tuning | LoRA on attention projections (q/k/v); backbone otherwise frozen |
 | Precision | bf16 autocast, `torch.compile` (`max-autotune`) |
 | Compute | A6000 on the `klara` SLURM partition (sm_86, PCIe-only, no NVLink) |
 | Storage (fast) | `/scratch` (up to 4 TB), shards evicted to shared once per-run quota exceeded |
-| Storage (long-term) | `/share/pierson/matt/mllmsci/...` for features parquets and checkpoints |
+| Storage (long-term) | `/share/ju/matt/mllmsci/...` for features parquets and checkpoints |
 | First corpus | `curation/scaffolding_permits_2020_through_2025/cyclomedia_near_permits.parquet` (3.97M rows, 52 columns) |
 | Label acquisition | Labels appended to the same parquet in a future pass (bootstrapped via embedding-retrieval: top/bottom scoring examples → weak labels) |
 | Multi-GPU regime | DDP via `torchrun` for training; SLURM array of independent workers for inference (shard-the-work, not shard-the-model) |

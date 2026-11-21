@@ -54,7 +54,7 @@ Once you understand the basics:
 ### 1. Installation
 
 ```bash
-cd /share/pierson/matt/UAIR
+cd /share/ju/matt/normative-simulacra
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -244,7 +244,7 @@ See [Custom Stages Guide - Registering Your Stage](CUSTOM_STAGES_GUIDE.md#regist
 
 ### Improving Documentation
 
-Documentation lives in `/share/pierson/matt/UAIR/docs/`
+Documentation lives in `/share/ju/matt/normative-simulacra/docs/`
 
 To contribute:
 1. Edit relevant markdown file

@@ -71,7 +71,7 @@ reads such a sweep from disk and takes the case from each parquet file name.
 **Never glob `multirun/`.** That tree sits on NFS and a full walk costs minutes.
 Discovery goes through W&B, which names each stage directory.
 
-## Warning: gemma-4-12b needs `interleaved_labels`
+## Warning: gemma-4-12b needs a text anchor between the images
 
 In thinking mode, gemma-4-12b cannot see the second image under the default
 `images_then_text` layout. Measured on 16 pairs, 2026-08-13:
@@ -80,6 +80,10 @@ In thinking mode, gemma-4-12b cannot see the second image under the default
 |--------|-------------------------------|---------|
 | `images_then_text` | 15 of 18 | 83% |
 | `interleaved_labels` | 0 of 18 | 5.6% |
+
+Text between the 2 images is what repairs the binding. From 2026-08-20
+production uses `images_then_labels`, and it rejects `interleaved_labels`. See
+[gemma-4-best-practices.md](gemma-4-best-practices.md).
 
 The prompt holds about 696 input tokens either way, which is 2 images' worth, so
 the pixels are present. The model fails to bind them as 2 images. This is the

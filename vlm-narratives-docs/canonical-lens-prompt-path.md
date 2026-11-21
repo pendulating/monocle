@@ -3,6 +3,13 @@
 `monocle/canonical.py` builds the forward pass that the Jacobian lens reads. It
 makes the lens read the same prompt the CVPR battery ran.
 
+The model this path drives is described in [gemma4-12b-architecture.md](gemma4-12b-architecture.md).
+
+**Note, 2026-08-20:** the layout decision of that date replaced
+`interleaved_labels` with `images_then_labels`. A run that was registered before
+that date warns in `prompt_cfg` and needs a re-run before a lens read. See
+[gemma-4-best-practices.md](gemma-4-best-practices.md).
+
 ## Why it exists
 
 The lens modules were written before the 2026-08-11 prompt consolidation. They
@@ -11,14 +18,15 @@ consolidation changed 3 things, and each one breaks a lens read.
 
 | Mismatch | The old lens build | The canonical battery |
 |---|---|---|
-| Image layout | `images_then_text` | `interleaved_labels` |
+| Image layout | `images_then_text` | `images_then_labels` |
 | System turn | a persona string | `system: null` — no system turn |
 | Abstention | 5 labels, no `NotSure` | `NotSure` in the enum and in the text |
 
 The layout mismatch is the worst of the 3. The registry gate demands
-`interleaved_labels` for gemma-4-12b, because that architecture does not bind
-image B without the text anchor. A lens read under `images_then_text` measures
-a different forward pass. Every per-patch map over image B would be wrong.
+`images_then_labels` for gemma-4-12b, because that architecture does not bind
+image B without the text anchor between the 2 images. A lens read under
+`images_then_text` measures a different forward pass. Every per-patch map over
+image B would be wrong.
 
 Thus the rung-B and rung-C results from 2026-07-24 describe a superseded
 prompt. Re-run them on this path before you cite them.
@@ -68,7 +76,7 @@ canonical config with **only** `prompt.user_template` changed.
 | `neutral` | "Compare the two images." — names no attribute, unit, or city |
 | `axis` | "Which image looks more `<phrase>`?" — only where a phrase exists |
 
-The system turn stays absent, the layout stays `interleaved_labels`, and the
+The system turn stays absent, the layout stays `images_then_labels`, and the
 abstention guidance still appends in every arm. Thus a prod-minus-neutral
 difference measures the question, and nothing else.
 

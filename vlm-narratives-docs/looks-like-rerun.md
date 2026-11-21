@@ -39,7 +39,9 @@ can read a trace beside the greedy label for the same pair.
 
 The 2 raters cannot share 1 sweep:
 
-- gemma-4-12b needs `prompt.image_layout=interleaved_labels`. qwen does not.
+- gemma-4-12b needs a layout with text BETWEEN the two images. qwen does not.
+  These sweeps used `interleaved_labels`; production moved to
+  `images_then_labels` on 2026-08-20.
 - The 2 raters differ in throughput by about 2x, so a shared array holds GPUs
   for the slower half.
 - The thinking raters differ in sampling: qwen uses `top_p=0.95` and
@@ -58,8 +60,10 @@ second image. Measured on 16 pairs with traces, 2026-08-13:
 | `images_then_text` | 15 of 18 | 83% |
 | `interleaved_labels` | 0 of 18 | 5.6% |
 
-The cause is the prompt-replacement path of the encoder-free `gemma4_unified`
-arch, not the thought channel. Thus a label-only run fails the same way, and it
+Re-tested on 2026-08-20 with `limit_mm_per_prompt` pinned and on vLLM 0.25.0:
+55 of 70 traces still speak of one image. The engine never dropped it — every
+vLLM on disk allows 999 images for an unspecified modality. The model reads two
+ADJACENT image blocks as one image, thus the rule is adjacency, not order. Thus a label-only run fails the same way, and it
 cannot show the failure: a blind run looks like an honest abstention rate.
 
 **Cost of the fix:** a gemma-4-12b number from this battery differs from a

@@ -153,6 +153,7 @@ All dagspaces import shared modules directly from `dagspaces.common`:
 - `vllm_inference.py` — vLLM inference utilities
 - `multiprocessing_utils.py` — SLURM detection, warning suppression
 - `stage_utils.py` — `ensure_dotenv()`, `extract_last_json()`, `sanitize_for_json()`, `resolve_thinking_mode()`, `maybe_silence_vllm_logs()`
+- `image_pack.py` — Read images from a pack of blob files (`runtime.image_pack`) instead of the raw NFS tree. Build with `scripts/build_image_pack.py`. See `vlm-narratives-docs/nfs-load-pairvqa-sweeps.md`.
 - `conf/data/` — Shared data configs (symlinked from root as `datasets/`)
 - `conf/model/` — Shared model configs (symlinked from root as `models/`)
 - `conf/hydra/launcher/` — Shared SLURM launcher configs (symlinked from root as `launchers/`)
@@ -219,12 +220,13 @@ See `vlm-narratives-docs/scratch-mirrors.md` and
 
 The VQA stage accepts images as: PIL objects, local file paths, base64 strings, or HTTP URLs. Format is auto-detected in `_prepare_image_content()`.
 
-## Known Performance Issues
+## Current Performance State
 
-Documented in `PIPELINE_ISSUES.md`:
-1. **vLLM batch size collapse** — First batch=64, subsequent=2. Caused by upstream starvation + object store backpressure.
-2. **Object store growth** — Can grow to 124+ GiB causing spilling. Tune `override_object_store_memory_limit_fraction` early.
-3. **Job hanging** — Cascading stalls from spilled data disk reads.
+The Ray Data path is gone. The VQA stages now send chunked batches through
+in-process `llm.chat` calls. Results stream to parquet during the run, and
+resume chunks align with batch boundaries. See
+`vlm-narratives-docs/million-pair-battery.md` for details on shards and
+resume chunks.
 
 ## File Locations
 
@@ -235,4 +237,5 @@ Documented in `PIPELINE_ISSUES.md`:
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
 - `vlm-narratives-docs/` — Project documentation. Write project information here.
+- `artificial-aesthetic/` — The FAccT paper repo. The LaTeX is the submodule `paper/`. `paperkit` copies the figures, tables and numbers into it, and checks them. See `vlm-narratives-docs/paper-repo-sync.md`.
 - `vault/context/` — Obsidian wiki. NOT MAINTAINED. Stale. Read only for history.

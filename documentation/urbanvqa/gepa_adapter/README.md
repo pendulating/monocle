@@ -30,7 +30,7 @@ python -m dagspaces.urbanvqa.gepa_cli \
   gepa.dataset.train.parquet_path=/path/to/train.parquet \
   gepa.dataset.val.parquet_path=/path/to/val.parquet \
   llm.reflection.api_base=http://localhost:8000/v1 \
-  vllm.model_config=/share/pierson/matt/zoo/models/Qwen3-30B-A3B-Instruct-2507
+  vllm.model_config=/share/ju/matt/zoo/models/Qwen3-30B-A3B-Instruct-2507
 ```
 
 Artifacts:

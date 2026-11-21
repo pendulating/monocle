@@ -15,7 +15,7 @@ replaces a two-environment split that was difficult to keep correct.
 Both older environments stay on disk. To go back for one run:
 
 ```bash
-export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-3.12/bin/activate
+export MLLMSCI_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activate
 ```
 
 ## Build the environment
@@ -70,7 +70,7 @@ node has no FFmpeg 4 to 7, and the `libavfilter` of the system FFmpeg 8 needs
 `GLIBCXX_3.4.32`, which the anaconda-base libstdc++ does not give.
 
 The fix is a self-contained FFmpeg 7.1 LGPL shared build outside the venv, at
-`/share/pierson/matt/zoo/ffmpeg-libs/n7.1/lib`. Its `libav*.so` have no
+`/share/ju/matt/zoo/ffmpeg-libs/n7.1/lib`. Its `libav*.so` have no
 libstdc++ dependency, so the GLIBCXX wall is gone.
 
 **Warning:** `ld.so` reads `LD_LIBRARY_PATH` one time, when the process starts.
@@ -83,7 +83,7 @@ venv swap.
 If you start a driver by hand, prepend the directory yourself:
 
 ```bash
-export LD_LIBRARY_PATH=/share/pierson/matt/zoo/ffmpeg-libs/n7.1/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/share/ju/matt/zoo/ffmpeg-libs/n7.1/lib:$LD_LIBRARY_PATH
 ```
 
 ## Engine kwargs

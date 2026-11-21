@@ -84,6 +84,48 @@ To mirror a model that is not in the canonical set, give the zoo name:
 bash scripts/sync_model_registry_to_scratch.sh Qwen3-VL-30B-A3B-Instruct
 ```
 
+## The sync on demand (2026-08-20)
+
+Before this date a mirror came only from a hand-run deploy, thus only klara had
+one. Every job on the `gpu` partition — 66 nodes — paid a cold NFS import. A
+gemma shard measured 158 seconds to load the weights against 60 seconds on
+klara, and a preempted task paid it again.
+
+`scripts/activate_stage_venv.sh` now BUILDS the mirror at the start of a job
+when the node holds none. Four guards keep it safe:
+
+| Guard | What it stops |
+|---|---|
+| An flock on `/scratch/$USER/venvs/.autosync.lock` | 10 tasks on 1 node syncing at once. One syncs; the others wait, then use it. |
+| The bootstrap tarball must exist | 60 nodes each walking 90k NFS files by rsync |
+| 25 GB free on `/scratch` | A sync that fills the disk and kills the job |
+| Any failure falls back to NFS | A node problem stopping the stage |
+
+Set `MLLMSCI_SCRATCH_AUTOSYNC=0` to turn it off. `MLLMSCI_SCRATCH_AUTOSYNC_WAIT`
+sets how long a task waits for another task's sync (900 seconds by default).
+
+**Warning:** the tarball is per venv, and the name drops the leading dot.
+`.venv-mllmsci-vllm025cu129` needs `venv-mllmsci-vllm025cu129.tar.zst`. Until
+2026-08-20 only `venv-vllm025cu129.tar.zst` existed — a tarball of a DIFFERENT
+venv — thus the sync had no fast path at all. Build the tarball again each time
+the venv changes:
+
+```bash
+# as a job pinned to a node that already holds a complete mirror
+bash scripts/sync_venv_to_scratch.sh --make-tarball \
+     /share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129
+```
+
+## The CUDA toolkit (2026-08-20)
+
+The same script exports `CUDA_HOME=/share/ju/matt/cuda-12.9` for every
+launcher. FlashInfer needs nvcc 12.9 to build Blackwell kernels, and the system
+toolkit is 12.8. See `blackwell-sm120-flashinfer.md`.
+
+**Warning:** the launchers `source ~/.bashrc` BEFORE this script, and that sets
+`CUDA_HOME=/usr/local/cuda-12.8`. A test of the form "set it only when it is
+empty" never fires on a compute node. Our toolkit wins whenever it is present.
+
 ## How a stage selects the mirror
 
 1. `_create_submitit_executor` puts `export MLLMSCI_DRIVER_VENV=<sys.prefix>`
@@ -138,6 +180,165 @@ The contract:
 The canonical set is the urbanpairvqa roster: `Qwen3.5-9B`, `gemma-4-12B-it`,
 `Gemma-4-E2B-it`, `Gemma-4-E4B-it`, `Qwen3.5-2B` and `Qwen3.5-4B`. Phi-4 is
 absent on purpose, because it gives degenerate output on each pairvqa task.
+
+## The model sync on demand (2026-08-28)
+
+Before this date only the venv built its own mirror. A model mirror came from
+`scripts/sync_model_registry_to_scratch.sh`, and a person ran that script one
+time on each node. Only klara and ju ever got one. Thus every job on the `gpu`
+partition read the weights off NFS.
+
+`resolve_model_source` now builds the mirror itself. A node that holds none
+runs the sync script for that one model, then loads from local disk. The
+guards match the venv autosync:
+
+| Guard | Effect |
+|---|---|
+| The lock in the sync script | 1 job syncs. A second job on the node reads NFS. |
+| Free space | The copy needs the model size and 20 percent more. |
+| A time limit of 30 minutes | A slow NFS read does not hold the GPU. |
+| Every failure falls back | The stage always runs. |
+
+Set `MLLMSCI_MODEL_AUTOSYNC=0` to turn it off.
+
+A mirror of a DIFFERENT source keeps its marker. The code does not touch it,
+and the stage reads NFS. This is the same refusal that the sync script makes.
+
+## urbanpairvqa did not read server.env (2026-08-28)
+
+`MLLMSCI_MODEL_REGISTRY` lives in `server.env`. A stage job reads that file
+only when its dagspace sets `ensure_dotenv_first=True`. urbanembed,
+artifact_gen, urbanvit and urbanspeech set it. urbanpairvqa did not.
+
+Thus the registry root was empty in each urbanpairvqa stage job, and
+`resolve_model_source` returned the zoo path with no message. The model mirror
+never worked for the largest dagspace, and no log line said so. A 2026-08-28
+extraction job showed the cost: 195 seconds of weight load for each engine
+start.
+
+`dagspaces/urbanpairvqa/orchestrator.py` now sets `ensure_dotenv_first=True`.
+
+**Warning:** urbanvqa, urbanocr and urbanroamvqa still do not set it. They
+have the same fault.
+
+## monocle and the nightly venv (2026-08-22)
+
+The analysis jobs under `monocle/` did NOT use either mirror until this date.
+`monocle/monocle.sub` activated `.venv-nightly` off NFS by hand, and
+`attn_route.load_eager` read the weights from the zoo path.
+
+The symptom hid itself. A monocle job printed the GPU banner, then nothing at
+all, for 10 to 15 minutes. On a busy day the same job started in 46 seconds,
+because an earlier monocle job left the venv in the page cache of the node. A
+quiet day gave a cold import, and the job looked hung.
+
+| Mirror | What monocle did | Cost |
+|---|---|---|
+| model registry | read the zoo path | 24 GB off NFS |
+| venv | activated the NFS venv | a cold import, about 13 minutes |
+
+The venv is the larger half. `.venv-nightly` holds about 90k small files, and
+the import is latency-bound, not bandwidth-bound.
+
+**The fixes.**
+
+1. `monocle.sub` sources `scripts/activate_stage_venv.sh` with
+   `MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly`. monocle
+   needs the nightly venv, so the driver venv is named there and NOT taken
+   from `server.env`, which names the vllm025 venv.
+2. `monocle.sub` sources `server.env`, so `MLLMSCI_MODEL_REGISTRY` is set.
+3. `attn_route.load_eager` and `extract.load_model` call
+   `resolve_model_source`. `load_eager` is the single load point for every
+   monocle GPU entry point except `extract`.
+
+**Warning:** the helper is written for launcher setup blocks, which do not run
+under `set -eu`. `monocle.sub` turns the flags off around the source and back
+on after it. An unset-variable probe must not kill the job.
+
+**Warning: `source <mirror>/bin/activate` does NOT move the interpreter.**
+`sync_venv_to_scratch.sh` is a plain `rsync -a`, so the mirror keeps the
+`bin/activate` of the source venv, and that script re-exports the NFS
+`VIRTUAL_ENV`. The helper still prints `node-local venv on klara`, because the
+marker is valid. The interpreter is the NFS one.
+
+The mechanism that works is `MLLMSCI_STAGE_PYTHON`, which the helper exports
+next to the source line. The stage launchers put it on the submitit command
+line, and `monocle.sub` now runs `"${MLLMSCI_STAGE_PYTHON:-python}" -m`.
+
+This cost 3 jobs and about 40 minutes to find, because the success message and
+the true state disagree. To check a job, read the line that `monocle.sub`
+prints:
+
+```
+[monocle] interpreter: /scratch/mwf62/venvs/venv-nightly/bin/python
+```
+
+The numbers, on 1 monocle job:
+
+| Path | torch import | model load | total to the first result |
+|---|---|---|---|
+| NFS venv | 155 s, and transformers not done at 420 s | never reached | over 14 min, killed |
+| mirror venv + mirror weights | seconds | 35 s | **77 s** |
+
+**monocle is klara-only, by decision (2026-08-22).** `.venv-mirrors/` holds a
+bootstrap tarball for `venv-mllmsci-vllm025cu129` and `venv-vllm025cu129`
+only. Without `venv-nightly.tar.zst` the autosync path refuses to build the
+nightly mirror, so a node other than klara falls back to NFS and pays the cold
+import. We do not build the nightly tarball, because monocle runs on klara.
+
+`monocle.sub` sets `#SBATCH --nodelist=klara`, so the decision holds by
+itself. Warning: a job that overrides the node runs 13 minutes slower and
+gives no error, because the fallback to NFS is silent by design.
+
+To put monocle on a new node, either build the tarball once with
+`sync_venv_to_scratch.sh --make-tarball`, which turns the autosync on for
+every node, or build that 1 mirror by hand:
+
+```bash
+sbatch -p pierson -w klara -c 24 --mem=32G --time=01:00:00 \
+  --wrap 'bash scripts/sync_venv_to_scratch.sh \
+          /share/ju/matt/mllmsci/.venv-nightly'
+```
+
+## The move to /share/ju (2026-10-07)
+
+`/share/pierson` is being retired. The project now runs from
+`/share/ju/matt/mllmsci`. The copy at `/share/pierson/matt/mllmsci` is a stale
+duplicate; do not launch from it.
+
+The copied venvs held the old path in about 100 `bin/` scripts each (the
+shebangs and `VIRTUAL_ENV` in `activate`) and in the editable-install finder
+(`__editable___mllmsci_0_1_0_finder.py` mapped `dagspaces` to the pierson
+copy). On 2026-10-07 these paths were rewritten in place in all five venvs.
+Backups of the old files are in
+`/share/ju/matt/.pierson_migration/backups_20261007/mllmsci_venvs_pre_repoint.tgz`.
+
+Every mirror on `/scratch` that was synced before the move has a marker with
+`src=/share/pierson/matt/mllmsci/...`. The launcher refuses such a mirror,
+because the driver venv is now `/share/ju/matt/mllmsci/...`. Before the fix,
+the sync on demand then also refused ("a mirror of a different venv"), and the
+stage ran from NFS on every such node, with no error.
+
+`scripts/sync_venv_to_scratch.sh` now accepts a marker whose path differs only
+by the `/share/pierson/matt` to `/share/ju/matt` move. It re-syncs that mirror
+in place (rsync `--delete` parity) and writes a new marker. Thus the first
+stage on each node pays one incremental sync, then uses the mirror again. On
+ju-compute-01 on 2026-10-07 that sync took 1,281 s for the 15 GB venv, and the
+tarball rebuild took 213 s (5.2 GB).
+
+The tarball `.venv-mirrors/venv-mllmsci-vllm025cu129.tar.zst` was rebuilt on
+2026-10-07 from a ju-compute-01 mirror of the rewritten venv. The older
+`.venv-mirrors/venv-vllm025cu129.tar.zst` is from 2026-08-12 and holds pierson
+paths; no launcher uses it.
+
+To check a node: `cat /scratch/$USER/venvs/venv-mllmsci-vllm025cu129/.sync_complete`.
+After the first stage on that node it must show `src=/share/ju/...`. The stage
+log prints `[stage_venv] node-local venv on <host>` when the mirror is in use.
+
+`.venv-cambrian` and `.venv-labelstudio` use a uv-managed Python under
+`/share/pierson/matt_ai/usr_data/uv/python/` (their `pyvenv.cfg` `home`). These
+two venvs stop working when `/share/pierson` goes away, unless that Python is
+copied or the venvs are rebuilt.
 
 ## Tests
 

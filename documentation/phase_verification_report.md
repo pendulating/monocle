@@ -54,7 +54,7 @@ All phases 1-5 have been **fully implemented** according to the plan in `mllm_su
 
 ### 3.2 Model Path Resolution & Zoo Integration ✅
 **File**: `dagspaces/uair/stages/classify.py`
-- ✅ `MODEL_ZOO_BASE = "/share/pierson/matt/zoo/models"` constant defined
+- ✅ `MODEL_ZOO_BASE = "/share/ju/matt/zoo/models"` constant defined
 - ✅ `_resolve_model_path()` function:
   - Checks absolute paths first
   - Resolves to zoo directory

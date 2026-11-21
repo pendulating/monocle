@@ -209,7 +209,8 @@ The cost of the whole battery is about 1,400 to 1,700 GPU-hours, and the spread
 comes from the gemma rate.
 
 `million_proxy_gemma12b` keeps the 2 requirements of the "looks like" battery:
-1 GPU for each job, and `prompt.image_layout=interleaved_labels`.
+1 GPU for each job, and a text anchor between the 2 images. It sets
+`prompt.image_layout=images_then_labels`, the layout of 2026-08-20.
 
 ## How to launch
 
@@ -226,15 +227,69 @@ inference path changed. A bad launch wastes about 1,700 GPU-hours.
 ## How to join the shards
 
 ```bash
-python scripts/merge_pairwise_shards.py --sweep-dir <sweep>/qwen --dry-run
-python scripts/merge_pairwise_shards.py --sweep-dir <sweep>/qwen \
-    --out-dir <sweep>/merged_qwen
+python scripts/merge_pairwise_shards.py \
+    --sweep-dir multirun/million_battery_<stamp>/qwen/runs --dry-run
+python scripts/merge_pairwise_shards.py \
+    --sweep-dir multirun/million_battery_<stamp>/qwen/runs \
+    --sweep million_proxy_qwen9b --out-dir multirun/million_merged
 ```
 
 The merge REFUSES to write while a shard is missing, while a shard index
 repeats, or while a `pair_id` occurs twice. A run of 91 of 92 shards looks
 complete in a row count and is not. Do not pass `--allow-incomplete` to a run
 that feeds the results table.
+
+`--sweep` names the model, thus the merge writes
+`<out-dir>/<case>__<model>/`. Give it, or a second rater overwrites the
+first.
+
+### The merge writes the shape of a stage directory
+
+The canonical registry reads a run from a stage directory: a `.hydra` beside
+`outputs/pairwise/`. `submit_shards` composes each config in its own process
+and asks Hydra for no run directory, thus a shard holds no `.hydra`. The
+merge composes the same config and writes the record:
+
+```
+multirun/million_merged/<case>__<model>/
+├── .hydra/config.yaml        <- the resolved config: question, image layout
+├── .hydra/overrides.yaml     <- sweep, model, pipeline
+├── merge.json                <- which shards went in
+└── outputs/pairwise/
+    ├── <case>_mvp_merged.parquet
+    └── pairs.parquet
+```
+
+`submit_shards` now writes the same record for each shard as it submits, thus
+a battery after 2026-08-20 needs no composition again.
+
+### A shard with no manifest is not a missing shard
+
+A job that dies after it writes its parquet, and before it writes
+`pipeline_manifest.json`, leaves no manifest. 7 of the 966 shards are in that
+state. The merge reads the shard index from the run directory name
+(`parks_plazas__0051`) when the manifest is absent. The data is whole, thus
+this is a fallback and NOT a reason to call the grid incomplete.
+
+## How to register the merged runs
+
+The paper reads the canonical registry, never a sweep directory. After the
+merge:
+
+```bash
+python scripts/register_canonical_runs.py register \
+    --stage-root 'multirun/million_merged/*' --force
+python scripts/register_canonical_runs.py verify
+```
+
+The proxy row floor is 1,000,000 since 2026-08-20. A `looks_proxy_*` run
+holds 110,000 rows, thus it now fails to register and cannot come back into a
+figure by accident.
+
+**Warning:** a 1,000,000-pair draw does NOT hold the 100,000-pair draw as a
+prefix. The sampler draws against a larger target, thus the 2 are separate
+samples of the same pair space. Do not pool them, and do not read a
+difference between them as a result.
 
 ## What 1,000,000 pairs buys, and what it does not
 
@@ -271,3 +326,10 @@ of pairs. Expect that number to move very little.
   prompts these sweeps reuse
 - [canonical-run-registry.md](canonical-run-registry.md) — the gate a merged run
   must pass before a notebook reads it
+
+## Image reads: use the pack
+
+A battery opens 15,400,000 image files over 1,100,000 unique images, and the
+`/share/ju` server collapses above about 30 shards. Build the image pack one
+time and give `runtime.image_pack` to every sweep. See
+`nfs-load-pairvqa-sweeps.md`.

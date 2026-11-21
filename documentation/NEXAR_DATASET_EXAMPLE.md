@@ -18,13 +18,13 @@ The easiest way is to generate a parquet file from the directory:
 # Note: Use a path accessible from GPU nodes (not /tmp)
 python scripts/create_nexar_dataset.py \
     --image_dir /share/ju/nexar_data/2023/2023-08-20/604222321527357439/frames \
-    --output_path /share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
+    --output_path /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
     --prompt "What urban planning features are visible in this dashcam image?"
 
 # Method 2: Using config file (uses default path from config)
 python scripts/create_nexar_dataset.py \
     --config dagspaces/urbanvqa/conf/data/nexar_dashcam.yaml \
-    --output_path /share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet
+    --output_path /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet
 ```
 
 This creates a parquet file with columns:
@@ -46,7 +46,7 @@ python -m dagspaces.urbanvqa.cli \
 ```bash
 python -m dagspaces.urbanvqa.cli \
     pipeline=vqa_nexar \
-    data.parquet_path=/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
+    data.parquet_path=/share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
     prompt.system="You are an expert in urban planning analysis."
 ```
 
@@ -57,7 +57,7 @@ If you've updated the config file to point to the directory, you can override th
 ```bash
 python -m dagspaces.urbanvqa.cli \
     pipeline=vqa_nexar \
-    data.parquet_path=/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
+    data.parquet_path=/share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet \
     data.image_path=/share/ju/nexar_data/2023/2023-08-20/604222321527357439/frames
 ```
 
@@ -67,7 +67,7 @@ The data configuration is at `dagspaces/urbanvqa/conf/data/nexar_dashcam.yaml`:
 
 ```yaml
 # Path accessible from GPU nodes (not /tmp)
-parquet_path: /share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet
+parquet_path: /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet
 
 columns:
   prompt: prompt
@@ -99,12 +99,12 @@ If you want different prompts for different images, you can modify the parquet f
 ```python
 import pandas as pd
 
-df = pd.read_parquet('/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet')
+df = pd.read_parquet('/share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet')
 
 # Customize prompts based on image filename or other criteria
 df.loc[df['sample_id'].str.contains('specific_pattern'), 'prompt'] = "Custom question here"
 
-df.to_parquet('/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa_custom.parquet', index=False)
+df.to_parquet('/share/ju/matt/mllmsci/data/nexar_dashcam_vqa_custom.parquet', index=False)
 ```
 
 ## Advanced: Multiple Prompts per Image
@@ -114,7 +114,7 @@ If you want to ask multiple questions about the same image, you can duplicate ro
 ```python
 import pandas as pd
 
-df = pd.read_parquet('/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet')
+df = pd.read_parquet('/share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet')
 
 # Create multiple prompts per image
 prompts = [
@@ -129,7 +129,7 @@ expanded_df = pd.concat([
     for i, p in enumerate(prompts)
 ], ignore_index=True)
 
-expanded_df.to_parquet('/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa_multi.parquet', index=False)
+expanded_df.to_parquet('/share/ju/matt/mllmsci/data/nexar_dashcam_vqa_multi.parquet', index=False)
 ```
 
 ## Troubleshooting
@@ -153,8 +153,8 @@ The script can be run as part of your workflow:
 # Note: Use a path accessible from GPU nodes (not /tmp)
 python scripts/create_nexar_dataset.py \
     --config dagspaces/urbanvqa/conf/data/nexar_dashcam.yaml \
-    --output_path /share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet && \
+    --output_path /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet && \
 python -m dagspaces.urbanvqa.cli \
     pipeline=vqa_nexar \
-    data.parquet_path=/share/pierson/matt/mllmsci/data/nexar_dashcam_vqa.parquet
+    data.parquet_path=/share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet
 ```

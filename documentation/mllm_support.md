@@ -245,7 +245,7 @@ import json
 from pathlib import Path
 
 # Model zoo base path
-MODEL_ZOO_BASE = "/share/pierson/matt/zoo/models"
+MODEL_ZOO_BASE = "/share/ju/matt/zoo/models"
 
 def _resolve_model_path(model_source: str) -> str:
     """Resolve model path from zoo or HuggingFace Hub.
@@ -258,7 +258,7 @@ def _resolve_model_path(model_source: str) -> str:
     
     Args:
         model_source: Model path/name from config (e.g., "Qwen2.5-VL-3B-Instruct" 
-                     or "/share/pierson/matt/zoo/models/Qwen3-30B-A3B-Instruct-2507")
+                     or "/share/ju/matt/zoo/models/Qwen3-30B-A3B-Instruct-2507")
     
     Returns:
         Resolved path (absolute path or HuggingFace Hub identifier)
@@ -680,7 +680,7 @@ def _convert_numpy_to_pil_map(row: Dict[str, Any]) -> Dict[str, Any]:
 **Existing config file**: `vllm_qwen3-30b.yaml` (already uses zoo)
 
 **Model Zoo Structure**:
-The model zoo is located at `/share/pierson/matt/zoo/models/` and contains downloaded HuggingFace models. Each model is stored in its own directory with the standard HuggingFace model structure (config.json, tokenizer files, model weights, etc.).
+The model zoo is located at `/share/ju/matt/zoo/models/` and contains downloaded HuggingFace models. Each model is stored in its own directory with the standard HuggingFace model structure (config.json, tokenizer files, model weights, etc.).
 
 **Example Zoo Models**:
 - `Qwen3-30B-A3B-Instruct-2507/` - Already configured in `vllm_qwen3-30b.yaml`
@@ -692,7 +692,7 @@ The model zoo is located at `/share/pierson/matt/zoo/models/` and contains downl
 # Model source: Can be HuggingFace Hub identifier or local zoo path
 # Examples:
 #   - HuggingFace Hub: "Qwen/Qwen2.5-VL-3B-Instruct"
-#   - Absolute zoo path: "/share/pierson/matt/zoo/models/Qwen2.5-VL-3B-Instruct"
+#   - Absolute zoo path: "/share/ju/matt/zoo/models/Qwen2.5-VL-3B-Instruct"
 #   - Relative zoo name: "Qwen2.5-VL-3B-Instruct" (auto-resolved to zoo)
 model_source: "Qwen/Qwen2.5-VL-3B-Instruct"  # Example multimodal model
 
@@ -764,7 +764,7 @@ enforce_eager: true  # May be needed for small GPUs
 **Example 1: Using Zoo Model (Absolute Path)**
 ```yaml
 # vllm_multimodal_zoo.yaml
-model_source: /share/pierson/matt/zoo/models/Qwen2.5-VL-3B-Instruct
+model_source: /share/ju/matt/zoo/models/Qwen2.5-VL-3B-Instruct
 
 engine_kwargs:
   tensor_parallel_size: 1
@@ -807,7 +807,7 @@ engine_kwargs:
 1. Download model using HuggingFace CLI or Python:
    ```bash
    # Using HuggingFace CLI
-   huggingface-cli download Qwen/Qwen2.5-VL-3B-Instruct --local-dir /share/pierson/matt/zoo/models/Qwen2.5-VL-3B-Instruct
+   huggingface-cli download Qwen/Qwen2.5-VL-3B-Instruct --local-dir /share/ju/matt/zoo/models/Qwen2.5-VL-3B-Instruct
    
    # Or using Python script (see zoo/download_*.py examples)
    ```
@@ -1198,11 +1198,11 @@ huggingface_hub  # For downloading models to zoo (if not already installed)
 
 ### Model Zoo Integration
 
-**Zoo Location**: `/share/pierson/matt/zoo/models/`
+**Zoo Location**: `/share/ju/matt/zoo/models/`
 
 **Model Path Resolution**:
 - **Absolute paths**: Used as-is if they exist
-- **Zoo paths**: Relative model names are resolved to `/share/pierson/matt/zoo/models/{model_name}`
+- **Zoo paths**: Relative model names are resolved to `/share/ju/matt/zoo/models/{model_name}`
 - **HuggingFace Hub**: Falls back to HuggingFace Hub if model not found in zoo
 
 **Benefits**:
@@ -1272,7 +1272,7 @@ vLLM supports multiple image input formats:
 3. **Wrong format**: Ensure RGB conversion (`convert("RGB")`)
 4. **Model not found**: 
    - Verify `model_source` path is correct
-   - Check if model exists in zoo: `ls /share/pierson/matt/zoo/models/`
+   - Check if model exists in zoo: `ls /share/ju/matt/zoo/models/`
    - Verify `config.json` exists in model directory
    - For HuggingFace Hub models, check `HF_TOKEN` if private model
 5. **Ray Dataset errors**: Check numpy array conversion, ensure PIL Images

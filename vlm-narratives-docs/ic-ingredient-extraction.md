@@ -41,6 +41,28 @@ finds is a defect and not data. Read `quote_found_rate` first on every run.
 The other 5 may be empty, and an empty list is the correct answer for a simple
 trace.
 
+**Version 3 of the cue schema carries the ingredients (draft, 2026-09-28).**
+`conf/extract/urban_cues_v3.yaml` puts the cue classes on this codebook:
+`dimension`, `inference` (the evaluative observation), `perspective`,
+`weighing`, `justification`, `dismissal`, `verdict`, and `uncertainty` with
+a `marker`. Thus 1 LangExtract run gives both the cue corpus and the IC
+ingredients, with clause-length spans that the aligner locates. See
+`langextract-trace-extraction.md`, "Version 3". The note below describes the
+version 1 and 2 corpora, where a perspective sits inside `inference`.
+
+**Note: a `perspective` is an `inference`, for coding (versions 1 and 2).** Decided on
+2026-09-22 with the IC codebook in hand. The codebook defines a perspective as
+the evaluative standard by which a dimension counts for or against a scene
+("dense streets and graffiti offer more opportunities for street
+photography"). The `urban_cues` schema has no such class; the span that
+carries that standard lands in `inference`, the claim the photograph cannot
+show. Thus the existing runs lump the perspectives in with the inferences,
+and the annotation and the coding of the traces treat the 2 names as 1: an
+`inference` span that states an evaluative standard is a perspective, and a
+perspective count over the cue corpus is a count of `inference` spans. A
+descriptive `visual_evidence` span is a dimension. The gold-set instructions
+say the same to the annotators.
+
 ## Why the order of the arrays is not free
 
 Guided decoding fills the arrays in the declared order, thus the token cap eats
@@ -90,7 +112,7 @@ and model:
 export HYDRA_SWEEP_DIR=multirun/ic_<name>
 .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli -m \
     pipeline=ic_extract \
-    ic_extract.results_path=notebooks/cvpr/canonical_data/trace/<case>__gemma-4-12b/results.parquet \
+    ic_extract.results_path=notebooks/cvpr/canonical_data/trace/canonical/<case>__gemma-4-12b/results.parquet \
     ic_extract.shard_count=6 ic_extract.shard_index=0,1,2,3,4,5 \
     hydra.launcher.array_parallelism=4
 ```

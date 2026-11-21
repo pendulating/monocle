@@ -220,7 +220,7 @@ No root access and no conda on the cluster shaped these choices:
 
 * OpenCV 4.10 builds from source into `third_party/opencv/install`, with
   FFmpeg decode against the shared tree at
-  `/share/pierson/matt/zoo/ffmpeg-libs/n7.1`.
+  `/share/ju/matt/zoo/ffmpeg-libs/n7.1`.
 * VideoPipe clones at a pinned commit. Two patches make it work without
   GStreamer: one gates configure checks and drops the RTSP sink node; one
   switches the file source/sink nodes to default OpenCV backends. The
