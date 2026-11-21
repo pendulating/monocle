@@ -342,3 +342,11 @@ figures/f10/mechanism/severe_sheet_Queens.png
 figures/f10/adjectives/q4_borough_top_words.csv
 .overlays/*
 flash-attention/*
+
+# Run outputs at the root. The orchestrator writes `pipeline_manifest.json`
+# into each output root, and prompt_opt/visualize.py writes `viz_output/`.
+/pipeline_manifest.json
+/viz_output/
+# A local clone of Dao-AILab/flash-attention. It is not a submodule, and no
+# script uses it.
+/flash-attention/
