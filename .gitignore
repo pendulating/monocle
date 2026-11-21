@@ -259,6 +259,7 @@ vault/urban-visual-analytics
 # add of a plain nested repository writes a gitlink that no clone can resolve.
 sub/jacobian-lens/
 papers/cvpr27_machine-perception-public-spaces/
+artificial-aesthetic/
 # Reports that a notebook writes again. `think10k_reasoning_reports.zip` alone
 # holds 160 MB.
 *.zip
@@ -283,3 +284,61 @@ tools/trashbot_annotator/core.*
 # The phrase caches of notebooks/cvpr/_words_across.py. A phrase cache is
 # about 900 kB, against 30 kB for a word cache, and the word caches are tracked.
 notebooks/cvpr/.trace_cache/phrase_*.json
+# Data outputs that notebooks/ and scripts/ write. Git tracks the source
+# files there (.py, .sh, .sbatch, .sub, .ipynb, .md, .tex, .tsx).
+# Files that git already tracks stay tracked.
+notebooks/**/*.parquet
+notebooks/**/*.csv
+notebooks/**/*.png
+notebooks/**/*.pdf
+notebooks/**/*.json
+notebooks/**/*.jsonl
+notebooks/**/*.txt
+notebooks/**/*.html
+notebooks/**/*.out
+notebooks/**/*.err
+notebooks/**/*.bak
+scripts/**/*.parquet
+scripts/**/*.csv
+scripts/**/*.png
+scripts/**/*.pdf
+scripts/**/*.json
+scripts/**/*.jsonl
+scripts/**/*.txt
+scripts/**/*.out
+scripts/**/*.err
+# The canonical_data entries are symlinks to the merged runs, and the
+# manifest names them. Track them.
+!notebooks/cvpr/canonical_data/**
+notebooks/cvpr/canonical_data/**/*.bak
+# The word caches of notebooks/cvpr/_words_across.py are tracked. The phrase
+# caches are not (see the rule above).
+!notebooks/cvpr/.trace_cache/*.json
+notebooks/cvpr/.trace_cache/phrase_*.json
+# Large figure data. Git tracks the small figure files in figures/.
+figures/**/*.npz
+figures/**/*.npy
+figures/**/*.parquet
+figures/**/*.pt
+# Figure files of 1 MB or more. The producer scripts write them again.
+figures/f10/mechanism/rank_cells.csv
+figures/f10/sets/sets_cells.csv
+figures/f10/steer_patches/patch_steer_matrix.pdf
+figures/f10/steer_patches/patch_steer_matrix.png
+figures/f10/compare/sets/sets_cells.csv
+figures/f10/borough/borough_sets.csv
+figures/f10/stage/stage_partial.csv
+figures/f10/steer_patches/teaser_rows.pdf
+figures/f10/compare/borough/borough_sets.csv
+figures/f10/steer_patches/teaser_rows.png
+figures/f10/compare/stage/stage_partial.csv
+figures/f10/reason/reason_sets.csv
+figures/f10/borough/borough_words.csv
+figures/f10/mechanism/severe_sheet_Brooklyn.png
+figures/f10/mechanism/severe_sheet_Manhattan.png
+figures/f10/mechanism/severe_sheet_Staten_Island.png
+figures/f10/mechanism/severe_sheet_Bronx.png
+figures/f10/mechanism/severe_sheet_Queens.png
+figures/f10/adjectives/q4_borough_top_words.csv
+.overlays/*
+flash-attention/*
