@@ -1,0 +1,7 @@
+case,prompt,file,input_texts,texts,missing,extra,spans,quotable,copy_suspects,copy_suspect_share,retried,schema_versions
+restaurant,f9,restaurant_subj_x2,100000,100000,0,0,1564963,0.9958561320619082,4,4e-05,54,single-subj-v1+single-subj-v1r
+restaurant,f4,restaurant_x2,9956,9956,0,0,178829,0.993054817730905,10,0.001004419445560466,78,single-subj-v1+single-subj-v1r
+restaurant,f4,restaurant_b2x2,89811,89811,0,0,1562177,0.9927229756935354,123,0.0013695427063500018,832,single-subj-v1+single-subj-v1r
+street,f9,street_subj_x2,100000,100000,0,0,1564212,0.9959768880433088,168,0.00168,1943,street-subj-v1+street-subj-v1r
+street,f4,street_x2,9836,9836,0,0,175572,0.9968445993666416,0,0.0,105,street-subj-v1+street-subj-v1r
+street,f4,street_b2x2,90054,90054,0,0,1592116,0.9968293767539551,4,4.441779376818353e-05,828,street-subj-v1+street-subj-v1r

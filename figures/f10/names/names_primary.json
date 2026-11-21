@@ -1,0 +1,9 @@
+{
+  "plot-title": "The text swap of the place name",
+  "plot-caption": "Mean difference of c_yes_i, 95% CI. Left and centre: paired over the images. Right: the name difference on Manhattan images minus the same on Bronx images. Filled: Bonferroni p < 0.05 over the primary tests; hollow: not significant.",
+  "plot-latex-label": "fig:names-primary",
+  "plot-tags": [
+    "F10.1",
+    "text swap"
+  ]
+}

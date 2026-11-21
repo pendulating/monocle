@@ -1,0 +1,541 @@
+end,rank,word,logit,model,position,layer,which,method
+high,1,fucking,0.0013921062366029564,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,2,que,0.0013649483398487112,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,3,trucker,0.0013547119336450122,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,4,cargo,0.001314462278528162,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,5,shitty,0.001294231195497364,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,6,trucks,0.0012863889721927715,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,7,odometer,0.0012700721414017511,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,8,either,0.001266444095063872,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,9,trucking,0.0012362765944606113,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,10,tankers,0.0012351999557393932,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,11,fucked,0.0012134640612221014,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,12,zombie,0.0012020156670185566,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,13,vehicle,0.0011929996871240887,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,14,vehicles,0.001187793414068338,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,15,freight,0.0011835390706972648,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,1,botanical,-0.0013410666122707603,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,2,floral,-0.0012791587726243019,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,3,botan,-0.0012362187497599437,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,4,conservatory,-0.00114104313818303,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,5,flower,-0.0010937963586721655,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,6,spouse,-0.001088762707632872,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,7,ornamental,-0.0010797213994383657,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,8,horticultural,-0.0010777955820026335,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,9,artistry,-0.0010733101577650045,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,10,hydrangea,-0.001055851015763382,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,11,singing,-0.0010498637079927754,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,12,gracefully,-0.001046142499676392,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,13,orchids,-0.0010442753559586132,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,14,flute,-0.0010378989200175476,gemma-4-31b,noun,28,"noun, mid depth",lens
+low,15,yoga,-0.0010362213323899245,gemma-4-31b,noun,28,"noun, mid depth",lens
+high,1,adversary,0.8146625665944812,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,2,enemy,0.8049876457679784,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,3,vultures,0.7840687264322745,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,4,crushing,0.7831815106407153,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,5,klad,0.7804111009279506,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,6,pulp,0.7793940991983364,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,7,betray,0.77882802476564,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,8,controlado,0.7785499107934487,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,9,antagonistic,0.7783636370903942,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,10,gore,0.7747422798672439,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,11,demoral,0.7739046741051516,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,12,enemigo,0.770391901037321,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,13,penetrated,0.7702718913743855,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,14,loaders,0.7687063794575585,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,15,conveyors,0.7646765000491366,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,1,gently,-0.7911129913657025,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,2,sayang,-0.7857891530326531,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,3,lavender,-0.7794152323402213,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,4,bridesmaid,-0.7758052462143595,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,5,prins,-0.7698021624733706,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,6,dapp,-0.7672916732493238,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,7,kissed,-0.7612533210565768,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,8,kisses,-0.7601815758794415,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,9,birthdays,-0.7529286842125295,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,10,blessing,-0.7450735066670079,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,11,tassel,-0.7376206368447559,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,12,blessed,-0.7365319452545757,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,13,wish,-0.7322206195823653,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,14,vaik,-0.7301883008250013,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+low,15,poem,-0.7290209354542863,gemma-4-31b,noun,28,"noun, mid depth",readout r across NTAs
+high,1,own,0.0010430432191388932,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,2,que,0.0008631537308825564,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,3,waterfowl,0.0008332287757673077,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,4,sediment,0.0007648591119080681,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,5,groundwater,0.0007342984082666258,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,6,trout,0.0007315025820831491,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,7,yearling,0.0007147865855237073,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,8,gravel,0.0007138811598062208,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,9,wetlands,0.0006842840053917013,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,10,stormwater,0.0006796901204182201,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,11,sperm,0.000673451787197344,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,12,geothermal,0.0006638886752774107,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,13,heifers,0.0006622817527583974,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,14,leachate,0.0006448319282386628,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,15,soprano,0.0006431577570868784,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,1,anime,-0.000811133793163506,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,2,salles,-0.0007268917925958636,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,3,cinema,-0.0007218666814669971,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,4,imagens,-0.0007141232066747279,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,5,camisetas,-0.000713278682544573,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,6,cartoons,-0.0006901804966245314,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,7,bazaar,-0.0006731952515812453,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,8,digitalisation,-0.0006730970588938286,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,9,iconos,-0.000669457426789486,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,10,cabinets,-0.0006693068176249447,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,11,gambar,-0.0006671727106192345,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,12,projectors,-0.0006636102670212444,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,13,cartoon,-0.0006552429165658473,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,14,multinational,-0.0006503542164867546,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+low,15,eyewear,-0.0006423440205719735,gemma-4-31b,adjective,28,"adjective, mid depth",lens
+high,1,constrained,0.7122914525914753,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,2,compacted,0.7084463462227136,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,3,nerada,0.6965142888598849,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,4,begy,0.6961647636719122,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,5,niiden,0.6887118505744054,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,6,dimensione,0.6880468813494972,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,7,fragilis,0.6815352835582249,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,8,odnosu,0.6782012372840985,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,9,tred,0.6769510210059659,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,10,fold,0.6737188042321216,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,11,begin,0.6707068084680929,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,12,envision,0.6701832486106383,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,13,diverges,0.6696731393112912,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,14,forming,0.6693627102386145,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,15,bloss,0.6661533872812629,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,1,dut,-0.7442057704477804,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,2,assassins,-0.7119421854173865,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,3,xpath,-0.7100265291572748,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,4,sensitization,-0.7072881934524392,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,5,chol,-0.6948886824289485,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,6,testi,-0.6926273834868746,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,7,experto,-0.6918922754447993,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,8,toilets,-0.6905892319248182,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,9,hijo,-0.6884984845934776,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,10,sciatica,-0.6712419318363664,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,11,smartest,-0.6679288781162606,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,12,inteligente,-0.6654897655273284,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,13,toss,-0.6647561178250315,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,14,hydrochloride,-0.6610246973137123,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+low,15,cholinergic,-0.6594698563779493,gemma-4-31b,adjective,28,"adjective, mid depth",readout r across NTAs
+high,1,and,0.02058422956811814,gemma-4-31b,final,44,best LOO cell,lens
+high,2,yes,0.01996363543682411,gemma-4-31b,final,44,best LOO cell,lens
+high,3,que,0.013793047874224848,gemma-4-31b,final,44,best LOO cell,lens
+high,4,pleased,0.012029774289284837,gemma-4-31b,final,44,best LOO cell,lens
+high,5,able,0.011819697959988565,gemma-4-31b,final,44,best LOO cell,lens
+high,6,favor,0.010025279199388493,gemma-4-31b,final,44,best LOO cell,lens
+high,7,yep,0.009880482633472406,gemma-4-31b,final,44,best LOO cell,lens
+high,8,wins,0.009342546279047103,gemma-4-31b,final,44,best LOO cell,lens
+high,9,plus,0.009300448751417296,gemma-4-31b,final,44,best LOO cell,lens
+high,10,virtuous,0.009070186854495616,gemma-4-31b,final,44,best LOO cell,lens
+high,11,agreeing,0.009068579003784395,gemma-4-31b,final,44,best LOO cell,lens
+high,12,satisfied,0.008757732515486791,gemma-4-31b,final,44,best LOO cell,lens
+high,13,uplifting,0.00873131675807427,gemma-4-31b,final,44,best LOO cell,lens
+high,14,upward,0.00871249482072862,gemma-4-31b,final,44,best LOO cell,lens
+high,15,upgraded,0.008593425973457561,gemma-4-31b,final,44,best LOO cell,lens
+low,1,tidak,-0.019416854859675557,gemma-4-31b,final,44,best LOO cell,lens
+low,2,neither,-0.016085275133413734,gemma-4-31b,final,44,best LOO cell,lens
+low,3,downgrade,-0.015393079450367468,gemma-4-31b,final,44,best LOO cell,lens
+low,4,negativ,-0.015323878418431313,gemma-4-31b,final,44,best LOO cell,lens
+low,5,nullptr,-0.014713643219680118,gemma-4-31b,final,44,best LOO cell,lens
+low,6,nicht,-0.014653648342219163,gemma-4-31b,final,44,best LOO cell,lens
+low,7,negat,-0.01460503737324987,gemma-4-31b,final,44,best LOO cell,lens
+low,8,nooit,-0.014599138940395833,gemma-4-31b,final,44,best LOO cell,lens
+low,9,unprofitable,-0.014476648726576826,gemma-4-31b,final,44,best LOO cell,lens
+low,10,none,-0.01429459752657422,gemma-4-31b,final,44,best LOO cell,lens
+low,11,ikke,-0.014212604946777792,gemma-4-31b,final,44,best LOO cell,lens
+low,12,nenhuma,-0.01420668763771414,gemma-4-31b,final,44,best LOO cell,lens
+low,13,negativo,-0.014128479917637415,gemma-4-31b,final,44,best LOO cell,lens
+low,14,inaction,-0.013870927239946517,gemma-4-31b,final,44,best LOO cell,lens
+low,15,olmayan,-0.013840912616638846,gemma-4-31b,final,44,best LOO cell,lens
+high,1,spin,0.9822361812198487,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,2,endorsing,0.9811281771186021,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,3,emiss,0.9804266545735201,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,4,vele,0.9774206497557454,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,5,uptick,0.976604973293911,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,6,hand,0.9760518916396232,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,7,lead,0.9759462962883669,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,8,gold,0.9757236506950052,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,9,true,0.975369187163008,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,10,meningkat,0.9753093082412736,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,11,cascades,0.9747049068529459,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,12,plus,0.9744862758615109,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,13,virt,0.9744620704958993,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,14,winner,0.9744399705836118,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,15,endors,0.9744076138893031,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,1,nowe,-0.9934066247113804,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,2,downgrade,-0.9831493649103482,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,3,hina,-0.982866532810837,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,4,lepro,-0.9820434770940848,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,5,exfol,-0.9817006552667182,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,6,ruining,-0.9814742649354925,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,7,malos,-0.9814123680501721,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,8,nejs,-0.9805526152726669,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,9,negativ,-0.9792640069597458,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,10,negativity,-0.9791874321551166,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,11,unprofitable,-0.9787911331245132,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,12,dissatisf,-0.9787483801263215,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,13,unatt,-0.9776933160856539,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,14,disappointment,-0.9776451584111364,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+low,15,entwickelte,-0.9765482516794978,gemma-4-31b,final,44,best LOO cell,readout r across NTAs
+high,1,astronaut,0.14204950108070205,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,2,escal,0.12291692055718043,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,3,goddess,0.12067719714287048,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,4,cil,0.12027021955964794,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,5,helicopter,0.12012587855002632,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,6,cosplay,0.11750596430494603,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,7,spacecraft,0.11661615670170863,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,8,helicopters,0.11446016939936964,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,9,koz,0.11334871089720144,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,10,enchant,0.11310813827457333,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,11,pil,0.1119858736683787,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,12,galaxy,0.11197729763122868,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,13,celestial,0.11192112612136629,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,14,astronauts,0.11106365945814897,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,15,motors,0.10899851252613207,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,1,pessim,-0.10132810651980209,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,2,unins,-0.10052008050349301,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,3,prepaid,-0.09644416175997131,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,4,unhealthy,-0.09290992355148615,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,5,depressive,-0.09201481760915362,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,6,plumber,-0.09058181270003386,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,7,uncomfortable,-0.08965759699565734,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,8,dump,-0.08865686384701488,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,9,dart,-0.08836910549439808,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,10,scour,-0.08826248515921334,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,11,uninsured,-0.08798905481173495,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,12,depressing,-0.08610148873856921,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,13,county,-0.0859552133956083,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,14,worse,-0.08569369787862986,qwen3.5-9b,noun,16,"noun, mid depth",lens
+low,15,bleak,-0.08534394047410049,qwen3.5-9b,noun,16,"noun, mid depth",lens
+high,1,delightful,0.746511024662994,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,2,beloved,0.7463054864237397,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,3,wonderful,0.7422462007567923,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,4,pemberian,0.7260322923922783,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,5,elegant,0.723010615180634,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,6,golden,0.7193361864355394,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,7,acclaimed,0.7165845693920122,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,8,celebrate,0.7140624107444229,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,9,pencapaian,0.7111971238227001,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,10,ador,0.7062659553490235,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,11,compliments,0.7006182240419134,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,12,delighted,0.6995464224859121,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,13,folgen,0.697948026452735,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,14,majestic,0.6977281378328982,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,15,elegance,0.6923024198555925,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,1,dumpster,-0.771989235519677,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,2,scraping,-0.755488136548446,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,3,industriale,-0.7502895286044154,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,4,salvage,-0.7459724920336477,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,5,unpleasant,-0.744292246321587,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,6,cleaning,-0.7345041513215385,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,7,unemployed,-0.7333255267199554,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,8,worse,-0.7317030127197595,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,9,negativo,-0.7284915710242417,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,10,horrible,-0.7221108656391596,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,11,garbage,-0.7199067183223585,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,12,industrial,-0.7171900976821588,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,13,wreck,-0.7158641107398118,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,14,depressing,-0.7140725994541365,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+low,15,unfavorable,-0.7135228930255101,qwen3.5-9b,noun,16,"noun, mid depth",readout r across NTAs
+high,1,candy,0.09150824155555536,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,2,gond,0.08541463392663382,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,3,diab,0.08020897064047748,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,4,cds,0.079639780448287,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,5,samb,0.07828623475159807,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,6,cukru,0.07799151775317187,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,7,bamboo,0.07778237483394176,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,8,bamb,0.07689816420871158,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,9,zend,0.07641213130938333,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,10,composer,0.07552128537179031,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,11,diabetes,0.07522142095152673,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,12,cand,0.07413486193945479,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,13,tille,0.07195472666577574,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,14,cdr,0.07108087789531123,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,15,cuk,0.07002363893763598,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,1,frigor,-0.09408259584894595,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,2,mosquito,-0.09093113908195993,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,3,housing,-0.08293739871699198,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,4,firm,-0.08242054754217074,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,5,bolt,-0.08173963736452154,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,6,lubric,-0.08152470659491752,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,7,machining,-0.07822426826005782,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,8,moistur,-0.07789878422310346,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,9,forearm,-0.07734573554896843,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,10,dict,-0.07615203246988932,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,11,firms,-0.076050020188059,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,12,harassing,-0.07592112816980257,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,13,roofing,-0.07557314620838036,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,14,cheesy,-0.07531028714933141,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+low,15,mach,-0.07529378978405912,qwen3.5-9b,adjective,16,"adjective, mid depth",lens
+high,1,igen,0.8878103949206424,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,2,nejen,0.8818993586949243,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,3,bestselling,0.8725434414287222,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,4,mattered,0.8630046240120312,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,5,terpilih,0.860139937445755,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,6,ausp,0.8595024720077655,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,7,sangat,0.856992022062598,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,8,entrambe,0.854887581006409,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,9,organiza,0.8542719311135656,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,10,moreover,0.8512119993724191,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,11,imb,0.8481974801731561,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,12,extent,0.8417664477820916,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,13,mendapat,0.838369429485042,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,14,leg,0.8371713648535073,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,15,ambas,0.8363663734728655,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,1,ataupun,-0.9043450892618754,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,2,negligible,-0.8904785102521959,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,3,nope,-0.8892279532908589,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,4,insignificant,-0.8879141942500657,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,5,pointless,-0.8834294937060377,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,6,mockery,-0.8832280417445548,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,7,ninguno,-0.8765827218060431,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,8,olmad,-0.8733853960642031,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,9,atau,-0.8676506472660794,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,10,useless,-0.8674151933824944,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,11,uninitialized,-0.8621636794702864,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,12,discutir,-0.8508129221638177,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,13,harmful,-0.8503581404253259,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,14,humor,-0.8490466141314374,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+low,15,merugikan,-0.8447852769569486,qwen3.5-9b,adjective,16,"adjective, mid depth",readout r across NTAs
+high,1,yes,0.04387032984374828,qwen3.5-9b,final,28,best LOO cell,lens
+high,2,oui,0.024577014252537638,qwen3.5-9b,final,28,best LOO cell,lens
+high,3,yeah,0.020474862223557422,qwen3.5-9b,final,28,best LOO cell,lens
+high,4,true,0.018994375859815452,qwen3.5-9b,final,28,best LOO cell,lens
+high,5,affirmative,0.01871807823226689,qwen3.5-9b,final,28,best LOO cell,lens
+high,6,indeed,0.017779700660061435,qwen3.5-9b,final,28,best LOO cell,lens
+high,7,yay,0.01773733078034062,qwen3.5-9b,final,28,best LOO cell,lens
+high,8,efect,0.01708734892447114,qwen3.5-9b,final,28,best LOO cell,lens
+high,9,verdadero,0.01707810209446834,qwen3.5-9b,final,28,best LOO cell,lens
+high,10,esp,0.016397472272080493,qwen3.5-9b,final,28,best LOO cell,lens
+high,11,efekt,0.01625104557792114,qwen3.5-9b,final,28,best LOO cell,lens
+high,12,vrai,0.01611353246887983,qwen3.5-9b,final,28,best LOO cell,lens
+high,13,verdadera,0.015120896136316557,qwen3.5-9b,final,28,best LOO cell,lens
+high,14,maggi,0.015054810246946163,qwen3.5-9b,final,28,best LOO cell,lens
+high,15,yar,0.014617549304647572,qwen3.5-9b,final,28,best LOO cell,lens
+low,1,none,-0.03231354446130842,qwen3.5-9b,final,28,best LOO cell,lens
+low,2,keine,-0.02800060279944624,qwen3.5-9b,final,28,best LOO cell,lens
+low,3,nowhere,-0.02764868184172448,qwen3.5-9b,final,28,best LOO cell,lens
+low,4,neither,-0.02606945680545807,qwen3.5-9b,final,28,best LOO cell,lens
+low,5,false,-0.025279310162951155,qwen3.5-9b,final,28,best LOO cell,lens
+low,6,falsely,-0.02479053359382244,qwen3.5-9b,final,28,best LOO cell,lens
+low,7,noop,-0.024639052579039866,qwen3.5-9b,final,28,best LOO cell,lens
+low,8,keinen,-0.0243915115815631,qwen3.5-9b,final,28,best LOO cell,lens
+low,9,nothing,-0.023977450890092195,qwen3.5-9b,final,28,best LOO cell,lens
+low,10,unavailable,-0.023395441858825392,qwen3.5-9b,final,28,best LOO cell,lens
+low,11,ineligible,-0.023377352536337576,qwen3.5-9b,final,28,best LOO cell,lens
+low,12,falsehood,-0.02310677807423539,qwen3.5-9b,final,28,best LOO cell,lens
+low,13,nonexistent,-0.023056426939869284,qwen3.5-9b,final,28,best LOO cell,lens
+low,14,kein,-0.022497198901130874,qwen3.5-9b,final,28,best LOO cell,lens
+low,15,falso,-0.0222202344360909,qwen3.5-9b,final,28,best LOO cell,lens
+high,1,effectivement,0.9587155304543505,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,2,indeed,0.9543123246921964,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,3,gez,0.9367537263363447,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,4,beste,0.9343358603633642,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,5,ugyanis,0.9334362849246584,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,6,wszystkie,0.9327185142867152,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,7,stets,0.93139499777015,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,8,memang,0.9291184179092076,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,9,berichtet,0.9264677952782044,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,10,vaak,0.9263461851109531,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,11,muitas,0.9259983529864984,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,12,voleva,0.9226415588807865,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,13,accaduto,0.9221310106384516,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,14,fece,0.9217421197361696,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,15,zuerst,0.9191975749276518,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,1,nop,-0.9650862751016941,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,2,falso,-0.9565034983974616,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,3,false,-0.9509824207304223,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,4,fals,-0.9453476562182377,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,5,nozzle,-0.9418089511445688,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,6,preju,-0.9408151909067051,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,7,nici,-0.940187966308957,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,8,neither,-0.9390411323188516,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,9,noss,-0.9356968289867176,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,10,nol,-0.934648284880499,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,11,failure,-0.9333208689334193,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,12,unrealistic,-0.9322704075332762,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,13,invalid,-0.9314369901127669,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,14,kurang,-0.9292590873872706,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+low,15,disappointment,-0.9288594837262892,qwen3.5-9b,final,28,best LOO cell,readout r across NTAs
+high,1,salvage,0.0806315712245938,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,2,carniv,0.07858438663362151,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,3,dictator,0.07373957486496902,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,4,destr,0.06905124312194068,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,5,grim,0.06725898843247594,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,6,firefighter,0.06678355698471794,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,7,brutality,0.06585273968605027,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,8,unfavor,0.06544957682099029,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,9,dumpsters,0.06511726136058747,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,10,carnaval,0.06507021768807263,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,11,disf,0.06495081449698957,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,12,triste,0.06466105187285125,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,13,tractor,0.06448566721191294,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,14,shred,0.06410584637965105,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,15,destruction,0.06401836711948308,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,1,exquisite,-0.06832267086015541,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,2,beautiful,-0.0681715941819784,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,3,phenomen,-0.06501223897460397,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,4,marble,-0.06379618733553032,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,5,beautifully,-0.061525479520674484,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,6,poetic,-0.06137209595294009,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,7,gorgeous,-0.06115067127647352,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,8,theological,-0.05991480527107669,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,9,myst,-0.05982056520747904,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,10,serene,-0.059723300162411994,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,11,quartz,-0.0589645640822229,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,12,sublime,-0.05809801493574626,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,13,theology,-0.057926714738877144,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,14,mosaic,-0.057311051444507724,qwen3.6-27b,noun,32,"noun, mid depth",lens
+low,15,elegant,-0.05647757657816274,qwen3.6-27b,noun,32,"noun, mid depth",lens
+high,1,offenders,0.7673330566867588,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,2,consign,0.7528130830042594,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,3,extortion,0.7463013800578776,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,4,mafia,0.7438257579834955,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,5,profesi,0.7433126963851001,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,6,obese,0.740493107688091,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,7,operaciones,0.7388984437334897,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,8,stripte,0.7356525006636102,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,9,guilty,0.7335524676597344,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,10,coke,0.7331344048577811,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,11,heroin,0.7330616480919955,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,12,prostitutes,0.7326651681316834,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,13,gritty,0.7301184378440754,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,14,dumpsters,0.7285180890288288,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,15,thugs,0.7265897764297038,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,1,blessings,-0.7595099336681225,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,2,fol,-0.7587530459877813,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,3,sverige,-0.7532294315295892,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,4,ripple,-0.7495806554442095,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,5,pemilihan,-0.7482174839973706,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,6,elegan,-0.7445153883509072,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,7,kiv,-0.7427372166786389,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,8,deepcopy,-0.7382856468623141,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,9,tritt,-0.7379721358721539,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,10,lovely,-0.73587273814633,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,11,ihm,-0.7295270704541045,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,12,nilai,-0.7288737515559234,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,13,kissed,-0.7259197655314056,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,14,stimmen,-0.7232800369361104,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+low,15,genommen,-0.7162790669282817,qwen3.6-27b,noun,32,"noun, mid depth",readout r across NTAs
+high,1,plaf,0.0642941698503461,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,2,drying,0.06286705200967453,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,3,aquarium,0.05477250465287293,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,4,drowning,0.05359712952507102,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,5,recoil,0.052051363769525016,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,6,disability,0.050263823830555866,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,7,plafond,0.04917804128083941,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,8,fishes,0.04748670559898075,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,9,restitu,0.04632584751507459,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,10,frags,0.04606864457917566,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,11,xbox,0.044785207367545314,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,12,pond,0.04454384261749908,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,13,nau,0.044503619426225674,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,14,flott,0.044310825267421944,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,15,experimental,0.04374715957326335,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,1,euro,-0.08105781418129022,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,2,worldwide,-0.07463660597530825,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,3,wine,-0.07251394288568182,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,4,sales,-0.07045900099084292,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,5,international,-0.06982697269355567,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,6,internationally,-0.06747933069486435,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,7,rugby,-0.06693285559694677,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,8,business,-0.06659309966520917,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,9,buy,-0.06611394426178194,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,10,downtown,-0.06442184656171417,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,11,retained,-0.06434634787494821,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,12,imported,-0.06382021664160081,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,13,purchases,-0.06316803874808832,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,14,bra,-0.06269248395288336,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+low,15,customs,-0.062166362816713665,qwen3.6-27b,adjective,32,"adjective, mid depth",lens
+high,1,triste,0.9037243750472196,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,2,unfavor,0.882179162761748,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,3,dissatisfaction,0.8783073299674201,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,4,indifferent,0.8605055056445783,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,5,obligatoire,0.857415523488026,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,6,dagegen,0.8568147688443102,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,7,sadness,0.8547541828369284,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,8,existir,0.8444711155037729,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,9,theoretically,0.840306788656818,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,10,peor,0.8378150018339267,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,11,falsely,0.83734759584543,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,12,incompetent,0.8354613752583556,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,13,inade,0.832792272628694,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,14,begren,0.8316309013295242,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,15,absolv,0.8310991951140065,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,1,hinn,-0.8624470832570423,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,2,njeg,-0.8588641791674181,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,3,svm,-0.8578080052336892,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,4,propagate,-0.8521095749701739,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,5,primo,-0.8462694037077682,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,6,kij,-0.8406793229778451,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,7,penchant,-0.8404830669142024,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,8,authenticated,-0.8384805670657799,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,9,dna,-0.8315038445937645,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,10,regener,-0.8262609409942742,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,11,tegn,-0.825989736055831,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,12,legen,-0.825731062338678,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,13,bulld,-0.8256348295826338,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,14,intimidating,-0.8225167314197743,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+low,15,driv,-0.8192629712277476,qwen3.6-27b,adjective,32,"adjective, mid depth",readout r across NTAs
+high,1,nope,0.02100980467564876,qwen3.6-27b,final,60,best LOO cell,lens
+high,2,noir,0.017325156113598982,qwen3.6-27b,final,60,best LOO cell,lens
+high,3,nozzle,0.017219278878361416,qwen3.6-27b,final,60,best LOO cell,lens
+high,4,noire,0.01700920579454831,qwen3.6-27b,final,60,best LOO cell,lens
+high,5,keine,0.016976503755931984,qwen3.6-27b,final,60,best LOO cell,lens
+high,6,kein,0.01652605500113945,qwen3.6-27b,final,60,best LOO cell,lens
+high,7,non,0.016484888225051376,qwen3.6-27b,final,60,best LOO cell,lens
+high,8,nicht,0.016184327584000496,qwen3.6-27b,final,60,best LOO cell,lens
+high,9,noe,0.016001239556160486,qwen3.6-27b,final,60,best LOO cell,lens
+high,10,olmayan,0.015956881266766625,qwen3.6-27b,final,60,best LOO cell,lens
+high,11,keinen,0.015888019187588507,qwen3.6-27b,final,60,best LOO cell,lens
+high,12,nos,0.015451083542765701,qwen3.6-27b,final,60,best LOO cell,lens
+high,13,noi,0.015054341326119804,qwen3.6-27b,final,60,best LOO cell,lens
+high,14,noop,0.014968911641356924,qwen3.6-27b,final,60,best LOO cell,lens
+high,15,noexcept,0.014745667113247336,qwen3.6-27b,final,60,best LOO cell,lens
+low,1,yes,-0.0365584444275494,qwen3.6-27b,final,60,best LOO cell,lens
+low,2,oui,-0.019518037606182596,qwen3.6-27b,final,60,best LOO cell,lens
+low,3,bar,-0.014933784252538728,qwen3.6-27b,final,60,best LOO cell,lens
+low,4,affirmative,-0.014030458120170852,qwen3.6-27b,final,60,best LOO cell,lens
+low,5,yeah,-0.013634087575013722,qwen3.6-27b,final,60,best LOO cell,lens
+low,6,yup,-0.01334351202551463,qwen3.6-27b,final,60,best LOO cell,lens
+low,7,true,-0.01318893205638305,qwen3.6-27b,final,60,best LOO cell,lens
+low,8,barr,-0.012926814233339017,qwen3.6-27b,final,60,best LOO cell,lens
+low,9,set,-0.012242655792925054,qwen3.6-27b,final,60,best LOO cell,lens
+low,10,bars,-0.012029080397908475,qwen3.6-27b,final,60,best LOO cell,lens
+low,11,indeed,-0.011771944370665576,qwen3.6-27b,final,60,best LOO cell,lens
+low,12,igen,-0.011466313614622345,qwen3.6-27b,final,60,best LOO cell,lens
+low,13,stash,-0.011018176026250832,qwen3.6-27b,final,60,best LOO cell,lens
+low,14,barred,-0.010786312228555826,qwen3.6-27b,final,60,best LOO cell,lens
+low,15,benar,-0.010769100023399068,qwen3.6-27b,final,60,best LOO cell,lens
+high,1,noch,0.808889550800444,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,2,non,0.7866658864950943,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,3,noin,0.7841323884814035,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,4,nope,0.7681932246855542,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,5,trover,0.7440117256742466,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,6,ricorda,0.7313541096556772,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,7,noche,0.727116228886409,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,8,nije,0.7261536918428803,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,9,nous,0.7258277121562273,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,10,kein,0.7168378050491164,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,11,naquele,0.7146037971932843,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,12,nos,0.7114534825136508,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,13,kursus,0.7082371653761305,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,14,brutto,0.7075952888076714,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+high,15,nao,0.7056472452482083,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,1,silenced,-0.7865609936947601,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,2,syg,-0.7439987811990405,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,3,confl,-0.7247169598587723,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,4,recursively,-0.7076752121721674,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,5,bewusst,-0.6981709151077757,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,6,analy,-0.6954660683382773,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,7,deflect,-0.6942499124276542,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,8,ese,-0.6842851899039117,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,9,thunk,-0.6812185607905747,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,10,shortened,-0.6796045759030955,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,11,menyatakan,-0.6795340836447856,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,12,acknow,-0.6777368246146611,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,13,igen,-0.6772542351264257,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,14,reclaimed,-0.6723624424422984,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs
+low,15,tweaked,-0.6706263837948845,qwen3.6-27b,final,60,best LOO cell,readout r across NTAs

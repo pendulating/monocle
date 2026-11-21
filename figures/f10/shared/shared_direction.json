@@ -1,0 +1,24 @@
+{
+ "plot-title": "A shared aesthetic direction before the adjective, and an answer forecast after it",
+ "plot-caption": "Out-of-fold r over 197 NTAs between the answer margin of each prompt and the J++ Lens readout projected on the shared direction: the mean judgment vector of cool, nice, fancy and pretty with the noun 'place' (left of the dotted line; each is scored by the other 3). The other prompts are held out. Circles: readout at the noun token, before the adjective. Squares: readout at the adjective token. Filled markers: a fixed yes-minus-no word score is regressed out. The temperature-to-social score is regressed out of the cool readouts. Each test layer is chosen on the fit prompts only. NTAs with no yes or no answer are left out (Gemma-4-31B ugly: 19 NTAs with place, 66 with scene).",
+ "plot-latex-label": "fig:shared-direction",
+ "plot-tags": [
+  "f10",
+  "j++ lens",
+  "shared direction"
+ ],
+ "test_layers": {
+  "gemma-4-31b": {
+   "place": 8,
+   "after_place": 36
+  },
+  "qwen3.5-9b": {
+   "place": 28,
+   "after_place": 16
+  },
+  "qwen3.6-27b": {
+   "place": 60,
+   "after_place": 32
+  }
+ }
+}

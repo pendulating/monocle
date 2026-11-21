@@ -1,0 +1,11 @@
+finding,G,Q9,Q27,rule,pass_G,pass_Q9,pass_Q27,label
+"F10.8 pair aesthetic, largest |r| before the `?` token",0.7547914779294699,0.7148435689220164,0.6510325925329102,|r| at least .55 with p Holm below .001,True,True,True,replicates
+"F10.8 pair status, largest |r| before the `?` token",0.7073043926766291,0.6458391926518147,0.6191610255090949,|r| at least .55 with p Holm below .001,True,True,True,replicates
+"F10.8 pair valence, largest |r| before the `?` token",0.7603521881334505,0.5954978864168268,0.6386077687090701,|r| at least .55 with p Holm below .001,True,True,True,replicates
+F10.9 gain over mean patch at place,0.0665868698423309,0.077520618898719,0.0724445251794416,gain between .03 and .15,True,True,True,replicates
+F10.9 gain over mean patch at cool (step at the adjective),0.1240570990061056,0.1775315274912323,0.1912733639253432,gain at least .10 and at least 1.5 times the gain at place,True,True,True,replicates
+F10.15 axis 1 share at cool L24,0.61973953,0.4909634,0.5713621,share at least .40,True,True,True,replicates
+"F10.17 sense score does not follow the verdict (r with margin, cool L24)",0.0952291202481815,-0.1079267683160527,0.0702770874781642,|r| below .2,True,True,True,replicates
+"F10.7 largest cell r of the margin with the answer, at cool",0.5207197090547474,0.6864996665121944,0.5712208876202999,r at least .50,True,True,True,replicates
+"F10.7 largest cell r of the margin with the answer, at ?",0.6269653778244748,0.8675607401814421,0.7032462384002188,r at least .50,True,True,True,replicates
+F10.7 held-out word lists pass Holm (cells),367 of 375,192 of 192,384 of 384,share of cells passing at least .90,True,True,True,replicates

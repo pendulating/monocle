@@ -1,0 +1,26 @@
+{
+  "plot-title": "Each standard in the J-space",
+  "plot-caption": "For each adjective asked of a 'place': the words that the three models hold about it with no image (the no-image readout at the adjective, minus the mean of the seven adjectives), and the words of the scene that go with a yes or a no (r over 197 NTAs of the readout at 'place' with the expected answer). Each word is ranked by its lowest z-score over Gemma-4-31B, Qwen3.5-9B and Qwen3.6-27B, at relative depth .25 to .75. The adjective and its forms are left out. Embedded: the top-100 words at the adjective that are also in the no-image top 100.",
+  "plot-latex-label": "fig:standards",
+  "plot-tags": [
+    "F10.31",
+    "gemma-4-31b",
+    "qwen3.5-9b",
+    "qwen3.6-27b"
+  ],
+  "version": "1.0.0",
+  "rho_between_models": [
+    {
+      "kind": "concept",
+      "min": 0.49,
+      "median": 0.537,
+      "max": 0.786
+    },
+    {
+      "kind": "scene",
+      "min": 0.219,
+      "median": 0.464,
+      "max": 0.631
+    }
+  ]
+}

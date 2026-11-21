@@ -1,0 +1,9 @@
+{
+  "plot-title": "Unique margin share of each cell RDM",
+  "plot-caption": "Rank variance of the image RDM at a token and layer that the margin RDM explains and the scene RDM does not.",
+  "plot-latex-label": "fig:free-commonality",
+  "plot-tags": [
+    "F10.9",
+    "RSA"
+  ]
+}

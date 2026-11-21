@@ -1,0 +1,9 @@
+{
+  "plot-title": "One object, opposite signs",
+  "plot-caption": "Share of criterion spans that argue for cool, among spans for or against cool, for each cited object under each stated value. Blank cells hold fewer than 10 spans.",
+  "plot-latex-label": "fig:mech-objects",
+  "plot-tags": [
+    "F10.16",
+    "observation"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+ "version": "1.0.0",
+ "model": "gemma-4-31b",
+ "n_nta": 197,
+ "evidence_spans": 14938,
+ "valence_counts": {
+  "neutral": 9656,
+  "good": 3628,
+  "bad": 1654
+ },
+ "images_with_evidence": 591,
+ "r_evidence_margin": 0.7083819207683683,
+ "r_trace_verdict_evidence": 0.680239418593527,
+ "r_trace_verdict_margin": 0.8386288387538723
+}

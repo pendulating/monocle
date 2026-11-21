@@ -1,0 +1,11 @@
+{
+  "plot-title": "Teaser images with the shared direction added",
+  "plot-caption": "The 5 teaser images with the shared patch direction added to all patches at L16 at -96, 0 and +96 sigma. Words: the teaser block rule at L40 (teal: up end of the aesthetic direction, coral: down end, dark: other). Under each image: the 8-form margin to 'Is this place cool?'.",
+  "plot-tags": [
+    "F10.35",
+    "gemma-4-31b",
+    "steering",
+    "patch words"
+  ],
+  "version": "1.0.0"
+}

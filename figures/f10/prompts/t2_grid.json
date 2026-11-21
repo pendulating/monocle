@@ -1,0 +1,9 @@
+{
+  "plot-title": "The mechanism measures over 14 prompts and 3 models",
+  "plot-caption": "Each panel gives 1 measure of the F10.24 table for each prompt (rows) and model (columns: G Gemma-4-31B, Q9 Qwen3.5-9B, Q27 Qwen3.6-27B). The gain is the largest out-of-fold R2 that the residual of a token adds to the mean patch, over the saved layers. Mid depth is the saved layer nearest to relative depth 0.5. Values are in t2_grid.csv.",
+  "plot-latex-label": "fig:t2-grid",
+  "plot-tags": [
+    "f10.26",
+    "mechanism"
+  ]
+}

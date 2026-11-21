@@ -1,0 +1,71 @@
+[transfer] gemma-4-31b: 36490 common words, test layer L8
+[transfer] qwen3.5-9b: 36490 common words, test layer L28
+[transfer] qwen3.6-27b: 36490 common words, test layer L60
+                            layer_mean  test_layer  ceiling_r
+target      prompt                                           
+gemma-4-31b place-cool            0.23        0.20       0.61
+            place-fancy           0.19        0.16       0.28
+            place-nice            0.45        0.47       0.52
+            place-ordinary        0.01        0.09      -0.13
+            place-pretty          0.49        0.49       0.58
+            place-ugly           -0.41       -0.42      -0.48
+            place-urban          -0.50       -0.51      -0.17
+            scene-cool            0.14        0.12       0.65
+            scene-fancy           0.16        0.12       0.50
+            scene-nice            0.45        0.48       0.48
+            scene-ordinary        0.03        0.10      -0.03
+            scene-pretty          0.59        0.60       0.53
+            scene-ugly           -0.36       -0.29      -0.21
+            scene-urban          -0.52       -0.53      -0.02
+qwen3.5-9b  place-cool            0.48        0.51       0.42
+            place-fancy           0.44        0.46       0.37
+            place-nice            0.71        0.74       0.55
+            place-ordinary        0.25        0.24       0.19
+            place-pretty          0.78        0.79       0.65
+            place-ugly           -0.62       -0.63      -0.53
+            place-urban          -0.36       -0.32      -0.23
+            scene-cool            0.32        0.34       0.24
+            scene-fancy           0.42        0.43       0.48
+            scene-nice            0.74        0.76       0.69
+            scene-ordinary        0.28        0.28       0.30
+            scene-pretty          0.79        0.79       0.67
+            scene-ugly           -0.62       -0.64      -0.54
+            scene-urban          -0.37       -0.32      -0.23
+qwen3.6-27b place-cool            0.46        0.45       0.28
+            place-fancy           0.61        0.58       0.50
+            place-nice            0.67        0.67       0.59
+            place-ordinary        0.06        0.10       0.17
+            place-pretty          0.63        0.62       0.48
+            place-ugly           -0.71       -0.70      -0.65
+            place-urban          -0.17       -0.18      -0.16
+            scene-cool            0.34        0.33       0.19
+            scene-fancy           0.57        0.55       0.51
+            scene-nice            0.58        0.58       0.67
+            scene-ordinary        0.21        0.24       0.52
+            scene-pretty          0.61        0.60       0.65
+            scene-ugly           -0.66       -0.65      -0.67
+            scene-urban          -0.17       -0.19      -0.06
+
+Bonferroni passes at the test layer (of 14), source = both:
+target       variant   
+gemma-4-31b  layer_mean     8
+             test_layer     6
+qwen3.5-9b   layer_mean    14
+             test_layer    14
+qwen3.6-27b  layer_mean    11
+             test_layer    11
+
+mean r over the 8 aesthetic prompts (cool, nice, fancy, pretty x 2 nouns), 1 source at a time:
+target       source       variant   
+gemma-4-31b  qwen3.5-9b   layer_mean    0.350
+                          test_layer    0.328
+             qwen3.6-27b  layer_mean    0.317
+                          test_layer    0.321
+qwen3.5-9b   gemma-4-31b  layer_mean    0.608
+                          test_layer    0.597
+             qwen3.6-27b  layer_mean    0.563
+                          test_layer    0.596
+qwen3.6-27b  gemma-4-31b  layer_mean    0.604
+                          test_layer    0.601
+             qwen3.5-9b   layer_mean    0.520
+                          test_layer    0.521

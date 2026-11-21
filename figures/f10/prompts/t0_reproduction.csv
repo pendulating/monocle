@@ -1,0 +1,145 @@
+check,reference,value,abs_diff,note
+q1 margin r NTA cool-nice gemma-4-31b,0.7947330058399417,0.7947330055093312,3.3061042792326134e-10,q1_margin_corr.csv r_nta
+q1 margin r NTA cool-ordinary gemma-4-31b,-0.354844231806344,-0.3548442332707822,1.4644381818307295e-09,q1_margin_corr.csv r_nta
+q1 margin r NTA nice-ordinary gemma-4-31b,0.2517654308585949,0.2517654290866392,1.7719556932860314e-09,q1_margin_corr.csv r_nta
+q1 yes share cool gemma-4-31b,0.3756345177664975,0.3756345177664975,0.0,q1_outcome_shares.csv
+q5 Manhattan t cool gemma-4-31b,6.748327514966928,6.748327514966928,0.0,q5_borough_margins.csv t_vs_rest
+q7 r2 scene cool gemma-4-31b,0.8195907006347155,0.8195907006347138,1.6653345369377348e-15,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun cool gemma-4-31b,0.0665874907565198,0.06658749075652137,1.5681900222830336e-15,q7_gain.csv max over layers
+q7 max gain at adjective cool gemma-4-31b,0.1240578526576788,0.12405785265768077,1.970645868709653e-15,q7_gain.csv max over layers
+q7 max gain at qm cool gemma-4-31b,0.126998501271075,0.1269985012710768,1.8041124150158794e-15,q7_gain.csv max over layers
+q2 axis 1 share adj L24 cool gemma-4-31b,0.62722649255331,0.6272264921499777,4.0333225648225834e-10,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 cool gemma-4-31b,0.9899695188264525,0.9899695195807711,7.543186075764652e-10,q2_sense_axis.csv
+q2 sense share above no image L24 cool gemma-4-31b,0.9001692047377327,0.9001692047377327,0.0,q2_sense_axis.csv
+q6 sense band first layer cool gemma-4-31b,12.0,12.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer cool gemma-4-31b,32.0,32.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer cool gemma-4-31b,0.9883510607324676,0.9897796605315863,0.0014285997991186905,q8_verdict_lens.csv (8-form margin in both)
+q1 yes share nice gemma-4-31b,0.2588832487309644,0.25888324873096447,5.551115123125783e-17,q1_outcome_shares.csv
+q5 Manhattan t nice gemma-4-31b,2.256350768449558,2.2563507710353954,2.5858373220444264e-09,q5_borough_margins.csv t_vs_rest
+q7 r2 scene nice gemma-4-31b,0.8872659215431314,0.8872659214311069,1.1202450078684478e-10,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun nice gemma-4-31b,0.0453145220700166,0.04531452272967662,6.596600210517778e-10,q7_gain.csv max over layers
+q7 max gain at adjective nice gemma-4-31b,0.0878582558657526,0.08785825581894702,4.68055871838402e-11,q7_gain.csv max over layers
+q7 max gain at qm nice gemma-4-31b,0.0884586886967748,0.0884586887476948,5.0920004324161994e-11,q7_gain.csv max over layers
+q2 axis 1 share adj L24 nice gemma-4-31b,0.4952309688162695,0.4952309690241088,2.0783930132495243e-10,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 nice gemma-4-31b,0.2592814183661002,0.25928142946997523,1.1103875041662548e-08,q2_sense_axis.csv
+q2 sense share above no image L24 nice gemma-4-31b,0.9780033840947546,0.9780033840947546,0.0,q2_sense_axis.csv
+q6 sense band first layer nice gemma-4-31b,-1.0,-1.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer nice gemma-4-31b,-1.0,-1.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer nice gemma-4-31b,0.989061499521079,0.9890614761974955,2.3323583508982892e-08,q8_verdict_lens.csv (8-form margin in both)
+q1 yes share ordinary gemma-4-31b,0.9678510998307952,0.9678510998307953,1.1102230246251565e-16,q1_outcome_shares.csv
+q5 Manhattan t ordinary gemma-4-31b,-6.733046517334387,-6.733046493961037,2.337334947810632e-08,q5_borough_margins.csv t_vs_rest
+q7 r2 scene ordinary gemma-4-31b,0.640121723078613,0.6401217225650768,5.135362135533228e-10,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun ordinary gemma-4-31b,0.1129635807303118,0.11296358335200829,2.6216964849057334e-09,q7_gain.csv max over layers
+q7 max gain at adjective ordinary gemma-4-31b,0.2578906680749027,0.2578906681366385,6.173583866342369e-11,q7_gain.csv max over layers
+q7 max gain at qm ordinary gemma-4-31b,0.2654178771862125,0.2654178771450073,4.120520591399668e-11,q7_gain.csv max over layers
+q2 axis 1 share adj L24 ordinary gemma-4-31b,0.3224339394481163,0.32243393938165965,6.645667349758355e-11,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 ordinary gemma-4-31b,0.1691913304056153,0.16919132950986288,8.957524166852693e-10,q2_sense_axis.csv
+q2 sense share above no image L24 ordinary gemma-4-31b,0.8375634517766497,0.8375634517766497,0.0,q2_sense_axis.csv
+q6 sense band first layer ordinary gemma-4-31b,-1.0,-1.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer ordinary gemma-4-31b,-1.0,-1.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer ordinary gemma-4-31b,0.8726127414171245,0.8726127356961259,5.720998674796363e-09,q8_verdict_lens.csv (8-form margin in both)
+q1 embedded words at noun L40 cool gemma-4-31b,2.0,2.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at noun L40 cool gemma-4-31b,95.0,95.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at noun L40 cool gemma-4-31b,91.0,91.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 embedded words at adjective L36 cool gemma-4-31b,80.0,80.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at adjective L36 cool gemma-4-31b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at adjective L36 cool gemma-4-31b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 embedded words at qm L40 cool gemma-4-31b,21.0,21.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at qm L40 cool gemma-4-31b,42.0,42.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at qm L40 cool gemma-4-31b,36.0,36.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 margin r NTA cool-nice qwen3.5-9b,0.6209723855936448,0.6209723910333773,5.439732553291776e-09,q1_margin_corr.csv r_nta
+q1 margin r NTA cool-ordinary qwen3.5-9b,-0.4015728032062444,-0.40157280603185985,2.825615463830644e-09,q1_margin_corr.csv r_nta
+q1 margin r NTA nice-ordinary qwen3.5-9b,0.2489334900538853,0.24893347048043157,1.9573453718946254e-08,q1_margin_corr.csv r_nta
+q1 yes share cool qwen3.5-9b,0.949238578680203,0.949238578680203,0.0,q1_outcome_shares.csv
+q5 Manhattan t cool qwen3.5-9b,8.463457172436728,8.463457172436728,0.0,q5_borough_margins.csv t_vs_rest
+q7 r2 scene cool qwen3.5-9b,0.7533108820862842,0.7533108820862833,8.881784197001252e-16,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun cool qwen3.5-9b,0.0775202621183128,0.07752026211831375,9.575673587391975e-16,q7_gain.csv max over layers
+q7 max gain at adjective cool qwen3.5-9b,0.1775312241309767,0.17753122413097733,6.38378239159465e-16,q7_gain.csv max over layers
+q7 max gain at qm cool qwen3.5-9b,0.1768527469506364,0.17685274695063746,1.0547118733938987e-15,q7_gain.csv max over layers
+q2 axis 1 share adj L24 cool qwen3.5-9b,0.4881835957301411,0.48818359583405274,1.0391165705669891e-10,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 cool qwen3.5-9b,0.9946451447376364,0.9946451438723622,8.652741856352009e-10,q2_sense_axis.csv
+q2 sense share above no image L24 cool qwen3.5-9b,0.3401015228426396,0.3401015228426396,0.0,q2_sense_axis.csv
+q6 sense band first layer cool qwen3.5-9b,4.0,4.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer cool qwen3.5-9b,28.0,28.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer cool qwen3.5-9b,0.9614835088338872,0.9771887864415573,0.015705277607670043,q8_verdict_lens.csv (8-form margin in both)
+q1 yes share nice qwen3.5-9b,0.8358714043993232,0.8358714043993232,0.0,q1_outcome_shares.csv
+q5 Manhattan t nice qwen3.5-9b,2.909377358614518,2.9093775291821804,1.7056766221656972e-07,q5_borough_margins.csv t_vs_rest
+q7 r2 scene nice qwen3.5-9b,0.8827851967399112,0.8827851960333225,7.065886764578977e-10,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun nice qwen3.5-9b,0.0443585751292463,0.044358574847935484,2.813108149202215e-10,q7_gain.csv max over layers
+q7 max gain at adjective nice qwen3.5-9b,0.1014441482753302,0.10144414921868627,9.433560738125735e-10,q7_gain.csv max over layers
+q7 max gain at qm nice qwen3.5-9b,0.1015159234880552,0.10151592462505232,1.1369971214536534e-09,q7_gain.csv max over layers
+q2 axis 1 share adj L24 nice qwen3.5-9b,0.3958961724083869,0.395896172335918,7.246891975398739e-11,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 nice qwen3.5-9b,0.2182994586514587,0.21829945300329848,5.648160217308629e-09,q2_sense_axis.csv
+q2 sense share above no image L24 nice qwen3.5-9b,0.8426395939086294,0.8426395939086294,0.0,q2_sense_axis.csv
+q6 sense band first layer nice qwen3.5-9b,-1.0,-1.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer nice qwen3.5-9b,-1.0,-1.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer nice qwen3.5-9b,0.9916008330950804,0.991600847353243,1.4258162650548911e-08,q8_verdict_lens.csv (8-form margin in both)
+q1 yes share ordinary qwen3.5-9b,0.7614213197969543,0.7614213197969543,0.0,q1_outcome_shares.csv
+q5 Manhattan t ordinary qwen3.5-9b,-7.096107422140945,-7.096107557266935,1.3512598950882193e-07,q5_borough_margins.csv t_vs_rest
+q7 r2 scene ordinary qwen3.5-9b,0.8127921748146577,0.8127921793406858,4.526028107854074e-09,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun ordinary qwen3.5-9b,0.048335985010353,0.04833598436811659,6.422364098868094e-10,q7_gain.csv max over layers
+q7 max gain at adjective ordinary qwen3.5-9b,0.1492751562277685,0.14927515073104303,5.49672546368285e-09,q7_gain.csv max over layers
+q7 max gain at qm ordinary qwen3.5-9b,0.1489189600422913,0.14891895612555828,3.916733021247509e-09,q7_gain.csv max over layers
+q2 axis 1 share adj L24 ordinary qwen3.5-9b,0.3346750813993748,0.33467508146520597,6.583117384550974e-11,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 ordinary qwen3.5-9b,0.0563726251088928,0.05637262151837851,3.59051428866497e-09,q2_sense_axis.csv
+q2 sense share above no image L24 ordinary qwen3.5-9b,0.9441624365482234,0.9441624365482234,0.0,q2_sense_axis.csv
+q6 sense band first layer ordinary qwen3.5-9b,-1.0,-1.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer ordinary qwen3.5-9b,-1.0,-1.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer ordinary qwen3.5-9b,0.9865521767939612,0.9865521297564882,4.7037473027700116e-08,q8_verdict_lens.csv (8-form margin in both)
+q1 embedded words at noun L16 cool qwen3.5-9b,78.0,78.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at noun L16 cool qwen3.5-9b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at noun L16 cool qwen3.5-9b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 embedded words at adjective L24 cool qwen3.5-9b,84.0,84.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at adjective L24 cool qwen3.5-9b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at adjective L24 cool qwen3.5-9b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 embedded words at qm L20 cool qwen3.5-9b,50.0,50.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at qm L20 cool qwen3.5-9b,6.0,6.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at qm L20 cool qwen3.5-9b,1.0,1.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 margin r NTA cool-nice qwen3.6-27b,0.4772971726298677,0.4772971659310715,6.698796184423372e-09,q1_margin_corr.csv r_nta
+q1 margin r NTA cool-ordinary qwen3.6-27b,-0.2794832193948946,-0.27948320966422047,9.730674155328245e-09,q1_margin_corr.csv r_nta
+q1 margin r NTA nice-ordinary qwen3.6-27b,0.2102675287265502,0.2102675430695259,1.4342975696024496e-08,q1_margin_corr.csv r_nta
+q1 yes share cool qwen3.6-27b,0.9187817258883249,0.9187817258883249,0.0,q1_outcome_shares.csv
+q5 Manhattan t cool qwen3.6-27b,7.489330596132875,7.489330596132875,0.0,q5_borough_margins.csv t_vs_rest
+q7 r2 scene cool qwen3.6-27b,0.5592368233309271,0.559236823330929,1.887379141862766e-15,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun cool qwen3.6-27b,0.0724453250421304,0.07244532504212986,5.412337245047638e-16,q7_gain.csv max over layers
+q7 max gain at adjective cool qwen3.6-27b,0.1912739950206923,0.1912739950206903,1.9984014443252818e-15,q7_gain.csv max over layers
+q7 max gain at qm cool qwen3.6-27b,0.2060748074944862,0.20607480749448326,2.942091015256665e-15,q7_gain.csv max over layers
+q2 axis 1 share adj L24 cool qwen3.6-27b,0.5683808784586327,0.5683808785515374,9.290468394596019e-11,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 cool qwen3.6-27b,0.9949184253088204,0.9949184249235355,3.852848040608592e-10,q2_sense_axis.csv
+q2 sense share above no image L24 cool qwen3.6-27b,0.1641285956006768,0.16412859560067683,2.7755575615628914e-17,q2_sense_axis.csv
+q6 sense band first layer cool qwen3.6-27b,8.0,8.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer cool qwen3.6-27b,44.0,44.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer cool qwen3.6-27b,0.921884236352148,0.9218842119207751,2.443137292473807e-08,q8_verdict_lens.csv (8-form margin in both)
+q1 yes share nice qwen3.6-27b,0.7428087986463621,0.7428087986463621,0.0,q1_outcome_shares.csv
+q5 Manhattan t nice qwen3.6-27b,2.313061267090563,2.313061219689837,4.74007260109488e-08,q5_borough_margins.csv t_vs_rest
+q7 r2 scene nice qwen3.6-27b,0.8318905511515918,0.8318905485895741,2.5620177090956986e-09,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun nice qwen3.6-27b,0.0489297235189007,0.048929724789127604,1.2702269028275204e-09,q7_gain.csv max over layers
+q7 max gain at adjective nice qwen3.6-27b,0.0940369035323247,0.0940369067404847,3.2081600015443357e-09,q7_gain.csv max over layers
+q7 max gain at qm nice qwen3.6-27b,0.0933888876680835,0.09338889057430544,2.906221943654863e-09,q7_gain.csv max over layers
+q2 axis 1 share adj L24 nice qwen3.6-27b,0.4618123099261768,0.46181230993471795,8.541167773046254e-12,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 nice qwen3.6-27b,0.511807401888693,0.5118074055083597,3.619666677501243e-09,q2_sense_axis.csv
+q2 sense share above no image L24 nice qwen3.6-27b,0.6548223350253807,0.6548223350253807,0.0,q2_sense_axis.csv
+q6 sense band first layer nice qwen3.6-27b,-1.0,-1.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer nice qwen3.6-27b,-1.0,-1.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer nice qwen3.6-27b,0.9773119161091428,0.9773119357604739,1.965133111792028e-08,q8_verdict_lens.csv (8-form margin in both)
+q1 yes share ordinary qwen3.6-27b,0.9407783417935702,0.9407783417935702,0.0,q1_outcome_shares.csv
+q5 Manhattan t ordinary qwen3.6-27b,-6.519034238462142,-6.5190343307051934,9.224305141941613e-08,q5_borough_margins.csv t_vs_rest
+q7 r2 scene ordinary qwen3.6-27b,0.7228102076486043,0.7228102139927036,6.344099356958566e-09,"q7_gain.csv r2_scene, with the F10.24 margin file"
+q7 max gain at noun ordinary qwen3.6-27b,0.0616545314848621,0.06165452917397907,2.310883033540545e-09,q7_gain.csv max over layers
+q7 max gain at adjective ordinary qwen3.6-27b,0.1471766449177416,0.14717664099370176,3.924039843061777e-09,q7_gain.csv max over layers
+q7 max gain at qm ordinary qwen3.6-27b,0.1585897012039878,0.15858969753788632,3.666101477950434e-09,q7_gain.csv max over layers
+q2 axis 1 share adj L24 ordinary qwen3.6-27b,0.4532740435602162,0.45327404342773414,1.3248208086125146e-10,q2_sense_axis.csv
+q2 r axis 1 with cool-list score L24 ordinary qwen3.6-27b,0.1712826110660694,0.1712826604300549,4.936398551036447e-08,q2_sense_axis.csv
+q2 sense share above no image L24 ordinary qwen3.6-27b,0.949238578680203,0.949238578680203,0.0,q2_sense_axis.csv
+q6 sense band first layer ordinary qwen3.6-27b,-1.0,-1.0,0.0,q6_phase_bands.csv (-1 means no layer passes)
+q6 sense band last layer ordinary qwen3.6-27b,-1.0,-1.0,0.0,q6_phase_bands.csv
+q8 verdict r at the last saved layer ordinary qwen3.6-27b,0.9764540383648824,0.976454047875361,9.510478626850727e-09,q8_verdict_lens.csv (8-form margin in both)
+q1 embedded words at noun L40 cool qwen3.6-27b,62.0,62.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at noun L40 cool qwen3.6-27b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at noun L40 cool qwen3.6-27b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 embedded words at adjective L36 cool qwen3.6-27b,66.0,66.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at adjective L36 cool qwen3.6-27b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at adjective L36 cool qwen3.6-27b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 embedded words at qm L40 cool qwen3.6-27b,63.0,63.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 raised words at qm L40 cool qwen3.6-27b,0.0,0.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)
+q1 lowered words at qm L40 cool qwen3.6-27b,3.0,3.0,0.0,q1_word_counts_by_layer.csv (hop_models used the uncapped Gemma file)

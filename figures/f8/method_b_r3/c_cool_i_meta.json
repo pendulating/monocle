@@ -1,0 +1,29 @@
+{
+ "script": "scripts/f8/method_b.py",
+ "version": "1.0.0",
+ "tag": "c_cool_i",
+ "outcome_parquet": "data/f8/r3_pool.parquet",
+ "outcome_col": "c_cool_i",
+ "cases": [
+  "restaurant",
+  "street"
+ ],
+ "min_cuisine": 100,
+ "min_nta_images": 1,
+ "alpha": 0.05,
+ "tests": 40,
+ "seconds": 4.2,
+ "grade_levels": {
+  "A": 7617,
+  "pending": 1088,
+  "B": 915,
+  "C": 377,
+  "missing": 3
+ },
+ "grade_rules": {
+  "closest to capture": 9997,
+  "no graded inspection": 3
+ },
+ "grade_gap_days_median": 105.0,
+ "cuisine_levels": 27
+}

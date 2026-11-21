@@ -1,0 +1,631 @@
+model,adjective,noun,band,threshold,first_layer,peak
+gemma-4-31b,cool,place,verdict,0.85,44.0,0.9897796605315864
+gemma-4-31b,cool,scene,verdict,0.85,40.0,0.9892639089468368
+gemma-4-31b,fancy,place,verdict,0.85,36.0,0.9918923088649214
+gemma-4-31b,fancy,scene,verdict,0.85,40.0,0.9880864674207692
+gemma-4-31b,nice,place,verdict,0.85,44.0,0.9890614761974956
+gemma-4-31b,nice,scene,verdict,0.85,40.0,0.9910274126515548
+gemma-4-31b,ordinary,place,verdict,0.85,44.0,0.9273848916660988
+gemma-4-31b,ordinary,scene,verdict,0.85,,0.8491258549884182
+gemma-4-31b,pretty,place,verdict,0.85,40.0,0.9922014506046668
+gemma-4-31b,pretty,scene,verdict,0.85,36.0,0.996217212878719
+gemma-4-31b,ugly,place,verdict,0.85,40.0,0.99577918952736
+gemma-4-31b,ugly,scene,verdict,0.85,44.0,0.928553186370637
+gemma-4-31b,urban,place,verdict,0.85,36.0,0.9354958733399524
+gemma-4-31b,urban,scene,verdict,0.85,36.0,0.942827647927782
+qwen3.5-9b,cool,place,verdict,0.85,24.0,0.9771887864415572
+qwen3.5-9b,cool,scene,verdict,0.85,28.0,0.9612282735048384
+qwen3.5-9b,fancy,place,verdict,0.85,24.0,0.9809896992797515
+qwen3.5-9b,fancy,scene,verdict,0.85,24.0,0.978668698691034
+qwen3.5-9b,nice,place,verdict,0.85,20.0,0.991600847353243
+qwen3.5-9b,nice,scene,verdict,0.85,20.0,0.993418402841292
+qwen3.5-9b,ordinary,place,verdict,0.85,20.0,0.9865521297564882
+qwen3.5-9b,ordinary,scene,verdict,0.85,24.0,0.9851323286698084
+qwen3.5-9b,pretty,place,verdict,0.85,20.0,0.9940598226329228
+qwen3.5-9b,pretty,scene,verdict,0.85,20.0,0.9952171529032596
+qwen3.5-9b,ugly,place,verdict,0.85,24.0,0.9888388719231062
+qwen3.5-9b,ugly,scene,verdict,0.85,24.0,0.9884046155481764
+qwen3.5-9b,urban,place,verdict,0.85,20.0,0.9910826159522635
+qwen3.5-9b,urban,scene,verdict,0.85,20.0,0.9916625411844152
+qwen3.6-27b,cool,place,verdict,0.85,60.0,0.9218842119207752
+qwen3.6-27b,cool,scene,verdict,0.85,60.0,0.9250357375324836
+qwen3.6-27b,fancy,place,verdict,0.85,52.0,0.9825238459328212
+qwen3.6-27b,fancy,scene,verdict,0.85,52.0,0.9806525467223997
+qwen3.6-27b,nice,place,verdict,0.85,52.0,0.977311935760474
+qwen3.6-27b,nice,scene,verdict,0.85,48.0,0.9685385662997572
+qwen3.6-27b,ordinary,place,verdict,0.85,52.0,0.976454047875361
+qwen3.6-27b,ordinary,scene,verdict,0.85,56.0,0.9248458296303724
+qwen3.6-27b,pretty,place,verdict,0.85,52.0,0.9855944325173012
+qwen3.6-27b,pretty,scene,verdict,0.85,36.0,0.9863350541249776
+qwen3.6-27b,ugly,place,verdict,0.85,52.0,0.9737953744800536
+qwen3.6-27b,ugly,scene,verdict,0.85,52.0,0.9820742714612268
+qwen3.6-27b,urban,place,verdict,0.85,52.0,0.9884026224974118
+qwen3.6-27b,urban,scene,verdict,0.85,32.0,0.9841813054807989
+gemma-4-31b,cool,place,verdict,0.9,44.0,0.9897796605315864
+gemma-4-31b,cool,scene,verdict,0.9,40.0,0.9892639089468368
+gemma-4-31b,fancy,place,verdict,0.9,44.0,0.9918923088649214
+gemma-4-31b,fancy,scene,verdict,0.9,40.0,0.9880864674207692
+gemma-4-31b,nice,place,verdict,0.9,44.0,0.9890614761974956
+gemma-4-31b,nice,scene,verdict,0.9,40.0,0.9910274126515548
+gemma-4-31b,ordinary,place,verdict,0.9,44.0,0.9273848916660988
+gemma-4-31b,ordinary,scene,verdict,0.9,,0.8491258549884182
+gemma-4-31b,pretty,place,verdict,0.9,44.0,0.9922014506046668
+gemma-4-31b,pretty,scene,verdict,0.9,40.0,0.996217212878719
+gemma-4-31b,ugly,place,verdict,0.9,40.0,0.99577918952736
+gemma-4-31b,ugly,scene,verdict,0.9,44.0,0.928553186370637
+gemma-4-31b,urban,place,verdict,0.9,36.0,0.9354958733399524
+gemma-4-31b,urban,scene,verdict,0.9,36.0,0.942827647927782
+qwen3.5-9b,cool,place,verdict,0.9,28.0,0.9771887864415572
+qwen3.5-9b,cool,scene,verdict,0.9,28.0,0.9612282735048384
+qwen3.5-9b,fancy,place,verdict,0.9,24.0,0.9809896992797515
+qwen3.5-9b,fancy,scene,verdict,0.9,24.0,0.978668698691034
+qwen3.5-9b,nice,place,verdict,0.9,20.0,0.991600847353243
+qwen3.5-9b,nice,scene,verdict,0.9,20.0,0.993418402841292
+qwen3.5-9b,ordinary,place,verdict,0.9,24.0,0.9865521297564882
+qwen3.5-9b,ordinary,scene,verdict,0.9,24.0,0.9851323286698084
+qwen3.5-9b,pretty,place,verdict,0.9,20.0,0.9940598226329228
+qwen3.5-9b,pretty,scene,verdict,0.9,20.0,0.9952171529032596
+qwen3.5-9b,ugly,place,verdict,0.9,24.0,0.9888388719231062
+qwen3.5-9b,ugly,scene,verdict,0.9,24.0,0.9884046155481764
+qwen3.5-9b,urban,place,verdict,0.9,24.0,0.9910826159522635
+qwen3.5-9b,urban,scene,verdict,0.9,20.0,0.9916625411844152
+qwen3.6-27b,cool,place,verdict,0.9,60.0,0.9218842119207752
+qwen3.6-27b,cool,scene,verdict,0.9,60.0,0.9250357375324836
+qwen3.6-27b,fancy,place,verdict,0.9,52.0,0.9825238459328212
+qwen3.6-27b,fancy,scene,verdict,0.9,52.0,0.9806525467223997
+qwen3.6-27b,nice,place,verdict,0.9,52.0,0.977311935760474
+qwen3.6-27b,nice,scene,verdict,0.9,52.0,0.9685385662997572
+qwen3.6-27b,ordinary,place,verdict,0.9,56.0,0.976454047875361
+qwen3.6-27b,ordinary,scene,verdict,0.9,60.0,0.9248458296303724
+qwen3.6-27b,pretty,place,verdict,0.9,52.0,0.9855944325173012
+qwen3.6-27b,pretty,scene,verdict,0.9,52.0,0.9863350541249776
+qwen3.6-27b,ugly,place,verdict,0.9,52.0,0.9737953744800536
+qwen3.6-27b,ugly,scene,verdict,0.9,52.0,0.9820742714612268
+qwen3.6-27b,urban,place,verdict,0.9,52.0,0.9884026224974118
+qwen3.6-27b,urban,scene,verdict,0.9,48.0,0.9841813054807989
+gemma-4-31b,cool,place,verdict,0.92,44.0,0.9897796605315864
+gemma-4-31b,cool,scene,verdict,0.92,40.0,0.9892639089468368
+gemma-4-31b,fancy,place,verdict,0.92,44.0,0.9918923088649214
+gemma-4-31b,fancy,scene,verdict,0.92,44.0,0.9880864674207692
+gemma-4-31b,nice,place,verdict,0.92,44.0,0.9890614761974956
+gemma-4-31b,nice,scene,verdict,0.92,40.0,0.9910274126515548
+gemma-4-31b,ordinary,place,verdict,0.92,48.0,0.9273848916660988
+gemma-4-31b,ordinary,scene,verdict,0.92,,0.8491258549884182
+gemma-4-31b,pretty,place,verdict,0.92,44.0,0.9922014506046668
+gemma-4-31b,pretty,scene,verdict,0.92,40.0,0.996217212878719
+gemma-4-31b,ugly,place,verdict,0.92,44.0,0.99577918952736
+gemma-4-31b,ugly,scene,verdict,0.92,44.0,0.928553186370637
+gemma-4-31b,urban,place,verdict,0.92,36.0,0.9354958733399524
+gemma-4-31b,urban,scene,verdict,0.92,36.0,0.942827647927782
+qwen3.5-9b,cool,place,verdict,0.92,28.0,0.9771887864415572
+qwen3.5-9b,cool,scene,verdict,0.92,28.0,0.9612282735048384
+qwen3.5-9b,fancy,place,verdict,0.92,24.0,0.9809896992797515
+qwen3.5-9b,fancy,scene,verdict,0.92,24.0,0.978668698691034
+qwen3.5-9b,nice,place,verdict,0.92,24.0,0.991600847353243
+qwen3.5-9b,nice,scene,verdict,0.92,20.0,0.993418402841292
+qwen3.5-9b,ordinary,place,verdict,0.92,24.0,0.9865521297564882
+qwen3.5-9b,ordinary,scene,verdict,0.92,24.0,0.9851323286698084
+qwen3.5-9b,pretty,place,verdict,0.92,20.0,0.9940598226329228
+qwen3.5-9b,pretty,scene,verdict,0.92,20.0,0.9952171529032596
+qwen3.5-9b,ugly,place,verdict,0.92,24.0,0.9888388719231062
+qwen3.5-9b,ugly,scene,verdict,0.92,24.0,0.9884046155481764
+qwen3.5-9b,urban,place,verdict,0.92,28.0,0.9910826159522635
+qwen3.5-9b,urban,scene,verdict,0.92,28.0,0.9916625411844152
+qwen3.6-27b,cool,place,verdict,0.92,60.0,0.9218842119207752
+qwen3.6-27b,cool,scene,verdict,0.92,60.0,0.9250357375324836
+qwen3.6-27b,fancy,place,verdict,0.92,52.0,0.9825238459328212
+qwen3.6-27b,fancy,scene,verdict,0.92,52.0,0.9806525467223997
+qwen3.6-27b,nice,place,verdict,0.92,60.0,0.977311935760474
+qwen3.6-27b,nice,scene,verdict,0.92,52.0,0.9685385662997572
+qwen3.6-27b,ordinary,place,verdict,0.92,60.0,0.976454047875361
+qwen3.6-27b,ordinary,scene,verdict,0.92,60.0,0.9248458296303724
+qwen3.6-27b,pretty,place,verdict,0.92,52.0,0.9855944325173012
+qwen3.6-27b,pretty,scene,verdict,0.92,52.0,0.9863350541249776
+qwen3.6-27b,ugly,place,verdict,0.92,52.0,0.9737953744800536
+qwen3.6-27b,ugly,scene,verdict,0.92,52.0,0.9820742714612268
+qwen3.6-27b,urban,place,verdict,0.92,52.0,0.9884026224974118
+qwen3.6-27b,urban,scene,verdict,0.92,56.0,0.9841813054807989
+gemma-4-31b,cool,place,verdict,0.95,44.0,0.9897796605315864
+gemma-4-31b,cool,scene,verdict,0.95,44.0,0.9892639089468368
+gemma-4-31b,fancy,place,verdict,0.95,44.0,0.9918923088649214
+gemma-4-31b,fancy,scene,verdict,0.95,44.0,0.9880864674207692
+gemma-4-31b,nice,place,verdict,0.95,44.0,0.9890614761974956
+gemma-4-31b,nice,scene,verdict,0.95,44.0,0.9910274126515548
+gemma-4-31b,ordinary,place,verdict,0.95,,0.9273848916660988
+gemma-4-31b,ordinary,scene,verdict,0.95,,0.8491258549884182
+gemma-4-31b,pretty,place,verdict,0.95,44.0,0.9922014506046668
+gemma-4-31b,pretty,scene,verdict,0.95,40.0,0.996217212878719
+gemma-4-31b,ugly,place,verdict,0.95,44.0,0.99577918952736
+gemma-4-31b,ugly,scene,verdict,0.95,,0.928553186370637
+gemma-4-31b,urban,place,verdict,0.95,,0.9354958733399524
+gemma-4-31b,urban,scene,verdict,0.95,,0.942827647927782
+qwen3.5-9b,cool,place,verdict,0.95,28.0,0.9771887864415572
+qwen3.5-9b,cool,scene,verdict,0.95,28.0,0.9612282735048384
+qwen3.5-9b,fancy,place,verdict,0.95,24.0,0.9809896992797515
+qwen3.5-9b,fancy,scene,verdict,0.95,24.0,0.978668698691034
+qwen3.5-9b,nice,place,verdict,0.95,24.0,0.991600847353243
+qwen3.5-9b,nice,scene,verdict,0.95,24.0,0.993418402841292
+qwen3.5-9b,ordinary,place,verdict,0.95,28.0,0.9865521297564882
+qwen3.5-9b,ordinary,scene,verdict,0.95,28.0,0.9851323286698084
+qwen3.5-9b,pretty,place,verdict,0.95,24.0,0.9940598226329228
+qwen3.5-9b,pretty,scene,verdict,0.95,24.0,0.9952171529032596
+qwen3.5-9b,ugly,place,verdict,0.95,24.0,0.9888388719231062
+qwen3.5-9b,ugly,scene,verdict,0.95,24.0,0.9884046155481764
+qwen3.5-9b,urban,place,verdict,0.95,28.0,0.9910826159522635
+qwen3.5-9b,urban,scene,verdict,0.95,28.0,0.9916625411844152
+qwen3.6-27b,cool,place,verdict,0.95,,0.9218842119207752
+qwen3.6-27b,cool,scene,verdict,0.95,,0.9250357375324836
+qwen3.6-27b,fancy,place,verdict,0.95,52.0,0.9825238459328212
+qwen3.6-27b,fancy,scene,verdict,0.95,52.0,0.9806525467223997
+qwen3.6-27b,nice,place,verdict,0.95,60.0,0.977311935760474
+qwen3.6-27b,nice,scene,verdict,0.95,60.0,0.9685385662997572
+qwen3.6-27b,ordinary,place,verdict,0.95,60.0,0.976454047875361
+qwen3.6-27b,ordinary,scene,verdict,0.95,,0.9248458296303724
+qwen3.6-27b,pretty,place,verdict,0.95,60.0,0.9855944325173012
+qwen3.6-27b,pretty,scene,verdict,0.95,56.0,0.9863350541249776
+qwen3.6-27b,ugly,place,verdict,0.95,56.0,0.9737953744800536
+qwen3.6-27b,ugly,scene,verdict,0.95,52.0,0.9820742714612268
+qwen3.6-27b,urban,place,verdict,0.95,56.0,0.9884026224974118
+qwen3.6-27b,urban,scene,verdict,0.95,56.0,0.9841813054807989
+gemma-4-31b,cool,place,verdict,0.97,44.0,0.9897796605315864
+gemma-4-31b,cool,scene,verdict,0.97,44.0,0.9892639089468368
+gemma-4-31b,fancy,place,verdict,0.97,48.0,0.9918923088649214
+gemma-4-31b,fancy,scene,verdict,0.97,44.0,0.9880864674207692
+gemma-4-31b,nice,place,verdict,0.97,44.0,0.9890614761974956
+gemma-4-31b,nice,scene,verdict,0.97,44.0,0.9910274126515548
+gemma-4-31b,ordinary,place,verdict,0.97,,0.9273848916660988
+gemma-4-31b,ordinary,scene,verdict,0.97,,0.8491258549884182
+gemma-4-31b,pretty,place,verdict,0.97,44.0,0.9922014506046668
+gemma-4-31b,pretty,scene,verdict,0.97,44.0,0.996217212878719
+gemma-4-31b,ugly,place,verdict,0.97,44.0,0.99577918952736
+gemma-4-31b,ugly,scene,verdict,0.97,,0.928553186370637
+gemma-4-31b,urban,place,verdict,0.97,,0.9354958733399524
+gemma-4-31b,urban,scene,verdict,0.97,,0.942827647927782
+qwen3.5-9b,cool,place,verdict,0.97,28.0,0.9771887864415572
+qwen3.5-9b,cool,scene,verdict,0.97,,0.9612282735048384
+qwen3.5-9b,fancy,place,verdict,0.97,24.0,0.9809896992797515
+qwen3.5-9b,fancy,scene,verdict,0.97,24.0,0.978668698691034
+qwen3.5-9b,nice,place,verdict,0.97,28.0,0.991600847353243
+qwen3.5-9b,nice,scene,verdict,0.97,28.0,0.993418402841292
+qwen3.5-9b,ordinary,place,verdict,0.97,28.0,0.9865521297564882
+qwen3.5-9b,ordinary,scene,verdict,0.97,28.0,0.9851323286698084
+qwen3.5-9b,pretty,place,verdict,0.97,28.0,0.9940598226329228
+qwen3.5-9b,pretty,scene,verdict,0.97,28.0,0.9952171529032596
+qwen3.5-9b,ugly,place,verdict,0.97,28.0,0.9888388719231062
+qwen3.5-9b,ugly,scene,verdict,0.97,28.0,0.9884046155481764
+qwen3.5-9b,urban,place,verdict,0.97,28.0,0.9910826159522635
+qwen3.5-9b,urban,scene,verdict,0.97,28.0,0.9916625411844152
+qwen3.6-27b,cool,place,verdict,0.97,,0.9218842119207752
+qwen3.6-27b,cool,scene,verdict,0.97,,0.9250357375324836
+qwen3.6-27b,fancy,place,verdict,0.97,56.0,0.9825238459328212
+qwen3.6-27b,fancy,scene,verdict,0.97,56.0,0.9806525467223997
+qwen3.6-27b,nice,place,verdict,0.97,60.0,0.977311935760474
+qwen3.6-27b,nice,scene,verdict,0.97,,0.9685385662997572
+qwen3.6-27b,ordinary,place,verdict,0.97,60.0,0.976454047875361
+qwen3.6-27b,ordinary,scene,verdict,0.97,,0.9248458296303724
+qwen3.6-27b,pretty,place,verdict,0.97,60.0,0.9855944325173012
+qwen3.6-27b,pretty,scene,verdict,0.97,60.0,0.9863350541249776
+qwen3.6-27b,ugly,place,verdict,0.97,60.0,0.9737953744800536
+qwen3.6-27b,ugly,scene,verdict,0.97,60.0,0.9820742714612268
+qwen3.6-27b,urban,place,verdict,0.97,60.0,0.9884026224974118
+qwen3.6-27b,urban,scene,verdict,0.97,60.0,0.9841813054807989
+gemma-4-31b,cool,place,verdict,0.99,,0.9897796605315864
+gemma-4-31b,cool,scene,verdict,0.99,,0.9892639089468368
+gemma-4-31b,fancy,place,verdict,0.99,56.0,0.9918923088649214
+gemma-4-31b,fancy,scene,verdict,0.99,,0.9880864674207692
+gemma-4-31b,nice,place,verdict,0.99,,0.9890614761974956
+gemma-4-31b,nice,scene,verdict,0.99,44.0,0.9910274126515548
+gemma-4-31b,ordinary,place,verdict,0.99,,0.9273848916660988
+gemma-4-31b,ordinary,scene,verdict,0.99,,0.8491258549884182
+gemma-4-31b,pretty,place,verdict,0.99,56.0,0.9922014506046668
+gemma-4-31b,pretty,scene,verdict,0.99,44.0,0.996217212878719
+gemma-4-31b,ugly,place,verdict,0.99,44.0,0.99577918952736
+gemma-4-31b,ugly,scene,verdict,0.99,,0.928553186370637
+gemma-4-31b,urban,place,verdict,0.99,,0.9354958733399524
+gemma-4-31b,urban,scene,verdict,0.99,,0.942827647927782
+qwen3.5-9b,cool,place,verdict,0.99,,0.9771887864415572
+qwen3.5-9b,cool,scene,verdict,0.99,,0.9612282735048384
+qwen3.5-9b,fancy,place,verdict,0.99,,0.9809896992797515
+qwen3.5-9b,fancy,scene,verdict,0.99,,0.978668698691034
+qwen3.5-9b,nice,place,verdict,0.99,28.0,0.991600847353243
+qwen3.5-9b,nice,scene,verdict,0.99,28.0,0.993418402841292
+qwen3.5-9b,ordinary,place,verdict,0.99,,0.9865521297564882
+qwen3.5-9b,ordinary,scene,verdict,0.99,,0.9851323286698084
+qwen3.5-9b,pretty,place,verdict,0.99,28.0,0.9940598226329228
+qwen3.5-9b,pretty,scene,verdict,0.99,28.0,0.9952171529032596
+qwen3.5-9b,ugly,place,verdict,0.99,,0.9888388719231062
+qwen3.5-9b,ugly,scene,verdict,0.99,,0.9884046155481764
+qwen3.5-9b,urban,place,verdict,0.99,28.0,0.9910826159522635
+qwen3.5-9b,urban,scene,verdict,0.99,28.0,0.9916625411844152
+qwen3.6-27b,cool,place,verdict,0.99,,0.9218842119207752
+qwen3.6-27b,cool,scene,verdict,0.99,,0.9250357375324836
+qwen3.6-27b,fancy,place,verdict,0.99,,0.9825238459328212
+qwen3.6-27b,fancy,scene,verdict,0.99,,0.9806525467223997
+qwen3.6-27b,nice,place,verdict,0.99,,0.977311935760474
+qwen3.6-27b,nice,scene,verdict,0.99,,0.9685385662997572
+qwen3.6-27b,ordinary,place,verdict,0.99,,0.976454047875361
+qwen3.6-27b,ordinary,scene,verdict,0.99,,0.9248458296303724
+qwen3.6-27b,pretty,place,verdict,0.99,,0.9855944325173012
+qwen3.6-27b,pretty,scene,verdict,0.99,,0.9863350541249776
+qwen3.6-27b,ugly,place,verdict,0.99,,0.9737953744800536
+qwen3.6-27b,ugly,scene,verdict,0.99,,0.9820742714612268
+qwen3.6-27b,urban,place,verdict,0.99,,0.9884026224974118
+qwen3.6-27b,urban,scene,verdict,0.99,,0.9841813054807989
+gemma-4-31b,cool,place,sense (share 0.3),0.8,8.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.3),0.8,12.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.3),0.8,56.0,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.3),0.8,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.3),0.8,36.0,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.3),0.8,12.0,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.3),0.8,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.3),0.8,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.3),0.8,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.3),0.8,28.0,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.3),0.8,48.0,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.3),0.8,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.3),0.8,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.3),0.8,12.0,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.3),0.8,4.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.3),0.8,4.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.3),0.8,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.3),0.8,12.0,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.3),0.8,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.3),0.8,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.3),0.8,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.3),0.8,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.3),0.8,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.3),0.8,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.3),0.8,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.3),0.8,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.3),0.8,8.0,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.3),0.8,8.0,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.3),0.8,8.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.3),0.8,8.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.3),0.8,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.3),0.8,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.3),0.8,4.0,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.3),0.8,4.0,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.3),0.8,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.3),0.8,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.3),0.8,24.0,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.3),0.8,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.3),0.8,56.0,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.3),0.8,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.3),0.8,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.3),0.8,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.3),0.9,8.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.3),0.9,12.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.3),0.9,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.3),0.9,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.3),0.9,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.3),0.9,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.3),0.9,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.3),0.9,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.3),0.9,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.3),0.9,28.0,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.3),0.9,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.3),0.9,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.3),0.9,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.3),0.9,16.0,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.3),0.9,4.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.3),0.9,4.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.3),0.9,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.3),0.9,12.0,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.3),0.9,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.3),0.9,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.3),0.9,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.3),0.9,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.3),0.9,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.3),0.9,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.3),0.9,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.3),0.9,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.3),0.9,8.0,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.3),0.9,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.3),0.9,8.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.3),0.9,8.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.3),0.9,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.3),0.9,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.3),0.9,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.3),0.9,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.3),0.9,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.3),0.9,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.3),0.9,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.3),0.9,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.3),0.9,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.3),0.9,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.3),0.9,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.3),0.9,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.3),0.95,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.3),0.95,12.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.3),0.95,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.3),0.95,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.3),0.95,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.3),0.95,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.3),0.95,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.3),0.95,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.3),0.95,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.3),0.95,,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.3),0.95,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.3),0.95,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.3),0.95,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.3),0.95,16.0,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.3),0.95,4.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.3),0.95,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.3),0.95,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.3),0.95,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.3),0.95,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.3),0.95,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.3),0.95,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.3),0.95,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.3),0.95,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.3),0.95,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.3),0.95,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.3),0.95,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.3),0.95,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.3),0.95,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.3),0.95,8.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.3),0.95,8.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.3),0.95,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.3),0.95,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.3),0.95,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.3),0.95,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.3),0.95,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.3),0.95,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.3),0.95,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.3),0.95,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.3),0.95,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.3),0.95,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.3),0.95,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.3),0.95,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.4),0.8,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.4),0.8,12.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.4),0.8,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.4),0.8,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.4),0.8,36.0,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.4),0.8,12.0,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.4),0.8,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.4),0.8,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.4),0.8,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.4),0.8,28.0,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.4),0.8,48.0,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.4),0.8,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.4),0.8,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.4),0.8,56.0,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.4),0.8,4.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.4),0.8,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.4),0.8,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.4),0.8,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.4),0.8,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.4),0.8,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.4),0.8,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.4),0.8,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.4),0.8,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.4),0.8,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.4),0.8,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.4),0.8,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.4),0.8,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.4),0.8,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.4),0.8,8.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.4),0.8,12.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.4),0.8,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.4),0.8,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.4),0.8,4.0,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.4),0.8,4.0,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.4),0.8,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.4),0.8,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.4),0.8,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.4),0.8,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.4),0.8,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.4),0.8,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.4),0.8,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.4),0.8,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.4),0.9,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.4),0.9,12.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.4),0.9,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.4),0.9,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.4),0.9,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.4),0.9,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.4),0.9,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.4),0.9,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.4),0.9,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.4),0.9,28.0,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.4),0.9,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.4),0.9,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.4),0.9,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.4),0.9,,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.4),0.9,4.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.4),0.9,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.4),0.9,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.4),0.9,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.4),0.9,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.4),0.9,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.4),0.9,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.4),0.9,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.4),0.9,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.4),0.9,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.4),0.9,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.4),0.9,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.4),0.9,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.4),0.9,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.4),0.9,8.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.4),0.9,12.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.4),0.9,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.4),0.9,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.4),0.9,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.4),0.9,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.4),0.9,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.4),0.9,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.4),0.9,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.4),0.9,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.4),0.9,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.4),0.9,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.4),0.9,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.4),0.9,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.4),0.95,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.4),0.95,12.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.4),0.95,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.4),0.95,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.4),0.95,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.4),0.95,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.4),0.95,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.4),0.95,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.4),0.95,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.4),0.95,,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.4),0.95,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.4),0.95,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.4),0.95,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.4),0.95,,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.4),0.95,4.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.4),0.95,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.4),0.95,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.4),0.95,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.4),0.95,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.4),0.95,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.4),0.95,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.4),0.95,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.4),0.95,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.4),0.95,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.4),0.95,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.4),0.95,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.4),0.95,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.4),0.95,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.4),0.95,8.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.4),0.95,12.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.4),0.95,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.4),0.95,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.4),0.95,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.4),0.95,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.4),0.95,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.4),0.95,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.4),0.95,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.4),0.95,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.4),0.95,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.4),0.95,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.4),0.95,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.4),0.95,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.5),0.8,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.5),0.8,40.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.5),0.8,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.5),0.8,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.5),0.8,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.5),0.8,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.5),0.8,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.5),0.8,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.5),0.8,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.5),0.8,28.0,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.5),0.8,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.5),0.8,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.5),0.8,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.5),0.8,56.0,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.5),0.8,8.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.5),0.8,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.5),0.8,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.5),0.8,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.5),0.8,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.5),0.8,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.5),0.8,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.5),0.8,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.5),0.8,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.5),0.8,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.5),0.8,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.5),0.8,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.5),0.8,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.5),0.8,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.5),0.8,16.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.5),0.8,12.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.5),0.8,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.5),0.8,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.5),0.8,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.5),0.8,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.5),0.8,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.5),0.8,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.5),0.8,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.5),0.8,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.5),0.8,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.5),0.8,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.5),0.8,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.5),0.8,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.5),0.9,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.5),0.9,40.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.5),0.9,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.5),0.9,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.5),0.9,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.5),0.9,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.5),0.9,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.5),0.9,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.5),0.9,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.5),0.9,28.0,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.5),0.9,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.5),0.9,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.5),0.9,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.5),0.9,,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.5),0.9,8.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.5),0.9,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.5),0.9,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.5),0.9,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.5),0.9,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.5),0.9,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.5),0.9,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.5),0.9,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.5),0.9,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.5),0.9,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.5),0.9,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.5),0.9,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.5),0.9,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.5),0.9,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.5),0.9,16.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.5),0.9,12.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.5),0.9,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.5),0.9,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.5),0.9,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.5),0.9,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.5),0.9,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.5),0.9,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.5),0.9,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.5),0.9,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.5),0.9,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.5),0.9,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.5),0.9,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.5),0.9,,0.547337619633988
+gemma-4-31b,cool,place,sense (share 0.5),0.95,12.0,0.6272264921499777
+gemma-4-31b,cool,scene,sense (share 0.5),0.95,40.0,0.6125641888579549
+gemma-4-31b,fancy,place,sense (share 0.5),0.95,,0.4046869232117498
+gemma-4-31b,fancy,scene,sense (share 0.5),0.95,,0.5907892766417433
+gemma-4-31b,nice,place,sense (share 0.5),0.95,,0.5223062706830796
+gemma-4-31b,nice,scene,sense (share 0.5),0.95,,0.5156187212531901
+gemma-4-31b,ordinary,place,sense (share 0.5),0.95,,0.3692425601151632
+gemma-4-31b,ordinary,scene,sense (share 0.5),0.95,,0.3720398468255803
+gemma-4-31b,pretty,place,sense (share 0.5),0.95,,0.863748114452637
+gemma-4-31b,pretty,scene,sense (share 0.5),0.95,,0.8972148045298698
+gemma-4-31b,ugly,place,sense (share 0.5),0.95,,0.5055087586997686
+gemma-4-31b,ugly,scene,sense (share 0.5),0.95,,0.4013276325689755
+gemma-4-31b,urban,place,sense (share 0.5),0.95,,0.532607602915402
+gemma-4-31b,urban,scene,sense (share 0.5),0.95,,0.610525809520798
+qwen3.5-9b,cool,place,sense (share 0.5),0.95,8.0,0.7025990824582641
+qwen3.5-9b,cool,scene,sense (share 0.5),0.95,8.0,0.726913643072987
+qwen3.5-9b,fancy,place,sense (share 0.5),0.95,,0.3921347424016715
+qwen3.5-9b,fancy,scene,sense (share 0.5),0.95,,0.3405337434886039
+qwen3.5-9b,nice,place,sense (share 0.5),0.95,,0.548201429871005
+qwen3.5-9b,nice,scene,sense (share 0.5),0.95,,0.6089114904320773
+qwen3.5-9b,ordinary,place,sense (share 0.5),0.95,,0.4081214848746538
+qwen3.5-9b,ordinary,scene,sense (share 0.5),0.95,,0.3924744876779744
+qwen3.5-9b,pretty,place,sense (share 0.5),0.95,,0.5660114627746178
+qwen3.5-9b,pretty,scene,sense (share 0.5),0.95,,0.5640124081880568
+qwen3.5-9b,ugly,place,sense (share 0.5),0.95,,0.4673003976827381
+qwen3.5-9b,ugly,scene,sense (share 0.5),0.95,,0.4398745102971572
+qwen3.5-9b,urban,place,sense (share 0.5),0.95,,0.5547215935906655
+qwen3.5-9b,urban,scene,sense (share 0.5),0.95,,0.5555378395775715
+qwen3.6-27b,cool,place,sense (share 0.5),0.95,16.0,0.6452012179691722
+qwen3.6-27b,cool,scene,sense (share 0.5),0.95,12.0,0.6940073966702233
+qwen3.6-27b,fancy,place,sense (share 0.5),0.95,,0.6049000627740404
+qwen3.6-27b,fancy,scene,sense (share 0.5),0.95,,0.5221064310841698
+qwen3.6-27b,nice,place,sense (share 0.5),0.95,,0.4618123099347179
+qwen3.6-27b,nice,scene,sense (share 0.5),0.95,,0.4055292568320685
+qwen3.6-27b,ordinary,place,sense (share 0.5),0.95,,0.5218244265466344
+qwen3.6-27b,ordinary,scene,sense (share 0.5),0.95,,0.5105212057016799
+qwen3.6-27b,pretty,place,sense (share 0.5),0.95,,0.7268779493577451
+qwen3.6-27b,pretty,scene,sense (share 0.5),0.95,,0.6618317933890795
+qwen3.6-27b,ugly,place,sense (share 0.5),0.95,,0.5220708113577359
+qwen3.6-27b,ugly,scene,sense (share 0.5),0.95,,0.5192979696155133
+qwen3.6-27b,urban,place,sense (share 0.5),0.95,,0.5218954438389101
+qwen3.6-27b,urban,scene,sense (share 0.5),0.95,,0.547337619633988

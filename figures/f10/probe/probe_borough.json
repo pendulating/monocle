@@ -1,0 +1,9 @@
+{
+  "plot-title": "Judgments by borough",
+  "plot-caption": "Mean margin of each adjective in each borough, as a distance from the mean of all NTAs, in SD of the NTA means. The rows follow the Manhattan column of Gemma-4-31B.",
+  "plot-latex-label": "fig:probe-borough",
+  "plot-tags": [
+    "F10.14",
+    "borough"
+  ]
+}

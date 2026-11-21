@@ -1,0 +1,9 @@
+{
+  "plot-title": "Stated values and the cool margin",
+  "plot-caption": "Correlation over 591 images between the share of reasoning texts that use a value, for or against cool, and the cool margin of the read. A dot marks a Holm-adjusted p below 0.05.",
+  "plot-latex-label": "fig:mech-values",
+  "plot-tags": [
+    "F10.11",
+    "value"
+  ]
+}

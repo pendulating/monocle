@@ -1,0 +1,143 @@
+{
+ "version": "1.0.0",
+ "model": "qwen3.5-9b",
+ "layers": {
+  "place": 28,
+  "final": 28
+ },
+ "d": 4096,
+ "place_layers": {
+  "28": {
+   "layer": 28,
+   "sigma": 0.5853298908137531,
+   "share_sv1": 0.2807236900448618,
+   "residual_norm_median": 154.45321774957912,
+   "loadings": {
+    "place cool": 0.5966981419521499,
+    "place nice": 0.6973843441535859,
+    "place ordinary": -0.21715781041602875,
+    "place pretty": 0.7100632721208264,
+    "place ugly": -0.5631350698046216,
+    "place fancy": 0.3566567587773876,
+    "place urban": -0.12922170247319387,
+    "scene cool": 0.5386568281443633,
+    "scene nice": 0.7599922250932987,
+    "scene ordinary": -0.1470075300184902,
+    "scene pretty": 0.7735529133420249,
+    "scene ugly": -0.641264555738259,
+    "scene fancy": 0.39126573747992655,
+    "scene urban": -0.15272036075936965
+   }
+  },
+  "8": {
+   "layer": 8,
+   "sigma": 0.07909426380700897,
+   "share_sv1": 0.24041784614511322,
+   "residual_norm_median": 24.03903006600102,
+   "loadings": {
+    "place cool": 0.6254282013879018,
+    "place nice": 0.6891970519016641,
+    "place ordinary": -0.22800116421094596,
+    "place pretty": 0.7016968718911958,
+    "place ugly": -0.5614477917898429,
+    "place fancy": 0.3911552175843156,
+    "place urban": -0.15383186521501074,
+    "scene cool": 0.49441446460345473,
+    "scene nice": 0.6322602173655798,
+    "scene ordinary": -0.1772564156453423,
+    "scene pretty": 0.5796380640664147,
+    "scene ugly": -0.5491049665051141,
+    "scene fancy": 0.3757245350558036,
+    "scene urban": -0.09570567289548586
+   }
+  },
+  "12": {
+   "layer": 12,
+   "sigma": 0.11904350472802692,
+   "share_sv1": 0.24169325125733476,
+   "residual_norm_median": 33.08479524908014,
+   "loadings": {
+    "place cool": 0.6010589480888698,
+    "place nice": 0.6719128012760289,
+    "place ordinary": -0.25232092994024713,
+    "place pretty": 0.6973329261790604,
+    "place ugly": -0.5327858773456644,
+    "place fancy": 0.3981811600597411,
+    "place urban": -0.07906544326297542,
+    "scene cool": 0.5059586474827956,
+    "scene nice": 0.6291501933500034,
+    "scene ordinary": -0.1616388635740823,
+    "scene pretty": 0.6555930827647618,
+    "scene ugly": -0.5662930700059263,
+    "scene fancy": 0.3625886518900301,
+    "scene urban": -0.11160425612621569
+   }
+  },
+  "20": {
+   "layer": 20,
+   "sigma": 0.23433191442283846,
+   "share_sv1": 0.2709509349845494,
+   "residual_norm_median": 70.39634661438798,
+   "loadings": {
+    "place cool": 0.5953227350513708,
+    "place nice": 0.6911135302959721,
+    "place ordinary": -0.2272607964407242,
+    "place pretty": 0.7052503319463383,
+    "place ugly": -0.5436724905713235,
+    "place fancy": 0.3425410777039003,
+    "place urban": -0.12229445820575585,
+    "scene cool": 0.5137807966164808,
+    "scene nice": 0.7532968024919555,
+    "scene ordinary": -0.1645529127522466,
+    "scene pretty": 0.7776869629264513,
+    "scene ugly": -0.6323570731958484,
+    "scene fancy": 0.3195831301809928,
+    "scene urban": -0.13805839085759913
+   }
+  }
+ },
+ "place": {
+  "layer": 28,
+  "sigma": 0.5853298908137531,
+  "share_sv1": 0.2807236900448618,
+  "residual_norm_median": 154.45321774957912,
+  "loadings": {
+   "place cool": 0.5966981419521499,
+   "place nice": 0.6973843441535859,
+   "place ordinary": -0.21715781041602875,
+   "place pretty": 0.7100632721208264,
+   "place ugly": -0.5631350698046216,
+   "place fancy": 0.3566567587773876,
+   "place urban": -0.12922170247319387,
+   "scene cool": 0.5386568281443633,
+   "scene nice": 0.7599922250932987,
+   "scene ordinary": -0.1470075300184902,
+   "scene pretty": 0.7735529133420249,
+   "scene ugly": -0.641264555738259,
+   "scene fancy": 0.39126573747992655,
+   "scene urban": -0.15272036075936965
+  }
+ },
+ "final": {
+  "layer": 28,
+  "sigma": 1.909886661360892,
+  "share_sv1": 0.483318485954715,
+  "residual_norm_median": 164.05454140410427,
+  "loadings": {
+   "place cool": 0.62706144309377,
+   "place nice": 0.7666720910020259,
+   "place ordinary": 0.7406056465621467,
+   "place pretty": 0.7588234342940898,
+   "place ugly": 0.622213327654434,
+   "place fancy": 0.6634436903519927,
+   "place urban": 0.5705864648184938,
+   "scene cool": 0.6301261951851598,
+   "scene nice": 0.8171145001472053,
+   "scene ordinary": 0.7223032008316227,
+   "scene pretty": 0.8004498678821539,
+   "scene ugly": 0.6464131341827011,
+   "scene fancy": 0.639250108216336,
+   "scene urban": 0.6742502379913502
+  }
+ }
+}

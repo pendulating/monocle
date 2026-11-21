@@ -1,0 +1,10 @@
+{
+  "plot-title": "The span density along the long reasoning traces",
+  "plot-caption": "The counted spans per 1,000 characters in each tenth of the reasoning traces of 4,000 characters or more. Dashed with hollow markers: the F4 prompt; solid with filled markers: the F9 prompt. A density that falls to 0 near the end would say that the extractor stops reading; in the last tenth the density is 47% to 72% of its peak.",
+  "plot-latex-label": "fig:xacc-position",
+  "plot-tags": [
+    "f9",
+    "extraction",
+    "coverage"
+  ]
+}

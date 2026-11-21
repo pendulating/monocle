@@ -1,0 +1,521 @@
+model,layer,borough,word,axis_rank,axis_load,t,t_rank,t_after,t_rank_after
+gemma-4-31b,20,Bronx,graffiti,13,0.0162,2.15,2917,2.67,1035
+gemma-4-31b,20,Bronx,fucking,5,0.0176,1.65,6976,0.78,15148
+gemma-4-31b,20,Bronx,shopping,20,0.0158,1.78,5688,1.31,8808
+gemma-4-31b,20,Bronx,gallery,222,0.0114,2.3,2211,2.35,1984
+gemma-4-31b,20,Bronx,homeless,153,0.012,2.17,2855,2.12,2904
+gemma-4-31b,20,Bronx,porn,14,0.0161,1.53,8330,0.4,20598
+gemma-4-31b,20,Bronx,anarch,69,0.0134,1.3,11051,-0.23,30727
+gemma-4-31b,20,Bronx,illegal,435,0.0102,1.57,7869,0.53,18679
+gemma-4-31b,20,Bronx,vandalism,2082,0.0073,3.05,358,3.44,148
+gemma-4-31b,20,Bronx,gangs,229,0.0114,1.17,12783,-0.46,34294
+gemma-4-31b,20,Bronx,tattoo,108,0.0126,1.51,8506,0.36,21327
+gemma-4-31b,20,Bronx,bodega,34,0.0152,1.33,10671,0.04,26461
+gemma-4-31b,20,Bronx,slums,268,0.0111,1.61,7408,0.65,17044
+gemma-4-31b,20,Bronx,boutiques,12,0.0165,1.22,12102,-0.43,33851
+gemma-4-31b,20,Bronx,prostit,22,0.0158,1.29,11171,-0.28,31530
+gemma-4-31b,20,Bronx,slum,606,0.0096,2.21,2590,1.82,4566
+gemma-4-31b,20,Bronx,market,523,0.0099,0.95,15763,-0.91,40634
+gemma-4-31b,20,Bronx,traff,403,0.0104,0.8,17689,-2.02,50797
+gemma-4-31b,20,Bronx,marijuana,142,0.0121,1.42,9624,0.29,22299
+gemma-4-31b,20,Bronx,prostitutes,187,0.0116,0.97,15475,-0.95,41184
+gemma-4-31b,20,Bronx,bistro,33,0.0152,1.43,9501,0.14,24854
+gemma-4-31b,20,Bronx,boutique,3,0.0179,1.44,9297,0.13,24959
+gemma-4-31b,20,Bronx,instagram,6,0.0172,1.62,7257,0.84,14310
+gemma-4-31b,20,Bronx,social,40,0.0146,1.48,8866,0.26,22922
+gemma-4-31b,20,Bronx,nightclubs,19,0.0159,0.98,15320,-0.89,40346
+gemma-4-31b,20,Bronx,seawater,53998,-0.0241,-1.61,47017,-0.66,37154
+gemma-4-31b,20,Bronx,scientist,53837,-0.0144,-1.34,44005,0.12,25149
+gemma-4-31b,20,Bronx,hydrological,53956,-0.0174,-1.31,43608,0.18,24104
+gemma-4-31b,20,Bronx,equatorial,53980,-0.0193,-1.22,42454,0.19,23930
+gemma-4-31b,20,Bronx,humidity,53997,-0.0234,-1.19,42121,0.64,17114
+gemma-4-31b,20,Brooklyn,graffiti,13,0.0162,5.33,1374,0.73,15484
+gemma-4-31b,20,Brooklyn,fucking,5,0.0176,5.33,1379,0.82,14061
+gemma-4-31b,20,Brooklyn,shopping,20,0.0158,5.36,1232,0.82,14021
+gemma-4-31b,20,Brooklyn,gallery,222,0.0114,4.71,4699,-0.26,31208
+gemma-4-31b,20,Brooklyn,homeless,153,0.012,5.76,304,1.93,2493
+gemma-4-31b,20,Brooklyn,porn,14,0.0161,4.51,6005,-1.2,44925
+gemma-4-31b,20,Brooklyn,anarch,69,0.0134,5.31,1436,0.87,13365
+gemma-4-31b,20,Brooklyn,illegal,435,0.0102,5.03,2805,0.28,22423
+gemma-4-31b,20,Brooklyn,vandalism,2082,0.0073,4.1,8588,-0.62,37004
+gemma-4-31b,20,Brooklyn,gangs,229,0.0114,5.87,177,2.18,1345
+gemma-4-31b,20,Brooklyn,tattoo,108,0.0126,4.7,4760,-0.72,38421
+gemma-4-31b,20,Brooklyn,bodega,34,0.0152,5.57,627,1.64,4507
+gemma-4-31b,20,Brooklyn,slums,268,0.0111,5.9,142,2.27,1029
+gemma-4-31b,20,Brooklyn,boutiques,12,0.0165,4.82,4003,-0.22,30631
+gemma-4-31b,20,Brooklyn,prostit,22,0.0158,5.03,2797,0.17,24312
+gemma-4-31b,20,Brooklyn,slum,606,0.0096,6.06,61,2.57,403
+gemma-4-31b,20,Brooklyn,market,523,0.0099,5.33,1368,1.13,9862
+gemma-4-31b,20,Brooklyn,traff,403,0.0104,5.87,182,2.26,1044
+gemma-4-31b,20,Brooklyn,marijuana,142,0.0121,5.65,462,1.91,2650
+gemma-4-31b,20,Brooklyn,prostitutes,187,0.0116,5.25,1655,0.9,13040
+gemma-4-31b,20,Brooklyn,bistro,33,0.0152,5.16,2102,0.55,18150
+gemma-4-31b,20,Brooklyn,boutique,3,0.0179,5.09,2447,0.18,23983
+gemma-4-31b,20,Brooklyn,instagram,6,0.0172,5.29,1509,0.42,20251
+gemma-4-31b,20,Brooklyn,social,40,0.0146,5.82,230,2.1,1662
+gemma-4-31b,20,Brooklyn,nightclubs,19,0.0159,5.35,1292,1.12,9909
+gemma-4-31b,20,Brooklyn,seawater,53998,-0.0241,-4.64,49183,1.21,8863
+gemma-4-31b,20,Brooklyn,scientist,53837,-0.0144,-6.03,53909,-2.56,53498
+gemma-4-31b,20,Brooklyn,hydrological,53956,-0.0174,-4.39,47639,1.29,7874
+gemma-4-31b,20,Brooklyn,equatorial,53980,-0.0193,-3.57,42861,2.09,1685
+gemma-4-31b,20,Brooklyn,humidity,53997,-0.0234,-4.46,48112,1.47,5993
+gemma-4-31b,20,Manhattan,graffiti,13,0.0162,0.63,23722,-6.59,50300
+gemma-4-31b,20,Manhattan,fucking,5,0.0176,2.12,16212,-0.46,29001
+gemma-4-31b,20,Manhattan,shopping,20,0.0158,2.75,13296,1.61,20278
+gemma-4-31b,20,Manhattan,gallery,222,0.0114,2.96,12362,1.88,19177
+gemma-4-31b,20,Manhattan,homeless,153,0.012,1.33,20119,-2.38,37007
+gemma-4-31b,20,Manhattan,porn,14,0.0161,2.94,12453,2.0,18666
+gemma-4-31b,20,Manhattan,anarch,69,0.0134,1.74,18010,-1.4,33089
+gemma-4-31b,20,Manhattan,illegal,435,0.0102,0.39,25019,-5.35,47299
+gemma-4-31b,20,Manhattan,vandalism,2082,0.0073,0.78,22883,-2.44,37242
+gemma-4-31b,20,Manhattan,gangs,229,0.0114,0.33,25348,-4.89,45945
+gemma-4-31b,20,Manhattan,tattoo,108,0.0126,2.71,13496,1.33,21449
+gemma-4-31b,20,Manhattan,bodega,34,0.0152,-0.22,28317,-5.57,47868
+gemma-4-31b,20,Manhattan,slums,268,0.0111,1.81,17647,-0.59,29627
+gemma-4-31b,20,Manhattan,boutiques,12,0.0165,4.69,5886,7.01,2516
+gemma-4-31b,20,Manhattan,prostit,22,0.0158,3.63,9529,3.99,10774
+gemma-4-31b,20,Manhattan,slum,606,0.0096,0.8,22792,-2.42,37165
+gemma-4-31b,20,Manhattan,market,523,0.0099,4.09,7863,4.43,9213
+gemma-4-31b,20,Manhattan,traff,403,0.0104,2.0,16712,-0.88,30865
+gemma-4-31b,20,Manhattan,marijuana,142,0.0121,-0.54,30027,-5.32,47196
+gemma-4-31b,20,Manhattan,prostitutes,187,0.0116,2.74,13344,1.33,21420
+gemma-4-31b,20,Manhattan,bistro,33,0.0152,3.82,8781,4.36,9452
+gemma-4-31b,20,Manhattan,boutique,3,0.0179,3.72,9156,4.64,8541
+gemma-4-31b,20,Manhattan,instagram,6,0.0172,2.16,16019,-0.8,30503
+gemma-4-31b,20,Manhattan,social,40,0.0146,0.43,24821,-6.23,49526
+gemma-4-31b,20,Manhattan,nightclubs,19,0.0159,0.93,22092,-3.05,39678
+gemma-4-31b,20,Manhattan,seawater,53998,-0.0241,-4.37,47064,-7.49,51943
+gemma-4-31b,20,Manhattan,scientist,53837,-0.0144,-2.24,38832,-0.0,27084
+gemma-4-31b,20,Manhattan,hydrological,53956,-0.0174,-4.6,47744,-6.76,50660
+gemma-4-31b,20,Manhattan,equatorial,53980,-0.0193,-6.67,51862,-10.76,53955
+gemma-4-31b,20,Manhattan,humidity,53997,-0.0234,-2.94,41918,-2.06,35737
+gemma-4-31b,20,Queens,graffiti,13,0.0162,-4.39,45026,2.29,9431
+gemma-4-31b,20,Queens,fucking,5,0.0176,-5.07,48391,-0.07,27386
+gemma-4-31b,20,Queens,shopping,20,0.0158,-6.06,52245,-2.83,48222
+gemma-4-31b,20,Queens,gallery,222,0.0114,-6.07,52252,-2.5,46237
+gemma-4-31b,20,Queens,homeless,153,0.012,-5.37,49861,-1.01,35025
+gemma-4-31b,20,Queens,porn,14,0.0161,-4.96,47837,0.12,25895
+gemma-4-31b,20,Queens,anarch,69,0.0134,-4.74,46721,0.58,22246
+gemma-4-31b,20,Queens,illegal,435,0.0102,-3.97,42963,2.36,8976
+gemma-4-31b,20,Queens,vandalism,2082,0.0073,-4.5,45559,-0.0,26826
+gemma-4-31b,20,Queens,gangs,229,0.0114,-4.18,44043,1.46,15459
+gemma-4-31b,20,Queens,tattoo,108,0.0126,-5.25,49313,-0.61,31671
+gemma-4-31b,20,Queens,bodega,34,0.0152,-3.35,40024,2.72,6592
+gemma-4-31b,20,Queens,slums,268,0.0111,-5.44,50126,-1.41,38059
+gemma-4-31b,20,Queens,boutiques,12,0.0165,-6.66,53474,-3.89,52849
+gemma-4-31b,20,Queens,prostit,22,0.0158,-5.71,51144,-1.73,40619
+gemma-4-31b,20,Queens,slum,606,0.0096,-5.25,49280,-1.22,36649
+gemma-4-31b,20,Queens,market,523,0.0099,-6.69,53519,-3.68,52230
+gemma-4-31b,20,Queens,traff,403,0.0104,-5.13,48660,-0.15,27990
+gemma-4-31b,20,Queens,marijuana,142,0.0121,-3.54,40887,1.67,13936
+gemma-4-31b,20,Queens,prostitutes,187,0.0116,-5.19,49008,-0.71,32466
+gemma-4-31b,20,Queens,bistro,33,0.0152,-6.23,52691,-2.93,48757
+gemma-4-31b,20,Queens,boutique,3,0.0179,-6.18,52549,-2.97,48970
+gemma-4-31b,20,Queens,instagram,6,0.0172,-5.29,49493,-0.32,29417
+gemma-4-31b,20,Queens,social,40,0.0146,-4.16,43901,2.41,8589
+gemma-4-31b,20,Queens,nightclubs,19,0.0159,-4.05,43366,1.65,14065
+gemma-4-31b,20,Queens,seawater,53998,-0.0241,6.28,1100,3.34,3192
+gemma-4-31b,20,Queens,scientist,53837,-0.0144,5.77,2465,1.87,12395
+gemma-4-31b,20,Queens,hydrological,53956,-0.0174,6.31,1024,3.12,4316
+gemma-4-31b,20,Queens,equatorial,53980,-0.0193,6.95,210,4.03,820
+gemma-4-31b,20,Queens,humidity,53997,-0.0234,5.12,4943,0.2,25286
+gemma-4-31b,20,Staten Island,graffiti,13,0.0162,-5.3,52022,-0.67,36474
+gemma-4-31b,20,Staten Island,fucking,5,0.0176,-5.67,53200,-1.72,48046
+gemma-4-31b,20,Staten Island,shopping,20,0.0158,-5.32,52094,-0.7,36982
+gemma-4-31b,20,Staten Island,gallery,222,0.0114,-5.44,52525,-1.28,43938
+gemma-4-31b,20,Staten Island,homeless,153,0.012,-5.45,52583,-1.26,43708
+gemma-4-31b,20,Staten Island,porn,14,0.0161,-5.59,52985,-1.52,46325
+gemma-4-31b,20,Staten Island,anarch,69,0.0134,-5.01,50699,-0.16,29491
+gemma-4-31b,20,Staten Island,illegal,435,0.0102,-4.22,45930,1.65,6809
+gemma-4-31b,20,Staten Island,vandalism,2082,0.0073,-4.78,49418,-0.52,34546
+gemma-4-31b,20,Staten Island,gangs,229,0.0114,-4.38,46911,0.96,14200
+gemma-4-31b,20,Staten Island,tattoo,108,0.0126,-5.02,50751,-0.11,28708
+gemma-4-31b,20,Staten Island,bodega,34,0.0152,-4.78,49420,-0.2,29976
+gemma-4-31b,20,Staten Island,slums,268,0.0111,-5.41,52435,-1.42,45351
+gemma-4-31b,20,Staten Island,boutiques,12,0.0165,-5.43,52511,-1.2,43024
+gemma-4-31b,20,Staten Island,prostit,22,0.0158,-5.87,53594,-2.21,51309
+gemma-4-31b,20,Staten Island,slum,606,0.0096,-5.35,52241,-1.44,45566
+gemma-4-31b,20,Staten Island,market,523,0.0099,-4.89,50042,-0.26,30911
+gemma-4-31b,20,Staten Island,traff,403,0.0104,-4.8,49532,0.68,17662
+gemma-4-31b,20,Staten Island,marijuana,142,0.0121,-4.21,45852,0.45,20721
+gemma-4-31b,20,Staten Island,prostitutes,187,0.0116,-5.15,51360,-0.7,36889
+gemma-4-31b,20,Staten Island,bistro,33,0.0152,-5.75,53395,-1.92,49610
+gemma-4-31b,20,Staten Island,boutique,3,0.0179,-5.61,53030,-1.56,46677
+gemma-4-31b,20,Staten Island,instagram,6,0.0172,-5.24,51775,-0.25,30786
+gemma-4-31b,20,Staten Island,social,40,0.0146,-5.02,50738,-0.04,27692
+gemma-4-31b,20,Staten Island,nightclubs,19,0.0159,-4.45,47331,0.73,16957
+gemma-4-31b,20,Staten Island,seawater,53998,-0.0241,5.94,435,2.49,1920
+gemma-4-31b,20,Staten Island,scientist,53837,-0.0144,5.29,2062,0.82,15820
+gemma-4-31b,20,Staten Island,hydrological,53956,-0.0174,5.25,2226,0.77,16484
+gemma-4-31b,20,Staten Island,equatorial,53980,-0.0193,5.41,1609,1.39,9259
+gemma-4-31b,20,Staten Island,humidity,53997,-0.0234,4.67,5029,-0.89,39291
+gemma-4-31b,24,Bronx,graffiti,15,0.0177,1.79,3289,2.22,1737
+gemma-4-31b,24,Bronx,fucking,9,0.0185,1.3,8210,0.65,16324
+gemma-4-31b,24,Bronx,shopping,87,0.0144,1.28,8457,0.57,17632
+gemma-4-31b,24,Bronx,gallery,778,0.0098,1.52,5514,1.07,10551
+gemma-4-31b,24,Bronx,homeless,555,0.0106,1.78,3326,1.65,4826
+gemma-4-31b,24,Bronx,porn,48,0.0157,1.71,3921,1.89,3276
+gemma-4-31b,24,Bronx,anarch,11,0.0182,1.28,8559,0.73,15134
+gemma-4-31b,24,Bronx,illegal,333,0.0117,1.9,2538,3.49,42
+gemma-4-31b,24,Bronx,vandalism,2865,0.0068,2.71,291,3.0,216
+gemma-4-31b,24,Bronx,gangs,103,0.0141,1.53,5445,1.85,3513
+gemma-4-31b,24,Bronx,tattoo,181,0.013,1.51,5677,1.12,10011
+gemma-4-31b,24,Bronx,bodega,5,0.0197,0.76,16392,-1.28,46046
+gemma-4-31b,24,Bronx,slums,49,0.0157,1.07,11512,0.05,25988
+gemma-4-31b,24,Bronx,boutiques,6,0.0196,0.72,16931,-1.31,46274
+gemma-4-31b,24,Bronx,prostit,7,0.019,1.09,11222,-0.11,28785
+gemma-4-31b,24,Bronx,slum,65,0.0151,1.04,12003,0.01,26695
+gemma-4-31b,24,Bronx,market,17,0.0175,1.0,12651,-0.32,32310
+gemma-4-31b,24,Bronx,traff,30,0.0167,0.86,14710,-1.46,47763
+gemma-4-31b,24,Bronx,marijuana,70,0.0149,1.36,7399,0.73,15237
+gemma-4-31b,24,Bronx,prostitutes,43,0.0161,0.92,13864,-0.63,37345
+gemma-4-31b,24,Bronx,bistro,20,0.0175,0.62,18654,-1.29,46122
+gemma-4-31b,24,Bronx,boutique,3,0.0213,0.78,16030,-1.56,48705
+gemma-4-31b,24,Bronx,instagram,36,0.0164,1.13,10699,0.04,26294
+gemma-4-31b,24,Bronx,social,176,0.013,1.51,5661,1.31,7933
+gemma-4-31b,24,Bronx,nightclubs,10,0.0182,0.88,14457,-1.01,42684
+gemma-4-31b,24,Bronx,seawater,53977,-0.0189,-1.66,49810,-2.34,52828
+gemma-4-31b,24,Bronx,scientist,53985,-0.02,-0.88,39943,1.04,10946
+gemma-4-31b,24,Bronx,hydrological,53979,-0.0189,-0.98,41453,0.53,18285
+gemma-4-31b,24,Bronx,equatorial,53860,-0.0146,-1.09,43018,0.03,26424
+gemma-4-31b,24,Bronx,humidity,53993,-0.0215,-1.58,49055,-1.38,46992
+gemma-4-31b,24,Brooklyn,graffiti,15,0.0177,5.32,3563,0.09,25670
+gemma-4-31b,24,Brooklyn,fucking,9,0.0185,5.67,1783,0.96,14551
+gemma-4-31b,24,Brooklyn,shopping,87,0.0144,5.27,3868,0.08,25864
+gemma-4-31b,24,Brooklyn,gallery,778,0.0098,4.41,9092,-0.92,39064
+gemma-4-31b,24,Brooklyn,homeless,555,0.0106,6.25,214,2.4,1611
+gemma-4-31b,24,Brooklyn,porn,48,0.0157,4.62,7856,-1.7,47668
+gemma-4-31b,24,Brooklyn,anarch,11,0.0182,5.69,1667,0.91,15172
+gemma-4-31b,24,Brooklyn,illegal,333,0.0117,5.39,3154,-0.17,29198
+gemma-4-31b,24,Brooklyn,vandalism,2865,0.0068,4.28,9813,-0.18,29297
+gemma-4-31b,24,Brooklyn,gangs,103,0.0141,6.15,346,2.63,823
+gemma-4-31b,24,Brooklyn,tattoo,181,0.013,4.32,9564,-1.67,47417
+gemma-4-31b,24,Brooklyn,bodega,5,0.0197,6.06,513,2.09,3260
+gemma-4-31b,24,Brooklyn,slums,49,0.0157,6.51,43,2.88,328
+gemma-4-31b,24,Brooklyn,boutiques,6,0.0196,5.2,4280,-0.33,31431
+gemma-4-31b,24,Brooklyn,prostit,7,0.019,5.64,1909,0.8,16454
+gemma-4-31b,24,Brooklyn,slum,65,0.0151,6.54,37,2.91,301
+gemma-4-31b,24,Brooklyn,market,17,0.0175,5.6,2063,0.87,15656
+gemma-4-31b,24,Brooklyn,traff,30,0.0167,6.16,334,2.89,313
+gemma-4-31b,24,Brooklyn,marijuana,70,0.0149,6.23,244,2.36,1798
+gemma-4-31b,24,Brooklyn,prostitutes,43,0.0161,6.03,575,1.96,4087
+gemma-4-31b,24,Brooklyn,bistro,20,0.0175,5.44,2845,0.62,18808
+gemma-4-31b,24,Brooklyn,boutique,3,0.0213,5.55,2293,0.43,21222
+gemma-4-31b,24,Brooklyn,instagram,36,0.0164,5.25,3956,-0.35,31608
+gemma-4-31b,24,Brooklyn,social,176,0.013,5.79,1263,1.32,10127
+gemma-4-31b,24,Brooklyn,nightclubs,10,0.0182,5.58,2166,0.57,19434
+gemma-4-31b,24,Brooklyn,seawater,53977,-0.0189,-4.75,47480,2.51,1212
+gemma-4-31b,24,Brooklyn,scientist,53985,-0.02,-6.12,53609,-2.39,52384
+gemma-4-31b,24,Brooklyn,hydrological,53979,-0.0189,-4.58,46412,2.58,955
+gemma-4-31b,24,Brooklyn,equatorial,53860,-0.0146,-4.31,44809,2.55,1053
+gemma-4-31b,24,Brooklyn,humidity,53993,-0.0215,-4.36,45110,1.9,4637
+gemma-4-31b,24,Manhattan,graffiti,15,0.0177,0.84,22562,-6.51,51380
+gemma-4-31b,24,Manhattan,fucking,9,0.0185,2.74,13004,0.06,26456
+gemma-4-31b,24,Manhattan,shopping,87,0.0144,3.92,7849,3.56,10653
+gemma-4-31b,24,Manhattan,gallery,778,0.0098,2.66,13428,0.27,25406
+gemma-4-31b,24,Manhattan,homeless,555,0.0106,0.19,25850,-5.51,49322
+gemma-4-31b,24,Manhattan,porn,48,0.0157,3.34,10205,1.9,17613
+gemma-4-31b,24,Manhattan,anarch,11,0.0182,2.34,14907,-2.37,38188
+gemma-4-31b,24,Manhattan,illegal,333,0.0117,1.55,18978,-5.73,49856
+gemma-4-31b,24,Manhattan,vandalism,2865,0.0068,-0.44,29141,-4.85,47562
+gemma-4-31b,24,Manhattan,gangs,103,0.0141,1.45,19454,-6.63,51573
+gemma-4-31b,24,Manhattan,tattoo,181,0.013,2.98,11830,0.89,22365
+gemma-4-31b,24,Manhattan,bodega,5,0.0197,2.23,15482,-1.77,35458
+gemma-4-31b,24,Manhattan,slums,49,0.0157,1.12,21145,-3.4,42565
+gemma-4-31b,24,Manhattan,boutiques,6,0.0196,4.64,5468,6.55,2521
+gemma-4-31b,24,Manhattan,prostit,7,0.019,3.41,9920,2.41,15295
+gemma-4-31b,24,Manhattan,slum,65,0.0151,0.56,23979,-4.51,46497
+gemma-4-31b,24,Manhattan,market,17,0.0175,3.91,7911,3.62,10410
+gemma-4-31b,24,Manhattan,traff,30,0.0167,2.19,15667,-3.18,41650
+gemma-4-31b,24,Manhattan,marijuana,70,0.0149,-0.61,29997,-8.1,53236
+gemma-4-31b,24,Manhattan,prostitutes,43,0.0161,2.27,15308,-1.47,34014
+gemma-4-31b,24,Manhattan,bistro,20,0.0175,4.34,6388,4.5,7492
+gemma-4-31b,24,Manhattan,boutique,3,0.0213,3.55,9275,3.31,11625
+gemma-4-31b,24,Manhattan,instagram,36,0.0164,3.61,9045,3.08,12538
+gemma-4-31b,24,Manhattan,social,176,0.013,1.23,20585,-4.94,47879
+gemma-4-31b,24,Manhattan,nightclubs,10,0.0182,2.82,12605,0.2,25745
+gemma-4-31b,24,Manhattan,seawater,53977,-0.0189,-3.63,45007,-3.59,43335
+gemma-4-31b,24,Manhattan,scientist,53985,-0.02,-2.59,40212,0.71,23187
+gemma-4-31b,24,Manhattan,hydrological,53979,-0.0189,-4.24,47271,-5.59,49544
+gemma-4-31b,24,Manhattan,equatorial,53860,-0.0146,-5.32,50264,-8.51,53472
+gemma-4-31b,24,Manhattan,humidity,53993,-0.0215,-2.92,41834,-0.69,30163
+gemma-4-31b,24,Queens,graffiti,15,0.0177,-4.12,42695,3.27,2366
+gemma-4-31b,24,Queens,fucking,9,0.0185,-5.57,49901,-0.71,33801
+gemma-4-31b,24,Queens,shopping,87,0.0144,-6.64,53308,-3.43,52068
+gemma-4-31b,24,Queens,gallery,778,0.0098,-4.62,45220,0.5,22678
+gemma-4-31b,24,Queens,homeless,555,0.0106,-4.82,46212,0.17,25845
+gemma-4-31b,24,Queens,porn,48,0.0157,-5.41,49190,-0.39,30895
+gemma-4-31b,24,Queens,anarch,11,0.0182,-5.29,48679,0.79,19942
+gemma-4-31b,24,Queens,illegal,333,0.0117,-4.98,47029,1.64,12577
+gemma-4-31b,24,Queens,vandalism,2865,0.0068,-3.14,38328,1.93,10274
+gemma-4-31b,24,Queens,gangs,103,0.0141,-5.52,49675,-0.31,30155
+gemma-4-31b,24,Queens,tattoo,181,0.013,-5.11,47657,-0.07,27974
+gemma-4-31b,24,Queens,bodega,5,0.0197,-5.22,48297,0.35,24122
+gemma-4-31b,24,Queens,slums,49,0.0157,-5.14,47840,-0.31,30232
+gemma-4-31b,24,Queens,boutiques,6,0.0196,-6.47,52983,-3.2,51221
+gemma-4-31b,24,Queens,prostit,7,0.019,-5.96,51503,-1.83,43200
+gemma-4-31b,24,Queens,slum,65,0.0151,-4.73,45723,0.33,24241
+gemma-4-31b,24,Queens,market,17,0.0175,-6.68,53364,-3.61,52617
+gemma-4-31b,24,Queens,traff,30,0.0167,-5.54,49796,-0.3,30103
+gemma-4-31b,24,Queens,marijuana,70,0.0149,-3.98,42056,1.87,10732
+gemma-4-31b,24,Queens,prostitutes,43,0.0161,-5.41,49216,-0.3,30139
+gemma-4-31b,24,Queens,bistro,20,0.0175,-6.47,52979,-2.93,50049
+gemma-4-31b,24,Queens,boutique,3,0.0213,-5.9,51266,-1.7,42174
+gemma-4-31b,24,Queens,instagram,36,0.0164,-6.22,52300,-2.6,48219
+gemma-4-31b,24,Queens,social,176,0.013,-4.93,46806,0.92,18804
+gemma-4-31b,24,Queens,nightclubs,10,0.0182,-5.55,49817,-0.5,31939
+gemma-4-31b,24,Queens,seawater,53977,-0.0189,5.65,3442,0.82,19659
+gemma-4-31b,24,Queens,scientist,53985,-0.02,5.87,2584,1.58,13023
+gemma-4-31b,24,Queens,hydrological,53979,-0.0189,5.64,3482,0.86,19305
+gemma-4-31b,24,Queens,equatorial,53860,-0.0146,6.42,1015,2.93,3847
+gemma-4-31b,24,Queens,humidity,53993,-0.0215,4.92,6994,-0.54,32312
+gemma-4-31b,24,Staten Island,graffiti,15,0.0177,-5.49,52273,-0.67,38367
+gemma-4-31b,24,Staten Island,fucking,9,0.0185,-5.77,53285,-1.38,47517
+gemma-4-31b,24,Staten Island,shopping,87,0.0144,-5.2,50799,-0.02,27698
+gemma-4-31b,24,Staten Island,gallery,778,0.0098,-5.55,52549,-1.25,46149
+gemma-4-31b,24,Staten Island,homeless,555,0.0106,-4.64,47069,0.45,19589
+gemma-4-31b,24,Staten Island,porn,48,0.0157,-5.95,53635,-1.85,51043
+gemma-4-31b,24,Staten Island,anarch,11,0.0182,-5.6,52762,-0.69,38709
+gemma-4-31b,24,Staten Island,illegal,333,0.0117,-5.43,51986,-0.14,29769
+gemma-4-31b,24,Staten Island,vandalism,2865,0.0068,-5.0,49514,-0.93,42198
+gemma-4-31b,24,Staten Island,gangs,103,0.0141,-4.94,49049,1.79,3258
+gemma-4-31b,24,Staten Island,tattoo,181,0.013,-5.03,49717,0.02,26986
+gemma-4-31b,24,Staten Island,bodega,5,0.0197,-5.21,50848,0.27,22622
+gemma-4-31b,24,Staten Island,slums,49,0.0157,-4.78,48012,0.33,21636
+gemma-4-31b,24,Staten Island,boutiques,6,0.0196,-5.41,51902,-0.38,33824
+gemma-4-31b,24,Staten Island,prostit,7,0.019,-5.75,53235,-1.31,46753
+gemma-4-31b,24,Staten Island,slum,65,0.0151,-4.56,46528,0.59,17037
+gemma-4-31b,24,Staten Island,market,17,0.0175,-5.15,50489,0.18,24142
+gemma-4-31b,24,Staten Island,traff,30,0.0167,-4.94,49086,2.19,1446
+gemma-4-31b,24,Staten Island,marijuana,70,0.0149,-4.11,43584,1.55,5020
+gemma-4-31b,24,Staten Island,prostitutes,43,0.0161,-5.18,50686,0.23,23323
+gemma-4-31b,24,Staten Island,bistro,20,0.0175,-5.19,50731,-0.15,29884
+gemma-4-31b,24,Staten Island,boutique,3,0.0213,-5.39,51807,-0.0,27308
+gemma-4-31b,24,Staten Island,instagram,36,0.0164,-5.08,50029,0.73,14755
+gemma-4-31b,24,Staten Island,social,176,0.013,-4.96,49230,0.75,14530
+gemma-4-31b,24,Staten Island,nightclubs,10,0.0182,-5.04,49783,1.08,9893
+gemma-4-31b,24,Staten Island,seawater,53977,-0.0189,6.14,222,2.66,453
+gemma-4-31b,24,Staten Island,scientist,53985,-0.02,5.01,4571,-1.27,46325
+gemma-4-31b,24,Staten Island,hydrological,53979,-0.0189,5.55,1596,0.69,15521
+gemma-4-31b,24,Staten Island,equatorial,53860,-0.0146,5.56,1546,0.88,12616
+gemma-4-31b,24,Staten Island,humidity,53993,-0.0215,5.45,2010,0.75,14462
+qwen3.5-9b,20,Bronx,graffiti,3,0.0226,1.21,5890,2.51,947
+qwen3.5-9b,20,Bronx,fucking,226,0.0126,0.8,10169,0.93,10895
+qwen3.5-9b,20,Bronx,shopping,688,0.0103,0.54,13535,0.34,17585
+qwen3.5-9b,20,Bronx,gallery,352,0.0118,0.24,17994,-0.34,25838
+qwen3.5-9b,20,Bronx,homeless,72,0.0149,0.08,20474,-0.55,28416
+qwen3.5-9b,20,Bronx,porn,2530,0.0072,1.13,6656,1.33,7131
+qwen3.5-9b,20,Bronx,anarch,1302,0.0088,-0.09,23154,-0.82,31427
+qwen3.5-9b,20,Bronx,illegal,322,0.0119,0.47,14602,0.22,19011
+qwen3.5-9b,20,Bronx,vandalism,861,0.0098,0.77,10473,0.7,13504
+qwen3.5-9b,20,Bronx,gangs,113,0.014,0.59,12770,0.57,14865
+qwen3.5-9b,20,Bronx,tattoo,34,0.0163,0.25,17762,-0.4,26613
+qwen3.5-9b,20,Bronx,boutiques,54,0.0154,-0.08,23051,-1.15,34764
+qwen3.5-9b,20,Bronx,prostit,4417,0.0058,-0.87,34398,-1.66,38841
+qwen3.5-9b,20,Bronx,market,65,0.0152,-0.39,27851,-1.73,39343
+qwen3.5-9b,20,Bronx,traff,1498,0.0085,0.34,16439,-0.04,22253
+qwen3.5-9b,20,Bronx,marijuana,16497,0.0013,0.62,12393,0.55,15214
+qwen3.5-9b,20,Bronx,prostitutes,7580,0.0042,-1.71,41046,-2.21,41643
+qwen3.5-9b,20,Bronx,boutique,198,0.0129,-0.43,28401,-1.55,38092
+qwen3.5-9b,20,Bronx,instagram,941,0.0096,1.11,6879,1.66,4642
+qwen3.5-9b,20,Bronx,social,303,0.012,-0.01,21924,-0.48,27552
+qwen3.5-9b,20,Bronx,scientist,37410,-0.0046,1.02,7720,1.49,5791
+qwen3.5-9b,20,Bronx,humidity,43412,-0.0175,-0.43,28349,-0.12,23296
+qwen3.5-9b,20,Brooklyn,graffiti,3,0.0226,4.12,1893,1.31,8978
+qwen3.5-9b,20,Brooklyn,fucking,226,0.0126,3.8,3000,0.77,13558
+qwen3.5-9b,20,Brooklyn,shopping,688,0.0103,4.57,850,2.39,2755
+qwen3.5-9b,20,Brooklyn,gallery,352,0.0118,3.43,4610,-0.18,22962
+qwen3.5-9b,20,Brooklyn,homeless,72,0.0149,5.9,25,4.64,12
+qwen3.5-9b,20,Brooklyn,porn,2530,0.0072,2.83,7625,-0.35,24754
+qwen3.5-9b,20,Brooklyn,anarch,1302,0.0088,4.89,458,2.78,1499
+qwen3.5-9b,20,Brooklyn,illegal,322,0.0119,4.64,736,2.66,1814
+qwen3.5-9b,20,Brooklyn,vandalism,861,0.0098,3.02,6671,0.27,18356
+qwen3.5-9b,20,Brooklyn,gangs,113,0.014,3.87,2726,0.67,14491
+qwen3.5-9b,20,Brooklyn,tattoo,34,0.0163,3.86,2743,0.63,14935
+qwen3.5-9b,20,Brooklyn,boutiques,54,0.0154,4.45,1068,2.08,4156
+qwen3.5-9b,20,Brooklyn,prostit,4417,0.0058,4.49,1012,2.33,2974
+qwen3.5-9b,20,Brooklyn,market,65,0.0152,4.77,570,2.69,1738
+qwen3.5-9b,20,Brooklyn,traff,1498,0.0085,4.64,747,2.37,2832
+qwen3.5-9b,20,Brooklyn,marijuana,16497,0.0013,3.33,5076,2.56,2086
+qwen3.5-9b,20,Brooklyn,prostitutes,7580,0.0042,4.13,1863,2.47,2412
+qwen3.5-9b,20,Brooklyn,boutique,198,0.0129,5.02,334,3.03,973
+qwen3.5-9b,20,Brooklyn,instagram,941,0.0096,3.65,3626,0.42,16931
+qwen3.5-9b,20,Brooklyn,social,303,0.012,4.69,667,2.54,2147
+qwen3.5-9b,20,Brooklyn,scientist,37410,-0.0046,-4.99,43267,-3.26,42972
+qwen3.5-9b,20,Brooklyn,humidity,43412,-0.0175,-2.73,34908,2.09,4098
+qwen3.5-9b,20,Manhattan,graffiti,3,0.0226,2.16,12257,-2.55,33047
+qwen3.5-9b,20,Manhattan,fucking,226,0.0126,3.1,8581,0.52,19161
+qwen3.5-9b,20,Manhattan,shopping,688,0.0103,1.8,13791,-0.8,25478
+qwen3.5-9b,20,Manhattan,gallery,352,0.0118,2.93,9190,-0.0,21661
+qwen3.5-9b,20,Manhattan,homeless,72,0.0149,1.34,15707,-2.83,34110
+qwen3.5-9b,20,Manhattan,porn,2530,0.0072,2.32,11598,-0.36,23403
+qwen3.5-9b,20,Manhattan,anarch,1302,0.0088,0.37,19871,-4.47,39192
+qwen3.5-9b,20,Manhattan,illegal,322,0.0119,1.25,16073,-5.27,40891
+qwen3.5-9b,20,Manhattan,vandalism,861,0.0098,1.18,16371,-1.73,29684
+qwen3.5-9b,20,Manhattan,gangs,113,0.014,3.37,7616,0.97,17090
+qwen3.5-9b,20,Manhattan,tattoo,34,0.0163,2.83,9577,-0.54,24266
+qwen3.5-9b,20,Manhattan,boutiques,54,0.0154,2.18,12163,-1.8,30005
+qwen3.5-9b,20,Manhattan,prostit,4417,0.0058,6.85,744,6.08,1431
+qwen3.5-9b,20,Manhattan,market,65,0.0152,3.68,6607,1.69,13799
+qwen3.5-9b,20,Manhattan,traff,1498,0.0085,1.83,13643,-1.78,29926
+qwen3.5-9b,20,Manhattan,marijuana,16497,0.0013,0.58,18953,-0.08,22046
+qwen3.5-9b,20,Manhattan,prostitutes,7580,0.0042,4.41,4500,3.13,8127
+qwen3.5-9b,20,Manhattan,boutique,198,0.0129,1.77,13919,-1.87,30258
+qwen3.5-9b,20,Manhattan,instagram,941,0.0096,2.34,11541,-1.15,27122
+qwen3.5-9b,20,Manhattan,social,303,0.012,0.77,18123,-2.38,32327
+qwen3.5-9b,20,Manhattan,scientist,37410,-0.0046,-1.14,26392,0.69,18335
+qwen3.5-9b,20,Manhattan,humidity,43412,-0.0175,-2.0,30116,2.5,10398
+qwen3.5-9b,20,Queens,graffiti,3,0.0226,-4.12,39146,-0.04,22517
+qwen3.5-9b,20,Queens,fucking,226,0.0126,-4.9,41611,-2.03,36335
+qwen3.5-9b,20,Queens,shopping,688,0.0103,-4.81,41370,-2.2,37230
+qwen3.5-9b,20,Queens,gallery,352,0.0118,-3.13,35182,1.87,8733
+qwen3.5-9b,20,Queens,homeless,72,0.0149,-4.12,39137,-0.67,27420
+qwen3.5-9b,20,Queens,porn,2530,0.0072,-3.71,37519,-0.42,25424
+qwen3.5-9b,20,Queens,anarch,1302,0.0088,-2.88,34119,1.32,12252
+qwen3.5-9b,20,Queens,illegal,322,0.0119,-3.62,37169,1.2,13048
+qwen3.5-9b,20,Queens,vandalism,861,0.0098,-2.46,32366,1.0,14529
+qwen3.5-9b,20,Queens,gangs,113,0.014,-4.54,40584,-1.18,30984
+qwen3.5-9b,20,Queens,tattoo,34,0.0163,-3.72,37590,0.97,14727
+qwen3.5-9b,20,Queens,boutiques,54,0.0154,-4.1,39098,-0.29,24449
+qwen3.5-9b,20,Queens,prostit,4417,0.0058,-5.86,43153,-3.58,42163
+qwen3.5-9b,20,Queens,market,65,0.0152,-4.83,41422,-1.87,35506
+qwen3.5-9b,20,Queens,traff,1498,0.0085,-4.53,40545,-1.41,32549
+qwen3.5-9b,20,Queens,marijuana,16497,0.0013,-3.45,36445,-2.58,39042
+qwen3.5-9b,20,Queens,prostitutes,7580,0.0042,-3.5,36677,-1.54,33392
+qwen3.5-9b,20,Queens,boutique,198,0.0129,-3.98,38639,-0.47,25864
+qwen3.5-9b,20,Queens,instagram,941,0.0096,-3.98,38653,-0.21,23868
+qwen3.5-9b,20,Queens,social,303,0.012,-3.48,36572,-0.41,25375
+qwen3.5-9b,20,Queens,scientist,37410,-0.0046,3.5,7232,1.35,12048
+qwen3.5-9b,20,Queens,humidity,43412,-0.0175,2.74,10710,-3.21,41256
+qwen3.5-9b,20,Staten Island,graffiti,3,0.0226,-4.64,43211,-2.22,42163
+qwen3.5-9b,20,Staten Island,fucking,226,0.0126,-3.53,39530,0.07,21020
+qwen3.5-9b,20,Staten Island,shopping,688,0.0103,-2.65,34778,0.42,16662
+qwen3.5-9b,20,Staten Island,gallery,352,0.0118,-4.76,43345,-2.36,42544
+qwen3.5-9b,20,Staten Island,homeless,72,0.0149,-4.31,42677,-1.5,38555
+qwen3.5-9b,20,Staten Island,porn,2530,0.0072,-3.28,38229,-0.13,23689
+qwen3.5-9b,20,Staten Island,anarch,1302,0.0088,-3.22,37880,0.29,18275
+qwen3.5-9b,20,Staten Island,illegal,322,0.0119,-3.76,40665,0.08,20894
+qwen3.5-9b,20,Staten Island,vandalism,861,0.0098,-3.52,39510,-0.78,31761
+qwen3.5-9b,20,Staten Island,gangs,113,0.014,-4.27,42583,-1.24,36453
+qwen3.5-9b,20,Staten Island,tattoo,34,0.0163,-4.31,42679,-1.34,37293
+qwen3.5-9b,20,Staten Island,boutiques,54,0.0154,-3.16,37582,1.21,7923
+qwen3.5-9b,20,Staten Island,prostit,4417,0.0058,-5.29,43533,-3.17,43427
+qwen3.5-9b,20,Staten Island,market,65,0.0152,-4.09,42020,-0.97,33777
+qwen3.5-9b,20,Staten Island,traff,1498,0.0085,-2.91,36232,1.0,9906
+qwen3.5-9b,20,Staten Island,marijuana,16497,0.0013,-1.32,27972,-0.52,28529
+qwen3.5-9b,20,Staten Island,prostitutes,7580,0.0042,-4.17,42294,-2.41,42634
+qwen3.5-9b,20,Staten Island,boutique,198,0.0129,-3.08,37113,0.68,13484
+qwen3.5-9b,20,Staten Island,instagram,941,0.0096,-4.16,42285,-1.13,35444
+qwen3.5-9b,20,Staten Island,social,303,0.012,-2.63,34672,0.47,16057
+qwen3.5-9b,20,Staten Island,scientist,37410,-0.0046,2.04,12534,-0.13,23681
+qwen3.5-9b,20,Staten Island,humidity,43412,-0.0175,3.21,6020,-1.28,36786
+qwen3.5-9b,24,Bronx,graffiti,9,0.0207,1.42,3661,2.88,282
+qwen3.5-9b,24,Bronx,fucking,1614,0.0083,0.34,16059,0.06,20892
+qwen3.5-9b,24,Bronx,shopping,1184,0.009,0.32,16326,0.05,21036
+qwen3.5-9b,24,Bronx,gallery,917,0.0097,-0.29,26636,-1.37,37413
+qwen3.5-9b,24,Bronx,homeless,561,0.0107,0.45,14396,0.25,18481
+qwen3.5-9b,24,Bronx,porn,4715,0.0055,1.19,5395,1.24,7068
+qwen3.5-9b,24,Bronx,anarch,331,0.0118,0.06,20753,-0.71,30859
+qwen3.5-9b,24,Bronx,illegal,1096,0.0092,0.73,10377,0.85,10983
+qwen3.5-9b,24,Bronx,vandalism,857,0.0098,1.14,5848,1.25,6948
+qwen3.5-9b,24,Bronx,gangs,930,0.0096,1.2,5287,1.66,3879
+qwen3.5-9b,24,Bronx,tattoo,684,0.0103,-0.21,25430,-1.33,37080
+qwen3.5-9b,24,Bronx,boutiques,26,0.0186,-0.07,22979,-1.46,38107
+qwen3.5-9b,24,Bronx,prostit,1532,0.0084,-0.05,22598,-0.55,28981
+qwen3.5-9b,24,Bronx,market,701,0.0102,-0.25,25984,-1.26,36471
+qwen3.5-9b,24,Bronx,traff,14333,0.002,1.43,3599,1.39,5860
+qwen3.5-9b,24,Bronx,marijuana,26817,-0.0012,-1.15,37902,-1.1,35047
+qwen3.5-9b,24,Bronx,prostitutes,7512,0.0042,-0.53,30509,-0.91,33180
+qwen3.5-9b,24,Bronx,boutique,18,0.0196,-0.21,25403,-1.86,40695
+qwen3.5-9b,24,Bronx,instagram,1183,0.009,0.81,9259,0.98,9582
+qwen3.5-9b,24,Bronx,social,215,0.0126,-0.24,25853,-0.86,32564
+qwen3.5-9b,24,Bronx,scientist,36731,-0.0044,1.42,3654,2.0,2100
+qwen3.5-9b,24,Bronx,humidity,43454,-0.019,-0.18,24824,0.65,13225
+qwen3.5-9b,24,Brooklyn,graffiti,9,0.0207,4.18,1416,1.77,5803
+qwen3.5-9b,24,Brooklyn,fucking,1614,0.0083,3.35,4389,0.61,15157
+qwen3.5-9b,24,Brooklyn,shopping,1184,0.009,3.68,2953,1.22,9695
+qwen3.5-9b,24,Brooklyn,gallery,917,0.0097,2.67,7844,-1.3,34062
+qwen3.5-9b,24,Brooklyn,homeless,561,0.0107,5.85,15,4.5,18
+qwen3.5-9b,24,Brooklyn,porn,4715,0.0055,0.6,18626,-2.32,40470
+qwen3.5-9b,24,Brooklyn,anarch,331,0.0118,4.02,1830,1.39,8363
+qwen3.5-9b,24,Brooklyn,illegal,1096,0.0092,3.21,5075,-0.16,23079
+qwen3.5-9b,24,Brooklyn,vandalism,857,0.0098,2.51,8710,-0.2,23502
+qwen3.5-9b,24,Brooklyn,gangs,930,0.0096,3.68,2936,0.94,12108
+qwen3.5-9b,24,Brooklyn,tattoo,684,0.0103,3.28,4746,-0.2,23477
+qwen3.5-9b,24,Brooklyn,boutiques,26,0.0186,4.52,703,2.95,1101
+qwen3.5-9b,24,Brooklyn,prostit,1532,0.0084,3.47,3836,0.87,12751
+qwen3.5-9b,24,Brooklyn,market,701,0.0102,4.12,1572,1.63,6692
+qwen3.5-9b,24,Brooklyn,traff,14333,0.002,3.04,5868,1.91,4960
+qwen3.5-9b,24,Brooklyn,marijuana,26817,-0.0012,1.06,16343,1.8,5601
+qwen3.5-9b,24,Brooklyn,prostitutes,7512,0.0042,3.43,4040,1.55,7184
+qwen3.5-9b,24,Brooklyn,boutique,18,0.0196,4.66,536,3.28,588
+qwen3.5-9b,24,Brooklyn,instagram,1183,0.009,4.17,1436,1.75,5890
+qwen3.5-9b,24,Brooklyn,social,215,0.0126,4.59,612,2.51,2252
+qwen3.5-9b,24,Brooklyn,scientist,36731,-0.0044,-4.23,42306,-2.47,41094
+qwen3.5-9b,24,Brooklyn,humidity,43454,-0.019,-2.83,36318,2.54,2125
+qwen3.5-9b,24,Manhattan,graffiti,9,0.0207,1.61,14182,-3.13,35511
+qwen3.5-9b,24,Manhattan,fucking,1614,0.0083,3.35,7048,1.47,14520
+qwen3.5-9b,24,Manhattan,shopping,1184,0.009,1.19,16022,-1.75,30138
+qwen3.5-9b,24,Manhattan,gallery,917,0.0097,3.13,7835,0.88,17344
+qwen3.5-9b,24,Manhattan,homeless,561,0.0107,0.24,20384,-4.14,38653
+qwen3.5-9b,24,Manhattan,porn,4715,0.0055,3.86,5388,2.38,10446
+qwen3.5-9b,24,Manhattan,anarch,331,0.0118,1.21,15946,-3.96,38140
+qwen3.5-9b,24,Manhattan,illegal,1096,0.0092,2.74,9332,0.1,21155
+qwen3.5-9b,24,Manhattan,vandalism,857,0.0098,0.44,19388,-2.53,33349
+qwen3.5-9b,24,Manhattan,gangs,930,0.0096,2.22,11549,-0.63,24863
+qwen3.5-9b,24,Manhattan,tattoo,684,0.0103,1.51,14606,-2.93,34842
+qwen3.5-9b,24,Manhattan,boutiques,26,0.0186,2.64,9733,-0.84,25921
+qwen3.5-9b,24,Manhattan,prostit,1532,0.0084,5.53,1791,4.77,3119
+qwen3.5-9b,24,Manhattan,market,701,0.0102,3.32,7175,1.27,15444
+qwen3.5-9b,24,Manhattan,traff,14333,0.002,-3.44,36614,-4.83,40330
+qwen3.5-9b,24,Manhattan,marijuana,26817,-0.0012,2.01,12467,2.66,9356
+qwen3.5-9b,24,Manhattan,prostitutes,7512,0.0042,3.43,6764,2.0,12126
+qwen3.5-9b,24,Manhattan,boutique,18,0.0196,2.63,9794,-0.82,25812
+qwen3.5-9b,24,Manhattan,instagram,1183,0.009,3.17,7673,1.02,16654
+qwen3.5-9b,24,Manhattan,social,215,0.0126,1.83,13241,-0.85,25932
+qwen3.5-9b,24,Manhattan,scientist,36731,-0.0044,-2.37,32381,-0.78,25615
+qwen3.5-9b,24,Manhattan,humidity,43454,-0.019,-2.21,31677,2.51,9948
+qwen3.5-9b,24,Queens,graffiti,9,0.0207,-4.03,39490,-0.53,26387
+qwen3.5-9b,24,Queens,fucking,1614,0.0083,-4.34,40491,-1.62,34057
+qwen3.5-9b,24,Queens,shopping,1184,0.009,-3.49,37434,-0.51,26243
+qwen3.5-9b,24,Queens,gallery,917,0.0097,-2.91,34970,1.53,10712
+qwen3.5-9b,24,Queens,homeless,561,0.0107,-3.57,37778,-0.31,24710
+qwen3.5-9b,24,Queens,porn,4715,0.0055,-3.16,36041,-0.66,27365
+qwen3.5-9b,24,Queens,anarch,331,0.0118,-2.66,33867,2.6,4767
+qwen3.5-9b,24,Queens,illegal,1096,0.0092,-3.85,38828,-0.41,25523
+qwen3.5-9b,24,Queens,vandalism,857,0.0098,-1.85,30185,1.51,10844
+qwen3.5-9b,24,Queens,gangs,930,0.0096,-4.36,40536,-1.5,33320
+qwen3.5-9b,24,Queens,tattoo,684,0.0103,-2.27,32134,3.36,2126
+qwen3.5-9b,24,Queens,boutiques,26,0.0186,-4.41,40715,-1.39,32568
+qwen3.5-9b,24,Queens,prostit,1532,0.0084,-4.8,41768,-2.33,37873
+qwen3.5-9b,24,Queens,market,701,0.0102,-4.24,40175,-1.16,31000
+qwen3.5-9b,24,Queens,traff,14333,0.002,-1.45,28481,-0.15,23479
+qwen3.5-9b,24,Queens,marijuana,26817,-0.0012,-1.67,29453,-2.51,38683
+qwen3.5-9b,24,Queens,prostitutes,7512,0.0042,-3.07,35684,-0.88,29053
+qwen3.5-9b,24,Queens,boutique,18,0.0196,-4.24,40164,-0.9,29131
+qwen3.5-9b,24,Queens,instagram,1183,0.009,-5.09,42356,-2.74,39614
+qwen3.5-9b,24,Queens,social,215,0.0126,-3.98,39314,-1.16,31019
+qwen3.5-9b,24,Queens,scientist,36731,-0.0044,3.43,6540,1.31,12196
+qwen3.5-9b,24,Queens,humidity,43454,-0.019,2.81,9518,-4.01,42820
+qwen3.5-9b,24,Staten Island,graffiti,9,0.0207,-4.39,43094,-1.89,41009
+qwen3.5-9b,24,Staten Island,fucking,1614,0.0083,-3.31,39175,-0.35,26753
+qwen3.5-9b,24,Staten Island,shopping,1184,0.009,-2.19,32996,1.16,8105
+qwen3.5-9b,24,Staten Island,gallery,917,0.0097,-3.29,39082,0.32,17737
+qwen3.5-9b,24,Staten Island,homeless,561,0.0107,-4.09,42388,-1.45,38237
+qwen3.5-9b,24,Staten Island,porn,4715,0.0055,-2.58,35151,-0.12,23680
+qwen3.5-9b,24,Staten Island,anarch,331,0.0118,-3.72,41151,-0.38,27140
+qwen3.5-9b,24,Staten Island,illegal,1096,0.0092,-3.64,40814,-0.4,27435
+qwen3.5-9b,24,Staten Island,vandalism,857,0.0098,-3.24,38766,-0.62,30146
+qwen3.5-9b,24,Staten Island,gangs,930,0.0096,-3.59,40565,-0.54,29116
+qwen3.5-9b,24,Staten Island,tattoo,684,0.0103,-3.24,38808,0.61,14013
+qwen3.5-9b,24,Staten Island,boutiques,26,0.0186,-3.44,39897,0.84,11416
+qwen3.5-9b,24,Staten Island,prostit,1532,0.0084,-5.02,43511,-2.92,43319
+qwen3.5-9b,24,Staten Island,market,701,0.0102,-3.75,41248,-0.61,29932
+qwen3.5-9b,24,Staten Island,traff,14333,0.002,0.05,21605,1.37,6285
+qwen3.5-9b,24,Staten Island,marijuana,26817,-0.0012,0.02,21738,-0.71,31158
+qwen3.5-9b,24,Staten Island,prostitutes,7512,0.0042,-4.3,42948,-2.43,42690
+qwen3.5-9b,24,Staten Island,boutique,18,0.0196,-3.68,40971,0.06,21220
+qwen3.5-9b,24,Staten Island,instagram,1183,0.009,-3.95,41961,-1.09,35237
+qwen3.5-9b,24,Staten Island,social,215,0.0126,-2.82,36537,0.29,18105
+qwen3.5-9b,24,Staten Island,scientist,36731,-0.0044,2.14,11082,-0.02,22318
+qwen3.5-9b,24,Staten Island,humidity,43454,-0.019,3.18,5295,-1.88,40984

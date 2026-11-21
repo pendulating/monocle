@@ -1,0 +1,5 @@
+model,case,name,placebo,name_significant,passes
+gemma-4-12b,restaurant,-0.3980679546762258,0.914958666885128,True,False
+gemma-4-12b,street,-0.986292231267089,1.7932519439002663,True,False
+gemma-4-31b,restaurant,-1.3091486846400398,1.357337746739287,True,False
+gemma-4-31b,street,-2.244920157347194,0.5400629660630794,True,True

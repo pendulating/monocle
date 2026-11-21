@@ -1,0 +1,76 @@
+borough,sample_id,layer,n_up,n_down,up_words,down_words
+Manhattan,W0ECNCTD,0,1,0,dapp (1),
+Manhattan,W0ECNCTD,4,1,3,favorite (1),"sulfuric (2), worse (1)"
+Manhattan,W0ECNCTD,8,3,6,"antlers (2), peony (1), alpine (1)","tanker (2), sulfuric (2), trucker (1), scab (1)"
+Manhattan,W0ECNCTD,12,25,4,"ornament (8), ornamented (7), antlers (6), ornaments (5), balkon (4)","forklift (1), truck (1), tanker (1), trucker (1)"
+Manhattan,W0ECNCTD,16,29,6,"ornament (16), ornaments (8), balkon (7), ornamented (6), antlers (6)","truck (3), tanker (2), depot (1), dumping (1), trucker (1)"
+Manhattan,W0ECNCTD,20,28,2,"ornament (13), balkon (6), ornamented (5), antlers (5), arched (3)","truck (2), trucker (1)"
+Manhattan,W0ECNCTD,24,32,6,"ornament (15), arched (6), gardens (6), ornamented (2), sailboat (2)","truck (2), tanker (2), workers (1), forklift (1)"
+Manhattan,W0ECNCTD,28,18,1,"telescope (5), arched (3), sailboat (2), ornament (2), magnificent (2)",workforce (1)
+Manhattan,W0ECNCTD,32,67,1,"ornament (44), decorations (26), embell (9), ornaments (8), arched (7)",workers (1)
+Manhattan,W0ECNCTD,36,58,2,"ornament (21), decorations (10), balkon (9), pastel (7), gardens (6)","metal (1), rusted (1)"
+Manhattan,W0ECNCTD,40,35,2,"pastel (16), ornament (12), arched (6), tulip (1), postcard (1)","metal (1), rusted (1)"
+Manhattan,W0ECNCTD,44,25,2,"arched (9), ornament (7), hydrangea (3), turquoise (3), floral (1)",metal (2)
+Manhattan,W0ECNCTD,48,9,6,"arched (6), turquoise (1), balkon (1), hydrangea (1)",metal (6)
+Manhattan,W0ECNCTD,52,19,6,"arched (5), madeira (3), turquoise (2), violet (2), lavender (2)","metal (6), metals (1)"
+Manhattan,W0ECNCTD,56,20,5,"arched (5), ornament (5), turquoise (2), flower (2), seashell (1)","metal (3), towar (1), rusted (1)"
+Staten Island,W0EL0RUQ,0,1,0,dapp (1),
+Staten Island,W0EL0RUQ,4,0,1,,trucker (1)
+Staten Island,W0EL0RUQ,8,8,2,"antlers (4), alpine (2), seigneur (1), petals (1)",trucker (2)
+Staten Island,W0EL0RUQ,12,19,0,"antlers (6), floral (4), alpine (3), peony (3), bouquet (2)",
+Staten Island,W0EL0RUQ,16,31,1,"antlers (9), gardens (7), bouquet (5), floral (4), bouquets (3)",slaughter (1)
+Staten Island,W0EL0RUQ,20,29,1,"antlers (9), gardens (7), peony (5), ornament (4), decorations (3)",truck (1)
+Staten Island,W0EL0RUQ,24,55,2,"gardens (34), jardins (15), antlers (6), floral (5), roses (5)",truck (2)
+Staten Island,W0EL0RUQ,28,34,0,"gardens (11), roses (9), floral (8), bouquet (8), peony (8)",
+Staten Island,W0EL0RUQ,32,83,0,"gardens (49), ornament (35), decorations (8), flower (6), floral (6)",
+Staten Island,W0EL0RUQ,36,54,0,"gardens (37), flower (18), floral (10), petals (8), flowers (8)",
+Staten Island,W0EL0RUQ,40,44,0,"arched (11), gardens (7), floral (7), anthocyan (7), hydrangea (4)",
+Staten Island,W0EL0RUQ,44,29,0,"hydrangea (9), gardens (7), arched (6), hibiscus (5), floral (2)",
+Staten Island,W0EL0RUQ,48,13,0,"gardens (5), flower (4), hydrangea (3), flowers (3), leaf (1)",
+Staten Island,W0EL0RUQ,52,18,2,"flowers (4), flower (4), leaf (3), madeira (3), gardens (2)","shutdown (1), machinist (1)"
+Staten Island,W0EL0RUQ,56,11,1,"flowers (3), flower (3), leaf (2), arched (2), floral (2)",shunt (1)
+Bronx,W0EDUW80,0,6,0,"wishlist (4), magically (1), honour (1)",
+Bronx,W0EDUW80,4,0,5,,"sulfuric (2), trucker (1), disag (1), tanker (1)"
+Bronx,W0EDUW80,8,3,12,antlers (3),"trucker (3), sulfuric (3), truck (3), washout (2), bulldozer (1)"
+Bronx,W0EDUW80,12,18,23,"antlers (13), bouquet (7), balkon (1), bouquets (1), hydrangea (1)","truck (17), trucker (3), bulldozer (2), salvage (2), tanker (2)"
+Bronx,W0EDUW80,16,22,51,"antlers (19), bouquet (4), bouquets (2), plumage (2), balkon (1)","truck (45), trucks (12), trucker (3), warehouse (3), tanker (3)"
+Bronx,W0EDUW80,20,16,39,"antlers (13), balkon (1), orchids (1), bouquets (1), bouquet (1)","truck (34), trucks (8), dumped (4), forklift (4), warehouse (3)"
+Bronx,W0EDUW80,24,10,70,"antlers (7), gardens (3), plumage (1)","truck (64), trucks (22), forklift (7), bulldozer (5), warehouse (4)"
+Bronx,W0EDUW80,28,5,36,"telescope (2), antlers (1), bouquet (1), plumage (1)","truck (30), trucks (5), bulldozer (4), forklift (3), welding (2)"
+Bronx,W0EDUW80,32,32,26,"gardens (13), plumage (5), ornament (5), daffodils (3), decorations (3)","truck (17), trucks (10), warehouse (5), warehouses (2), decontamination (2)"
+Bronx,W0EDUW80,36,12,28,"gardens (4), antlers (3), plumage (2), telescope (1), petals (1)","truck (17), trucks (6), warehouse (6), warehouses (2), forklift (2)"
+Bronx,W0EDUW80,40,5,20,"pastel (4), turquoise (2)","forklift (10), truck (5), tarp (3), trucks (2), deteriorating (1)"
+Bronx,W0EDUW80,44,4,7,"hydrangea (1), emerald (1), violet (1), turquoise (1)","metal (4), mechanic (1), truck (1), trucks (1), forklift (1)"
+Bronx,W0EDUW80,48,2,5,leaf (2),"metal (3), mechanic (2)"
+Bronx,W0EDUW80,52,6,9,"leaf (4), turquoise (1), violet (1), favorite (1)","metal (6), machinist (2), mechanic (1)"
+Bronx,W0EDUW80,56,4,3,"leaf (2), vlog (1), bubble (1)","mechanic (1), descu (1), metal (1)"
+Queens,W0EA3B36,0,0,0,,
+Queens,W0EA3B36,4,0,3,,"tanker (2), trucker (1)"
+Queens,W0EA3B36,8,0,10,,"trucker (5), tanker (3), truck (2), rusted (1)"
+Queens,W0EA3B36,12,3,25,"balkon (1), antlers (1), hydrangea (1)","tanker (9), truck (9), scab (3), abras (3), rusted (3)"
+Queens,W0EA3B36,16,10,38,"balkon (4), antlers (2), woven (2), arched (1), gardens (1)","truck (18), tanker (16), trucks (3), rusted (3), salvage (2)"
+Queens,W0EA3B36,20,6,31,"antlers (2), balkon (2), arched (1), gardens (1)","truck (23), trucks (10), tanker (3), rusted (3), forklift (1)"
+Queens,W0EA3B36,24,12,47,"gardens (10), jardins (3), balkon (1)","truck (40), trucks (8), rusted (4), smel (3), smelting (2)"
+Queens,W0EA3B36,28,1,16,gardens (1),"truck (7), rusted (4), smel (2), refinery (1), workers (1)"
+Queens,W0EA3B36,32,21,7,"gardens (13), ornament (3), decorations (3), postcard (2), vacation (1)","decontamination (3), abras (3), workers (1), forklift (1), trucks (1)"
+Queens,W0EA3B36,36,17,8,"gardens (9), woven (2), balkon (1), necklaces (1), arched (1)","rusted (3), decontamination (2), welding (1), workers (1), workforce (1)"
+Queens,W0EA3B36,40,8,15,"arched (3), dapp (3), pastel (1), anthocyan (1)","tarp (10), forklift (3), operator (2), metal (1), workers (1)"
+Queens,W0EA3B36,44,3,7,"arched (2), dapp (1)","forklift (3), rusted (2), workers (1), trabalhadores (1), trabajadores (1)"
+Queens,W0EA3B36,48,2,8,"arched (1), dapp (1)","metal (3), rusted (3), workers (1), trabalhadores (1), pekerja (1)"
+Queens,W0EA3B36,52,7,13,"turquoise (2), waved (2), arched (2), dapp (1)","metal (6), rusted (3), forklift (1), workers (1), pekerja (1)"
+Queens,W0EA3B36,56,8,9,"arched (2), dapp (2), turquoise (1), cher (1), waved (1)","corros (3), rusted (3), tarp (2), workers (1), pekerja (1)"
+Brooklyn,W0EH7YSV,0,0,0,,
+Brooklyn,W0EH7YSV,4,0,0,,
+Brooklyn,W0EH7YSV,8,2,11,antlers (2),"trucker (8), truck (4), disag (1)"
+Brooklyn,W0EH7YSV,12,0,28,,"truck (24), trucker (6), trucks (5), tanker (4), forklift (1)"
+Brooklyn,W0EH7YSV,16,0,50,,"truck (48), trucks (11), trucker (10), tanker (6), loader (2)"
+Brooklyn,W0EH7YSV,20,3,46,gardens (3),"truck (42), trucks (22), trucker (7), tanker (2), depot (2)"
+Brooklyn,W0EH7YSV,24,10,67,"gardens (10), jardins (2)","truck (63), trucks (28), depot (4), trucker (2), tanker (2)"
+Brooklyn,W0EH7YSV,28,3,31,"telescope (1), gardens (1), sailboat (1)","truck (29), trucks (12), tanker (2), depot (2), forklift (1)"
+Brooklyn,W0EH7YSV,32,21,17,"gardens (17), telescope (1), holidays (1), holiday (1), decorations (1)","truck (11), trucks (10), warehouse (2), scrapy (1)"
+Brooklyn,W0EH7YSV,36,17,15,"gardens (15), crested (1), pastel (1)","truck (11), trucks (8), trucker (2), tanker (1), warehouse (1)"
+Brooklyn,W0EH7YSV,40,2,6,"pastel (1), gardens (1)","truck (3), idling (1), trucks (1), forklift (1), tarp (1)"
+Brooklyn,W0EH7YSV,44,1,4,emerald (1),"truck (2), trucks (1), warehouse (1), tarp (1)"
+Brooklyn,W0EH7YSV,48,0,4,,"industrial (3), truck (1), trucks (1)"
+Brooklyn,W0EH7YSV,52,1,7,favorite (1),"industrial (3), industriel (3), industrielle (3), industri (2), machinist (1)"
+Brooklyn,W0EH7YSV,56,2,5,leaf (2),"industrial (2), truck (1), trucks (1), trucker (1), truckers (1)"

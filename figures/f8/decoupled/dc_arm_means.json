@@ -1,0 +1,9 @@
+{
+  "plot-title": "The decoupled cue: the mean readout of each arm",
+  "plot-caption": "The mean readout of each arm over the images with all 4 arms, and the no-name F4 mean (none).",
+  "plot-latex-label": "fig:dc-arm-means",
+  "plot-tags": [
+    "F8.5",
+    "decoupled cue"
+  ]
+}

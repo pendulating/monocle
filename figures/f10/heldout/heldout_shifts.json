@@ -1,0 +1,10 @@
+{
+  "plot-title": "The held-out test of removal",
+  "plot-caption": "Mean change of c_yes_i from the clean prompt, paired over 100 new images, 95% CI. The bar marks the effect of the text swap on the same images. delete: the name coordinate goes to 0. add: the other name takes the coordinate of the name, and the name stays. swap: both. null: the name against an unrelated noun. rand_match: the swap edit along random vectors, with the same size at each position.",
+  "plot-latex-label": "fig:heldout-shifts",
+  "plot-tags": [
+    "F10.3",
+    "coordinate swap",
+    "held-out"
+  ]
+}

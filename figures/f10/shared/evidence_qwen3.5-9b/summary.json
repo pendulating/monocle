@@ -1,0 +1,15 @@
+{
+ "version": "1.0.0",
+ "model": "qwen3.5-9b",
+ "n_nta": 197,
+ "evidence_spans": 36455,
+ "valence_counts": {
+  "neutral": 18298,
+  "good": 14632,
+  "bad": 3522
+ },
+ "images_with_evidence": 591,
+ "r_evidence_margin": 0.6894070910640124,
+ "r_trace_verdict_evidence": 0.6505879856898326,
+ "r_trace_verdict_margin": 0.7646726544459949
+}

@@ -1,0 +1,9 @@
+{
+  "plot-title": "Manhattan against the rest on 14 prompts",
+  "plot-caption": "The two-sample t of the Manhattan NTA mean margins against the other NTAs, for each prompt and model (df 195 or fewer where an NTA has no verdict). A filled marker passes Holm over the family of 42 tests at .05; an open marker does not.",
+  "plot-latex-label": "fig:t8-manhattan",
+  "plot-tags": [
+    "f10.26",
+    "boroughs"
+  ]
+}

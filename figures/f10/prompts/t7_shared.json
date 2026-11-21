@@ -1,0 +1,9 @@
+{
+  "plot-title": "A shared aesthetic direction at the noun",
+  "plot-caption": "Top: the cosine between the ridge decoders of the 7 adjective margins, fit from the same residual at the noun place at mid depth, for each model. Bottom: the out-of-fold R2 of each prompt's own decoder (grey) against the R2 of the first singular direction of the 13 other decoders, fit in the training folds and tested on the held-out prompt (blue), at the noun at mid depth. Margins are z-scored. Folds keep each NTA whole.",
+  "plot-latex-label": "fig:t7-shared",
+  "plot-tags": [
+    "f10.26",
+    "shared direction"
+  ]
+}

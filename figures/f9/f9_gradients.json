@@ -1,0 +1,11 @@
+{
+  "plot-title": "The NTA gradient of the net valence under the F4 and the F9 prompt",
+  "plot-caption": "Each marker is 1 model and 1 ACS feature (5 features: % white, % Black, % Asian, % bachelor's degree, log median household income, each z-scored over the NTAs). The x axis is the OLS slope of the net valence of the response on the feature under the F4 prompt; the y axis is the same slope under the F9 (subjective) prompt, on the same images. The dashed line is y = x. A marker farther from 0 than the line, on the same side, is a steeper gradient under F9. A filled marker has a significant slope of d = F9 minus F4 (CR1 by NTA, Bonferroni over 60 tests). The F9 net valence has a wider spread than the F4 net valence (restaurant: about 3 times the SD), and a raw slope grows with the spread; the standardized figure removes this.",
+  "plot-latex-label": "fig:f9-gradients",
+  "plot-tags": [
+    "f9",
+    "h9",
+    "net-valence",
+    "nta"
+  ]
+}

@@ -1,0 +1,492 @@
+model,prompt,image_idx,nta2020,borough,alpha,text
+gemma-4-31b,place cool,6,BK1203,Brooklyn,-6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,6,BK1203,Brooklyn,0.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,6,BK1203,Brooklyn,6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,23,BX0403,Bronx,-6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,23,BX0403,Bronx,0.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,23,BX0403,Bronx,6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,52,BK1602,Brooklyn,-6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,52,BK1602,Brooklyn,0.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,52,BK1602,Brooklyn,6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,117,QN1001,Queens,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,117,QN1001,Queens,0.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,117,QN1001,Queens,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,125,SI0104,Staten Island,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,125,SI0104,Staten Island,0.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,125,SI0104,Staten Island,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,130,BK0102,Brooklyn,-6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,130,BK0102,Brooklyn,0.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,130,BK0102,Brooklyn,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,135,QN0805,Queens,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,135,QN0805,Queens,0.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,135,QN0805,Queens,6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,136,MN0602,Manhattan,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,136,MN0602,Manhattan,0.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,136,MN0602,Manhattan,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,160,BX0801,Bronx,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,160,BX0801,Bronx,0.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,160,BX0801,Bronx,6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,163,BK1803,Brooklyn,-6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,163,BK1803,Brooklyn,0.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place cool,163,BK1803,Brooklyn,6.0,"no<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,6,BK1203,Brooklyn,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,6,BK1203,Brooklyn,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,6,BK1203,Brooklyn,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,23,BX0403,Bronx,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,23,BX0403,Bronx,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,23,BX0403,Bronx,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,52,BK1602,Brooklyn,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,52,BK1602,Brooklyn,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,52,BK1602,Brooklyn,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,117,QN1001,Queens,-6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,117,QN1001,Queens,0.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,117,QN1001,Queens,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,125,SI0104,Staten Island,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,125,SI0104,Staten Island,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,125,SI0104,Staten Island,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,130,BK0102,Brooklyn,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Since ""nice"" is a matter of"
+gemma-4-31b,place nice,130,BK0102,Brooklyn,0.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,130,BK0102,Brooklyn,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,135,QN0805,Queens,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,135,QN0805,Queens,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,135,QN0805,Queens,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,136,MN0602,Manhattan,-6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,136,MN0602,Manhattan,0.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,136,MN0602,Manhattan,6.0,"Yes<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place nice,160,BX0801,Bronx,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,160,BX0801,Bronx,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,160,BX0801,Bronx,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place nice,163,BK1803,Brooklyn,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,163,BK1803,Brooklyn,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>I cannot answer this question with ""yes"
+gemma-4-31b,place nice,163,BK1803,Brooklyn,6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""nice"" is"
+gemma-4-31b,place ugly,6,BK1203,Brooklyn,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"" is"
+gemma-4-31b,place ugly,6,BK1203,Brooklyn,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,6,BK1203,Brooklyn,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,23,BX0403,Bronx,-6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,23,BX0403,Bronx,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,23,BX0403,Bronx,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,52,BK1602,Brooklyn,-6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,52,BK1602,Brooklyn,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,52,BK1602,Brooklyn,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,117,QN1001,Queens,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>The question of whether a place is """
+gemma-4-31b,place ugly,117,QN1001,Queens,0.0,"Subjective<turn|>
+<|channel>thought
+<channel|>The question of whether a place is """
+gemma-4-31b,place ugly,117,QN1001,Queens,6.0,"Beauty is subjective, so there is no objective yes or no answer.<turn|>
+"
+gemma-4-31b,place ugly,125,SI0104,Staten Island,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"" is a"
+gemma-4-31b,place ugly,125,SI0104,Staten Island,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,125,SI0104,Staten Island,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,130,BK0102,Brooklyn,-6.0,"Subjective<turn|>
+<|channel>thought
+<channel|>The question of whether a place is """
+gemma-4-31b,place ugly,130,BK0102,Brooklyn,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,130,BK0102,Brooklyn,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether a place is ""ugly"
+gemma-4-31b,place ugly,135,QN0805,Queens,-6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,135,QN0805,Queens,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,135,QN0805,Queens,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,136,MN0602,Manhattan,-6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place ugly,136,MN0602,Manhattan,0.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place ugly,136,MN0602,Manhattan,6.0,"No<turn|>
+<|channel>thought
+<channel|>
+<eos>"
+gemma-4-31b,place ugly,160,BX0801,Bronx,-6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,160,BX0801,Bronx,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,160,BX0801,Bronx,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,163,BK1803,Brooklyn,-6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,163,BK1803,Brooklyn,0.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+gemma-4-31b,place ugly,163,BK1803,Brooklyn,6.0,"Beauty is subjective.<turn|>
+<|channel>thought
+<channel|>Whether something is ""ugly"""
+qwen3.5-9b,place cool,6,BK1203,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,6,BK1203,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,6,BK1203,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,23,BX0403,Bronx,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,23,BX0403,Bronx,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,23,BX0403,Bronx,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,52,BK1602,Brooklyn,-6.0,no<|im_end|>
+qwen3.5-9b,place cool,52,BK1602,Brooklyn,0.0,no<|im_end|>
+qwen3.5-9b,place cool,52,BK1602,Brooklyn,6.0,no<|im_end|>
+qwen3.5-9b,place cool,117,QN1001,Queens,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,117,QN1001,Queens,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,117,QN1001,Queens,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,125,SI0104,Staten Island,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,125,SI0104,Staten Island,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,125,SI0104,Staten Island,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,130,BK0102,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,130,BK0102,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,130,BK0102,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,135,QN0805,Queens,-6.0,no<|im_end|>
+qwen3.5-9b,place cool,135,QN0805,Queens,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,135,QN0805,Queens,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,136,MN0602,Manhattan,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,136,MN0602,Manhattan,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,136,MN0602,Manhattan,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,160,BX0801,Bronx,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,160,BX0801,Bronx,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,160,BX0801,Bronx,6.0,yes<|im_end|>
+qwen3.5-9b,place cool,163,BK1803,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place cool,163,BK1803,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place cool,163,BK1803,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,6,BK1203,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,6,BK1203,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,6,BK1203,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,23,BX0403,Bronx,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,23,BX0403,Bronx,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,23,BX0403,Bronx,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,52,BK1602,Brooklyn,-6.0,no<|im_end|>
+qwen3.5-9b,place nice,52,BK1602,Brooklyn,0.0,no<|im_end|>
+qwen3.5-9b,place nice,52,BK1602,Brooklyn,6.0,no<|im_end|>
+qwen3.5-9b,place nice,117,QN1001,Queens,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,117,QN1001,Queens,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,117,QN1001,Queens,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,125,SI0104,Staten Island,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,125,SI0104,Staten Island,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,125,SI0104,Staten Island,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,130,BK0102,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,130,BK0102,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,130,BK0102,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,135,QN0805,Queens,-6.0,no<|im_end|>
+qwen3.5-9b,place nice,135,QN0805,Queens,0.0,no<|im_end|>
+qwen3.5-9b,place nice,135,QN0805,Queens,6.0,no<|im_end|>
+qwen3.5-9b,place nice,136,MN0602,Manhattan,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,136,MN0602,Manhattan,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,136,MN0602,Manhattan,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,160,BX0801,Bronx,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,160,BX0801,Bronx,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,160,BX0801,Bronx,6.0,yes<|im_end|>
+qwen3.5-9b,place nice,163,BK1803,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place nice,163,BK1803,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place nice,163,BK1803,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,6,BK1203,Brooklyn,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,6,BK1203,Brooklyn,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,6,BK1203,Brooklyn,6.0,no<|im_end|>
+qwen3.5-9b,place ugly,23,BX0403,Bronx,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,23,BX0403,Bronx,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,23,BX0403,Bronx,6.0,no<|im_end|>
+qwen3.5-9b,place ugly,52,BK1602,Brooklyn,-6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,52,BK1602,Brooklyn,0.0,yes<|im_end|>
+qwen3.5-9b,place ugly,52,BK1602,Brooklyn,6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,117,QN1001,Queens,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,117,QN1001,Queens,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,117,QN1001,Queens,6.0,no<|im_end|>
+qwen3.5-9b,place ugly,125,SI0104,Staten Island,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,125,SI0104,Staten Island,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,125,SI0104,Staten Island,6.0,no<|im_end|>
+qwen3.5-9b,place ugly,130,BK0102,Brooklyn,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,130,BK0102,Brooklyn,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,130,BK0102,Brooklyn,6.0,no<|im_end|>
+qwen3.5-9b,place ugly,135,QN0805,Queens,-6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,135,QN0805,Queens,0.0,yes<|im_end|>
+qwen3.5-9b,place ugly,135,QN0805,Queens,6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,136,MN0602,Manhattan,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,136,MN0602,Manhattan,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,136,MN0602,Manhattan,6.0,no<|im_end|>
+qwen3.5-9b,place ugly,160,BX0801,Bronx,-6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,160,BX0801,Bronx,0.0,yes<|im_end|>
+qwen3.5-9b,place ugly,160,BX0801,Bronx,6.0,yes<|im_end|>
+qwen3.5-9b,place ugly,163,BK1803,Brooklyn,-6.0,no<|im_end|>
+qwen3.5-9b,place ugly,163,BK1803,Brooklyn,0.0,no<|im_end|>
+qwen3.5-9b,place ugly,163,BK1803,Brooklyn,6.0,no<|im_end|>
+qwen3.6-27b,place cool,6,BK1203,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,6,BK1203,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,6,BK1203,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place cool,23,BX0403,Bronx,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,23,BX0403,Bronx,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,23,BX0403,Bronx,6.0, yes<|im_end|>
+qwen3.6-27b,place cool,52,BK1602,Brooklyn,-6.0, no<|im_end|>
+qwen3.6-27b,place cool,52,BK1602,Brooklyn,0.0, no<|im_end|>
+qwen3.6-27b,place cool,52,BK1602,Brooklyn,6.0, no<|im_end|>
+qwen3.6-27b,place cool,117,QN1001,Queens,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,117,QN1001,Queens,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,117,QN1001,Queens,6.0, yes<|im_end|>
+qwen3.6-27b,place cool,125,SI0104,Staten Island,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,125,SI0104,Staten Island,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,125,SI0104,Staten Island,6.0, yes<|im_end|>
+qwen3.6-27b,place cool,130,BK0102,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,130,BK0102,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,130,BK0102,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place cool,135,QN0805,Queens,-6.0, no<|im_end|>
+qwen3.6-27b,place cool,135,QN0805,Queens,0.0, no<|im_end|>
+qwen3.6-27b,place cool,135,QN0805,Queens,6.0, no<|im_end|>
+qwen3.6-27b,place cool,136,MN0602,Manhattan,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,136,MN0602,Manhattan,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,136,MN0602,Manhattan,6.0, yes<|im_end|>
+qwen3.6-27b,place cool,160,BX0801,Bronx,-6.0, no<|im_end|>
+qwen3.6-27b,place cool,160,BX0801,Bronx,0.0, no<|im_end|>
+qwen3.6-27b,place cool,160,BX0801,Bronx,6.0, no<|im_end|>
+qwen3.6-27b,place cool,163,BK1803,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place cool,163,BK1803,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place cool,163,BK1803,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place nice,6,BK1203,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place nice,6,BK1203,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place nice,6,BK1203,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place nice,23,BX0403,Bronx,-6.0, no<|im_end|>
+qwen3.6-27b,place nice,23,BX0403,Bronx,0.0, no<|im_end|>
+qwen3.6-27b,place nice,23,BX0403,Bronx,6.0, no<|im_end|>
+qwen3.6-27b,place nice,52,BK1602,Brooklyn,-6.0, no<|im_end|>
+qwen3.6-27b,place nice,52,BK1602,Brooklyn,0.0, no<|im_end|>
+qwen3.6-27b,place nice,52,BK1602,Brooklyn,6.0, no<|im_end|>
+qwen3.6-27b,place nice,117,QN1001,Queens,-6.0, yes<|im_end|>
+qwen3.6-27b,place nice,117,QN1001,Queens,0.0, yes<|im_end|>
+qwen3.6-27b,place nice,117,QN1001,Queens,6.0,yes<|im_end|>
+qwen3.6-27b,place nice,125,SI0104,Staten Island,-6.0, yes<|im_end|>
+qwen3.6-27b,place nice,125,SI0104,Staten Island,0.0, yes<|im_end|>
+qwen3.6-27b,place nice,125,SI0104,Staten Island,6.0, yes<|im_end|>
+qwen3.6-27b,place nice,130,BK0102,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place nice,130,BK0102,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place nice,130,BK0102,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place nice,135,QN0805,Queens,-6.0, no<|im_end|>
+qwen3.6-27b,place nice,135,QN0805,Queens,0.0, no<|im_end|>
+qwen3.6-27b,place nice,135,QN0805,Queens,6.0, no<|im_end|>
+qwen3.6-27b,place nice,136,MN0602,Manhattan,-6.0, yes<|im_end|>
+qwen3.6-27b,place nice,136,MN0602,Manhattan,0.0, yes<|im_end|>
+qwen3.6-27b,place nice,136,MN0602,Manhattan,6.0, yes<|im_end|>
+qwen3.6-27b,place nice,160,BX0801,Bronx,-6.0, no<|im_end|>
+qwen3.6-27b,place nice,160,BX0801,Bronx,0.0, no<|im_end|>
+qwen3.6-27b,place nice,160,BX0801,Bronx,6.0, no<|im_end|>
+qwen3.6-27b,place nice,163,BK1803,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place nice,163,BK1803,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place nice,163,BK1803,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place ugly,6,BK1203,Brooklyn,-6.0,no<|im_end|>
+qwen3.6-27b,place ugly,6,BK1203,Brooklyn,0.0,no<|im_end|>
+qwen3.6-27b,place ugly,6,BK1203,Brooklyn,6.0,no<|im_end|>
+qwen3.6-27b,place ugly,23,BX0403,Bronx,-6.0, yes<|im_end|>
+qwen3.6-27b,place ugly,23,BX0403,Bronx,0.0, yes<|im_end|>
+qwen3.6-27b,place ugly,23,BX0403,Bronx,6.0, no<|im_end|>
+qwen3.6-27b,place ugly,52,BK1602,Brooklyn,-6.0, yes<|im_end|>
+qwen3.6-27b,place ugly,52,BK1602,Brooklyn,0.0, yes<|im_end|>
+qwen3.6-27b,place ugly,52,BK1602,Brooklyn,6.0, yes<|im_end|>
+qwen3.6-27b,place ugly,117,QN1001,Queens,-6.0,no<|im_end|>
+qwen3.6-27b,place ugly,117,QN1001,Queens,0.0,no<|im_end|>
+qwen3.6-27b,place ugly,117,QN1001,Queens,6.0,no<|im_end|>
+qwen3.6-27b,place ugly,125,SI0104,Staten Island,-6.0, no<|im_end|>
+qwen3.6-27b,place ugly,125,SI0104,Staten Island,0.0, no<|im_end|>
+qwen3.6-27b,place ugly,125,SI0104,Staten Island,6.0,no<|im_end|>
+qwen3.6-27b,place ugly,130,BK0102,Brooklyn,-6.0,no<|im_end|>
+qwen3.6-27b,place ugly,130,BK0102,Brooklyn,0.0,no<|im_end|>
+qwen3.6-27b,place ugly,130,BK0102,Brooklyn,6.0,no<|im_end|>
+qwen3.6-27b,place ugly,135,QN0805,Queens,-6.0,yes<|im_end|>
+qwen3.6-27b,place ugly,135,QN0805,Queens,0.0,yes<|im_end|>
+qwen3.6-27b,place ugly,135,QN0805,Queens,6.0,yes<|im_end|>
+qwen3.6-27b,place ugly,136,MN0602,Manhattan,-6.0, no<|im_end|>
+qwen3.6-27b,place ugly,136,MN0602,Manhattan,0.0, no<|im_end|>
+qwen3.6-27b,place ugly,136,MN0602,Manhattan,6.0, no<|im_end|>
+qwen3.6-27b,place ugly,160,BX0801,Bronx,-6.0,no<|im_end|>
+qwen3.6-27b,place ugly,160,BX0801,Bronx,0.0,no<|im_end|>
+qwen3.6-27b,place ugly,160,BX0801,Bronx,6.0,no<|im_end|>
+qwen3.6-27b,place ugly,163,BK1803,Brooklyn,-6.0,no<|im_end|>
+qwen3.6-27b,place ugly,163,BK1803,Brooklyn,0.0,no<|im_end|>
+qwen3.6-27b,place ugly,163,BK1803,Brooklyn,6.0,no<|im_end|>

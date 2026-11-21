@@ -1,0 +1,39 @@
+{
+  "plot-title": "Borough words that three models share",
+  "plot-caption": "The top words of contrast C3 at the cool token, by relative depth, for Gemma-4-31B, Qwen3.5-9B and Qwen3.6-27B. C3 is a Welch t over NTAs of one borough against the rest. Words are ranked by their lowest z-score over the three models, thus a word ranks high only when all three models raise it.",
+  "plot-latex-label": "fig:borough-layers",
+  "plot-tags": [
+    "F10.30",
+    "C3",
+    "gemma-4-31b",
+    "qwen3.5-9b",
+    "qwen3.6-27b"
+  ],
+  "version": "1.0.0",
+  "rho_between_models_by_band": [
+    {
+      "band": 0,
+      "min": 0.028,
+      "median": 0.151,
+      "max": 0.351
+    },
+    {
+      "band": 1,
+      "min": 0.154,
+      "median": 0.355,
+      "max": 0.535
+    },
+    {
+      "band": 2,
+      "min": 0.03,
+      "median": 0.258,
+      "max": 0.424
+    },
+    {
+      "band": 3,
+      "min": 0.0,
+      "median": 0.205,
+      "max": 0.37
+    }
+  ]
+}

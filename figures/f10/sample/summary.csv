@@ -1,0 +1,16 @@
+cells_with_500_images_or_more,38.0
+icc1_min,0.018303907337109758
+icc1_median,0.1926458024501943
+icc1_max,0.5576349574748127
+icc1_3_min,0.052972514034718796
+icc1_3_median,0.41718589352567115
+icc1_3_max,0.7908706404800723
+split_r_min,0.02550845735529457
+split_r_median,0.24967802969156633
+split_r_max,0.6312852678995673
+income_pass_3_images,25.0
+income_pass_1_image_all_3_choices,1.0
+income_pass_1_image_any_choice,29.0
+manhattan_pass_3_images,24.0
+manhattan_pass_1_image_all_3_choices,13.0
+manhattan_pass_1_image_any_choice,20.0

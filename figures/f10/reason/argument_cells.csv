@@ -1,0 +1,613 @@
+object,value,for,against,model,n,for_share
+ac units,beauty,0,5,gemma-4-31b,5,0.0
+ac units,character,0,1,gemma-4-31b,1,0.0
+ac units,comfort,0,9,gemma-4-31b,9,0.0
+ac units,community,1,0,gemma-4-31b,1,1.0
+ac units,edge,1,0,gemma-4-31b,1,1.0
+ac units,heritage,2,6,gemma-4-31b,8,0.25
+ac units,modernity,0,13,gemma-4-31b,13,0.0
+ac units,order,1,19,gemma-4-31b,20,0.05
+ac units,other,4,2,gemma-4-31b,6,0.6666666666666666
+ac units,status,0,4,gemma-4-31b,4,0.0
+ac units,utility,1,22,gemma-4-31b,23,0.043478260869565216
+basketball or playground,beauty,0,1,gemma-4-31b,1,0.0
+basketball or playground,character,0,2,gemma-4-31b,2,0.0
+basketball or playground,comfort,2,0,gemma-4-31b,2,1.0
+basketball or playground,community,8,0,gemma-4-31b,8,1.0
+basketball or playground,modernity,0,0,gemma-4-31b,0,0.0
+basketball or playground,nature,0,0,gemma-4-31b,0,0.0
+basketball or playground,order,2,0,gemma-4-31b,2,1.0
+basketball or playground,other,0,0,gemma-4-31b,0,0.0
+basketball or playground,utility,0,2,gemma-4-31b,2,0.0
+basketball or playground,vitality,3,2,gemma-4-31b,5,0.6
+bike lane,character,2,0,gemma-4-31b,2,1.0
+bike lane,comfort,1,0,gemma-4-31b,1,1.0
+bike lane,community,8,0,gemma-4-31b,8,1.0
+bike lane,edge,0,0,gemma-4-31b,0,0.0
+bike lane,modernity,6,0,gemma-4-31b,6,1.0
+bike lane,nature,1,0,gemma-4-31b,1,1.0
+bike lane,order,2,0,gemma-4-31b,2,1.0
+bike lane,other,0,0,gemma-4-31b,0,0.0
+bike lane,utility,3,2,gemma-4-31b,5,0.6
+bike lane,vitality,1,0,gemma-4-31b,1,1.0
+blue sky,beauty,1,0,gemma-4-31b,1,1.0
+blue sky,character,0,1,gemma-4-31b,1,0.0
+blue sky,comfort,8,0,gemma-4-31b,8,1.0
+blue sky,edge,0,0,gemma-4-31b,0,0.0
+blue sky,modernity,0,0,gemma-4-31b,0,0.0
+blue sky,nature,17,0,gemma-4-31b,17,1.0
+blue sky,order,1,0,gemma-4-31b,1,1.0
+blue sky,other,0,20,gemma-4-31b,20,0.0
+blue sky,utility,1,3,gemma-4-31b,4,0.25
+brick,beauty,25,139,gemma-4-31b,164,0.1524390243902439
+brick,character,72,172,gemma-4-31b,244,0.29508196721311475
+brick,comfort,14,5,gemma-4-31b,19,0.7368421052631579
+brick,community,8,1,gemma-4-31b,9,0.8888888888888888
+brick,edge,53,9,gemma-4-31b,62,0.8548387096774194
+brick,heritage,246,24,gemma-4-31b,270,0.9111111111111111
+brick,modernity,13,19,gemma-4-31b,32,0.40625
+brick,nature,4,22,gemma-4-31b,26,0.15384615384615385
+brick,order,46,13,gemma-4-31b,59,0.7796610169491526
+brick,other,0,27,gemma-4-31b,27,0.0
+brick,status,3,8,gemma-4-31b,11,0.2727272727272727
+brick,utility,1,283,gemma-4-31b,284,0.0035211267605633804
+brick,vitality,4,23,gemma-4-31b,27,0.14814814814814814
+brownstone or row house,beauty,7,3,gemma-4-31b,10,0.7
+brownstone or row house,character,15,14,gemma-4-31b,29,0.5172413793103449
+brownstone or row house,comfort,0,9,gemma-4-31b,9,0.0
+brownstone or row house,community,5,1,gemma-4-31b,6,0.8333333333333334
+brownstone or row house,edge,0,0,gemma-4-31b,0,0.0
+brownstone or row house,heritage,95,5,gemma-4-31b,100,0.95
+brownstone or row house,modernity,0,1,gemma-4-31b,1,0.0
+brownstone or row house,order,2,2,gemma-4-31b,4,0.5
+brownstone or row house,other,0,1,gemma-4-31b,1,0.0
+brownstone or row house,status,2,0,gemma-4-31b,2,1.0
+brownstone or row house,utility,0,9,gemma-4-31b,9,0.0
+brownstone or row house,vitality,0,3,gemma-4-31b,3,0.0
+cars,beauty,5,17,gemma-4-31b,22,0.22727272727272727
+cars,character,7,79,gemma-4-31b,86,0.08139534883720931
+cars,comfort,6,79,gemma-4-31b,85,0.07058823529411765
+cars,community,2,1,gemma-4-31b,3,0.6666666666666666
+cars,edge,10,11,gemma-4-31b,21,0.47619047619047616
+cars,heritage,3,0,gemma-4-31b,3,1.0
+cars,modernity,6,0,gemma-4-31b,6,1.0
+cars,nature,0,8,gemma-4-31b,8,0.0
+cars,order,4,18,gemma-4-31b,22,0.18181818181818182
+cars,other,1,28,gemma-4-31b,29,0.034482758620689655
+cars,status,4,3,gemma-4-31b,7,0.5714285714285714
+cars,utility,0,103,gemma-4-31b,103,0.0
+cars,vitality,11,53,gemma-4-31b,64,0.171875
+chain-link fence,beauty,0,53,gemma-4-31b,53,0.0
+chain-link fence,character,5,59,gemma-4-31b,64,0.078125
+chain-link fence,comfort,8,17,gemma-4-31b,25,0.32
+chain-link fence,community,2,1,gemma-4-31b,3,0.6666666666666666
+chain-link fence,edge,9,24,gemma-4-31b,33,0.2727272727272727
+chain-link fence,heritage,4,0,gemma-4-31b,4,1.0
+chain-link fence,modernity,0,3,gemma-4-31b,3,0.0
+chain-link fence,nature,3,3,gemma-4-31b,6,0.5
+chain-link fence,order,18,31,gemma-4-31b,49,0.3673469387755102
+chain-link fence,other,0,19,gemma-4-31b,19,0.0
+chain-link fence,status,0,0,gemma-4-31b,0,0.0
+chain-link fence,utility,2,111,gemma-4-31b,113,0.017699115044247787
+chain-link fence,vitality,2,32,gemma-4-31b,34,0.058823529411764705
+concrete,beauty,2,92,gemma-4-31b,94,0.02127659574468085
+concrete,character,4,16,gemma-4-31b,20,0.2
+concrete,comfort,0,31,gemma-4-31b,31,0.0
+concrete,community,0,0,gemma-4-31b,0,0.0
+concrete,edge,14,26,gemma-4-31b,40,0.35
+concrete,heritage,4,0,gemma-4-31b,4,1.0
+concrete,modernity,1,3,gemma-4-31b,4,0.25
+concrete,nature,2,61,gemma-4-31b,63,0.031746031746031744
+concrete,order,1,19,gemma-4-31b,20,0.05
+concrete,other,8,9,gemma-4-31b,17,0.47058823529411764
+concrete,utility,2,136,gemma-4-31b,138,0.014492753623188406
+concrete,vitality,1,12,gemma-4-31b,13,0.07692307692307693
+construction,beauty,0,41,gemma-4-31b,41,0.0
+construction,character,0,12,gemma-4-31b,12,0.0
+construction,comfort,0,18,gemma-4-31b,18,0.0
+construction,edge,2,5,gemma-4-31b,7,0.2857142857142857
+construction,heritage,1,1,gemma-4-31b,2,0.5
+construction,modernity,0,0,gemma-4-31b,0,0.0
+construction,nature,0,2,gemma-4-31b,2,0.0
+construction,order,0,44,gemma-4-31b,44,0.0
+construction,other,0,8,gemma-4-31b,8,0.0
+construction,status,1,2,gemma-4-31b,3,0.3333333333333333
+construction,utility,0,51,gemma-4-31b,51,0.0
+construction,vitality,3,14,gemma-4-31b,17,0.17647058823529413
+fire escape,beauty,2,2,gemma-4-31b,4,0.5
+fire escape,character,27,3,gemma-4-31b,30,0.9
+fire escape,comfort,0,2,gemma-4-31b,2,0.0
+fire escape,community,2,0,gemma-4-31b,2,1.0
+fire escape,edge,27,1,gemma-4-31b,28,0.9642857142857143
+fire escape,heritage,49,3,gemma-4-31b,52,0.9423076923076923
+fire escape,order,0,3,gemma-4-31b,3,0.0
+fire escape,utility,0,2,gemma-4-31b,2,0.0
+fire escape,vitality,0,0,gemma-4-31b,0,0.0
+glass,beauty,2,2,gemma-4-31b,4,0.5
+glass,character,4,8,gemma-4-31b,12,0.3333333333333333
+glass,comfort,0,0,gemma-4-31b,0,0.0
+glass,community,1,1,gemma-4-31b,2,0.5
+glass,edge,1,0,gemma-4-31b,1,1.0
+glass,heritage,5,1,gemma-4-31b,6,0.8333333333333334
+glass,modernity,26,15,gemma-4-31b,41,0.6341463414634146
+glass,nature,0,1,gemma-4-31b,1,0.0
+glass,order,2,1,gemma-4-31b,3,0.6666666666666666
+glass,other,1,0,gemma-4-31b,1,1.0
+glass,status,1,1,gemma-4-31b,2,0.5
+glass,utility,0,1,gemma-4-31b,1,0.0
+glass,vitality,2,2,gemma-4-31b,4,0.5
+graffiti,beauty,0,4,gemma-4-31b,4,0.0
+graffiti,character,9,1,gemma-4-31b,10,0.9
+graffiti,comfort,0,3,gemma-4-31b,3,0.0
+graffiti,community,0,0,gemma-4-31b,0,0.0
+graffiti,edge,18,3,gemma-4-31b,21,0.8571428571428571
+graffiti,nature,0,1,gemma-4-31b,1,0.0
+graffiti,order,0,47,gemma-4-31b,47,0.0
+graffiti,other,0,1,gemma-4-31b,1,0.0
+graffiti,utility,0,3,gemma-4-31b,3,0.0
+graffiti,vitality,2,1,gemma-4-31b,3,0.6666666666666666
+lawn or yard,beauty,2,2,gemma-4-31b,4,0.5
+lawn or yard,character,4,12,gemma-4-31b,16,0.25
+lawn or yard,comfort,21,3,gemma-4-31b,24,0.875
+lawn or yard,community,1,0,gemma-4-31b,1,1.0
+lawn or yard,edge,0,0,gemma-4-31b,0,0.0
+lawn or yard,heritage,3,0,gemma-4-31b,3,1.0
+lawn or yard,modernity,0,0,gemma-4-31b,0,0.0
+lawn or yard,nature,31,7,gemma-4-31b,38,0.8157894736842105
+lawn or yard,order,45,5,gemma-4-31b,50,0.9
+lawn or yard,other,1,6,gemma-4-31b,7,0.14285714285714285
+lawn or yard,status,2,0,gemma-4-31b,2,1.0
+lawn or yard,utility,3,18,gemma-4-31b,21,0.14285714285714285
+lawn or yard,vitality,2,6,gemma-4-31b,8,0.25
+mural,beauty,3,0,gemma-4-31b,3,1.0
+mural,character,21,0,gemma-4-31b,21,1.0
+mural,community,1,0,gemma-4-31b,1,1.0
+mural,edge,3,0,gemma-4-31b,3,1.0
+mural,nature,3,0,gemma-4-31b,3,1.0
+mural,status,0,1,gemma-4-31b,1,0.0
+mural,vitality,3,0,gemma-4-31b,3,1.0
+overcast,beauty,0,30,gemma-4-31b,30,0.0
+overcast,character,0,2,gemma-4-31b,2,0.0
+overcast,comfort,0,3,gemma-4-31b,3,0.0
+overcast,edge,3,2,gemma-4-31b,5,0.6
+overcast,heritage,0,0,gemma-4-31b,0,0.0
+overcast,nature,0,2,gemma-4-31b,2,0.0
+overcast,order,0,1,gemma-4-31b,1,0.0
+overcast,other,3,3,gemma-4-31b,6,0.5
+overcast,utility,0,6,gemma-4-31b,6,0.0
+overcast,vitality,0,7,gemma-4-31b,7,0.0
+parking lot,beauty,0,24,gemma-4-31b,24,0.0
+parking lot,character,0,26,gemma-4-31b,26,0.0
+parking lot,comfort,1,3,gemma-4-31b,4,0.25
+parking lot,community,0,1,gemma-4-31b,1,0.0
+parking lot,edge,2,3,gemma-4-31b,5,0.4
+parking lot,heritage,0,1,gemma-4-31b,1,0.0
+parking lot,nature,0,1,gemma-4-31b,1,0.0
+parking lot,order,0,4,gemma-4-31b,4,0.0
+parking lot,other,0,12,gemma-4-31b,12,0.0
+parking lot,status,0,2,gemma-4-31b,2,0.0
+parking lot,utility,0,132,gemma-4-31b,132,0.0
+parking lot,vitality,0,44,gemma-4-31b,44,0.0
+people,beauty,1,0,gemma-4-31b,1,1.0
+people,character,1,1,gemma-4-31b,2,0.5
+people,comfort,7,25,gemma-4-31b,32,0.21875
+people,community,15,0,gemma-4-31b,15,1.0
+people,edge,0,3,gemma-4-31b,3,0.0
+people,nature,0,1,gemma-4-31b,1,0.0
+people,order,4,4,gemma-4-31b,8,0.5
+people,other,0,4,gemma-4-31b,4,0.0
+people,status,0,4,gemma-4-31b,4,0.0
+people,utility,1,0,gemma-4-31b,1,1.0
+people,vitality,17,44,gemma-4-31b,61,0.2786885245901639
+power lines,beauty,0,38,gemma-4-31b,38,0.0
+power lines,character,1,25,gemma-4-31b,26,0.038461538461538464
+power lines,comfort,0,2,gemma-4-31b,2,0.0
+power lines,community,1,0,gemma-4-31b,1,1.0
+power lines,edge,7,6,gemma-4-31b,13,0.5384615384615384
+power lines,heritage,1,0,gemma-4-31b,1,1.0
+power lines,modernity,0,3,gemma-4-31b,3,0.0
+power lines,nature,0,3,gemma-4-31b,3,0.0
+power lines,order,0,48,gemma-4-31b,48,0.0
+power lines,other,0,5,gemma-4-31b,5,0.0
+power lines,status,0,1,gemma-4-31b,1,0.0
+power lines,utility,0,45,gemma-4-31b,45,0.0
+power lines,vitality,0,12,gemma-4-31b,12,0.0
+scaffolding,beauty,0,15,gemma-4-31b,15,0.0
+scaffolding,character,1,3,gemma-4-31b,4,0.25
+scaffolding,comfort,0,1,gemma-4-31b,1,0.0
+scaffolding,edge,3,7,gemma-4-31b,10,0.3
+scaffolding,heritage,0,0,gemma-4-31b,0,0.0
+scaffolding,modernity,0,0,gemma-4-31b,0,0.0
+scaffolding,nature,0,0,gemma-4-31b,0,0.0
+scaffolding,order,0,40,gemma-4-31b,40,0.0
+scaffolding,other,0,3,gemma-4-31b,3,0.0
+scaffolding,status,0,1,gemma-4-31b,1,0.0
+scaffolding,utility,0,14,gemma-4-31b,14,0.0
+scaffolding,vitality,0,3,gemma-4-31b,3,0.0
+shade,beauty,0,0,gemma-4-31b,0,0.0
+shade,character,1,0,gemma-4-31b,1,1.0
+shade,comfort,11,0,gemma-4-31b,11,1.0
+shade,community,2,0,gemma-4-31b,2,1.0
+shade,heritage,0,0,gemma-4-31b,0,0.0
+shade,nature,9,0,gemma-4-31b,9,1.0
+shade,order,1,0,gemma-4-31b,1,1.0
+shade,other,39,1,gemma-4-31b,40,0.975
+shade,vitality,1,0,gemma-4-31b,1,1.0
+siding,beauty,0,6,gemma-4-31b,6,0.0
+siding,character,1,21,gemma-4-31b,22,0.045454545454545456
+siding,comfort,4,0,gemma-4-31b,4,1.0
+siding,community,0,0,gemma-4-31b,0,0.0
+siding,edge,1,0,gemma-4-31b,1,1.0
+siding,heritage,6,4,gemma-4-31b,10,0.6
+siding,modernity,1,2,gemma-4-31b,3,0.3333333333333333
+siding,order,7,4,gemma-4-31b,11,0.6363636363636364
+siding,other,0,2,gemma-4-31b,2,0.0
+siding,status,0,1,gemma-4-31b,1,0.0
+siding,utility,0,24,gemma-4-31b,24,0.0
+skyscraper,beauty,21,3,gemma-4-31b,24,0.875
+skyscraper,character,3,6,gemma-4-31b,9,0.3333333333333333
+skyscraper,comfort,0,3,gemma-4-31b,3,0.0
+skyscraper,community,0,1,gemma-4-31b,1,0.0
+skyscraper,edge,3,1,gemma-4-31b,4,0.75
+skyscraper,heritage,7,0,gemma-4-31b,7,1.0
+skyscraper,modernity,31,4,gemma-4-31b,35,0.8857142857142857
+skyscraper,nature,6,2,gemma-4-31b,8,0.75
+skyscraper,order,3,1,gemma-4-31b,4,0.75
+skyscraper,other,1,0,gemma-4-31b,1,1.0
+skyscraper,status,7,1,gemma-4-31b,8,0.875
+skyscraper,utility,1,10,gemma-4-31b,11,0.09090909090909091
+skyscraper,vitality,8,8,gemma-4-31b,16,0.5
+storefront,beauty,0,3,gemma-4-31b,3,0.0
+storefront,character,33,17,gemma-4-31b,50,0.66
+storefront,comfort,0,1,gemma-4-31b,1,0.0
+storefront,community,26,0,gemma-4-31b,26,1.0
+storefront,edge,5,1,gemma-4-31b,6,0.8333333333333334
+storefront,heritage,4,1,gemma-4-31b,5,0.8
+storefront,modernity,6,1,gemma-4-31b,7,0.8571428571428571
+storefront,order,6,4,gemma-4-31b,10,0.6
+storefront,other,1,2,gemma-4-31b,3,0.3333333333333333
+storefront,status,0,22,gemma-4-31b,22,0.0
+storefront,utility,7,25,gemma-4-31b,32,0.21875
+storefront,vitality,14,41,gemma-4-31b,55,0.2545454545454545
+sunny,beauty,9,0,gemma-4-31b,9,1.0
+sunny,comfort,37,2,gemma-4-31b,39,0.9487179487179487
+sunny,community,0,0,gemma-4-31b,0,0.0
+sunny,edge,1,0,gemma-4-31b,1,1.0
+sunny,nature,19,0,gemma-4-31b,19,1.0
+sunny,order,9,0,gemma-4-31b,9,1.0
+sunny,other,2,31,gemma-4-31b,33,0.06060606060606061
+sunny,status,1,0,gemma-4-31b,1,1.0
+sunny,vitality,2,0,gemma-4-31b,2,1.0
+trash,beauty,0,5,gemma-4-31b,5,0.0
+trash,character,0,2,gemma-4-31b,2,0.0
+trash,comfort,0,1,gemma-4-31b,1,0.0
+trash,edge,2,9,gemma-4-31b,11,0.18181818181818182
+trash,nature,0,0,gemma-4-31b,0,0.0
+trash,order,0,44,gemma-4-31b,44,0.0
+trash,utility,0,10,gemma-4-31b,10,0.0
+trash,vitality,0,1,gemma-4-31b,1,0.0
+tree or greenery,beauty,17,8,gemma-4-31b,25,0.68
+tree or greenery,character,21,63,gemma-4-31b,84,0.25
+tree or greenery,comfort,94,3,gemma-4-31b,97,0.9690721649484536
+tree or greenery,community,22,2,gemma-4-31b,24,0.9166666666666666
+tree or greenery,edge,3,0,gemma-4-31b,3,1.0
+tree or greenery,heritage,14,0,gemma-4-31b,14,1.0
+tree or greenery,modernity,2,0,gemma-4-31b,2,1.0
+tree or greenery,nature,435,36,gemma-4-31b,471,0.9235668789808917
+tree or greenery,order,36,4,gemma-4-31b,40,0.9
+tree or greenery,other,44,32,gemma-4-31b,76,0.5789473684210527
+tree or greenery,status,2,1,gemma-4-31b,3,0.6666666666666666
+tree or greenery,utility,1,50,gemma-4-31b,51,0.0196078431372549
+tree or greenery,vitality,5,24,gemma-4-31b,29,0.1724137931034483
+ac units,beauty,1,20,qwen3.5-9b,21,0.047619047619047616
+ac units,character,55,6,qwen3.5-9b,61,0.9016393442622951
+ac units,comfort,1,0,qwen3.5-9b,1,1.0
+ac units,community,36,1,qwen3.5-9b,37,0.972972972972973
+ac units,edge,27,5,qwen3.5-9b,32,0.84375
+ac units,heritage,4,4,qwen3.5-9b,8,0.5
+ac units,modernity,1,12,qwen3.5-9b,13,0.07692307692307693
+ac units,order,1,63,qwen3.5-9b,64,0.015625
+ac units,other,0,1,qwen3.5-9b,1,0.0
+ac units,status,0,3,qwen3.5-9b,3,0.0
+ac units,utility,4,52,qwen3.5-9b,56,0.07142857142857142
+ac units,vitality,3,0,qwen3.5-9b,3,1.0
+basketball or playground,beauty,2,1,qwen3.5-9b,3,0.6666666666666666
+basketball or playground,character,3,0,qwen3.5-9b,3,1.0
+basketball or playground,comfort,7,0,qwen3.5-9b,7,1.0
+basketball or playground,community,40,0,qwen3.5-9b,40,1.0
+basketball or playground,modernity,3,0,qwen3.5-9b,3,1.0
+basketball or playground,nature,0,0,qwen3.5-9b,0,0.0
+basketball or playground,order,4,0,qwen3.5-9b,4,1.0
+basketball or playground,other,1,0,qwen3.5-9b,1,1.0
+basketball or playground,utility,0,1,qwen3.5-9b,1,0.0
+basketball or playground,vitality,24,3,qwen3.5-9b,27,0.8888888888888888
+bike lane,beauty,1,0,qwen3.5-9b,1,1.0
+bike lane,character,2,1,qwen3.5-9b,3,0.6666666666666666
+bike lane,comfort,2,0,qwen3.5-9b,2,1.0
+bike lane,community,12,0,qwen3.5-9b,12,1.0
+bike lane,edge,2,0,qwen3.5-9b,2,1.0
+bike lane,modernity,22,0,qwen3.5-9b,22,1.0
+bike lane,order,6,0,qwen3.5-9b,6,1.0
+bike lane,utility,2,0,qwen3.5-9b,2,1.0
+bike lane,vitality,9,0,qwen3.5-9b,9,1.0
+blue sky,beauty,187,1,qwen3.5-9b,188,0.9946808510638298
+blue sky,character,4,0,qwen3.5-9b,4,1.0
+blue sky,comfort,197,0,qwen3.5-9b,197,1.0
+blue sky,edge,2,0,qwen3.5-9b,2,1.0
+blue sky,heritage,3,0,qwen3.5-9b,3,1.0
+blue sky,nature,686,0,qwen3.5-9b,686,1.0
+blue sky,order,15,0,qwen3.5-9b,15,1.0
+blue sky,other,11,6,qwen3.5-9b,17,0.6470588235294118
+blue sky,vitality,15,0,qwen3.5-9b,15,1.0
+brick,beauty,502,112,qwen3.5-9b,614,0.8175895765472313
+brick,character,659,83,qwen3.5-9b,742,0.8881401617250674
+brick,comfort,43,2,qwen3.5-9b,45,0.9555555555555556
+brick,community,38,0,qwen3.5-9b,38,1.0
+brick,edge,375,11,qwen3.5-9b,386,0.9715025906735751
+brick,heritage,1429,34,qwen3.5-9b,1463,0.9767600820232399
+brick,modernity,71,8,qwen3.5-9b,79,0.8987341772151899
+brick,nature,25,0,qwen3.5-9b,25,1.0
+brick,order,116,34,qwen3.5-9b,150,0.7733333333333333
+brick,other,12,5,qwen3.5-9b,17,0.7058823529411765
+brick,status,33,18,qwen3.5-9b,51,0.6470588235294118
+brick,utility,14,149,qwen3.5-9b,163,0.08588957055214724
+brick,vitality,9,13,qwen3.5-9b,22,0.4090909090909091
+brownstone or row house,beauty,16,1,qwen3.5-9b,17,0.9411764705882353
+brownstone or row house,character,109,16,qwen3.5-9b,125,0.872
+brownstone or row house,comfort,4,1,qwen3.5-9b,5,0.8
+brownstone or row house,community,19,0,qwen3.5-9b,19,1.0
+brownstone or row house,edge,14,0,qwen3.5-9b,14,1.0
+brownstone or row house,heritage,384,5,qwen3.5-9b,389,0.987146529562982
+brownstone or row house,modernity,1,1,qwen3.5-9b,2,0.5
+brownstone or row house,order,13,1,qwen3.5-9b,14,0.9285714285714286
+brownstone or row house,other,3,0,qwen3.5-9b,3,1.0
+brownstone or row house,status,22,4,qwen3.5-9b,26,0.8461538461538461
+brownstone or row house,utility,1,8,qwen3.5-9b,9,0.1111111111111111
+brownstone or row house,vitality,0,1,qwen3.5-9b,1,0.0
+cars,beauty,160,40,qwen3.5-9b,200,0.8
+cars,character,168,38,qwen3.5-9b,206,0.8155339805825242
+cars,comfort,138,27,qwen3.5-9b,165,0.8363636363636363
+cars,community,140,2,qwen3.5-9b,142,0.9859154929577465
+cars,edge,80,14,qwen3.5-9b,94,0.851063829787234
+cars,heritage,18,0,qwen3.5-9b,18,1.0
+cars,modernity,50,0,qwen3.5-9b,50,1.0
+cars,nature,10,0,qwen3.5-9b,10,1.0
+cars,order,47,100,qwen3.5-9b,147,0.3197278911564626
+cars,other,31,17,qwen3.5-9b,48,0.6458333333333334
+cars,status,64,15,qwen3.5-9b,79,0.810126582278481
+cars,utility,10,132,qwen3.5-9b,142,0.07042253521126761
+cars,vitality,165,89,qwen3.5-9b,254,0.6496062992125984
+chain-link fence,beauty,35,44,qwen3.5-9b,79,0.4430379746835443
+chain-link fence,character,89,25,qwen3.5-9b,114,0.7807017543859649
+chain-link fence,comfort,51,39,qwen3.5-9b,90,0.5666666666666667
+chain-link fence,community,22,8,qwen3.5-9b,30,0.7333333333333333
+chain-link fence,edge,95,72,qwen3.5-9b,167,0.5688622754491018
+chain-link fence,heritage,20,2,qwen3.5-9b,22,0.9090909090909091
+chain-link fence,modernity,2,0,qwen3.5-9b,2,1.0
+chain-link fence,nature,11,5,qwen3.5-9b,16,0.6875
+chain-link fence,order,49,119,qwen3.5-9b,168,0.2916666666666667
+chain-link fence,other,1,4,qwen3.5-9b,5,0.2
+chain-link fence,status,1,9,qwen3.5-9b,10,0.1
+chain-link fence,utility,3,130,qwen3.5-9b,133,0.022556390977443608
+chain-link fence,vitality,4,20,qwen3.5-9b,24,0.16666666666666666
+concrete,beauty,64,65,qwen3.5-9b,129,0.49612403100775193
+concrete,character,36,6,qwen3.5-9b,42,0.8571428571428571
+concrete,comfort,3,5,qwen3.5-9b,8,0.375
+concrete,community,1,0,qwen3.5-9b,1,1.0
+concrete,edge,150,34,qwen3.5-9b,184,0.8152173913043478
+concrete,heritage,24,0,qwen3.5-9b,24,1.0
+concrete,modernity,25,0,qwen3.5-9b,25,1.0
+concrete,nature,8,6,qwen3.5-9b,14,0.5714285714285714
+concrete,order,10,31,qwen3.5-9b,41,0.24390243902439024
+concrete,other,8,3,qwen3.5-9b,11,0.7272727272727273
+concrete,status,1,2,qwen3.5-9b,3,0.3333333333333333
+concrete,utility,1,102,qwen3.5-9b,103,0.009708737864077669
+concrete,vitality,8,7,qwen3.5-9b,15,0.5333333333333333
+construction,beauty,10,24,qwen3.5-9b,34,0.29411764705882354
+construction,character,36,2,qwen3.5-9b,38,0.9473684210526315
+construction,comfort,8,6,qwen3.5-9b,14,0.5714285714285714
+construction,community,4,0,qwen3.5-9b,4,1.0
+construction,edge,56,19,qwen3.5-9b,75,0.7466666666666667
+construction,heritage,20,1,qwen3.5-9b,21,0.9523809523809523
+construction,modernity,17,3,qwen3.5-9b,20,0.85
+construction,order,2,96,qwen3.5-9b,98,0.02040816326530612
+construction,other,3,3,qwen3.5-9b,6,0.5
+construction,status,2,6,qwen3.5-9b,8,0.25
+construction,utility,3,55,qwen3.5-9b,58,0.05172413793103448
+construction,vitality,23,12,qwen3.5-9b,35,0.6571428571428571
+fire escape,beauty,21,0,qwen3.5-9b,21,1.0
+fire escape,character,129,1,qwen3.5-9b,130,0.9923076923076923
+fire escape,comfort,1,2,qwen3.5-9b,3,0.3333333333333333
+fire escape,community,3,0,qwen3.5-9b,3,1.0
+fire escape,edge,167,8,qwen3.5-9b,175,0.9542857142857143
+fire escape,heritage,180,5,qwen3.5-9b,185,0.972972972972973
+fire escape,modernity,0,1,qwen3.5-9b,1,0.0
+fire escape,nature,1,0,qwen3.5-9b,1,1.0
+fire escape,order,0,14,qwen3.5-9b,14,0.0
+fire escape,status,1,0,qwen3.5-9b,1,1.0
+fire escape,utility,1,5,qwen3.5-9b,6,0.16666666666666666
+fire escape,vitality,2,1,qwen3.5-9b,3,0.6666666666666666
+glass,beauty,30,3,qwen3.5-9b,33,0.9090909090909091
+glass,character,25,1,qwen3.5-9b,26,0.9615384615384616
+glass,comfort,6,0,qwen3.5-9b,6,1.0
+glass,edge,13,0,qwen3.5-9b,13,1.0
+glass,heritage,29,0,qwen3.5-9b,29,1.0
+glass,modernity,110,2,qwen3.5-9b,112,0.9821428571428571
+glass,nature,0,0,qwen3.5-9b,0,0.0
+glass,order,9,2,qwen3.5-9b,11,0.8181818181818182
+glass,other,0,0,qwen3.5-9b,0,0.0
+glass,status,6,1,qwen3.5-9b,7,0.8571428571428571
+glass,utility,2,2,qwen3.5-9b,4,0.5
+glass,vitality,5,0,qwen3.5-9b,5,1.0
+graffiti,beauty,6,6,qwen3.5-9b,12,0.5
+graffiti,character,83,3,qwen3.5-9b,86,0.9651162790697675
+graffiti,comfort,3,4,qwen3.5-9b,7,0.42857142857142855
+graffiti,community,3,0,qwen3.5-9b,3,1.0
+graffiti,edge,169,6,qwen3.5-9b,175,0.9657142857142857
+graffiti,heritage,1,1,qwen3.5-9b,2,0.5
+graffiti,modernity,1,0,qwen3.5-9b,1,1.0
+graffiti,order,3,52,qwen3.5-9b,55,0.05454545454545454
+graffiti,other,0,1,qwen3.5-9b,1,0.0
+graffiti,utility,0,3,qwen3.5-9b,3,0.0
+graffiti,vitality,4,2,qwen3.5-9b,6,0.6666666666666666
+lawn or yard,beauty,16,5,qwen3.5-9b,21,0.7619047619047619
+lawn or yard,character,23,2,qwen3.5-9b,25,0.92
+lawn or yard,comfort,59,1,qwen3.5-9b,60,0.9833333333333333
+lawn or yard,community,16,0,qwen3.5-9b,16,1.0
+lawn or yard,edge,5,3,qwen3.5-9b,8,0.625
+lawn or yard,heritage,6,0,qwen3.5-9b,6,1.0
+lawn or yard,modernity,1,0,qwen3.5-9b,1,1.0
+lawn or yard,nature,147,3,qwen3.5-9b,150,0.98
+lawn or yard,order,188,50,qwen3.5-9b,238,0.7899159663865546
+lawn or yard,other,1,2,qwen3.5-9b,3,0.3333333333333333
+lawn or yard,status,3,2,qwen3.5-9b,5,0.6
+lawn or yard,utility,1,10,qwen3.5-9b,11,0.09090909090909091
+lawn or yard,vitality,4,7,qwen3.5-9b,11,0.36363636363636365
+mural,beauty,11,1,qwen3.5-9b,12,0.9166666666666666
+mural,character,38,1,qwen3.5-9b,39,0.9743589743589743
+mural,edge,11,0,qwen3.5-9b,11,1.0
+mural,heritage,2,0,qwen3.5-9b,2,1.0
+mural,nature,1,0,qwen3.5-9b,1,1.0
+mural,status,0,1,qwen3.5-9b,1,0.0
+mural,vitality,4,0,qwen3.5-9b,4,1.0
+overcast,beauty,39,119,qwen3.5-9b,158,0.2468354430379747
+overcast,character,6,2,qwen3.5-9b,8,0.75
+overcast,comfort,28,15,qwen3.5-9b,43,0.6511627906976745
+overcast,community,1,0,qwen3.5-9b,1,1.0
+overcast,edge,72,3,qwen3.5-9b,75,0.96
+overcast,nature,3,17,qwen3.5-9b,20,0.15
+overcast,order,0,1,qwen3.5-9b,1,0.0
+overcast,other,47,3,qwen3.5-9b,50,0.94
+overcast,utility,0,7,qwen3.5-9b,7,0.0
+overcast,vitality,0,13,qwen3.5-9b,13,0.0
+parking lot,beauty,1,10,qwen3.5-9b,11,0.09090909090909091
+parking lot,character,4,9,qwen3.5-9b,13,0.3076923076923077
+parking lot,comfort,4,1,qwen3.5-9b,5,0.8
+parking lot,edge,7,0,qwen3.5-9b,7,1.0
+parking lot,heritage,0,0,qwen3.5-9b,0,0.0
+parking lot,order,2,8,qwen3.5-9b,10,0.2
+parking lot,other,0,2,qwen3.5-9b,2,0.0
+parking lot,status,0,3,qwen3.5-9b,3,0.0
+parking lot,utility,1,83,qwen3.5-9b,84,0.011904761904761904
+parking lot,vitality,2,17,qwen3.5-9b,19,0.10526315789473684
+people,beauty,1,0,qwen3.5-9b,1,1.0
+people,character,19,3,qwen3.5-9b,22,0.8636363636363636
+people,comfort,86,2,qwen3.5-9b,88,0.9772727272727273
+people,community,103,1,qwen3.5-9b,104,0.9903846153846154
+people,edge,7,0,qwen3.5-9b,7,1.0
+people,heritage,1,0,qwen3.5-9b,1,1.0
+people,modernity,1,0,qwen3.5-9b,1,1.0
+people,nature,1,1,qwen3.5-9b,2,0.5
+people,order,2,3,qwen3.5-9b,5,0.4
+people,other,2,1,qwen3.5-9b,3,0.6666666666666666
+people,status,3,1,qwen3.5-9b,4,0.75
+people,utility,1,1,qwen3.5-9b,2,0.5
+people,vitality,160,12,qwen3.5-9b,172,0.9302325581395349
+power lines,beauty,7,118,qwen3.5-9b,125,0.056
+power lines,character,77,27,qwen3.5-9b,104,0.7403846153846154
+power lines,comfort,0,5,qwen3.5-9b,5,0.0
+power lines,community,12,2,qwen3.5-9b,14,0.8571428571428571
+power lines,edge,140,36,qwen3.5-9b,176,0.7954545454545454
+power lines,heritage,9,0,qwen3.5-9b,9,1.0
+power lines,modernity,0,3,qwen3.5-9b,3,0.0
+power lines,order,2,255,qwen3.5-9b,257,0.007782101167315175
+power lines,other,2,3,qwen3.5-9b,5,0.4
+power lines,status,0,9,qwen3.5-9b,9,0.0
+power lines,utility,2,49,qwen3.5-9b,51,0.0392156862745098
+power lines,vitality,2,14,qwen3.5-9b,16,0.125
+scaffolding,beauty,22,31,qwen3.5-9b,53,0.41509433962264153
+scaffolding,character,20,0,qwen3.5-9b,20,1.0
+scaffolding,comfort,0,3,qwen3.5-9b,3,0.0
+scaffolding,community,3,0,qwen3.5-9b,3,1.0
+scaffolding,edge,91,13,qwen3.5-9b,104,0.875
+scaffolding,heritage,2,0,qwen3.5-9b,2,1.0
+scaffolding,modernity,8,0,qwen3.5-9b,8,1.0
+scaffolding,nature,1,0,qwen3.5-9b,1,1.0
+scaffolding,order,7,83,qwen3.5-9b,90,0.07777777777777778
+scaffolding,other,4,1,qwen3.5-9b,5,0.8
+scaffolding,status,5,2,qwen3.5-9b,7,0.7142857142857143
+scaffolding,utility,0,12,qwen3.5-9b,12,0.0
+scaffolding,vitality,11,2,qwen3.5-9b,13,0.8461538461538461
+shade,beauty,50,0,qwen3.5-9b,50,1.0
+shade,character,2,0,qwen3.5-9b,2,1.0
+shade,comfort,97,0,qwen3.5-9b,97,1.0
+shade,community,7,0,qwen3.5-9b,7,1.0
+shade,edge,4,0,qwen3.5-9b,4,1.0
+shade,heritage,1,0,qwen3.5-9b,1,1.0
+shade,modernity,1,0,qwen3.5-9b,1,1.0
+shade,nature,62,0,qwen3.5-9b,62,1.0
+shade,order,1,0,qwen3.5-9b,1,1.0
+shade,other,33,0,qwen3.5-9b,33,1.0
+shade,vitality,2,0,qwen3.5-9b,2,1.0
+siding,beauty,37,16,qwen3.5-9b,53,0.6981132075471698
+siding,character,55,22,qwen3.5-9b,77,0.7142857142857143
+siding,comfort,7,1,qwen3.5-9b,8,0.875
+siding,community,1,0,qwen3.5-9b,1,1.0
+siding,edge,3,1,qwen3.5-9b,4,0.75
+siding,heritage,72,4,qwen3.5-9b,76,0.9473684210526315
+siding,modernity,14,3,qwen3.5-9b,17,0.8235294117647058
+siding,order,52,13,qwen3.5-9b,65,0.8
+siding,status,2,4,qwen3.5-9b,6,0.3333333333333333
+siding,utility,2,21,qwen3.5-9b,23,0.08695652173913043
+siding,vitality,0,1,qwen3.5-9b,1,0.0
+skyscraper,beauty,65,1,qwen3.5-9b,66,0.9848484848484849
+skyscraper,character,17,1,qwen3.5-9b,18,0.9444444444444444
+skyscraper,comfort,5,0,qwen3.5-9b,5,1.0
+skyscraper,community,1,0,qwen3.5-9b,1,1.0
+skyscraper,edge,10,0,qwen3.5-9b,10,1.0
+skyscraper,heritage,33,0,qwen3.5-9b,33,1.0
+skyscraper,modernity,51,1,qwen3.5-9b,52,0.9807692307692307
+skyscraper,nature,15,0,qwen3.5-9b,15,1.0
+skyscraper,other,3,0,qwen3.5-9b,3,1.0
+skyscraper,status,8,1,qwen3.5-9b,9,0.8888888888888888
+skyscraper,vitality,11,1,qwen3.5-9b,12,0.9166666666666666
+storefront,beauty,5,4,qwen3.5-9b,9,0.5555555555555556
+storefront,character,70,13,qwen3.5-9b,83,0.8433734939759037
+storefront,comfort,4,0,qwen3.5-9b,4,1.0
+storefront,community,73,1,qwen3.5-9b,74,0.9864864864864865
+storefront,edge,16,3,qwen3.5-9b,19,0.8421052631578947
+storefront,heritage,9,0,qwen3.5-9b,9,1.0
+storefront,modernity,6,0,qwen3.5-9b,6,1.0
+storefront,order,8,8,qwen3.5-9b,16,0.5
+storefront,other,3,0,qwen3.5-9b,3,1.0
+storefront,status,10,13,qwen3.5-9b,23,0.43478260869565216
+storefront,utility,2,29,qwen3.5-9b,31,0.06451612903225806
+storefront,vitality,25,11,qwen3.5-9b,36,0.6944444444444444
+sunny,beauty,264,3,qwen3.5-9b,267,0.9887640449438202
+sunny,character,8,0,qwen3.5-9b,8,1.0
+sunny,comfort,436,2,qwen3.5-9b,438,0.9954337899543378
+sunny,community,11,0,qwen3.5-9b,11,1.0
+sunny,edge,11,0,qwen3.5-9b,11,1.0
+sunny,heritage,0,0,qwen3.5-9b,0,0.0
+sunny,modernity,2,0,qwen3.5-9b,2,1.0
+sunny,nature,515,0,qwen3.5-9b,515,1.0
+sunny,order,42,0,qwen3.5-9b,42,1.0
+sunny,other,14,13,qwen3.5-9b,27,0.5185185185185185
+sunny,status,2,2,qwen3.5-9b,4,0.5
+sunny,utility,1,0,qwen3.5-9b,1,1.0
+sunny,vitality,20,0,qwen3.5-9b,20,1.0
+trash,beauty,0,8,qwen3.5-9b,8,0.0
+trash,character,27,3,qwen3.5-9b,30,0.9
+trash,comfort,0,3,qwen3.5-9b,3,0.0
+trash,community,16,1,qwen3.5-9b,17,0.9411764705882353
+trash,edge,33,15,qwen3.5-9b,48,0.6875
+trash,heritage,1,2,qwen3.5-9b,3,0.3333333333333333
+trash,modernity,0,0,qwen3.5-9b,0,0.0
+trash,order,12,204,qwen3.5-9b,216,0.05555555555555555
+trash,other,0,1,qwen3.5-9b,1,0.0
+trash,status,0,3,qwen3.5-9b,3,0.0
+trash,utility,0,23,qwen3.5-9b,23,0.0
+trash,vitality,4,2,qwen3.5-9b,6,0.6666666666666666
+tree or greenery,beauty,253,16,qwen3.5-9b,269,0.9405204460966543
+tree or greenery,character,116,15,qwen3.5-9b,131,0.8854961832061069
+tree or greenery,comfort,391,2,qwen3.5-9b,393,0.9949109414758269
+tree or greenery,community,84,0,qwen3.5-9b,84,1.0
+tree or greenery,edge,39,3,qwen3.5-9b,42,0.9285714285714286
+tree or greenery,heritage,34,0,qwen3.5-9b,34,1.0
+tree or greenery,modernity,2,0,qwen3.5-9b,2,1.0
+tree or greenery,nature,2041,17,qwen3.5-9b,2058,0.9917395529640428
+tree or greenery,order,65,17,qwen3.5-9b,82,0.7926829268292683
+tree or greenery,other,55,11,qwen3.5-9b,66,0.8333333333333334
+tree or greenery,status,8,1,qwen3.5-9b,9,0.8888888888888888
+tree or greenery,utility,1,14,qwen3.5-9b,15,0.06666666666666667
+tree or greenery,vitality,23,23,qwen3.5-9b,46,0.5

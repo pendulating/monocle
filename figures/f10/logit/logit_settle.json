@@ -1,0 +1,9 @@
+{
+  "plot-title": "Distance of each read from the model output",
+  "plot-caption": "Mean Jensen-Shannon divergence in nats, over NTA means, between the J++ read at a token and layer and the model output at the same token. The softcap is on both, as in the model. Low values show that the read is near the output.",
+  "plot-latex-label": "fig:logit-settle",
+  "plot-tags": [
+    "F10.7",
+    "Jensen-Shannon"
+  ]
+}

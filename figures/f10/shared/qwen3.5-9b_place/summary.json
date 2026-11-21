@@ -1,0 +1,63 @@
+{
+ "version": "1.2.0",
+ "model": "qwen3.5-9b",
+ "position": "place",
+ "test_layer": 28,
+ "fit": [
+  "place-cool",
+  "place-nice",
+  "place-fancy",
+  "place-pretty"
+ ],
+ "held_out": [
+  "place-ordinary",
+  "place-ugly",
+  "place-urban",
+  "scene-cool",
+  "scene-nice",
+  "scene-ordinary",
+  "scene-pretty",
+  "scene-ugly",
+  "scene-fancy",
+  "scene-urban"
+ ],
+ "missing": [],
+ "partial": [],
+ "yes_words": [
+  "true",
+  "correct",
+  "certainly",
+  "definitely",
+  "yes",
+  "absolutely",
+  "indeed",
+  "surely",
+  "affirmative",
+  "oui"
+ ],
+ "no_words": [
+  "not",
+  "without",
+  "never",
+  "nothing",
+  "nor",
+  "lack",
+  "none",
+  "negative",
+  "nicht",
+  "neither",
+  "denied",
+  "nobody",
+  "deny",
+  "nowhere",
+  "nada",
+  "refusal",
+  "kein",
+  "nunca",
+  "rien",
+  "nulla",
+  "nadie",
+  "tampoco"
+ ],
+ "n_nta": 197
+}

@@ -1,0 +1,3 @@
+case,rows,sig0,sig1,sig0_and_sig1,median_share_kept,median_share_kept_sig0
+restaurant,20,16,16,16,0.8278265857465743,0.8327639421524033
+street,20,6,8,5,0.5405496016259389,0.5439243721174629

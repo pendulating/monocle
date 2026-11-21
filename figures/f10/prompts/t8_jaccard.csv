@@ -1,0 +1,1366 @@
+model,prompt_a,prompt_b,same_noun,same_adjective,borough,jaccard_top50
+gemma-4-31b,place cool,place nice,True,False,Bronx,0.010101010101010102
+gemma-4-31b,place cool,place nice,True,False,Brooklyn,0.030927835051546393
+gemma-4-31b,place cool,place nice,True,False,Manhattan,0.0
+gemma-4-31b,place cool,place nice,True,False,Queens,0.030927835051546393
+gemma-4-31b,place cool,place nice,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,place cool,place ordinary,True,False,Bronx,0.0
+gemma-4-31b,place cool,place ordinary,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place cool,place ordinary,True,False,Manhattan,0.0
+gemma-4-31b,place cool,place ordinary,True,False,Queens,0.0
+gemma-4-31b,place cool,place ordinary,True,False,Staten Island,0.0
+gemma-4-31b,place cool,place pretty,True,False,Bronx,0.0
+gemma-4-31b,place cool,place pretty,True,False,Brooklyn,0.0
+gemma-4-31b,place cool,place pretty,True,False,Manhattan,0.02040816326530612
+gemma-4-31b,place cool,place pretty,True,False,Queens,0.0
+gemma-4-31b,place cool,place pretty,True,False,Staten Island,0.02040816326530612
+gemma-4-31b,place cool,place ugly,True,False,Bronx,0.0
+gemma-4-31b,place cool,place ugly,True,False,Brooklyn,0.0
+gemma-4-31b,place cool,place ugly,True,False,Manhattan,0.0
+gemma-4-31b,place cool,place ugly,True,False,Queens,0.0
+gemma-4-31b,place cool,place ugly,True,False,Staten Island,0.0
+gemma-4-31b,place cool,place fancy,True,False,Bronx,0.02040816326530612
+gemma-4-31b,place cool,place fancy,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place cool,place fancy,True,False,Manhattan,0.0
+gemma-4-31b,place cool,place fancy,True,False,Queens,0.0
+gemma-4-31b,place cool,place fancy,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,place cool,place urban,True,False,Bronx,0.0
+gemma-4-31b,place cool,place urban,True,False,Brooklyn,0.0
+gemma-4-31b,place cool,place urban,True,False,Manhattan,0.0
+gemma-4-31b,place cool,place urban,True,False,Queens,0.0
+gemma-4-31b,place cool,place urban,True,False,Staten Island,0.0
+gemma-4-31b,place cool,scene cool,False,True,Bronx,0.02040816326530612
+gemma-4-31b,place cool,scene cool,False,True,Brooklyn,0.07526881720430108
+gemma-4-31b,place cool,scene cool,False,True,Manhattan,0.02040816326530612
+gemma-4-31b,place cool,scene cool,False,True,Queens,0.06382978723404255
+gemma-4-31b,place cool,scene cool,False,True,Staten Island,0.02040816326530612
+gemma-4-31b,place cool,scene nice,False,False,Bronx,0.0
+gemma-4-31b,place cool,scene nice,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place cool,scene nice,False,False,Manhattan,0.0
+gemma-4-31b,place cool,scene nice,False,False,Queens,0.010101010101010102
+gemma-4-31b,place cool,scene nice,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place cool,scene ordinary,False,False,Bronx,0.0
+gemma-4-31b,place cool,scene ordinary,False,False,Brooklyn,0.02040816326530612
+gemma-4-31b,place cool,scene ordinary,False,False,Manhattan,0.0
+gemma-4-31b,place cool,scene ordinary,False,False,Queens,0.0
+gemma-4-31b,place cool,scene ordinary,False,False,Staten Island,0.0
+gemma-4-31b,place cool,scene pretty,False,False,Bronx,0.0
+gemma-4-31b,place cool,scene pretty,False,False,Brooklyn,0.02040816326530612
+gemma-4-31b,place cool,scene pretty,False,False,Manhattan,0.010101010101010102
+gemma-4-31b,place cool,scene pretty,False,False,Queens,0.010101010101010102
+gemma-4-31b,place cool,scene pretty,False,False,Staten Island,0.0
+gemma-4-31b,place cool,scene ugly,False,False,Bronx,0.0
+gemma-4-31b,place cool,scene ugly,False,False,Brooklyn,0.0
+gemma-4-31b,place cool,scene ugly,False,False,Manhattan,0.02040816326530612
+gemma-4-31b,place cool,scene ugly,False,False,Queens,0.0
+gemma-4-31b,place cool,scene ugly,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place cool,scene fancy,False,False,Bronx,0.02040816326530612
+gemma-4-31b,place cool,scene fancy,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place cool,scene fancy,False,False,Manhattan,0.0
+gemma-4-31b,place cool,scene fancy,False,False,Queens,0.0
+gemma-4-31b,place cool,scene fancy,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place cool,scene urban,False,False,Bronx,0.0
+gemma-4-31b,place cool,scene urban,False,False,Brooklyn,0.0
+gemma-4-31b,place cool,scene urban,False,False,Manhattan,0.0
+gemma-4-31b,place cool,scene urban,False,False,Queens,0.0
+gemma-4-31b,place cool,scene urban,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place nice,place ordinary,True,False,Bronx,0.0
+gemma-4-31b,place nice,place ordinary,True,False,Brooklyn,0.0
+gemma-4-31b,place nice,place ordinary,True,False,Manhattan,0.0
+gemma-4-31b,place nice,place ordinary,True,False,Queens,0.0
+gemma-4-31b,place nice,place ordinary,True,False,Staten Island,0.0
+gemma-4-31b,place nice,place pretty,True,False,Bronx,0.030927835051546393
+gemma-4-31b,place nice,place pretty,True,False,Brooklyn,0.02040816326530612
+gemma-4-31b,place nice,place pretty,True,False,Manhattan,0.0
+gemma-4-31b,place nice,place pretty,True,False,Queens,0.0
+gemma-4-31b,place nice,place pretty,True,False,Staten Island,0.0
+gemma-4-31b,place nice,place ugly,True,False,Bronx,0.0
+gemma-4-31b,place nice,place ugly,True,False,Brooklyn,0.0
+gemma-4-31b,place nice,place ugly,True,False,Manhattan,0.0
+gemma-4-31b,place nice,place ugly,True,False,Queens,0.0
+gemma-4-31b,place nice,place ugly,True,False,Staten Island,0.02040816326530612
+gemma-4-31b,place nice,place fancy,True,False,Bronx,0.0
+gemma-4-31b,place nice,place fancy,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place nice,place fancy,True,False,Manhattan,0.0
+gemma-4-31b,place nice,place fancy,True,False,Queens,0.0
+gemma-4-31b,place nice,place fancy,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,place nice,place urban,True,False,Bronx,0.0
+gemma-4-31b,place nice,place urban,True,False,Brooklyn,0.0
+gemma-4-31b,place nice,place urban,True,False,Manhattan,0.0
+gemma-4-31b,place nice,place urban,True,False,Queens,0.0
+gemma-4-31b,place nice,place urban,True,False,Staten Island,0.0
+gemma-4-31b,place nice,scene cool,False,False,Bronx,0.0
+gemma-4-31b,place nice,scene cool,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place nice,scene cool,False,False,Manhattan,0.0
+gemma-4-31b,place nice,scene cool,False,False,Queens,0.0
+gemma-4-31b,place nice,scene cool,False,False,Staten Island,0.0
+gemma-4-31b,place nice,scene nice,False,True,Bronx,0.041666666666666664
+gemma-4-31b,place nice,scene nice,False,True,Brooklyn,0.0989010989010989
+gemma-4-31b,place nice,scene nice,False,True,Manhattan,0.0989010989010989
+gemma-4-31b,place nice,scene nice,False,True,Queens,0.06382978723404255
+gemma-4-31b,place nice,scene nice,False,True,Staten Island,0.041666666666666664
+gemma-4-31b,place nice,scene ordinary,False,False,Bronx,0.0
+gemma-4-31b,place nice,scene ordinary,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place nice,scene ordinary,False,False,Manhattan,0.0
+gemma-4-31b,place nice,scene ordinary,False,False,Queens,0.0
+gemma-4-31b,place nice,scene ordinary,False,False,Staten Island,0.0
+gemma-4-31b,place nice,scene pretty,False,False,Bronx,0.0
+gemma-4-31b,place nice,scene pretty,False,False,Brooklyn,0.0
+gemma-4-31b,place nice,scene pretty,False,False,Manhattan,0.0
+gemma-4-31b,place nice,scene pretty,False,False,Queens,0.0
+gemma-4-31b,place nice,scene pretty,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place nice,scene ugly,False,False,Bronx,0.0
+gemma-4-31b,place nice,scene ugly,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place nice,scene ugly,False,False,Manhattan,0.0
+gemma-4-31b,place nice,scene ugly,False,False,Queens,0.0
+gemma-4-31b,place nice,scene ugly,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place nice,scene fancy,False,False,Bronx,0.0
+gemma-4-31b,place nice,scene fancy,False,False,Brooklyn,0.02040816326530612
+gemma-4-31b,place nice,scene fancy,False,False,Manhattan,0.02040816326530612
+gemma-4-31b,place nice,scene fancy,False,False,Queens,0.010101010101010102
+gemma-4-31b,place nice,scene fancy,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place nice,scene urban,False,False,Bronx,0.0
+gemma-4-31b,place nice,scene urban,False,False,Brooklyn,0.0
+gemma-4-31b,place nice,scene urban,False,False,Manhattan,0.0
+gemma-4-31b,place nice,scene urban,False,False,Queens,0.0
+gemma-4-31b,place nice,scene urban,False,False,Staten Island,0.0
+gemma-4-31b,place ordinary,place pretty,True,False,Bronx,0.0
+gemma-4-31b,place ordinary,place pretty,True,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,place pretty,True,False,Manhattan,0.0
+gemma-4-31b,place ordinary,place pretty,True,False,Queens,0.0
+gemma-4-31b,place ordinary,place pretty,True,False,Staten Island,0.0
+gemma-4-31b,place ordinary,place ugly,True,False,Bronx,0.0
+gemma-4-31b,place ordinary,place ugly,True,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,place ugly,True,False,Manhattan,0.0
+gemma-4-31b,place ordinary,place ugly,True,False,Queens,0.0
+gemma-4-31b,place ordinary,place ugly,True,False,Staten Island,0.0
+gemma-4-31b,place ordinary,place fancy,True,False,Bronx,0.0
+gemma-4-31b,place ordinary,place fancy,True,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,place fancy,True,False,Manhattan,0.0
+gemma-4-31b,place ordinary,place fancy,True,False,Queens,0.0
+gemma-4-31b,place ordinary,place fancy,True,False,Staten Island,0.0
+gemma-4-31b,place ordinary,place urban,True,False,Bronx,0.0
+gemma-4-31b,place ordinary,place urban,True,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,place urban,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,place ordinary,place urban,True,False,Queens,0.0
+gemma-4-31b,place ordinary,place urban,True,False,Staten Island,0.0
+gemma-4-31b,place ordinary,scene cool,False,False,Bronx,0.0
+gemma-4-31b,place ordinary,scene cool,False,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,scene cool,False,False,Manhattan,0.0
+gemma-4-31b,place ordinary,scene cool,False,False,Queens,0.0
+gemma-4-31b,place ordinary,scene cool,False,False,Staten Island,0.0
+gemma-4-31b,place ordinary,scene nice,False,False,Bronx,0.0
+gemma-4-31b,place ordinary,scene nice,False,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,scene nice,False,False,Manhattan,0.0
+gemma-4-31b,place ordinary,scene nice,False,False,Queens,0.0
+gemma-4-31b,place ordinary,scene nice,False,False,Staten Island,0.0
+gemma-4-31b,place ordinary,scene ordinary,False,True,Bronx,0.010101010101010102
+gemma-4-31b,place ordinary,scene ordinary,False,True,Brooklyn,0.05263157894736842
+gemma-4-31b,place ordinary,scene ordinary,False,True,Manhattan,0.12359550561797752
+gemma-4-31b,place ordinary,scene ordinary,False,True,Queens,0.05263157894736842
+gemma-4-31b,place ordinary,scene ordinary,False,True,Staten Island,0.1111111111111111
+gemma-4-31b,place ordinary,scene pretty,False,False,Bronx,0.0
+gemma-4-31b,place ordinary,scene pretty,False,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,scene pretty,False,False,Manhattan,0.0
+gemma-4-31b,place ordinary,scene pretty,False,False,Queens,0.0
+gemma-4-31b,place ordinary,scene pretty,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place ordinary,scene ugly,False,False,Bronx,0.0
+gemma-4-31b,place ordinary,scene ugly,False,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,scene ugly,False,False,Manhattan,0.0
+gemma-4-31b,place ordinary,scene ugly,False,False,Queens,0.0
+gemma-4-31b,place ordinary,scene ugly,False,False,Staten Island,0.0
+gemma-4-31b,place ordinary,scene fancy,False,False,Bronx,0.0
+gemma-4-31b,place ordinary,scene fancy,False,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,scene fancy,False,False,Manhattan,0.0
+gemma-4-31b,place ordinary,scene fancy,False,False,Queens,0.0
+gemma-4-31b,place ordinary,scene fancy,False,False,Staten Island,0.0
+gemma-4-31b,place ordinary,scene urban,False,False,Bronx,0.0
+gemma-4-31b,place ordinary,scene urban,False,False,Brooklyn,0.0
+gemma-4-31b,place ordinary,scene urban,False,False,Manhattan,0.0
+gemma-4-31b,place ordinary,scene urban,False,False,Queens,0.010101010101010102
+gemma-4-31b,place ordinary,scene urban,False,False,Staten Island,0.0
+gemma-4-31b,place pretty,place ugly,True,False,Bronx,0.0
+gemma-4-31b,place pretty,place ugly,True,False,Brooklyn,0.0
+gemma-4-31b,place pretty,place ugly,True,False,Manhattan,0.0
+gemma-4-31b,place pretty,place ugly,True,False,Queens,0.0
+gemma-4-31b,place pretty,place ugly,True,False,Staten Island,0.0
+gemma-4-31b,place pretty,place fancy,True,False,Bronx,0.0
+gemma-4-31b,place pretty,place fancy,True,False,Brooklyn,0.0
+gemma-4-31b,place pretty,place fancy,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,place pretty,place fancy,True,False,Queens,0.0
+gemma-4-31b,place pretty,place fancy,True,False,Staten Island,0.0
+gemma-4-31b,place pretty,place urban,True,False,Bronx,0.0
+gemma-4-31b,place pretty,place urban,True,False,Brooklyn,0.0
+gemma-4-31b,place pretty,place urban,True,False,Manhattan,0.0
+gemma-4-31b,place pretty,place urban,True,False,Queens,0.0
+gemma-4-31b,place pretty,place urban,True,False,Staten Island,0.0
+gemma-4-31b,place pretty,scene cool,False,False,Bronx,0.0
+gemma-4-31b,place pretty,scene cool,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place pretty,scene cool,False,False,Manhattan,0.0
+gemma-4-31b,place pretty,scene cool,False,False,Queens,0.0
+gemma-4-31b,place pretty,scene cool,False,False,Staten Island,0.02040816326530612
+gemma-4-31b,place pretty,scene nice,False,False,Bronx,0.010101010101010102
+gemma-4-31b,place pretty,scene nice,False,False,Brooklyn,0.041666666666666664
+gemma-4-31b,place pretty,scene nice,False,False,Manhattan,0.010101010101010102
+gemma-4-31b,place pretty,scene nice,False,False,Queens,0.030927835051546393
+gemma-4-31b,place pretty,scene nice,False,False,Staten Island,0.0
+gemma-4-31b,place pretty,scene ordinary,False,False,Bronx,0.0
+gemma-4-31b,place pretty,scene ordinary,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place pretty,scene ordinary,False,False,Manhattan,0.0
+gemma-4-31b,place pretty,scene ordinary,False,False,Queens,0.02040816326530612
+gemma-4-31b,place pretty,scene ordinary,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place pretty,scene pretty,False,True,Bronx,0.030927835051546393
+gemma-4-31b,place pretty,scene pretty,False,True,Brooklyn,0.02040816326530612
+gemma-4-31b,place pretty,scene pretty,False,True,Manhattan,0.06382978723404255
+gemma-4-31b,place pretty,scene pretty,False,True,Queens,0.030927835051546393
+gemma-4-31b,place pretty,scene pretty,False,True,Staten Island,0.030927835051546393
+gemma-4-31b,place pretty,scene ugly,False,False,Bronx,0.0
+gemma-4-31b,place pretty,scene ugly,False,False,Brooklyn,0.0
+gemma-4-31b,place pretty,scene ugly,False,False,Manhattan,0.0
+gemma-4-31b,place pretty,scene ugly,False,False,Queens,0.0
+gemma-4-31b,place pretty,scene ugly,False,False,Staten Island,0.02040816326530612
+gemma-4-31b,place pretty,scene fancy,False,False,Bronx,0.0
+gemma-4-31b,place pretty,scene fancy,False,False,Brooklyn,0.0
+gemma-4-31b,place pretty,scene fancy,False,False,Manhattan,0.0
+gemma-4-31b,place pretty,scene fancy,False,False,Queens,0.0
+gemma-4-31b,place pretty,scene fancy,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place pretty,scene urban,False,False,Bronx,0.0
+gemma-4-31b,place pretty,scene urban,False,False,Brooklyn,0.0
+gemma-4-31b,place pretty,scene urban,False,False,Manhattan,0.0
+gemma-4-31b,place pretty,scene urban,False,False,Queens,0.0
+gemma-4-31b,place pretty,scene urban,False,False,Staten Island,0.0
+gemma-4-31b,place ugly,place fancy,True,False,Bronx,0.0
+gemma-4-31b,place ugly,place fancy,True,False,Brooklyn,0.0
+gemma-4-31b,place ugly,place fancy,True,False,Manhattan,0.0
+gemma-4-31b,place ugly,place fancy,True,False,Queens,0.0
+gemma-4-31b,place ugly,place fancy,True,False,Staten Island,0.0
+gemma-4-31b,place ugly,place urban,True,False,Bronx,0.0
+gemma-4-31b,place ugly,place urban,True,False,Brooklyn,0.0
+gemma-4-31b,place ugly,place urban,True,False,Manhattan,0.0
+gemma-4-31b,place ugly,place urban,True,False,Queens,0.0
+gemma-4-31b,place ugly,place urban,True,False,Staten Island,0.0
+gemma-4-31b,place ugly,scene cool,False,False,Bronx,0.0
+gemma-4-31b,place ugly,scene cool,False,False,Brooklyn,0.0
+gemma-4-31b,place ugly,scene cool,False,False,Manhattan,0.010101010101010102
+gemma-4-31b,place ugly,scene cool,False,False,Queens,0.0
+gemma-4-31b,place ugly,scene cool,False,False,Staten Island,0.0
+gemma-4-31b,place ugly,scene nice,False,False,Bronx,0.0
+gemma-4-31b,place ugly,scene nice,False,False,Brooklyn,0.0
+gemma-4-31b,place ugly,scene nice,False,False,Manhattan,0.0
+gemma-4-31b,place ugly,scene nice,False,False,Queens,0.0
+gemma-4-31b,place ugly,scene nice,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place ugly,scene ordinary,False,False,Bronx,0.0
+gemma-4-31b,place ugly,scene ordinary,False,False,Brooklyn,0.0
+gemma-4-31b,place ugly,scene ordinary,False,False,Manhattan,0.0
+gemma-4-31b,place ugly,scene ordinary,False,False,Queens,0.0
+gemma-4-31b,place ugly,scene ordinary,False,False,Staten Island,0.0
+gemma-4-31b,place ugly,scene pretty,False,False,Bronx,0.0
+gemma-4-31b,place ugly,scene pretty,False,False,Brooklyn,0.0
+gemma-4-31b,place ugly,scene pretty,False,False,Manhattan,0.0
+gemma-4-31b,place ugly,scene pretty,False,False,Queens,0.0
+gemma-4-31b,place ugly,scene pretty,False,False,Staten Island,0.0
+gemma-4-31b,place ugly,scene ugly,False,True,Bronx,0.0989010989010989
+gemma-4-31b,place ugly,scene ugly,False,True,Brooklyn,0.06382978723404255
+gemma-4-31b,place ugly,scene ugly,False,True,Manhattan,0.17647058823529413
+gemma-4-31b,place ugly,scene ugly,False,True,Queens,0.05263157894736842
+gemma-4-31b,place ugly,scene ugly,False,True,Staten Island,0.041666666666666664
+gemma-4-31b,place ugly,scene fancy,False,False,Bronx,0.0
+gemma-4-31b,place ugly,scene fancy,False,False,Brooklyn,0.0
+gemma-4-31b,place ugly,scene fancy,False,False,Manhattan,0.0
+gemma-4-31b,place ugly,scene fancy,False,False,Queens,0.0
+gemma-4-31b,place ugly,scene fancy,False,False,Staten Island,0.0
+gemma-4-31b,place ugly,scene urban,False,False,Bronx,0.0
+gemma-4-31b,place ugly,scene urban,False,False,Brooklyn,0.0
+gemma-4-31b,place ugly,scene urban,False,False,Manhattan,0.0
+gemma-4-31b,place ugly,scene urban,False,False,Queens,0.0
+gemma-4-31b,place ugly,scene urban,False,False,Staten Island,0.0
+gemma-4-31b,place fancy,place urban,True,False,Bronx,0.0
+gemma-4-31b,place fancy,place urban,True,False,Brooklyn,0.0
+gemma-4-31b,place fancy,place urban,True,False,Manhattan,0.0
+gemma-4-31b,place fancy,place urban,True,False,Queens,0.0
+gemma-4-31b,place fancy,place urban,True,False,Staten Island,0.0
+gemma-4-31b,place fancy,scene cool,False,False,Bronx,0.0
+gemma-4-31b,place fancy,scene cool,False,False,Brooklyn,0.0
+gemma-4-31b,place fancy,scene cool,False,False,Manhattan,0.010101010101010102
+gemma-4-31b,place fancy,scene cool,False,False,Queens,0.0
+gemma-4-31b,place fancy,scene cool,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place fancy,scene nice,False,False,Bronx,0.0
+gemma-4-31b,place fancy,scene nice,False,False,Brooklyn,0.02040816326530612
+gemma-4-31b,place fancy,scene nice,False,False,Manhattan,0.0
+gemma-4-31b,place fancy,scene nice,False,False,Queens,0.0
+gemma-4-31b,place fancy,scene nice,False,False,Staten Island,0.010101010101010102
+gemma-4-31b,place fancy,scene ordinary,False,False,Bronx,0.0
+gemma-4-31b,place fancy,scene ordinary,False,False,Brooklyn,0.010101010101010102
+gemma-4-31b,place fancy,scene ordinary,False,False,Manhattan,0.0
+gemma-4-31b,place fancy,scene ordinary,False,False,Queens,0.0
+gemma-4-31b,place fancy,scene ordinary,False,False,Staten Island,0.0
+gemma-4-31b,place fancy,scene pretty,False,False,Bronx,0.0
+gemma-4-31b,place fancy,scene pretty,False,False,Brooklyn,0.0
+gemma-4-31b,place fancy,scene pretty,False,False,Manhattan,0.010101010101010102
+gemma-4-31b,place fancy,scene pretty,False,False,Queens,0.0
+gemma-4-31b,place fancy,scene pretty,False,False,Staten Island,0.0
+gemma-4-31b,place fancy,scene ugly,False,False,Bronx,0.0
+gemma-4-31b,place fancy,scene ugly,False,False,Brooklyn,0.0
+gemma-4-31b,place fancy,scene ugly,False,False,Manhattan,0.0
+gemma-4-31b,place fancy,scene ugly,False,False,Queens,0.0
+gemma-4-31b,place fancy,scene ugly,False,False,Staten Island,0.0
+gemma-4-31b,place fancy,scene fancy,False,True,Bronx,0.13636363636363635
+gemma-4-31b,place fancy,scene fancy,False,True,Brooklyn,0.06382978723404255
+gemma-4-31b,place fancy,scene fancy,False,True,Manhattan,0.05263157894736842
+gemma-4-31b,place fancy,scene fancy,False,True,Queens,0.07526881720430108
+gemma-4-31b,place fancy,scene fancy,False,True,Staten Island,0.06382978723404255
+gemma-4-31b,place fancy,scene urban,False,False,Bronx,0.0
+gemma-4-31b,place fancy,scene urban,False,False,Brooklyn,0.0
+gemma-4-31b,place fancy,scene urban,False,False,Manhattan,0.0
+gemma-4-31b,place fancy,scene urban,False,False,Queens,0.0
+gemma-4-31b,place fancy,scene urban,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene cool,False,False,Bronx,0.0
+gemma-4-31b,place urban,scene cool,False,False,Brooklyn,0.0
+gemma-4-31b,place urban,scene cool,False,False,Manhattan,0.0
+gemma-4-31b,place urban,scene cool,False,False,Queens,0.0
+gemma-4-31b,place urban,scene cool,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene nice,False,False,Bronx,0.0
+gemma-4-31b,place urban,scene nice,False,False,Brooklyn,0.0
+gemma-4-31b,place urban,scene nice,False,False,Manhattan,0.0
+gemma-4-31b,place urban,scene nice,False,False,Queens,0.0
+gemma-4-31b,place urban,scene nice,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene ordinary,False,False,Bronx,0.0
+gemma-4-31b,place urban,scene ordinary,False,False,Brooklyn,0.0
+gemma-4-31b,place urban,scene ordinary,False,False,Manhattan,0.02040816326530612
+gemma-4-31b,place urban,scene ordinary,False,False,Queens,0.0
+gemma-4-31b,place urban,scene ordinary,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene pretty,False,False,Bronx,0.0
+gemma-4-31b,place urban,scene pretty,False,False,Brooklyn,0.0
+gemma-4-31b,place urban,scene pretty,False,False,Manhattan,0.0
+gemma-4-31b,place urban,scene pretty,False,False,Queens,0.0
+gemma-4-31b,place urban,scene pretty,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene ugly,False,False,Bronx,0.0
+gemma-4-31b,place urban,scene ugly,False,False,Brooklyn,0.0
+gemma-4-31b,place urban,scene ugly,False,False,Manhattan,0.0
+gemma-4-31b,place urban,scene ugly,False,False,Queens,0.0
+gemma-4-31b,place urban,scene ugly,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene fancy,False,False,Bronx,0.0
+gemma-4-31b,place urban,scene fancy,False,False,Brooklyn,0.0
+gemma-4-31b,place urban,scene fancy,False,False,Manhattan,0.0
+gemma-4-31b,place urban,scene fancy,False,False,Queens,0.0
+gemma-4-31b,place urban,scene fancy,False,False,Staten Island,0.0
+gemma-4-31b,place urban,scene urban,False,True,Bronx,0.16279069767441862
+gemma-4-31b,place urban,scene urban,False,True,Brooklyn,0.17647058823529413
+gemma-4-31b,place urban,scene urban,False,True,Manhattan,0.25
+gemma-4-31b,place urban,scene urban,False,True,Queens,0.2345679012345679
+gemma-4-31b,place urban,scene urban,False,True,Staten Island,0.2987012987012987
+gemma-4-31b,scene cool,scene nice,True,False,Bronx,0.0
+gemma-4-31b,scene cool,scene nice,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene cool,scene nice,True,False,Manhattan,0.0
+gemma-4-31b,scene cool,scene nice,True,False,Queens,0.010101010101010102
+gemma-4-31b,scene cool,scene nice,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene cool,scene ordinary,True,False,Bronx,0.0
+gemma-4-31b,scene cool,scene ordinary,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene cool,scene ordinary,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,scene cool,scene ordinary,True,False,Queens,0.0
+gemma-4-31b,scene cool,scene ordinary,True,False,Staten Island,0.0
+gemma-4-31b,scene cool,scene pretty,True,False,Bronx,0.0
+gemma-4-31b,scene cool,scene pretty,True,False,Brooklyn,0.030927835051546393
+gemma-4-31b,scene cool,scene pretty,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,scene cool,scene pretty,True,False,Queens,0.02040816326530612
+gemma-4-31b,scene cool,scene pretty,True,False,Staten Island,0.0
+gemma-4-31b,scene cool,scene ugly,True,False,Bronx,0.0
+gemma-4-31b,scene cool,scene ugly,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene cool,scene ugly,True,False,Manhattan,0.0
+gemma-4-31b,scene cool,scene ugly,True,False,Queens,0.010101010101010102
+gemma-4-31b,scene cool,scene ugly,True,False,Staten Island,0.030927835051546393
+gemma-4-31b,scene cool,scene fancy,True,False,Bronx,0.010101010101010102
+gemma-4-31b,scene cool,scene fancy,True,False,Brooklyn,0.02040816326530612
+gemma-4-31b,scene cool,scene fancy,True,False,Manhattan,0.0
+gemma-4-31b,scene cool,scene fancy,True,False,Queens,0.0
+gemma-4-31b,scene cool,scene fancy,True,False,Staten Island,0.0
+gemma-4-31b,scene cool,scene urban,True,False,Bronx,0.010101010101010102
+gemma-4-31b,scene cool,scene urban,True,False,Brooklyn,0.0
+gemma-4-31b,scene cool,scene urban,True,False,Manhattan,0.0
+gemma-4-31b,scene cool,scene urban,True,False,Queens,0.0
+gemma-4-31b,scene cool,scene urban,True,False,Staten Island,0.0
+gemma-4-31b,scene nice,scene ordinary,True,False,Bronx,0.0
+gemma-4-31b,scene nice,scene ordinary,True,False,Brooklyn,0.030927835051546393
+gemma-4-31b,scene nice,scene ordinary,True,False,Manhattan,0.0
+gemma-4-31b,scene nice,scene ordinary,True,False,Queens,0.0
+gemma-4-31b,scene nice,scene ordinary,True,False,Staten Island,0.0
+gemma-4-31b,scene nice,scene pretty,True,False,Bronx,0.010101010101010102
+gemma-4-31b,scene nice,scene pretty,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene nice,scene pretty,True,False,Manhattan,0.0
+gemma-4-31b,scene nice,scene pretty,True,False,Queens,0.010101010101010102
+gemma-4-31b,scene nice,scene pretty,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene nice,scene ugly,True,False,Bronx,0.0
+gemma-4-31b,scene nice,scene ugly,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene nice,scene ugly,True,False,Manhattan,0.0
+gemma-4-31b,scene nice,scene ugly,True,False,Queens,0.010101010101010102
+gemma-4-31b,scene nice,scene ugly,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene nice,scene fancy,True,False,Bronx,0.010101010101010102
+gemma-4-31b,scene nice,scene fancy,True,False,Brooklyn,0.041666666666666664
+gemma-4-31b,scene nice,scene fancy,True,False,Manhattan,0.02040816326530612
+gemma-4-31b,scene nice,scene fancy,True,False,Queens,0.02040816326530612
+gemma-4-31b,scene nice,scene fancy,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene nice,scene urban,True,False,Bronx,0.0
+gemma-4-31b,scene nice,scene urban,True,False,Brooklyn,0.0
+gemma-4-31b,scene nice,scene urban,True,False,Manhattan,0.0
+gemma-4-31b,scene nice,scene urban,True,False,Queens,0.0
+gemma-4-31b,scene nice,scene urban,True,False,Staten Island,0.0
+gemma-4-31b,scene ordinary,scene pretty,True,False,Bronx,0.0
+gemma-4-31b,scene ordinary,scene pretty,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene ordinary,scene pretty,True,False,Manhattan,0.0
+gemma-4-31b,scene ordinary,scene pretty,True,False,Queens,0.0
+gemma-4-31b,scene ordinary,scene pretty,True,False,Staten Island,0.0
+gemma-4-31b,scene ordinary,scene ugly,True,False,Bronx,0.0
+gemma-4-31b,scene ordinary,scene ugly,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene ordinary,scene ugly,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,scene ordinary,scene ugly,True,False,Queens,0.010101010101010102
+gemma-4-31b,scene ordinary,scene ugly,True,False,Staten Island,0.0
+gemma-4-31b,scene ordinary,scene fancy,True,False,Bronx,0.0
+gemma-4-31b,scene ordinary,scene fancy,True,False,Brooklyn,0.02040816326530612
+gemma-4-31b,scene ordinary,scene fancy,True,False,Manhattan,0.0
+gemma-4-31b,scene ordinary,scene fancy,True,False,Queens,0.010101010101010102
+gemma-4-31b,scene ordinary,scene fancy,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene ordinary,scene urban,True,False,Bronx,0.0
+gemma-4-31b,scene ordinary,scene urban,True,False,Brooklyn,0.0
+gemma-4-31b,scene ordinary,scene urban,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,scene ordinary,scene urban,True,False,Queens,0.0
+gemma-4-31b,scene ordinary,scene urban,True,False,Staten Island,0.0
+gemma-4-31b,scene pretty,scene ugly,True,False,Bronx,0.0
+gemma-4-31b,scene pretty,scene ugly,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene pretty,scene ugly,True,False,Manhattan,0.0
+gemma-4-31b,scene pretty,scene ugly,True,False,Queens,0.02040816326530612
+gemma-4-31b,scene pretty,scene ugly,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene pretty,scene fancy,True,False,Bronx,0.0
+gemma-4-31b,scene pretty,scene fancy,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene pretty,scene fancy,True,False,Manhattan,0.010101010101010102
+gemma-4-31b,scene pretty,scene fancy,True,False,Queens,0.0
+gemma-4-31b,scene pretty,scene fancy,True,False,Staten Island,0.0
+gemma-4-31b,scene pretty,scene urban,True,False,Bronx,0.0
+gemma-4-31b,scene pretty,scene urban,True,False,Brooklyn,0.0
+gemma-4-31b,scene pretty,scene urban,True,False,Manhattan,0.0
+gemma-4-31b,scene pretty,scene urban,True,False,Queens,0.0
+gemma-4-31b,scene pretty,scene urban,True,False,Staten Island,0.0
+gemma-4-31b,scene ugly,scene fancy,True,False,Bronx,0.0
+gemma-4-31b,scene ugly,scene fancy,True,False,Brooklyn,0.010101010101010102
+gemma-4-31b,scene ugly,scene fancy,True,False,Manhattan,0.0
+gemma-4-31b,scene ugly,scene fancy,True,False,Queens,0.0
+gemma-4-31b,scene ugly,scene fancy,True,False,Staten Island,0.010101010101010102
+gemma-4-31b,scene ugly,scene urban,True,False,Bronx,0.0
+gemma-4-31b,scene ugly,scene urban,True,False,Brooklyn,0.0
+gemma-4-31b,scene ugly,scene urban,True,False,Manhattan,0.0
+gemma-4-31b,scene ugly,scene urban,True,False,Queens,0.0
+gemma-4-31b,scene ugly,scene urban,True,False,Staten Island,0.0
+gemma-4-31b,scene fancy,scene urban,True,False,Bronx,0.0
+gemma-4-31b,scene fancy,scene urban,True,False,Brooklyn,0.0
+gemma-4-31b,scene fancy,scene urban,True,False,Manhattan,0.0
+gemma-4-31b,scene fancy,scene urban,True,False,Queens,0.0
+gemma-4-31b,scene fancy,scene urban,True,False,Staten Island,0.0
+qwen3.5-9b,place cool,place nice,True,False,Bronx,0.02040816326530612
+qwen3.5-9b,place cool,place nice,True,False,Brooklyn,0.0
+qwen3.5-9b,place cool,place nice,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place cool,place nice,True,False,Queens,0.0
+qwen3.5-9b,place cool,place nice,True,False,Staten Island,0.0
+qwen3.5-9b,place cool,place ordinary,True,False,Bronx,0.0
+qwen3.5-9b,place cool,place ordinary,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place cool,place ordinary,True,False,Manhattan,0.0
+qwen3.5-9b,place cool,place ordinary,True,False,Queens,0.0
+qwen3.5-9b,place cool,place ordinary,True,False,Staten Island,0.0
+qwen3.5-9b,place cool,place pretty,True,False,Bronx,0.030927835051546393
+qwen3.5-9b,place cool,place pretty,True,False,Brooklyn,0.0
+qwen3.5-9b,place cool,place pretty,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place cool,place pretty,True,False,Queens,0.0
+qwen3.5-9b,place cool,place pretty,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place cool,place ugly,True,False,Bronx,0.0
+qwen3.5-9b,place cool,place ugly,True,False,Brooklyn,0.0
+qwen3.5-9b,place cool,place ugly,True,False,Manhattan,0.0
+qwen3.5-9b,place cool,place ugly,True,False,Queens,0.0
+qwen3.5-9b,place cool,place ugly,True,False,Staten Island,0.0
+qwen3.5-9b,place cool,place fancy,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,place cool,place fancy,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place cool,place fancy,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place cool,place fancy,True,False,Queens,0.0
+qwen3.5-9b,place cool,place fancy,True,False,Staten Island,0.02040816326530612
+qwen3.5-9b,place cool,place urban,True,False,Bronx,0.0
+qwen3.5-9b,place cool,place urban,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place cool,place urban,True,False,Manhattan,0.0
+qwen3.5-9b,place cool,place urban,True,False,Queens,0.0
+qwen3.5-9b,place cool,place urban,True,False,Staten Island,0.0
+qwen3.5-9b,place cool,scene cool,False,True,Bronx,0.041666666666666664
+qwen3.5-9b,place cool,scene cool,False,True,Brooklyn,0.0989010989010989
+qwen3.5-9b,place cool,scene cool,False,True,Manhattan,0.0989010989010989
+qwen3.5-9b,place cool,scene cool,False,True,Queens,0.08695652173913043
+qwen3.5-9b,place cool,scene cool,False,True,Staten Island,0.030927835051546393
+qwen3.5-9b,place cool,scene nice,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place cool,scene nice,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place cool,scene nice,False,False,Manhattan,0.0
+qwen3.5-9b,place cool,scene nice,False,False,Queens,0.0
+qwen3.5-9b,place cool,scene nice,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place cool,scene ordinary,False,False,Bronx,0.0
+qwen3.5-9b,place cool,scene ordinary,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place cool,scene ordinary,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place cool,scene ordinary,False,False,Queens,0.0
+qwen3.5-9b,place cool,scene ordinary,False,False,Staten Island,0.0
+qwen3.5-9b,place cool,scene pretty,False,False,Bronx,0.02040816326530612
+qwen3.5-9b,place cool,scene pretty,False,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place cool,scene pretty,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place cool,scene pretty,False,False,Queens,0.0
+qwen3.5-9b,place cool,scene pretty,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place cool,scene ugly,False,False,Bronx,0.0
+qwen3.5-9b,place cool,scene ugly,False,False,Brooklyn,0.0
+qwen3.5-9b,place cool,scene ugly,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place cool,scene ugly,False,False,Queens,0.0
+qwen3.5-9b,place cool,scene ugly,False,False,Staten Island,0.0
+qwen3.5-9b,place cool,scene fancy,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place cool,scene fancy,False,False,Brooklyn,0.0
+qwen3.5-9b,place cool,scene fancy,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place cool,scene fancy,False,False,Queens,0.0
+qwen3.5-9b,place cool,scene fancy,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place cool,scene urban,False,False,Bronx,0.0
+qwen3.5-9b,place cool,scene urban,False,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place cool,scene urban,False,False,Manhattan,0.0
+qwen3.5-9b,place cool,scene urban,False,False,Queens,0.0
+qwen3.5-9b,place cool,scene urban,False,False,Staten Island,0.0
+qwen3.5-9b,place nice,place ordinary,True,False,Bronx,0.0
+qwen3.5-9b,place nice,place ordinary,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place nice,place ordinary,True,False,Manhattan,0.0
+qwen3.5-9b,place nice,place ordinary,True,False,Queens,0.02040816326530612
+qwen3.5-9b,place nice,place ordinary,True,False,Staten Island,0.02040816326530612
+qwen3.5-9b,place nice,place pretty,True,False,Bronx,0.05263157894736842
+qwen3.5-9b,place nice,place pretty,True,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place nice,place pretty,True,False,Manhattan,0.06382978723404255
+qwen3.5-9b,place nice,place pretty,True,False,Queens,0.08695652173913043
+qwen3.5-9b,place nice,place pretty,True,False,Staten Island,0.041666666666666664
+qwen3.5-9b,place nice,place ugly,True,False,Bronx,0.0
+qwen3.5-9b,place nice,place ugly,True,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place nice,place ugly,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place nice,place ugly,True,False,Queens,0.02040816326530612
+qwen3.5-9b,place nice,place ugly,True,False,Staten Island,0.0
+qwen3.5-9b,place nice,place fancy,True,False,Bronx,0.02040816326530612
+qwen3.5-9b,place nice,place fancy,True,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place nice,place fancy,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place nice,place fancy,True,False,Queens,0.0
+qwen3.5-9b,place nice,place fancy,True,False,Staten Island,0.02040816326530612
+qwen3.5-9b,place nice,place urban,True,False,Bronx,0.0
+qwen3.5-9b,place nice,place urban,True,False,Brooklyn,0.0
+qwen3.5-9b,place nice,place urban,True,False,Manhattan,0.0
+qwen3.5-9b,place nice,place urban,True,False,Queens,0.0
+qwen3.5-9b,place nice,place urban,True,False,Staten Island,0.0
+qwen3.5-9b,place nice,scene cool,False,False,Bronx,0.0
+qwen3.5-9b,place nice,scene cool,False,False,Brooklyn,0.0
+qwen3.5-9b,place nice,scene cool,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place nice,scene cool,False,False,Queens,0.0
+qwen3.5-9b,place nice,scene cool,False,False,Staten Island,0.0
+qwen3.5-9b,place nice,scene nice,False,True,Bronx,0.13636363636363635
+qwen3.5-9b,place nice,scene nice,False,True,Brooklyn,0.030927835051546393
+qwen3.5-9b,place nice,scene nice,False,True,Manhattan,0.05263157894736842
+qwen3.5-9b,place nice,scene nice,False,True,Queens,0.1111111111111111
+qwen3.5-9b,place nice,scene nice,False,True,Staten Island,0.1111111111111111
+qwen3.5-9b,place nice,scene ordinary,False,False,Bronx,0.0
+qwen3.5-9b,place nice,scene ordinary,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place nice,scene ordinary,False,False,Manhattan,0.0
+qwen3.5-9b,place nice,scene ordinary,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place nice,scene ordinary,False,False,Staten Island,0.02040816326530612
+qwen3.5-9b,place nice,scene pretty,False,False,Bronx,0.041666666666666664
+qwen3.5-9b,place nice,scene pretty,False,False,Brooklyn,0.0
+qwen3.5-9b,place nice,scene pretty,False,False,Manhattan,0.041666666666666664
+qwen3.5-9b,place nice,scene pretty,False,False,Queens,0.05263157894736842
+qwen3.5-9b,place nice,scene pretty,False,False,Staten Island,0.030927835051546393
+qwen3.5-9b,place nice,scene ugly,False,False,Bronx,0.0
+qwen3.5-9b,place nice,scene ugly,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place nice,scene ugly,False,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place nice,scene ugly,False,False,Queens,0.0
+qwen3.5-9b,place nice,scene ugly,False,False,Staten Island,0.0
+qwen3.5-9b,place nice,scene fancy,False,False,Bronx,0.0
+qwen3.5-9b,place nice,scene fancy,False,False,Brooklyn,0.0
+qwen3.5-9b,place nice,scene fancy,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place nice,scene fancy,False,False,Queens,0.0
+qwen3.5-9b,place nice,scene fancy,False,False,Staten Island,0.0
+qwen3.5-9b,place nice,scene urban,False,False,Bronx,0.0
+qwen3.5-9b,place nice,scene urban,False,False,Brooklyn,0.0
+qwen3.5-9b,place nice,scene urban,False,False,Manhattan,0.0
+qwen3.5-9b,place nice,scene urban,False,False,Queens,0.0
+qwen3.5-9b,place nice,scene urban,False,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,place pretty,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ordinary,place pretty,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place ordinary,place pretty,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place ordinary,place pretty,True,False,Queens,0.02040816326530612
+qwen3.5-9b,place ordinary,place pretty,True,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,place ugly,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ordinary,place ugly,True,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place ordinary,place ugly,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place ordinary,place ugly,True,False,Queens,0.030927835051546393
+qwen3.5-9b,place ordinary,place ugly,True,False,Staten Island,0.030927835051546393
+qwen3.5-9b,place ordinary,place fancy,True,False,Bronx,0.0
+qwen3.5-9b,place ordinary,place fancy,True,False,Brooklyn,0.041666666666666664
+qwen3.5-9b,place ordinary,place fancy,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place ordinary,place fancy,True,False,Queens,0.0
+qwen3.5-9b,place ordinary,place fancy,True,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,place urban,True,False,Bronx,0.0
+qwen3.5-9b,place ordinary,place urban,True,False,Brooklyn,0.0
+qwen3.5-9b,place ordinary,place urban,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place ordinary,place urban,True,False,Queens,0.0
+qwen3.5-9b,place ordinary,place urban,True,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,scene cool,False,False,Bronx,0.0
+qwen3.5-9b,place ordinary,scene cool,False,False,Brooklyn,0.0
+qwen3.5-9b,place ordinary,scene cool,False,False,Manhattan,0.0
+qwen3.5-9b,place ordinary,scene cool,False,False,Queens,0.0
+qwen3.5-9b,place ordinary,scene cool,False,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,scene nice,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ordinary,scene nice,False,False,Brooklyn,0.0
+qwen3.5-9b,place ordinary,scene nice,False,False,Manhattan,0.0
+qwen3.5-9b,place ordinary,scene nice,False,False,Queens,0.0
+qwen3.5-9b,place ordinary,scene nice,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place ordinary,scene ordinary,False,True,Bronx,0.12359550561797752
+qwen3.5-9b,place ordinary,scene ordinary,False,True,Brooklyn,0.12359550561797752
+qwen3.5-9b,place ordinary,scene ordinary,False,True,Manhattan,0.16279069767441862
+qwen3.5-9b,place ordinary,scene ordinary,False,True,Queens,0.14942528735632185
+qwen3.5-9b,place ordinary,scene ordinary,False,True,Staten Island,0.16279069767441862
+qwen3.5-9b,place ordinary,scene pretty,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ordinary,scene pretty,False,False,Brooklyn,0.0
+qwen3.5-9b,place ordinary,scene pretty,False,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place ordinary,scene pretty,False,False,Queens,0.02040816326530612
+qwen3.5-9b,place ordinary,scene pretty,False,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,scene ugly,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ordinary,scene ugly,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place ordinary,scene ugly,False,False,Manhattan,0.0
+qwen3.5-9b,place ordinary,scene ugly,False,False,Queens,0.0
+qwen3.5-9b,place ordinary,scene ugly,False,False,Staten Island,0.030927835051546393
+qwen3.5-9b,place ordinary,scene fancy,False,False,Bronx,0.0
+qwen3.5-9b,place ordinary,scene fancy,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place ordinary,scene fancy,False,False,Manhattan,0.0
+qwen3.5-9b,place ordinary,scene fancy,False,False,Queens,0.0
+qwen3.5-9b,place ordinary,scene fancy,False,False,Staten Island,0.0
+qwen3.5-9b,place ordinary,scene urban,False,False,Bronx,0.0
+qwen3.5-9b,place ordinary,scene urban,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place ordinary,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place ordinary,scene urban,False,False,Queens,0.0
+qwen3.5-9b,place ordinary,scene urban,False,False,Staten Island,0.0
+qwen3.5-9b,place pretty,place ugly,True,False,Bronx,0.0
+qwen3.5-9b,place pretty,place ugly,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place pretty,place ugly,True,False,Manhattan,0.041666666666666664
+qwen3.5-9b,place pretty,place ugly,True,False,Queens,0.05263157894736842
+qwen3.5-9b,place pretty,place ugly,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place pretty,place fancy,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,place pretty,place fancy,True,False,Brooklyn,0.0
+qwen3.5-9b,place pretty,place fancy,True,False,Manhattan,0.0
+qwen3.5-9b,place pretty,place fancy,True,False,Queens,0.02040816326530612
+qwen3.5-9b,place pretty,place fancy,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place pretty,place urban,True,False,Bronx,0.0
+qwen3.5-9b,place pretty,place urban,True,False,Brooklyn,0.0
+qwen3.5-9b,place pretty,place urban,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place pretty,place urban,True,False,Queens,0.0
+qwen3.5-9b,place pretty,place urban,True,False,Staten Island,0.0
+qwen3.5-9b,place pretty,scene cool,False,False,Bronx,0.0
+qwen3.5-9b,place pretty,scene cool,False,False,Brooklyn,0.0
+qwen3.5-9b,place pretty,scene cool,False,False,Manhattan,0.0
+qwen3.5-9b,place pretty,scene cool,False,False,Queens,0.0
+qwen3.5-9b,place pretty,scene cool,False,False,Staten Island,0.0
+qwen3.5-9b,place pretty,scene nice,False,False,Bronx,0.08695652173913043
+qwen3.5-9b,place pretty,scene nice,False,False,Brooklyn,0.07526881720430108
+qwen3.5-9b,place pretty,scene nice,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place pretty,scene nice,False,False,Queens,0.05263157894736842
+qwen3.5-9b,place pretty,scene nice,False,False,Staten Island,0.041666666666666664
+qwen3.5-9b,place pretty,scene ordinary,False,False,Bronx,0.0
+qwen3.5-9b,place pretty,scene ordinary,False,False,Brooklyn,0.041666666666666664
+qwen3.5-9b,place pretty,scene ordinary,False,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place pretty,scene ordinary,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place pretty,scene ordinary,False,False,Staten Island,0.0
+qwen3.5-9b,place pretty,scene pretty,False,True,Bronx,0.20481927710843373
+qwen3.5-9b,place pretty,scene pretty,False,True,Brooklyn,0.13636363636363635
+qwen3.5-9b,place pretty,scene pretty,False,True,Manhattan,0.17647058823529413
+qwen3.5-9b,place pretty,scene pretty,False,True,Queens,0.20481927710843373
+qwen3.5-9b,place pretty,scene pretty,False,True,Staten Island,0.14942528735632185
+qwen3.5-9b,place pretty,scene ugly,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place pretty,scene ugly,False,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place pretty,scene ugly,False,False,Manhattan,0.030927835051546393
+qwen3.5-9b,place pretty,scene ugly,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place pretty,scene ugly,False,False,Staten Island,0.0
+qwen3.5-9b,place pretty,scene fancy,False,False,Bronx,0.0
+qwen3.5-9b,place pretty,scene fancy,False,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place pretty,scene fancy,False,False,Manhattan,0.0
+qwen3.5-9b,place pretty,scene fancy,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place pretty,scene fancy,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place pretty,scene urban,False,False,Bronx,0.0
+qwen3.5-9b,place pretty,scene urban,False,False,Brooklyn,0.0
+qwen3.5-9b,place pretty,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place pretty,scene urban,False,False,Queens,0.0
+qwen3.5-9b,place pretty,scene urban,False,False,Staten Island,0.0
+qwen3.5-9b,place ugly,place fancy,True,False,Bronx,0.0
+qwen3.5-9b,place ugly,place fancy,True,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place ugly,place fancy,True,False,Manhattan,0.0
+qwen3.5-9b,place ugly,place fancy,True,False,Queens,0.0
+qwen3.5-9b,place ugly,place fancy,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place ugly,place urban,True,False,Bronx,0.0
+qwen3.5-9b,place ugly,place urban,True,False,Brooklyn,0.0
+qwen3.5-9b,place ugly,place urban,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place ugly,place urban,True,False,Queens,0.0
+qwen3.5-9b,place ugly,place urban,True,False,Staten Island,0.0
+qwen3.5-9b,place ugly,scene cool,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ugly,scene cool,False,False,Brooklyn,0.0
+qwen3.5-9b,place ugly,scene cool,False,False,Manhattan,0.0
+qwen3.5-9b,place ugly,scene cool,False,False,Queens,0.0
+qwen3.5-9b,place ugly,scene cool,False,False,Staten Island,0.0
+qwen3.5-9b,place ugly,scene nice,False,False,Bronx,0.0
+qwen3.5-9b,place ugly,scene nice,False,False,Brooklyn,0.0
+qwen3.5-9b,place ugly,scene nice,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place ugly,scene nice,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place ugly,scene nice,False,False,Staten Island,0.0
+qwen3.5-9b,place ugly,scene ordinary,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place ugly,scene ordinary,False,False,Brooklyn,0.0
+qwen3.5-9b,place ugly,scene ordinary,False,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place ugly,scene ordinary,False,False,Queens,0.0
+qwen3.5-9b,place ugly,scene ordinary,False,False,Staten Island,0.0
+qwen3.5-9b,place ugly,scene pretty,False,False,Bronx,0.0
+qwen3.5-9b,place ugly,scene pretty,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place ugly,scene pretty,False,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place ugly,scene pretty,False,False,Queens,0.030927835051546393
+qwen3.5-9b,place ugly,scene pretty,False,False,Staten Island,0.0
+qwen3.5-9b,place ugly,scene ugly,False,True,Bronx,0.25
+qwen3.5-9b,place ugly,scene ugly,False,True,Brooklyn,0.12359550561797752
+qwen3.5-9b,place ugly,scene ugly,False,True,Manhattan,0.3157894736842105
+qwen3.5-9b,place ugly,scene ugly,False,True,Queens,0.06382978723404255
+qwen3.5-9b,place ugly,scene ugly,False,True,Staten Island,0.25
+qwen3.5-9b,place ugly,scene fancy,False,False,Bronx,0.0
+qwen3.5-9b,place ugly,scene fancy,False,False,Brooklyn,0.0
+qwen3.5-9b,place ugly,scene fancy,False,False,Manhattan,0.0
+qwen3.5-9b,place ugly,scene fancy,False,False,Queens,0.0
+qwen3.5-9b,place ugly,scene fancy,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place ugly,scene urban,False,False,Bronx,0.0
+qwen3.5-9b,place ugly,scene urban,False,False,Brooklyn,0.0
+qwen3.5-9b,place ugly,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place ugly,scene urban,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place ugly,scene urban,False,False,Staten Island,0.0
+qwen3.5-9b,place fancy,place urban,True,False,Bronx,0.0
+qwen3.5-9b,place fancy,place urban,True,False,Brooklyn,0.0
+qwen3.5-9b,place fancy,place urban,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place fancy,place urban,True,False,Queens,0.0
+qwen3.5-9b,place fancy,place urban,True,False,Staten Island,0.0
+qwen3.5-9b,place fancy,scene cool,False,False,Bronx,0.0
+qwen3.5-9b,place fancy,scene cool,False,False,Brooklyn,0.0
+qwen3.5-9b,place fancy,scene cool,False,False,Manhattan,0.0
+qwen3.5-9b,place fancy,scene cool,False,False,Queens,0.0
+qwen3.5-9b,place fancy,scene cool,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place fancy,scene nice,False,False,Bronx,0.0
+qwen3.5-9b,place fancy,scene nice,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place fancy,scene nice,False,False,Manhattan,0.0
+qwen3.5-9b,place fancy,scene nice,False,False,Queens,0.0
+qwen3.5-9b,place fancy,scene nice,False,False,Staten Island,0.02040816326530612
+qwen3.5-9b,place fancy,scene ordinary,False,False,Bronx,0.0
+qwen3.5-9b,place fancy,scene ordinary,False,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,place fancy,scene ordinary,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place fancy,scene ordinary,False,False,Queens,0.0
+qwen3.5-9b,place fancy,scene ordinary,False,False,Staten Island,0.0
+qwen3.5-9b,place fancy,scene pretty,False,False,Bronx,0.0
+qwen3.5-9b,place fancy,scene pretty,False,False,Brooklyn,0.0
+qwen3.5-9b,place fancy,scene pretty,False,False,Manhattan,0.0
+qwen3.5-9b,place fancy,scene pretty,False,False,Queens,0.0
+qwen3.5-9b,place fancy,scene pretty,False,False,Staten Island,0.010101010101010102
+qwen3.5-9b,place fancy,scene ugly,False,False,Bronx,0.0
+qwen3.5-9b,place fancy,scene ugly,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place fancy,scene ugly,False,False,Manhattan,0.0
+qwen3.5-9b,place fancy,scene ugly,False,False,Queens,0.010101010101010102
+qwen3.5-9b,place fancy,scene ugly,False,False,Staten Island,0.0
+qwen3.5-9b,place fancy,scene fancy,False,True,Bronx,0.2345679012345679
+qwen3.5-9b,place fancy,scene fancy,False,True,Brooklyn,0.12359550561797752
+qwen3.5-9b,place fancy,scene fancy,False,True,Manhattan,0.28205128205128205
+qwen3.5-9b,place fancy,scene fancy,False,True,Queens,0.1111111111111111
+qwen3.5-9b,place fancy,scene fancy,False,True,Staten Island,0.2345679012345679
+qwen3.5-9b,place fancy,scene urban,False,False,Bronx,0.0
+qwen3.5-9b,place fancy,scene urban,False,False,Brooklyn,0.0
+qwen3.5-9b,place fancy,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place fancy,scene urban,False,False,Queens,0.0
+qwen3.5-9b,place fancy,scene urban,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene cool,False,False,Bronx,0.0
+qwen3.5-9b,place urban,scene cool,False,False,Brooklyn,0.0
+qwen3.5-9b,place urban,scene cool,False,False,Manhattan,0.0
+qwen3.5-9b,place urban,scene cool,False,False,Queens,0.0
+qwen3.5-9b,place urban,scene cool,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene nice,False,False,Bronx,0.0
+qwen3.5-9b,place urban,scene nice,False,False,Brooklyn,0.0
+qwen3.5-9b,place urban,scene nice,False,False,Manhattan,0.0
+qwen3.5-9b,place urban,scene nice,False,False,Queens,0.0
+qwen3.5-9b,place urban,scene nice,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene ordinary,False,False,Bronx,0.0
+qwen3.5-9b,place urban,scene ordinary,False,False,Brooklyn,0.0
+qwen3.5-9b,place urban,scene ordinary,False,False,Manhattan,0.02040816326530612
+qwen3.5-9b,place urban,scene ordinary,False,False,Queens,0.0
+qwen3.5-9b,place urban,scene ordinary,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene pretty,False,False,Bronx,0.010101010101010102
+qwen3.5-9b,place urban,scene pretty,False,False,Brooklyn,0.010101010101010102
+qwen3.5-9b,place urban,scene pretty,False,False,Manhattan,0.0
+qwen3.5-9b,place urban,scene pretty,False,False,Queens,0.0
+qwen3.5-9b,place urban,scene pretty,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene ugly,False,False,Bronx,0.0
+qwen3.5-9b,place urban,scene ugly,False,False,Brooklyn,0.0
+qwen3.5-9b,place urban,scene ugly,False,False,Manhattan,0.0
+qwen3.5-9b,place urban,scene ugly,False,False,Queens,0.0
+qwen3.5-9b,place urban,scene ugly,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene fancy,False,False,Bronx,0.0
+qwen3.5-9b,place urban,scene fancy,False,False,Brooklyn,0.0
+qwen3.5-9b,place urban,scene fancy,False,False,Manhattan,0.010101010101010102
+qwen3.5-9b,place urban,scene fancy,False,False,Queens,0.0
+qwen3.5-9b,place urban,scene fancy,False,False,Staten Island,0.0
+qwen3.5-9b,place urban,scene urban,False,True,Bronx,0.2345679012345679
+qwen3.5-9b,place urban,scene urban,False,True,Brooklyn,0.35135135135135137
+qwen3.5-9b,place urban,scene urban,False,True,Manhattan,0.3888888888888889
+qwen3.5-9b,place urban,scene urban,False,True,Queens,0.3888888888888889
+qwen3.5-9b,place urban,scene urban,False,True,Staten Island,0.26582278481012656
+qwen3.5-9b,scene cool,scene nice,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,scene cool,scene nice,True,False,Brooklyn,0.0
+qwen3.5-9b,scene cool,scene nice,True,False,Manhattan,0.0
+qwen3.5-9b,scene cool,scene nice,True,False,Queens,0.010101010101010102
+qwen3.5-9b,scene cool,scene nice,True,False,Staten Island,0.0
+qwen3.5-9b,scene cool,scene ordinary,True,False,Bronx,0.0
+qwen3.5-9b,scene cool,scene ordinary,True,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,scene cool,scene ordinary,True,False,Manhattan,0.0
+qwen3.5-9b,scene cool,scene ordinary,True,False,Queens,0.0
+qwen3.5-9b,scene cool,scene ordinary,True,False,Staten Island,0.0
+qwen3.5-9b,scene cool,scene pretty,True,False,Bronx,0.0
+qwen3.5-9b,scene cool,scene pretty,True,False,Brooklyn,0.02040816326530612
+qwen3.5-9b,scene cool,scene pretty,True,False,Manhattan,0.030927835051546393
+qwen3.5-9b,scene cool,scene pretty,True,False,Queens,0.0
+qwen3.5-9b,scene cool,scene pretty,True,False,Staten Island,0.0
+qwen3.5-9b,scene cool,scene ugly,True,False,Bronx,0.0
+qwen3.5-9b,scene cool,scene ugly,True,False,Brooklyn,0.0
+qwen3.5-9b,scene cool,scene ugly,True,False,Manhattan,0.0
+qwen3.5-9b,scene cool,scene ugly,True,False,Queens,0.0
+qwen3.5-9b,scene cool,scene ugly,True,False,Staten Island,0.0
+qwen3.5-9b,scene cool,scene fancy,True,False,Bronx,0.0
+qwen3.5-9b,scene cool,scene fancy,True,False,Brooklyn,0.0
+qwen3.5-9b,scene cool,scene fancy,True,False,Manhattan,0.0
+qwen3.5-9b,scene cool,scene fancy,True,False,Queens,0.0
+qwen3.5-9b,scene cool,scene fancy,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,scene cool,scene urban,True,False,Bronx,0.0
+qwen3.5-9b,scene cool,scene urban,True,False,Brooklyn,0.0
+qwen3.5-9b,scene cool,scene urban,True,False,Manhattan,0.0
+qwen3.5-9b,scene cool,scene urban,True,False,Queens,0.0
+qwen3.5-9b,scene cool,scene urban,True,False,Staten Island,0.0
+qwen3.5-9b,scene nice,scene ordinary,True,False,Bronx,0.02040816326530612
+qwen3.5-9b,scene nice,scene ordinary,True,False,Brooklyn,0.030927835051546393
+qwen3.5-9b,scene nice,scene ordinary,True,False,Manhattan,0.0
+qwen3.5-9b,scene nice,scene ordinary,True,False,Queens,0.010101010101010102
+qwen3.5-9b,scene nice,scene ordinary,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,scene nice,scene pretty,True,False,Bronx,0.12359550561797752
+qwen3.5-9b,scene nice,scene pretty,True,False,Brooklyn,0.07526881720430108
+qwen3.5-9b,scene nice,scene pretty,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,scene nice,scene pretty,True,False,Queens,0.041666666666666664
+qwen3.5-9b,scene nice,scene pretty,True,False,Staten Island,0.0989010989010989
+qwen3.5-9b,scene nice,scene ugly,True,False,Bronx,0.0
+qwen3.5-9b,scene nice,scene ugly,True,False,Brooklyn,0.030927835051546393
+qwen3.5-9b,scene nice,scene ugly,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,scene nice,scene ugly,True,False,Queens,0.010101010101010102
+qwen3.5-9b,scene nice,scene ugly,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,scene nice,scene fancy,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,scene nice,scene fancy,True,False,Brooklyn,0.030927835051546393
+qwen3.5-9b,scene nice,scene fancy,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,scene nice,scene fancy,True,False,Queens,0.02040816326530612
+qwen3.5-9b,scene nice,scene fancy,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,scene nice,scene urban,True,False,Bronx,0.0
+qwen3.5-9b,scene nice,scene urban,True,False,Brooklyn,0.0
+qwen3.5-9b,scene nice,scene urban,True,False,Manhattan,0.0
+qwen3.5-9b,scene nice,scene urban,True,False,Queens,0.0
+qwen3.5-9b,scene nice,scene urban,True,False,Staten Island,0.0
+qwen3.5-9b,scene ordinary,scene pretty,True,False,Bronx,0.0
+qwen3.5-9b,scene ordinary,scene pretty,True,False,Brooklyn,0.0
+qwen3.5-9b,scene ordinary,scene pretty,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,scene ordinary,scene pretty,True,False,Queens,0.010101010101010102
+qwen3.5-9b,scene ordinary,scene pretty,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,scene ordinary,scene ugly,True,False,Bronx,0.0
+qwen3.5-9b,scene ordinary,scene ugly,True,False,Brooklyn,0.030927835051546393
+qwen3.5-9b,scene ordinary,scene ugly,True,False,Manhattan,0.0
+qwen3.5-9b,scene ordinary,scene ugly,True,False,Queens,0.0
+qwen3.5-9b,scene ordinary,scene ugly,True,False,Staten Island,0.0
+qwen3.5-9b,scene ordinary,scene fancy,True,False,Bronx,0.0
+qwen3.5-9b,scene ordinary,scene fancy,True,False,Brooklyn,0.030927835051546393
+qwen3.5-9b,scene ordinary,scene fancy,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,scene ordinary,scene fancy,True,False,Queens,0.0
+qwen3.5-9b,scene ordinary,scene fancy,True,False,Staten Island,0.0
+qwen3.5-9b,scene ordinary,scene urban,True,False,Bronx,0.0
+qwen3.5-9b,scene ordinary,scene urban,True,False,Brooklyn,0.0
+qwen3.5-9b,scene ordinary,scene urban,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,scene ordinary,scene urban,True,False,Queens,0.0
+qwen3.5-9b,scene ordinary,scene urban,True,False,Staten Island,0.0
+qwen3.5-9b,scene pretty,scene ugly,True,False,Bronx,0.0
+qwen3.5-9b,scene pretty,scene ugly,True,False,Brooklyn,0.05263157894736842
+qwen3.5-9b,scene pretty,scene ugly,True,False,Manhattan,0.02040816326530612
+qwen3.5-9b,scene pretty,scene ugly,True,False,Queens,0.02040816326530612
+qwen3.5-9b,scene pretty,scene ugly,True,False,Staten Island,0.010101010101010102
+qwen3.5-9b,scene pretty,scene fancy,True,False,Bronx,0.0
+qwen3.5-9b,scene pretty,scene fancy,True,False,Brooklyn,0.0
+qwen3.5-9b,scene pretty,scene fancy,True,False,Manhattan,0.0
+qwen3.5-9b,scene pretty,scene fancy,True,False,Queens,0.0
+qwen3.5-9b,scene pretty,scene fancy,True,False,Staten Island,0.0
+qwen3.5-9b,scene pretty,scene urban,True,False,Bronx,0.010101010101010102
+qwen3.5-9b,scene pretty,scene urban,True,False,Brooklyn,0.0
+qwen3.5-9b,scene pretty,scene urban,True,False,Manhattan,0.0
+qwen3.5-9b,scene pretty,scene urban,True,False,Queens,0.0
+qwen3.5-9b,scene pretty,scene urban,True,False,Staten Island,0.0
+qwen3.5-9b,scene ugly,scene fancy,True,False,Bronx,0.0
+qwen3.5-9b,scene ugly,scene fancy,True,False,Brooklyn,0.030927835051546393
+qwen3.5-9b,scene ugly,scene fancy,True,False,Manhattan,0.0
+qwen3.5-9b,scene ugly,scene fancy,True,False,Queens,0.0
+qwen3.5-9b,scene ugly,scene fancy,True,False,Staten Island,0.0
+qwen3.5-9b,scene ugly,scene urban,True,False,Bronx,0.0
+qwen3.5-9b,scene ugly,scene urban,True,False,Brooklyn,0.0
+qwen3.5-9b,scene ugly,scene urban,True,False,Manhattan,0.0
+qwen3.5-9b,scene ugly,scene urban,True,False,Queens,0.0
+qwen3.5-9b,scene ugly,scene urban,True,False,Staten Island,0.0
+qwen3.5-9b,scene fancy,scene urban,True,False,Bronx,0.0
+qwen3.5-9b,scene fancy,scene urban,True,False,Brooklyn,0.0
+qwen3.5-9b,scene fancy,scene urban,True,False,Manhattan,0.010101010101010102
+qwen3.5-9b,scene fancy,scene urban,True,False,Queens,0.0
+qwen3.5-9b,scene fancy,scene urban,True,False,Staten Island,0.0
+qwen3.6-27b,place cool,place nice,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,place cool,place nice,True,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,place cool,place nice,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place cool,place nice,True,False,Queens,0.010101010101010102
+qwen3.6-27b,place cool,place nice,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,place cool,place ordinary,True,False,Bronx,0.0
+qwen3.6-27b,place cool,place ordinary,True,False,Brooklyn,0.0
+qwen3.6-27b,place cool,place ordinary,True,False,Manhattan,0.0
+qwen3.6-27b,place cool,place ordinary,True,False,Queens,0.0
+qwen3.6-27b,place cool,place ordinary,True,False,Staten Island,0.0
+qwen3.6-27b,place cool,place pretty,True,False,Bronx,0.0
+qwen3.6-27b,place cool,place pretty,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place cool,place pretty,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place cool,place pretty,True,False,Queens,0.041666666666666664
+qwen3.6-27b,place cool,place pretty,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,place cool,place ugly,True,False,Bronx,0.0
+qwen3.6-27b,place cool,place ugly,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place cool,place ugly,True,False,Manhattan,0.0
+qwen3.6-27b,place cool,place ugly,True,False,Queens,0.0
+qwen3.6-27b,place cool,place ugly,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,place cool,place fancy,True,False,Bronx,0.02040816326530612
+qwen3.6-27b,place cool,place fancy,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place cool,place fancy,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place cool,place fancy,True,False,Queens,0.010101010101010102
+qwen3.6-27b,place cool,place fancy,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,place cool,place urban,True,False,Bronx,0.0
+qwen3.6-27b,place cool,place urban,True,False,Brooklyn,0.0
+qwen3.6-27b,place cool,place urban,True,False,Manhattan,0.0
+qwen3.6-27b,place cool,place urban,True,False,Queens,0.0
+qwen3.6-27b,place cool,place urban,True,False,Staten Island,0.0
+qwen3.6-27b,place cool,scene cool,False,True,Bronx,0.12359550561797752
+qwen3.6-27b,place cool,scene cool,False,True,Brooklyn,0.16279069767441862
+qwen3.6-27b,place cool,scene cool,False,True,Manhattan,0.20481927710843373
+qwen3.6-27b,place cool,scene cool,False,True,Queens,0.05263157894736842
+qwen3.6-27b,place cool,scene cool,False,True,Staten Island,0.19047619047619047
+qwen3.6-27b,place cool,scene nice,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place cool,scene nice,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place cool,scene nice,False,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place cool,scene nice,False,False,Queens,0.02040816326530612
+qwen3.6-27b,place cool,scene nice,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place cool,scene ordinary,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place cool,scene ordinary,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place cool,scene ordinary,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place cool,scene ordinary,False,False,Queens,0.0
+qwen3.6-27b,place cool,scene ordinary,False,False,Staten Island,0.0
+qwen3.6-27b,place cool,scene pretty,False,False,Bronx,0.0
+qwen3.6-27b,place cool,scene pretty,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place cool,scene pretty,False,False,Manhattan,0.05263157894736842
+qwen3.6-27b,place cool,scene pretty,False,False,Queens,0.02040816326530612
+qwen3.6-27b,place cool,scene pretty,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place cool,scene ugly,False,False,Bronx,0.0
+qwen3.6-27b,place cool,scene ugly,False,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place cool,scene ugly,False,False,Manhattan,0.0
+qwen3.6-27b,place cool,scene ugly,False,False,Queens,0.0
+qwen3.6-27b,place cool,scene ugly,False,False,Staten Island,0.030927835051546393
+qwen3.6-27b,place cool,scene fancy,False,False,Bronx,0.0
+qwen3.6-27b,place cool,scene fancy,False,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,place cool,scene fancy,False,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place cool,scene fancy,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place cool,scene fancy,False,False,Staten Island,0.0
+qwen3.6-27b,place cool,scene urban,False,False,Bronx,0.0
+qwen3.6-27b,place cool,scene urban,False,False,Brooklyn,0.0
+qwen3.6-27b,place cool,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place cool,scene urban,False,False,Queens,0.0
+qwen3.6-27b,place cool,scene urban,False,False,Staten Island,0.0
+qwen3.6-27b,place nice,place ordinary,True,False,Bronx,0.0
+qwen3.6-27b,place nice,place ordinary,True,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,place nice,place ordinary,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,place ordinary,True,False,Queens,0.0
+qwen3.6-27b,place nice,place ordinary,True,False,Staten Island,0.0
+qwen3.6-27b,place nice,place pretty,True,False,Bronx,0.08695652173913043
+qwen3.6-27b,place nice,place pretty,True,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,place nice,place pretty,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,place pretty,True,False,Queens,0.05263157894736842
+qwen3.6-27b,place nice,place pretty,True,False,Staten Island,0.0989010989010989
+qwen3.6-27b,place nice,place ugly,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,place nice,place ugly,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place nice,place ugly,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place nice,place ugly,True,False,Queens,0.041666666666666664
+qwen3.6-27b,place nice,place ugly,True,False,Staten Island,0.041666666666666664
+qwen3.6-27b,place nice,place fancy,True,False,Bronx,0.0
+qwen3.6-27b,place nice,place fancy,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place nice,place fancy,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,place fancy,True,False,Queens,0.030927835051546393
+qwen3.6-27b,place nice,place fancy,True,False,Staten Island,0.05263157894736842
+qwen3.6-27b,place nice,place urban,True,False,Bronx,0.0
+qwen3.6-27b,place nice,place urban,True,False,Brooklyn,0.0
+qwen3.6-27b,place nice,place urban,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,place urban,True,False,Queens,0.0
+qwen3.6-27b,place nice,place urban,True,False,Staten Island,0.0
+qwen3.6-27b,place nice,scene cool,False,False,Bronx,0.0
+qwen3.6-27b,place nice,scene cool,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place nice,scene cool,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,scene cool,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place nice,scene cool,False,False,Staten Island,0.0
+qwen3.6-27b,place nice,scene nice,False,True,Bronx,0.13636363636363635
+qwen3.6-27b,place nice,scene nice,False,True,Brooklyn,0.12359550561797752
+qwen3.6-27b,place nice,scene nice,False,True,Manhattan,0.06382978723404255
+qwen3.6-27b,place nice,scene nice,False,True,Queens,0.12359550561797752
+qwen3.6-27b,place nice,scene nice,False,True,Staten Island,0.0989010989010989
+qwen3.6-27b,place nice,scene ordinary,False,False,Bronx,0.0
+qwen3.6-27b,place nice,scene ordinary,False,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place nice,scene ordinary,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,scene ordinary,False,False,Queens,0.0
+qwen3.6-27b,place nice,scene ordinary,False,False,Staten Island,0.0
+qwen3.6-27b,place nice,scene pretty,False,False,Bronx,0.07526881720430108
+qwen3.6-27b,place nice,scene pretty,False,False,Brooklyn,0.041666666666666664
+qwen3.6-27b,place nice,scene pretty,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,scene pretty,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place nice,scene pretty,False,False,Staten Island,0.041666666666666664
+qwen3.6-27b,place nice,scene ugly,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place nice,scene ugly,False,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place nice,scene ugly,False,False,Manhattan,0.030927835051546393
+qwen3.6-27b,place nice,scene ugly,False,False,Queens,0.02040816326530612
+qwen3.6-27b,place nice,scene ugly,False,False,Staten Island,0.041666666666666664
+qwen3.6-27b,place nice,scene fancy,False,False,Bronx,0.0
+qwen3.6-27b,place nice,scene fancy,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place nice,scene fancy,False,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place nice,scene fancy,False,False,Queens,0.07526881720430108
+qwen3.6-27b,place nice,scene fancy,False,False,Staten Island,0.06382978723404255
+qwen3.6-27b,place nice,scene urban,False,False,Bronx,0.0
+qwen3.6-27b,place nice,scene urban,False,False,Brooklyn,0.0
+qwen3.6-27b,place nice,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place nice,scene urban,False,False,Queens,0.0
+qwen3.6-27b,place nice,scene urban,False,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,place pretty,True,False,Bronx,0.0
+qwen3.6-27b,place ordinary,place pretty,True,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,place pretty,True,False,Manhattan,0.0
+qwen3.6-27b,place ordinary,place pretty,True,False,Queens,0.0
+qwen3.6-27b,place ordinary,place pretty,True,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,place ugly,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,place ordinary,place ugly,True,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,place ugly,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ordinary,place ugly,True,False,Queens,0.0
+qwen3.6-27b,place ordinary,place ugly,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place ordinary,place fancy,True,False,Bronx,0.0
+qwen3.6-27b,place ordinary,place fancy,True,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,place fancy,True,False,Manhattan,0.0
+qwen3.6-27b,place ordinary,place fancy,True,False,Queens,0.0
+qwen3.6-27b,place ordinary,place fancy,True,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,place urban,True,False,Bronx,0.0
+qwen3.6-27b,place ordinary,place urban,True,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,place urban,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ordinary,place urban,True,False,Queens,0.0
+qwen3.6-27b,place ordinary,place urban,True,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,scene cool,False,False,Bronx,0.0
+qwen3.6-27b,place ordinary,scene cool,False,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,scene cool,False,False,Manhattan,0.0
+qwen3.6-27b,place ordinary,scene cool,False,False,Queens,0.0
+qwen3.6-27b,place ordinary,scene cool,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place ordinary,scene nice,False,False,Bronx,0.0
+qwen3.6-27b,place ordinary,scene nice,False,False,Brooklyn,0.041666666666666664
+qwen3.6-27b,place ordinary,scene nice,False,False,Manhattan,0.0
+qwen3.6-27b,place ordinary,scene nice,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place ordinary,scene nice,False,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,scene ordinary,False,True,Bronx,0.07526881720430108
+qwen3.6-27b,place ordinary,scene ordinary,False,True,Brooklyn,0.19047619047619047
+qwen3.6-27b,place ordinary,scene ordinary,False,True,Manhattan,0.06382978723404255
+qwen3.6-27b,place ordinary,scene ordinary,False,True,Queens,0.08695652173913043
+qwen3.6-27b,place ordinary,scene ordinary,False,True,Staten Island,0.12359550561797752
+qwen3.6-27b,place ordinary,scene pretty,False,False,Bronx,0.0
+qwen3.6-27b,place ordinary,scene pretty,False,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,scene pretty,False,False,Manhattan,0.0
+qwen3.6-27b,place ordinary,scene pretty,False,False,Queens,0.0
+qwen3.6-27b,place ordinary,scene pretty,False,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,scene ugly,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place ordinary,scene ugly,False,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,scene ugly,False,False,Manhattan,0.030927835051546393
+qwen3.6-27b,place ordinary,scene ugly,False,False,Queens,0.0
+qwen3.6-27b,place ordinary,scene ugly,False,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,scene fancy,False,False,Bronx,0.0
+qwen3.6-27b,place ordinary,scene fancy,False,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,scene fancy,False,False,Manhattan,0.0
+qwen3.6-27b,place ordinary,scene fancy,False,False,Queens,0.0
+qwen3.6-27b,place ordinary,scene fancy,False,False,Staten Island,0.0
+qwen3.6-27b,place ordinary,scene urban,False,False,Bronx,0.0
+qwen3.6-27b,place ordinary,scene urban,False,False,Brooklyn,0.0
+qwen3.6-27b,place ordinary,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ordinary,scene urban,False,False,Queens,0.0
+qwen3.6-27b,place ordinary,scene urban,False,False,Staten Island,0.0
+qwen3.6-27b,place pretty,place ugly,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,place pretty,place ugly,True,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,place pretty,place ugly,True,False,Manhattan,0.0
+qwen3.6-27b,place pretty,place ugly,True,False,Queens,0.02040816326530612
+qwen3.6-27b,place pretty,place ugly,True,False,Staten Island,0.041666666666666664
+qwen3.6-27b,place pretty,place fancy,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,place pretty,place fancy,True,False,Brooklyn,0.0
+qwen3.6-27b,place pretty,place fancy,True,False,Manhattan,0.0
+qwen3.6-27b,place pretty,place fancy,True,False,Queens,0.0
+qwen3.6-27b,place pretty,place fancy,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place pretty,place urban,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,place pretty,place urban,True,False,Brooklyn,0.0
+qwen3.6-27b,place pretty,place urban,True,False,Manhattan,0.0
+qwen3.6-27b,place pretty,place urban,True,False,Queens,0.0
+qwen3.6-27b,place pretty,place urban,True,False,Staten Island,0.0
+qwen3.6-27b,place pretty,scene cool,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place pretty,scene cool,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place pretty,scene cool,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place pretty,scene cool,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place pretty,scene cool,False,False,Staten Island,0.0
+qwen3.6-27b,place pretty,scene nice,False,False,Bronx,0.07526881720430108
+qwen3.6-27b,place pretty,scene nice,False,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,place pretty,scene nice,False,False,Manhattan,0.0
+qwen3.6-27b,place pretty,scene nice,False,False,Queens,0.08695652173913043
+qwen3.6-27b,place pretty,scene nice,False,False,Staten Island,0.05263157894736842
+qwen3.6-27b,place pretty,scene ordinary,False,False,Bronx,0.0
+qwen3.6-27b,place pretty,scene ordinary,False,False,Brooklyn,0.0
+qwen3.6-27b,place pretty,scene ordinary,False,False,Manhattan,0.0
+qwen3.6-27b,place pretty,scene ordinary,False,False,Queens,0.0
+qwen3.6-27b,place pretty,scene ordinary,False,False,Staten Island,0.0
+qwen3.6-27b,place pretty,scene pretty,False,True,Bronx,0.13636363636363635
+qwen3.6-27b,place pretty,scene pretty,False,True,Brooklyn,0.14942528735632185
+qwen3.6-27b,place pretty,scene pretty,False,True,Manhattan,0.13636363636363635
+qwen3.6-27b,place pretty,scene pretty,False,True,Queens,0.17647058823529413
+qwen3.6-27b,place pretty,scene pretty,False,True,Staten Island,0.17647058823529413
+qwen3.6-27b,place pretty,scene ugly,False,False,Bronx,0.02040816326530612
+qwen3.6-27b,place pretty,scene ugly,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place pretty,scene ugly,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place pretty,scene ugly,False,False,Queens,0.030927835051546393
+qwen3.6-27b,place pretty,scene ugly,False,False,Staten Island,0.030927835051546393
+qwen3.6-27b,place pretty,scene fancy,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place pretty,scene fancy,False,False,Brooklyn,0.0
+qwen3.6-27b,place pretty,scene fancy,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place pretty,scene fancy,False,False,Queens,0.0
+qwen3.6-27b,place pretty,scene fancy,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place pretty,scene urban,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place pretty,scene urban,False,False,Brooklyn,0.0
+qwen3.6-27b,place pretty,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place pretty,scene urban,False,False,Queens,0.0
+qwen3.6-27b,place pretty,scene urban,False,False,Staten Island,0.0
+qwen3.6-27b,place ugly,place fancy,True,False,Bronx,0.0
+qwen3.6-27b,place ugly,place fancy,True,False,Brooklyn,0.0
+qwen3.6-27b,place ugly,place fancy,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ugly,place fancy,True,False,Queens,0.010101010101010102
+qwen3.6-27b,place ugly,place fancy,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place ugly,place urban,True,False,Bronx,0.02040816326530612
+qwen3.6-27b,place ugly,place urban,True,False,Brooklyn,0.0
+qwen3.6-27b,place ugly,place urban,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ugly,place urban,True,False,Queens,0.010101010101010102
+qwen3.6-27b,place ugly,place urban,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place ugly,scene cool,False,False,Bronx,0.0
+qwen3.6-27b,place ugly,scene cool,False,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,place ugly,scene cool,False,False,Manhattan,0.0
+qwen3.6-27b,place ugly,scene cool,False,False,Queens,0.0
+qwen3.6-27b,place ugly,scene cool,False,False,Staten Island,0.0
+qwen3.6-27b,place ugly,scene nice,False,False,Bronx,0.0
+qwen3.6-27b,place ugly,scene nice,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place ugly,scene nice,False,False,Manhattan,0.0
+qwen3.6-27b,place ugly,scene nice,False,False,Queens,0.02040816326530612
+qwen3.6-27b,place ugly,scene nice,False,False,Staten Island,0.030927835051546393
+qwen3.6-27b,place ugly,scene ordinary,False,False,Bronx,0.0
+qwen3.6-27b,place ugly,scene ordinary,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place ugly,scene ordinary,False,False,Manhattan,0.0
+qwen3.6-27b,place ugly,scene ordinary,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place ugly,scene ordinary,False,False,Staten Island,0.0
+qwen3.6-27b,place ugly,scene pretty,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place ugly,scene pretty,False,False,Brooklyn,0.0
+qwen3.6-27b,place ugly,scene pretty,False,False,Manhattan,0.0
+qwen3.6-27b,place ugly,scene pretty,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place ugly,scene pretty,False,False,Staten Island,0.05263157894736842
+qwen3.6-27b,place ugly,scene ugly,False,True,Bronx,0.26582278481012656
+qwen3.6-27b,place ugly,scene ugly,False,True,Brooklyn,0.21951219512195122
+qwen3.6-27b,place ugly,scene ugly,False,True,Manhattan,0.2987012987012987
+qwen3.6-27b,place ugly,scene ugly,False,True,Queens,0.25
+qwen3.6-27b,place ugly,scene ugly,False,True,Staten Island,0.21951219512195122
+qwen3.6-27b,place ugly,scene fancy,False,False,Bronx,0.0
+qwen3.6-27b,place ugly,scene fancy,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place ugly,scene fancy,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ugly,scene fancy,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place ugly,scene fancy,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place ugly,scene urban,False,False,Bronx,0.0
+qwen3.6-27b,place ugly,scene urban,False,False,Brooklyn,0.0
+qwen3.6-27b,place ugly,scene urban,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place ugly,scene urban,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place ugly,scene urban,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place fancy,place urban,True,False,Bronx,0.0
+qwen3.6-27b,place fancy,place urban,True,False,Brooklyn,0.0
+qwen3.6-27b,place fancy,place urban,True,False,Manhattan,0.030927835051546393
+qwen3.6-27b,place fancy,place urban,True,False,Queens,0.010101010101010102
+qwen3.6-27b,place fancy,place urban,True,False,Staten Island,0.0
+qwen3.6-27b,place fancy,scene cool,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place fancy,scene cool,False,False,Brooklyn,0.0
+qwen3.6-27b,place fancy,scene cool,False,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place fancy,scene cool,False,False,Queens,0.0
+qwen3.6-27b,place fancy,scene cool,False,False,Staten Island,0.02040816326530612
+qwen3.6-27b,place fancy,scene nice,False,False,Bronx,0.0
+qwen3.6-27b,place fancy,scene nice,False,False,Brooklyn,0.0
+qwen3.6-27b,place fancy,scene nice,False,False,Manhattan,0.0
+qwen3.6-27b,place fancy,scene nice,False,False,Queens,0.02040816326530612
+qwen3.6-27b,place fancy,scene nice,False,False,Staten Island,0.030927835051546393
+qwen3.6-27b,place fancy,scene ordinary,False,False,Bronx,0.0
+qwen3.6-27b,place fancy,scene ordinary,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place fancy,scene ordinary,False,False,Manhattan,0.0
+qwen3.6-27b,place fancy,scene ordinary,False,False,Queens,0.0
+qwen3.6-27b,place fancy,scene ordinary,False,False,Staten Island,0.02040816326530612
+qwen3.6-27b,place fancy,scene pretty,False,False,Bronx,0.0
+qwen3.6-27b,place fancy,scene pretty,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place fancy,scene pretty,False,False,Manhattan,0.0
+qwen3.6-27b,place fancy,scene pretty,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place fancy,scene pretty,False,False,Staten Island,0.0
+qwen3.6-27b,place fancy,scene ugly,False,False,Bronx,0.0
+qwen3.6-27b,place fancy,scene ugly,False,False,Brooklyn,0.0
+qwen3.6-27b,place fancy,scene ugly,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place fancy,scene ugly,False,False,Queens,0.0
+qwen3.6-27b,place fancy,scene ugly,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place fancy,scene fancy,False,True,Bronx,0.26582278481012656
+qwen3.6-27b,place fancy,scene fancy,False,True,Brooklyn,0.2345679012345679
+qwen3.6-27b,place fancy,scene fancy,False,True,Manhattan,0.17647058823529413
+qwen3.6-27b,place fancy,scene fancy,False,True,Queens,0.28205128205128205
+qwen3.6-27b,place fancy,scene fancy,False,True,Staten Island,0.19047619047619047
+qwen3.6-27b,place fancy,scene urban,False,False,Bronx,0.0
+qwen3.6-27b,place fancy,scene urban,False,False,Brooklyn,0.0
+qwen3.6-27b,place fancy,scene urban,False,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place fancy,scene urban,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place fancy,scene urban,False,False,Staten Island,0.0
+qwen3.6-27b,place urban,scene cool,False,False,Bronx,0.0
+qwen3.6-27b,place urban,scene cool,False,False,Brooklyn,0.0
+qwen3.6-27b,place urban,scene cool,False,False,Manhattan,0.0
+qwen3.6-27b,place urban,scene cool,False,False,Queens,0.0
+qwen3.6-27b,place urban,scene cool,False,False,Staten Island,0.010101010101010102
+qwen3.6-27b,place urban,scene nice,False,False,Bronx,0.0
+qwen3.6-27b,place urban,scene nice,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place urban,scene nice,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place urban,scene nice,False,False,Queens,0.010101010101010102
+qwen3.6-27b,place urban,scene nice,False,False,Staten Island,0.0
+qwen3.6-27b,place urban,scene ordinary,False,False,Bronx,0.0
+qwen3.6-27b,place urban,scene ordinary,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place urban,scene ordinary,False,False,Manhattan,0.0
+qwen3.6-27b,place urban,scene ordinary,False,False,Queens,0.0
+qwen3.6-27b,place urban,scene ordinary,False,False,Staten Island,0.0
+qwen3.6-27b,place urban,scene pretty,False,False,Bronx,0.0
+qwen3.6-27b,place urban,scene pretty,False,False,Brooklyn,0.0
+qwen3.6-27b,place urban,scene pretty,False,False,Manhattan,0.0
+qwen3.6-27b,place urban,scene pretty,False,False,Queens,0.0
+qwen3.6-27b,place urban,scene pretty,False,False,Staten Island,0.0
+qwen3.6-27b,place urban,scene ugly,False,False,Bronx,0.010101010101010102
+qwen3.6-27b,place urban,scene ugly,False,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,place urban,scene ugly,False,False,Manhattan,0.02040816326530612
+qwen3.6-27b,place urban,scene ugly,False,False,Queens,0.0
+qwen3.6-27b,place urban,scene ugly,False,False,Staten Island,0.0
+qwen3.6-27b,place urban,scene fancy,False,False,Bronx,0.0
+qwen3.6-27b,place urban,scene fancy,False,False,Brooklyn,0.0
+qwen3.6-27b,place urban,scene fancy,False,False,Manhattan,0.010101010101010102
+qwen3.6-27b,place urban,scene fancy,False,False,Queens,0.02040816326530612
+qwen3.6-27b,place urban,scene fancy,False,False,Staten Island,0.0
+qwen3.6-27b,place urban,scene urban,False,True,Bronx,0.3333333333333333
+qwen3.6-27b,place urban,scene urban,False,True,Brooklyn,0.42857142857142855
+qwen3.6-27b,place urban,scene urban,False,True,Manhattan,0.6129032258064516
+qwen3.6-27b,place urban,scene urban,False,True,Queens,0.47058823529411764
+qwen3.6-27b,place urban,scene urban,False,True,Staten Island,0.3698630136986301
+qwen3.6-27b,scene cool,scene nice,True,False,Bronx,0.030927835051546393
+qwen3.6-27b,scene cool,scene nice,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene cool,scene nice,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,scene cool,scene nice,True,False,Queens,0.02040816326530612
+qwen3.6-27b,scene cool,scene nice,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,scene cool,scene ordinary,True,False,Bronx,0.0
+qwen3.6-27b,scene cool,scene ordinary,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene cool,scene ordinary,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,scene cool,scene ordinary,True,False,Queens,0.0
+qwen3.6-27b,scene cool,scene ordinary,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,scene cool,scene pretty,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,scene cool,scene pretty,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene cool,scene pretty,True,False,Manhattan,0.05263157894736842
+qwen3.6-27b,scene cool,scene pretty,True,False,Queens,0.02040816326530612
+qwen3.6-27b,scene cool,scene pretty,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,scene cool,scene ugly,True,False,Bronx,0.0
+qwen3.6-27b,scene cool,scene ugly,True,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,scene cool,scene ugly,True,False,Manhattan,0.0
+qwen3.6-27b,scene cool,scene ugly,True,False,Queens,0.0
+qwen3.6-27b,scene cool,scene ugly,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,scene cool,scene fancy,True,False,Bronx,0.0
+qwen3.6-27b,scene cool,scene fancy,True,False,Brooklyn,0.030927835051546393
+qwen3.6-27b,scene cool,scene fancy,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,scene cool,scene fancy,True,False,Queens,0.010101010101010102
+qwen3.6-27b,scene cool,scene fancy,True,False,Staten Island,0.0
+qwen3.6-27b,scene cool,scene urban,True,False,Bronx,0.0
+qwen3.6-27b,scene cool,scene urban,True,False,Brooklyn,0.0
+qwen3.6-27b,scene cool,scene urban,True,False,Manhattan,0.0
+qwen3.6-27b,scene cool,scene urban,True,False,Queens,0.0
+qwen3.6-27b,scene cool,scene urban,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,scene nice,scene ordinary,True,False,Bronx,0.0
+qwen3.6-27b,scene nice,scene ordinary,True,False,Brooklyn,0.041666666666666664
+qwen3.6-27b,scene nice,scene ordinary,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,scene nice,scene ordinary,True,False,Queens,0.02040816326530612
+qwen3.6-27b,scene nice,scene ordinary,True,False,Staten Island,0.02040816326530612
+qwen3.6-27b,scene nice,scene pretty,True,False,Bronx,0.0989010989010989
+qwen3.6-27b,scene nice,scene pretty,True,False,Brooklyn,0.16279069767441862
+qwen3.6-27b,scene nice,scene pretty,True,False,Manhattan,0.08695652173913043
+qwen3.6-27b,scene nice,scene pretty,True,False,Queens,0.13636363636363635
+qwen3.6-27b,scene nice,scene pretty,True,False,Staten Island,0.08695652173913043
+qwen3.6-27b,scene nice,scene ugly,True,False,Bronx,0.0
+qwen3.6-27b,scene nice,scene ugly,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,scene nice,scene ugly,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,scene nice,scene ugly,True,False,Queens,0.041666666666666664
+qwen3.6-27b,scene nice,scene ugly,True,False,Staten Island,0.05263157894736842
+qwen3.6-27b,scene nice,scene fancy,True,False,Bronx,0.0
+qwen3.6-27b,scene nice,scene fancy,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,scene nice,scene fancy,True,False,Manhattan,0.0
+qwen3.6-27b,scene nice,scene fancy,True,False,Queens,0.041666666666666664
+qwen3.6-27b,scene nice,scene fancy,True,False,Staten Island,0.030927835051546393
+qwen3.6-27b,scene nice,scene urban,True,False,Bronx,0.0
+qwen3.6-27b,scene nice,scene urban,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene nice,scene urban,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,scene nice,scene urban,True,False,Queens,0.010101010101010102
+qwen3.6-27b,scene nice,scene urban,True,False,Staten Island,0.0
+qwen3.6-27b,scene ordinary,scene pretty,True,False,Bronx,0.0
+qwen3.6-27b,scene ordinary,scene pretty,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene ordinary,scene pretty,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,scene ordinary,scene pretty,True,False,Queens,0.02040816326530612
+qwen3.6-27b,scene ordinary,scene pretty,True,False,Staten Island,0.0
+qwen3.6-27b,scene ordinary,scene ugly,True,False,Bronx,0.0
+qwen3.6-27b,scene ordinary,scene ugly,True,False,Brooklyn,0.02040816326530612
+qwen3.6-27b,scene ordinary,scene ugly,True,False,Manhattan,0.0
+qwen3.6-27b,scene ordinary,scene ugly,True,False,Queens,0.02040816326530612
+qwen3.6-27b,scene ordinary,scene ugly,True,False,Staten Island,0.041666666666666664
+qwen3.6-27b,scene ordinary,scene fancy,True,False,Bronx,0.0
+qwen3.6-27b,scene ordinary,scene fancy,True,False,Brooklyn,0.0
+qwen3.6-27b,scene ordinary,scene fancy,True,False,Manhattan,0.0
+qwen3.6-27b,scene ordinary,scene fancy,True,False,Queens,0.0
+qwen3.6-27b,scene ordinary,scene fancy,True,False,Staten Island,0.0
+qwen3.6-27b,scene ordinary,scene urban,True,False,Bronx,0.0
+qwen3.6-27b,scene ordinary,scene urban,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene ordinary,scene urban,True,False,Manhattan,0.0
+qwen3.6-27b,scene ordinary,scene urban,True,False,Queens,0.0
+qwen3.6-27b,scene ordinary,scene urban,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,scene pretty,scene ugly,True,False,Bronx,0.02040816326530612
+qwen3.6-27b,scene pretty,scene ugly,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene pretty,scene ugly,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,scene pretty,scene ugly,True,False,Queens,0.041666666666666664
+qwen3.6-27b,scene pretty,scene ugly,True,False,Staten Island,0.030927835051546393
+qwen3.6-27b,scene pretty,scene fancy,True,False,Bronx,0.0
+qwen3.6-27b,scene pretty,scene fancy,True,False,Brooklyn,0.041666666666666664
+qwen3.6-27b,scene pretty,scene fancy,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,scene pretty,scene fancy,True,False,Queens,0.010101010101010102
+qwen3.6-27b,scene pretty,scene fancy,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,scene pretty,scene urban,True,False,Bronx,0.010101010101010102
+qwen3.6-27b,scene pretty,scene urban,True,False,Brooklyn,0.0
+qwen3.6-27b,scene pretty,scene urban,True,False,Manhattan,0.0
+qwen3.6-27b,scene pretty,scene urban,True,False,Queens,0.0
+qwen3.6-27b,scene pretty,scene urban,True,False,Staten Island,0.0
+qwen3.6-27b,scene ugly,scene fancy,True,False,Bronx,0.0
+qwen3.6-27b,scene ugly,scene fancy,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene ugly,scene fancy,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,scene ugly,scene fancy,True,False,Queens,0.0
+qwen3.6-27b,scene ugly,scene fancy,True,False,Staten Island,0.010101010101010102
+qwen3.6-27b,scene ugly,scene urban,True,False,Bronx,0.0
+qwen3.6-27b,scene ugly,scene urban,True,False,Brooklyn,0.010101010101010102
+qwen3.6-27b,scene ugly,scene urban,True,False,Manhattan,0.02040816326530612
+qwen3.6-27b,scene ugly,scene urban,True,False,Queens,0.0
+qwen3.6-27b,scene ugly,scene urban,True,False,Staten Island,0.0
+qwen3.6-27b,scene fancy,scene urban,True,False,Bronx,0.0
+qwen3.6-27b,scene fancy,scene urban,True,False,Brooklyn,0.0
+qwen3.6-27b,scene fancy,scene urban,True,False,Manhattan,0.010101010101010102
+qwen3.6-27b,scene fancy,scene urban,True,False,Queens,0.02040816326530612
+qwen3.6-27b,scene fancy,scene urban,True,False,Staten Island,0.0

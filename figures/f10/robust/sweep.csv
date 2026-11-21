@@ -1,0 +1,37 @@
+rule,threshold,cells_held
+scene code: best mean-patch R2 at least,0.3,42
+scene code: best mean-patch R2 at least,0.4,41
+scene code: best mean-patch R2 at least,0.5,41
+scene code: best mean-patch R2 at least,0.6,37
+scene code: best mean-patch R2 at least,0.7,33
+gain at ? at least (Holm p below .05),0.02,41
+gain at ? at least (Holm p below .05),0.03,41
+gain at ? at least (Holm p below .05),0.05,41
+gain at ? at least (Holm p below .05),0.08,37
+gain at ? at least (Holm p below .05),0.1,29
+verdict band: r of the lens margin at the last token at least,0.85,41
+verdict band: r of the lens margin at the last token at least,0.9,41
+verdict band: r of the lens margin at the last token at least,0.92,41
+verdict band: r of the lens margin at the last token at least,0.95,34
+verdict band: r of the lens margin at the last token at least,0.97,32
+verdict band: r of the lens margin at the last token at least,0.99,11
+sense band: share at least 0.3 and abs r with the cool lists at least,0.8,19
+sense band: share at least 0.3 and abs r with the cool lists at least,0.9,10
+sense band: share at least 0.3 and abs r with the cool lists at least,0.95,7
+sense band: share at least 0.4 and abs r with the cool lists at least,0.8,13
+sense band: share at least 0.4 and abs r with the cool lists at least,0.9,7
+sense band: share at least 0.4 and abs r with the cool lists at least,0.95,6
+sense band: share at least 0.5 and abs r with the cool lists at least,0.8,8
+sense band: share at least 0.5 and abs r with the cool lists at least,0.9,7
+sense band: share at least 0.5 and abs r with the cool lists at least,0.95,6
+"sense band at the F10.26 thresholds, cool cells only (of 6)",0.95,6
+axis 1 does not follow the verdict at mid depth: abs r below,0.1,8
+axis 1 does not follow the verdict at mid depth: abs r below,0.2,12
+axis 1 does not follow the verdict at mid depth: abs r below,0.3,16
+axis 1 does not follow the verdict at mid depth: abs r below,0.4,16
+axis 1 share at mid depth at least,0.3,35
+axis 1 share at mid depth at least,0.4,27
+axis 1 share at mid depth at least,0.5,9
+axis 1 does not follow the verdict at any layer: abs r below,0.1,1
+axis 1 does not follow the verdict at any layer: abs r below,0.2,2
+axis 1 does not follow the verdict at any layer: abs r below,0.3,9

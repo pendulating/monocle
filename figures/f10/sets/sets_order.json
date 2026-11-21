@@ -1,0 +1,9 @@
+{
+  "plot-title": "The order pair against the answer margin",
+  "plot-caption": "Pearson r over 591 images between the order set difference at a token and layer and the answer margin of the model. The reads are uncapped and standardized, and each set has matched control words.",
+  "plot-latex-label": "fig:sets-order",
+  "plot-tags": [
+    "F10.8",
+    "word sets"
+  ]
+}

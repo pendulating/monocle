@@ -1,0 +1,6 @@
+image_idx,sample_id,image_path,nta_name,borough,m_cool,m_nice,m_pretty,m_ugly,margin,n_up,n_down,score,rank,direction,of,n_up_layer,n_severe_layer
+5557,W0E65GB6,/share/ju/matt/mllmsci/data/f4_traces/street_views/W0E65GB6.jpg,Midtown-Times Square,Manhattan,-4.036876196488698,-0.2576581023257245,-11.186293990956102,-5.692486783464073,-4.036876196488698,16,60,44,4,no,32,5,4
+7340,W0E8V32I,/share/ju/matt/mllmsci/data/f4_traces/street_views/W0E8V32I.jpg,Prospect Lefferts Gardens-Wingate,Brooklyn,-4.224144942162141,-16.07791800574695,-18.134720651875455,-5.320948255478029,-4.224144942162141,49,51,2,37,no,103,25,6
+6178,W0E4I5X2,/share/ju/matt/mllmsci/data/f4_traces/street_views/W0E4I5X2.jpg,Astoria (East)-Woodside (North),Queens,-9.263459487361366,-22.36940908167266,-23.907108429908043,1.6849454731250777,-9.263459487361366,29,89,60,10,no,118,18,16
+7836,W0EM9QBY,/share/ju/matt/mllmsci/data/f4_traces/street_views/W0EM9QBY.jpg,Belmont,Bronx,-5.657591836173719,-12.160341455436255,-17.370570211962,-3.779824655835455,-5.657591836173719,50,52,2,30,no,84,25,2
+7902,W0EL0NBS,/share/ju/matt/mllmsci/data/f4_traces/street_views/W0EL0NBS.jpg,St. George-New Brighton,Staten Island,-16.51427814301177,-22.203762734812038,-24.429914848523545,1.8442803626037154,-16.51427814301177,35,58,23,5,no,33,25,4

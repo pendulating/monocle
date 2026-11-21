@@ -1,0 +1,9 @@
+{
+  "plot-title": "Margin information beyond the scene block",
+  "plot-caption": "Out-of-fold R2 of scene plus cell minus R2 of the scene block alone. The scene block is the patch residuals at all saved layers, pooled to a 4 x 4 grid.",
+  "plot-latex-label": "fig:free-gain",
+  "plot-tags": [
+    "F10.9",
+    "scene block"
+  ]
+}

@@ -1,0 +1,16 @@
+check,reference,value,note
+"word r of the mean readout at cool, G/Q27, per depth (max abs diff)",cross_depth.csv r_mean,1.1430752522301191e-07,0 means equal; the reference is the mean over depths in the file
+"word r of the mean readout at cool, G/Q9, per depth (max abs diff)",cross_depth.csv r_mean,1.146147832198352e-07,0 means equal; the reference is the mean over depths in the file
+"word r of the mean readout at cool, Q27/Q9, per depth (max abs diff)",cross_depth.csv r_mean,2.4317095048687065e-07,0 means equal; the reference is the mean over depths in the file
+"sense share above no image at cool L24, gemma-4-31b",0.9,0.9001692047377327,F10.19 table
+"sense share above no image at cool L24, qwen3.5-9b",0.34,0.3401015228426396,F10.19 table
+"sense share above no image at cool L24, qwen3.6-27b",0.16,0.1641285956006768,F10.19 table
+"axis 1 share at cool L24, gemma-4-31b",0.61973953,0.6197395324707031,sense.csv (hop_compare) vs NTA means of this script
+"axis 1 share at cool L24, qwen3.5-9b",0.4909634,0.4909633994102478,sense.csv (hop_compare) vs NTA means of this script
+"axis 1 share at cool L24, qwen3.6-27b",0.5713621,0.5713620781898499,sense.csv (hop_compare) vs NTA means of this script
+"word counts at place L40, gemma-4-31b (embedded/raised/lowered)",2/95/91,2/95/91,rank_cells.csv
+"word counts at cool L36, gemma-4-31b (embedded/raised/lowered)",80/0/0,80/0/0,rank_cells.csv
+"word counts at question_mark L40, gemma-4-31b (embedded/raised/lowered)",21/42/36,21/42/36,rank_cells.csv
+"word counts at place L16, qwen3.5-9b (embedded/raised/lowered)",78/0/0,78/0/0,rank_cells.csv
+"word counts at cool L24, qwen3.5-9b (embedded/raised/lowered)",84/0/0,84/0/0,rank_cells.csv
+"word counts at question_mark L20, qwen3.5-9b (embedded/raised/lowered)",50/6/1,50/6/1,rank_cells.csv

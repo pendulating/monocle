@@ -1,0 +1,9 @@
+{
+  "plot-title": "Outcomes of the 14 prompts in 3 models",
+  "plot-caption": "The share of yes, no and unable answers for each prompt (rows) and model (panels), on 591 images. The outcome is the first token of the answer. Gemma-4-31B gives no verdict on about half of the images for nice, with both nouns.",
+  "plot-latex-label": "fig:t1-outcomes",
+  "plot-tags": [
+    "f10.26",
+    "outcomes"
+  ]
+}

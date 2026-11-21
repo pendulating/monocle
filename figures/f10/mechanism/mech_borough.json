@@ -1,0 +1,10 @@
+{
+  "plot-title": "The borough axis and the stability of lists",
+  "plot-caption": "Left: borough means of 4 probe margins and of the sense score at the word cool, in SD of the 197 NTA means. Right: correlation of word t values between 2 random halves of the NTAs, as the mean over 3 cells for each of 40 splits. Bars give the lowest and the highest split.",
+  "plot-latex-label": "fig:mech-borough",
+  "plot-tags": [
+    "F10.14",
+    "F10.17",
+    "borough"
+  ]
+}

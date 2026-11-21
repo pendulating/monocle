@@ -1,0 +1,9 @@
+{
+  "plot-title": "Margin at each cell against the answer margin",
+  "plot-caption": "Pearson r over 591 images between the yes-minus-no margin of a read and the same margin in the model output. Each row is a token of the prompt after the image, and each column is a layer. The first columns of each pair use the J++ lens, and the others use the plain logit lens. The margin at the last tokens is near the answer by construction.",
+  "plot-latex-label": "fig:logit-margin",
+  "plot-tags": [
+    "F10.7",
+    "logit margin"
+  ]
+}

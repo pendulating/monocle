@@ -1,0 +1,61 @@
+sample_id,borough,row,read,up_patches,severe_patches,m_cool,m_pretty,m_ugly
+W0E65GB6,Manhattan,none,32,5,3,-4.037,-11.186,-5.692
+W0E65GB6,Manhattan,none,40,2,1,-4.037,-11.186,-5.692
+W0E65GB6,Manhattan,shared,32,57,0,1.293,-2.801,-8.044
+W0E65GB6,Manhattan,shared,40,12,0,1.293,-2.801,-8.044
+W0E65GB6,Manhattan,cool,32,11,3,-0.735,-6.8,-7.262
+W0E65GB6,Manhattan,cool,40,5,0,-0.735,-6.8,-7.262
+W0E65GB6,Manhattan,pretty,32,47,0,-0.917,-5.741,-7.348
+W0E65GB6,Manhattan,pretty,40,6,0,-0.917,-5.741,-7.348
+W0E65GB6,Manhattan,ugly,32,1,39,-8.341,-17.392,-4.497
+W0E65GB6,Manhattan,ugly,40,5,7,-8.341,-17.392,-4.497
+W0E65GB6,Manhattan,control,32,2,0,-4.916,-10.187,-5.887
+W0E65GB6,Manhattan,control,40,0,0,-4.916,-10.187,-5.887
+W0E8V32I,Brooklyn,none,32,25,0,-4.224,-18.135,-5.321
+W0E8V32I,Brooklyn,none,40,7,1,-4.224,-18.135,-5.321
+W0E8V32I,Brooklyn,shared,32,78,0,0.938,-13.919,-6.538
+W0E8V32I,Brooklyn,shared,40,14,0,0.938,-13.919,-6.538
+W0E8V32I,Brooklyn,cool,32,21,0,-0.194,-15.434,-6.514
+W0E8V32I,Brooklyn,cool,40,7,1,-0.194,-15.434,-6.514
+W0E8V32I,Brooklyn,pretty,32,72,0,-1.139,-15.828,-6.321
+W0E8V32I,Brooklyn,pretty,40,16,0,-1.139,-15.828,-6.321
+W0E8V32I,Brooklyn,ugly,32,4,46,-8.843,-22.415,-3.766
+W0E8V32I,Brooklyn,ugly,40,5,5,-8.843,-22.415,-3.766
+W0E8V32I,Brooklyn,control,32,3,0,-6.008,-20.467,-5.324
+W0E8V32I,Brooklyn,control,40,0,0,-6.008,-20.467,-5.324
+W0E4I5X2,Queens,none,32,18,22,-9.263,-23.907,1.685
+W0E4I5X2,Queens,none,40,2,8,-9.263,-23.907,1.685
+W0E4I5X2,Queens,shared,32,69,4,-0.49,-17.34,-3.708
+W0E4I5X2,Queens,shared,40,10,2,-0.49,-17.34,-3.708
+W0E4I5X2,Queens,cool,32,17,16,-2.302,-20.817,-2.067
+W0E4I5X2,Queens,cool,40,4,5,-2.302,-20.817,-2.067
+W0E4I5X2,Queens,pretty,32,75,8,-4.447,-20.546,-2.236
+W0E4I5X2,Queens,pretty,40,11,4,-4.447,-20.546,-2.236
+W0E4I5X2,Queens,ugly,32,1,69,-14.91,-25.513,6.111
+W0E4I5X2,Queens,ugly,40,1,19,-14.91,-25.513,6.111
+W0E4I5X2,Queens,control,32,5,0,-4.374,-20.914,-3.347
+W0E4I5X2,Queens,control,40,0,0,-4.374,-20.914,-3.347
+W0EM9QBY,Bronx,none,32,25,6,-5.658,-17.371,-3.78
+W0EM9QBY,Bronx,none,40,10,2,-5.658,-17.371,-3.78
+W0EM9QBY,Bronx,shared,32,83,1,1.456,-5.672,-6.163
+W0EM9QBY,Bronx,shared,40,22,0,1.456,-5.672,-6.163
+W0EM9QBY,Bronx,cool,32,34,5,-0.125,-11.17,-5.424
+W0EM9QBY,Bronx,cool,40,12,1,-0.125,-11.17,-5.424
+W0EM9QBY,Bronx,pretty,32,76,3,-0.872,-10.434,-5.625
+W0EM9QBY,Bronx,pretty,40,18,0,-0.872,-10.434,-5.625
+W0EM9QBY,Bronx,ugly,32,4,36,-12.184,-23.02,-1.344
+W0EM9QBY,Bronx,ugly,40,9,8,-12.184,-23.02,-1.344
+W0EM9QBY,Bronx,control,32,1,0,-7.437,-14.742,-5.747
+W0EM9QBY,Bronx,control,40,0,0,-7.437,-14.742,-5.747
+W0EL0NBS,Staten Island,none,32,25,5,-16.514,-24.43,1.844
+W0EL0NBS,Staten Island,none,40,3,4,-16.514,-24.43,1.844
+W0EL0NBS,Staten Island,shared,32,65,3,-12.231,-21.218,-2.905
+W0EL0NBS,Staten Island,shared,40,7,2,-12.231,-21.218,-2.905
+W0EL0NBS,Staten Island,cool,32,24,4,-12.998,-22.918,-1.357
+W0EL0NBS,Staten Island,cool,40,2,4,-12.998,-22.918,-1.357
+W0EL0NBS,Staten Island,pretty,32,65,4,-14.092,-23.005,-1.326
+W0EL0NBS,Staten Island,pretty,40,8,3,-14.092,-23.005,-1.326
+W0EL0NBS,Staten Island,ugly,32,4,70,-19.412,-25.562,6.572
+W0EL0NBS,Staten Island,ugly,40,3,8,-19.412,-25.562,6.572
+W0EL0NBS,Staten Island,control,32,0,0,-14.087,-21.277,-4.236
+W0EL0NBS,Staten Island,control,40,0,0,-14.087,-21.277,-4.236

@@ -1,0 +1,9 @@
+{
+  "plot-title": "The verdict of the F9 responses",
+  "plot-caption": "The label of each F9 response, from the verdict spans of the extractor in text order: the last span decides; a last yes or no with the other one earlier in the text is mixed; graded is 1 middle rating; not applicable says that the photograph shows no restaurant, or that it cannot judge the spot; none is a response with no verdict span. 10,000 images for each model and case, minus the copy suspects.",
+  "plot-latex-label": "fig:f9-verdicts",
+  "plot-tags": [
+    "f9",
+    "verdict"
+  ]
+}

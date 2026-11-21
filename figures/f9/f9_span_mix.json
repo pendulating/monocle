@@ -1,0 +1,9 @@
+{
+  "plot-title": "The span mix of the responses under the F4 and the F9 prompt",
+  "plot-caption": "The mean count of visual-evidence spans and of inference spans per response, for each model, under the F4 prompt (hollow) and the F9 subjective prompt (filled), on the same images and under 1 schema. The net valence counts the visual-evidence spans only.",
+  "plot-latex-label": "fig:f9-span-mix",
+  "plot-tags": [
+    "f9",
+    "span-mix"
+  ]
+}

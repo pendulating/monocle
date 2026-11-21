@@ -1,0 +1,63 @@
+{
+ "version": "1.2.0",
+ "model": "gemma-4-31b",
+ "position": "place",
+ "test_layer": 8,
+ "fit": [
+  "place-cool",
+  "place-nice",
+  "place-fancy",
+  "place-pretty"
+ ],
+ "held_out": [
+  "place-ordinary",
+  "place-ugly",
+  "place-urban",
+  "scene-cool",
+  "scene-nice",
+  "scene-ordinary",
+  "scene-pretty",
+  "scene-ugly",
+  "scene-fancy",
+  "scene-urban"
+ ],
+ "missing": [],
+ "partial": [],
+ "yes_words": [
+  "true",
+  "correct",
+  "definitely",
+  "certainly",
+  "absolutely",
+  "indeed",
+  "yes",
+  "surely",
+  "affirmative",
+  "oui"
+ ],
+ "no_words": [
+  "not",
+  "without",
+  "never",
+  "nothing",
+  "negative",
+  "nicht",
+  "lack",
+  "nor",
+  "none",
+  "neither",
+  "denied",
+  "nada",
+  "nobody",
+  "nunca",
+  "deny",
+  "nowhere",
+  "kein",
+  "rien",
+  "refusal",
+  "nulla",
+  "nadie",
+  "tampoco"
+ ],
+ "n_nta": 197
+}

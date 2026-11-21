@@ -1,0 +1,1939 @@
+value,stance,observation,n,images,model
+edge,conditional,graffiti,38,19,gemma-4-31b
+utility,against,parking lot,34,18,gemma-4-31b
+nature,for,trees,21,19,gemma-4-31b
+order,against,graffiti,19,5,gemma-4-31b
+nature,conditional,mature trees,19,17,gemma-4-31b
+vitality,against,parking lot,18,11,gemma-4-31b
+nature,for,mature trees,18,18,gemma-4-31b
+nature,conditional,"large, mature trees",17,14,gemma-4-31b
+nature,for,greenery,17,17,gemma-4-31b
+nature,conditional,greenery,17,15,gemma-4-31b
+heritage,for,red brick,16,14,gemma-4-31b
+order,against,scaffolding,16,8,gemma-4-31b
+utility,against,brick building,16,14,gemma-4-31b
+order,for,well-maintained,14,14,gemma-4-31b
+nature,conditional,"large, leafy trees",14,14,gemma-4-31b
+order,against,overhead power lines,14,12,gemma-4-31b
+heritage,conditional,red brick architecture,13,11,gemma-4-31b
+nature,conditional,"large, leafy tree",13,9,gemma-4-31b
+heritage,conditional,brick building,13,10,gemma-4-31b
+nature,for,the large tree,12,11,gemma-4-31b
+nature,for,the tree,11,11,gemma-4-31b
+utility,against,construction site,10,7,gemma-4-31b
+nature,for,"large, mature trees",10,7,gemma-4-31b
+nature,conditional,trees,10,9,gemma-4-31b
+nature,for,green trees,10,9,gemma-4-31b
+nature,for,"large, leafy trees",9,8,gemma-4-31b
+beauty,against,plain brick building,9,8,gemma-4-31b
+heritage,conditional,red brick,9,8,gemma-4-31b
+utility,against,brick apartment building,8,7,gemma-4-31b
+heritage,conditional,row houses,8,5,gemma-4-31b
+nature,for,lush greenery,8,8,gemma-4-31b
+nature,for,"large, mature tree",8,6,gemma-4-31b
+character,conditional,graffiti,8,4,gemma-4-31b
+nature,for,"large, leafy tree",8,6,gemma-4-31b
+utility,against,window ac units,8,7,gemma-4-31b
+character,against,brick building,7,5,gemma-4-31b
+nature,for,large trees,7,7,gemma-4-31b
+heritage,conditional,red brick building,7,6,gemma-4-31b
+nature,against,very little greenery,7,6,gemma-4-31b
+heritage,conditional,classic brick architecture,7,6,gemma-4-31b
+heritage,conditional,brick apartment buildings,7,4,gemma-4-31b
+heritage,conditional,old brick buildings,7,6,gemma-4-31b
+heritage,conditional,brick architecture,7,7,gemma-4-31b
+nature,conditional,large trees,7,7,gemma-4-31b
+nature,for,green space,7,7,gemma-4-31b
+nature,conditional,"large, mature tree",7,7,gemma-4-31b
+heritage,conditional,brick buildings,7,7,gemma-4-31b
+modernity,against,window ac units,7,6,gemma-4-31b
+utility,against,red-brick apartment building,7,6,gemma-4-31b
+heritage,conditional,red brick buildings,7,5,gemma-4-31b
+order,conditional,well-maintained,6,6,gemma-4-31b
+nature,for,leafy street,6,6,gemma-4-31b
+beauty,against,scaffolding,6,5,gemma-4-31b
+comfort,conditional,quiet residential neighborhood,6,5,gemma-4-31b
+heritage,conditional,brick apartment building,6,5,gemma-4-31b
+utility,against,a parking lot,6,6,gemma-4-31b
+edge,conditional,fire escapes,6,6,gemma-4-31b
+comfort,conditional,big trees,6,6,gemma-4-31b
+beauty,against,power lines,6,5,gemma-4-31b
+comfort,against,traffic,6,6,gemma-4-31b
+heritage,conditional,classic red brick architecture,6,6,gemma-4-31b
+heritage,for,brick architecture,6,6,gemma-4-31b
+nature,for,the big tree,6,6,gemma-4-31b
+edge,conditional,scaffolding,6,3,gemma-4-31b
+beauty,against,plain brick wall,5,3,gemma-4-31b
+heritage,for,red brick buildings,5,4,gemma-4-31b
+comfort,conditional,mature trees,5,4,gemma-4-31b
+comfort,conditional,quiet residential street,5,5,gemma-4-31b
+beauty,against,construction site,5,4,gemma-4-31b
+nature,against,concrete and brick,5,5,gemma-4-31b
+edge,conditional,construction,5,3,gemma-4-31b
+heritage,for,one world trade center,5,1,gemma-4-31b
+beauty,for,city skyline,5,3,gemma-4-31b
+beauty,against,overhead power lines,5,5,gemma-4-31b
+status,conditional,j.p. morgan office,5,1,gemma-4-31b
+heritage,conditional,brick,5,5,gemma-4-31b
+comfort,against,construction site,5,4,gemma-4-31b
+heritage,conditional,fire escapes,5,5,gemma-4-31b
+order,for,clean streets,5,5,gemma-4-31b
+heritage,for,fire escapes,5,5,gemma-4-31b
+modernity,conditional,grey building,5,2,gemma-4-31b
+nature,for,a large tree,5,5,gemma-4-31b
+comfort,for,sunny day,5,5,gemma-4-31b
+heritage,for,brick building,5,5,gemma-4-31b
+nature,for,tree-lined street,5,4,gemma-4-31b
+heritage,conditional,brick houses,4,4,gemma-4-31b
+other,for,shade,4,4,gemma-4-31b
+heritage,conditional,brick row houses,4,4,gemma-4-31b
+character,conditional,"real, lived-in neighborhood",4,4,gemma-4-31b
+vitality,against,standard residential street,4,4,gemma-4-31b
+heritage,conditional,brickwork,4,4,gemma-4-31b
+other,conditional,clear blue sky,4,4,gemma-4-31b
+character,against,brick apartment building,4,3,gemma-4-31b
+heritage,for,brick,4,4,gemma-4-31b
+edge,conditional,street art,4,4,gemma-4-31b
+vitality,conditional,playground,4,2,gemma-4-31b
+character,for,fire escapes,4,4,gemma-4-31b
+utility,against,laundromat,4,2,gemma-4-31b
+nature,conditional,"large, lush tree",4,4,gemma-4-31b
+order,for,houses,4,4,gemma-4-31b
+character,for,"real, lived-in neighborhood",4,4,gemma-4-31b
+heritage,for,brownstone-style building,4,3,gemma-4-31b
+heritage,for,brownstones,4,4,gemma-4-31b
+beauty,against,construction fence,4,3,gemma-4-31b
+heritage,for,classic brick architecture,4,4,gemma-4-31b
+nature,conditional,very little greenery,4,4,gemma-4-31b
+edge,conditional,corrugated metal fence with graffiti,4,1,gemma-4-31b
+comfort,against,window ac units,4,3,gemma-4-31b
+heritage,conditional,old brick building,4,4,gemma-4-31b
+order,against,construction,4,4,gemma-4-31b
+modernity,against,window air conditioning units,4,4,gemma-4-31b
+order,against,construction barriers,4,3,gemma-4-31b
+heritage,conditional,"red brick, fire escapes",4,4,gemma-4-31b
+nature,against,concrete,4,4,gemma-4-31b
+comfort,conditional,"calm, low-traffic residential street",4,4,gemma-4-31b
+nature,for,sunny day,4,4,gemma-4-31b
+comfort,conditional,quiet suburban street,4,4,gemma-4-31b
+order,against,window ac units,4,4,gemma-4-31b
+heritage,conditional,traditional brick architecture,4,3,gemma-4-31b
+utility,against,concrete underpass,4,3,gemma-4-31b
+character,against,parking lot,4,2,gemma-4-31b
+character,conditional,samarkand halal meat & uzbek bakery,4,1,gemma-4-31b
+order,conditional,clean lines,4,3,gemma-4-31b
+edge,conditional,industrial architecture,4,4,gemma-4-31b
+character,against,plain brick building,4,4,gemma-4-31b
+modernity,conditional,sleek glass skyscrapers,4,4,gemma-4-31b
+beauty,against,a plain brick building,4,4,gemma-4-31b
+vitality,against,quiet residential street,4,4,gemma-4-31b
+comfort,conditional,"quiet, established residential neighborhood",4,4,gemma-4-31b
+vitality,against,"no shops, cafes, or crowds",4,4,gemma-4-31b
+utility,against,parked cars,4,4,gemma-4-31b
+comfort,conditional,greenery,4,4,gemma-4-31b
+heritage,for,red brick building,4,4,gemma-4-31b
+other,for,big trees,4,3,gemma-4-31b
+utility,against,red brick building,4,4,gemma-4-31b
+nature,conditional,the large tree,4,4,gemma-4-31b
+nature,conditional,a large tree,4,4,gemma-4-31b
+modernity,conditional,modern buildings,3,2,gemma-4-31b
+vitality,conditional,hustle and bustle,3,3,gemma-4-31b
+comfort,for,"quiet, typical residential neighborhood",3,2,gemma-4-31b
+status,for,new york city,3,3,gemma-4-31b
+heritage,for,red brick house,3,2,gemma-4-31b
+beauty,against,overcast sky,3,3,gemma-4-31b
+utility,against,mid-century brick building,3,3,gemma-4-31b
+order,for,clean street,3,3,gemma-4-31b
+order,against,power lines,3,3,gemma-4-31b
+utility,against,"plain, brick building",3,2,gemma-4-31b
+other,conditional,shade,3,2,gemma-4-31b
+heritage,against,older buildings,3,3,gemma-4-31b
+utility,against,mobil gas station,3,1,gemma-4-31b
+beauty,against,parking lot,3,3,gemma-4-31b
+heritage,for,classic brickwork,3,3,gemma-4-31b
+utility,against,brick residential building,3,3,gemma-4-31b
+beauty,for,architecture,3,3,gemma-4-31b
+edge,conditional,old brick buildings,3,3,gemma-4-31b
+edge,conditional,older brick architecture,3,1,gemma-4-31b
+nature,for,some greenery,3,3,gemma-4-31b
+nature,against,lack of green space,3,3,gemma-4-31b
+character,conditional,street art,3,3,gemma-4-31b
+heritage,for,brick buildings,3,3,gemma-4-31b
+order,for,"clean, well-maintained",3,3,gemma-4-31b
+order,against,overhead wires,3,3,gemma-4-31b
+utility,against,buildings,3,3,gemma-4-31b
+vitality,against,"""space for lease"" sign",3,1,gemma-4-31b
+edge,conditional,wall covered in graffiti,3,1,gemma-4-31b
+order,against,trash on the ground,3,1,gemma-4-31b
+nature,against,dominated by concrete and brick,3,3,gemma-4-31b
+nature,for,street trees,3,3,gemma-4-31b
+nature,for,a nice big tree,3,2,gemma-4-31b
+heritage,conditional,historic brick architecture,3,3,gemma-4-31b
+comfort,conditional,trees,3,3,gemma-4-31b
+community,conditional,brick apartment buildings,3,2,gemma-4-31b
+comfort,for,quiet residential street,3,3,gemma-4-31b
+character,conditional,brick apartment buildings,3,3,gemma-4-31b
+nature,for,a nice tree,3,2,gemma-4-31b
+edge,conditional,overhead power lines,3,3,gemma-4-31b
+comfort,conditional,balconies,3,2,gemma-4-31b
+beauty,against,red brick building,3,3,gemma-4-31b
+nature,against,"concrete, brick, and asphalt",3,3,gemma-4-31b
+heritage,conditional,classic architecture,3,3,gemma-4-31b
+utility,against,road,3,3,gemma-4-31b
+other,conditional,"large, leafy trees",3,3,gemma-4-31b
+heritage,conditional,church spire,3,2,gemma-4-31b
+heritage,for,"cornices, bay windows",3,2,gemma-4-31b
+modernity,for,bike lane,3,2,gemma-4-31b
+vitality,against,very still and quiet,3,3,gemma-4-31b
+character,against,architecture,3,3,gemma-4-31b
+nature,for,leafy trees,3,3,gemma-4-31b
+heritage,for,red brick architecture,3,3,gemma-4-31b
+order,against,construction zone,3,2,gemma-4-31b
+utility,against,red-brick apartment complex,3,3,gemma-4-31b
+nature,for,green area,3,3,gemma-4-31b
+utility,against,red-brick building,3,1,gemma-4-31b
+nature,for,trees and grass,3,2,gemma-4-31b
+nature,against,concrete and steel,3,3,gemma-4-31b
+utility,against,red-brick residential building,3,3,gemma-4-31b
+heritage,for,manhattan bridge,3,1,gemma-4-31b
+character,conditional,wooden barrels,3,1,gemma-4-31b
+nature,conditional,big trees,3,3,gemma-4-31b
+beauty,against,window ac units,3,3,gemma-4-31b
+comfort,against,dense urban environment,3,2,gemma-4-31b
+heritage,conditional,classic urban row houses,3,3,gemma-4-31b
+utility,for,garage,3,3,gemma-4-31b
+utility,for,dedicated off-street parking,3,1,gemma-4-31b
+order,against,trash bins,3,3,gemma-4-31b
+edge,against,concrete,3,3,gemma-4-31b
+other,conditional,"overcast, grey sky",3,2,gemma-4-31b
+vitality,conditional,city street,3,3,gemma-4-31b
+utility,against,brick apartment complex,3,3,gemma-4-31b
+beauty,against,plain red brick building,3,3,gemma-4-31b
+modernity,conditional,modern architecture,3,3,gemma-4-31b
+character,conditional,row houses,3,2,gemma-4-31b
+other,for,shade from the trees,3,3,gemma-4-31b
+other,conditional,big trees,3,3,gemma-4-31b
+character,against,brick apartment buildings,3,2,gemma-4-31b
+edge,conditional,urban decay,3,3,gemma-4-31b
+utility,against,old buildings,3,3,gemma-4-31b
+utility,against,plain brick building,3,2,gemma-4-31b
+heritage,for,classic urban row houses,3,3,gemma-4-31b
+nature,conditional,green trees,3,3,gemma-4-31b
+nature,against,concrete and asphalt,3,2,gemma-4-31b
+heritage,against,window ac units,3,3,gemma-4-31b
+nature,conditional,lots of greenery,3,3,gemma-4-31b
+beauty,against,a construction fence,3,3,gemma-4-31b
+comfort,conditional,peaceful neighborhood,3,3,gemma-4-31b
+other,against,"bright, sunny day",3,2,gemma-4-31b
+utility,against,construction zone,3,3,gemma-4-31b
+character,for,circular structure on the roof,3,1,gemma-4-31b
+nature,conditional,plenty of greenery,3,3,gemma-4-31b
+nature,conditional,"massive, lush tree",3,3,gemma-4-31b
+vitality,conditional,quiet residential street,3,3,gemma-4-31b
+beauty,against,concrete underpass,3,3,gemma-4-31b
+utility,against,gas station and convenience store,3,1,gemma-4-31b
+comfort,conditional,quiet green space,3,3,gemma-4-31b
+edge,conditional,"red brick, fire escapes",3,3,gemma-4-31b
+nature,conditional,mature trees lining the street,3,2,gemma-4-31b
+nature,conditional,trees and shrubs,3,2,gemma-4-31b
+character,conditional,liminal spaces,3,3,gemma-4-31b
+comfort,conditional,quiet suburban neighborhood,3,3,gemma-4-31b
+edge,conditional,shipping containers,3,1,gemma-4-31b
+nature,conditional,tree-lined streets,3,3,gemma-4-31b
+order,for,neat lawn,3,1,gemma-4-31b
+modernity,conditional,large windows,3,2,gemma-4-31b
+comfort,conditional,quiet residential area,2,2,gemma-4-31b
+modernity,conditional,tall buildings,2,2,gemma-4-31b
+edge,conditional,industrial-looking building,2,2,gemma-4-31b
+comfort,for,quiet street,2,2,gemma-4-31b
+edge,conditional,industrial-looking buildings,2,1,gemma-4-31b
+character,for,classic neighborhood bodega,2,2,gemma-4-31b
+modernity,for,sleek glass architecture,2,2,gemma-4-31b
+vitality,against,"""for lease"" signs",2,2,gemma-4-31b
+community,conditional,mature trees,2,2,gemma-4-31b
+comfort,against,dark,2,2,gemma-4-31b
+heritage,against,"modest, traditional residential homes",2,2,gemma-4-31b
+edge,conditional,urban vibe,2,2,gemma-4-31b
+edge,conditional,"peeling paint, weathered wood, and raw concrete",2,1,gemma-4-31b
+comfort,conditional,"large, mature tree",2,1,gemma-4-31b
+character,conditional,wall covered in graffiti,2,2,gemma-4-31b
+heritage,for,red brick apartment building,2,2,gemma-4-31b
+nature,against,trees,2,2,gemma-4-31b
+comfort,against,elevated tracks,2,2,gemma-4-31b
+edge,conditional,industrial smokestacks,2,1,gemma-4-31b
+comfort,conditional,"large, leafy trees",2,2,gemma-4-31b
+edge,against,chain-link fences,2,2,gemma-4-31b
+comfort,conditional,"large, leafy green trees",2,2,gemma-4-31b
+edge,conditional,"old brick, fire escapes",2,2,gemma-4-31b
+vitality,against,"no shops, cafes, or nightlife",2,2,gemma-4-31b
+comfort,against,cars stopped in the crosswalk,2,1,gemma-4-31b
+modernity,for,glass balcony,2,1,gemma-4-31b
+vitality,against,"grey, overcast sky",2,2,gemma-4-31b
+vitality,against,"""for sale"" sign",2,1,gemma-4-31b
+modernity,conditional,sleek glass buildings,2,2,gemma-4-31b
+heritage,for,red-brick architecture,2,2,gemma-4-31b
+nature,against,no trees or greenery,2,2,gemma-4-31b
+community,conditional,local bodega,2,2,gemma-4-31b
+heritage,for,red-brick apartment buildings,2,2,gemma-4-31b
+order,against,wires,2,2,gemma-4-31b
+community,for,tu esquina grocery,2,1,gemma-4-31b
+order,for,storefront,2,2,gemma-4-31b
+beauty,conditional,standard mid-century brick apartment block,2,2,gemma-4-31b
+modernity,conditional,city skyline,2,2,gemma-4-31b
+comfort,conditional,large windows,2,2,gemma-4-31b
+edge,conditional,scaffolding and construction sites,2,1,gemma-4-31b
+character,for,mural,2,2,gemma-4-31b
+vitality,against,loading dock,2,1,gemma-4-31b
+order,against,green construction scaffolding,2,2,gemma-4-31b
+heritage,against,brick row house,2,1,gemma-4-31b
+community,for,crosswalks,2,2,gemma-4-31b
+character,against,tan siding,2,1,gemma-4-31b
+comfort,against,construction,2,2,gemma-4-31b
+beauty,conditional,repetitive patterns of the windows,2,2,gemma-4-31b
+status,against,self-storage facility next to a highway,2,1,gemma-4-31b
+comfort,against,construction zone,2,1,gemma-4-31b
+comfort,against,crowded,2,2,gemma-4-31b
+edge,conditional,scaffolding and city construction,2,2,gemma-4-31b
+edge,conditional,highway,2,1,gemma-4-31b
+character,conditional,red lanterns and traditional signage,2,1,gemma-4-31b
+character,conditional,red door,2,1,gemma-4-31b
+character,against,typical suburban intersection,2,1,gemma-4-31b
+character,against,parked cars,2,2,gemma-4-31b
+character,for,"red brick, external fire escapes",2,2,gemma-4-31b
+community,for,big trees,2,1,gemma-4-31b
+character,against,typical suburban or urban residential street,2,2,gemma-4-31b
+other,conditional,"large, leafy trees provide a lot of shade",2,2,gemma-4-31b
+comfort,against,houses are very close together,2,2,gemma-4-31b
+comfort,conditional,high white fence,2,2,gemma-4-31b
+beauty,conditional,city skyline,2,2,gemma-4-31b
+modernity,for,skyscrapers,2,2,gemma-4-31b
+vitality,against,"plain, windowless brick wall with a chain-link fence",2,1,gemma-4-31b
+edge,conditional,heavy machinery,2,2,gemma-4-31b
+heritage,for,old brick building,2,2,gemma-4-31b
+edge,conditional,concrete retaining wall,2,1,gemma-4-31b
+modernity,for,city skyline,2,2,gemma-4-31b
+beauty,conditional,bright pink flowering bushes,2,1,gemma-4-31b
+modernity,conditional,glass architecture,2,2,gemma-4-31b
+heritage,for,old architecture,2,2,gemma-4-31b
+modernity,conditional,glass skyscrapers,2,2,gemma-4-31b
+other,conditional,"large, leafy tree",2,1,gemma-4-31b
+character,for,row houses,2,2,gemma-4-31b
+order,conditional,fairfield inn side,2,1,gemma-4-31b
+comfort,conditional,"large trees, benches",2,1,gemma-4-31b
+order,conditional,graffiti,2,2,gemma-4-31b
+character,conditional,scaffolding,2,2,gemma-4-31b
+nature,conditional,a big tree,2,2,gemma-4-31b
+other,conditional,overcast sky,2,2,gemma-4-31b
+comfort,conditional,quiet side street,2,2,gemma-4-31b
+character,against,generic brick building,2,2,gemma-4-31b
+nature,conditional,a body of water,2,2,gemma-4-31b
+modernity,conditional,dedicated bike lane,2,1,gemma-4-31b
+character,against,generic beige building,2,1,gemma-4-31b
+other,against,a road and some trees,2,2,gemma-4-31b
+order,conditional,houses,2,1,gemma-4-31b
+character,against,typical neighborhood,2,2,gemma-4-31b
+beauty,conditional,decorative white fence,2,1,gemma-4-31b
+character,against,typical residential neighborhood,2,2,gemma-4-31b
+character,conditional,local businesses,2,2,gemma-4-31b
+order,against,fence,2,2,gemma-4-31b
+community,conditional,mixed-use neighborhood,2,2,gemma-4-31b
+comfort,conditional,quiet street,2,2,gemma-4-31b
+modernity,for,modern building with large glass windows,2,2,gemma-4-31b
+status,against,middle-class housing,2,2,gemma-4-31b
+nature,conditional,row of mature trees,2,1,gemma-4-31b
+other,for,shaded by a massive bridge,2,1,gemma-4-31b
+modernity,for,modern building on the right,2,1,gemma-4-31b
+order,for,well-maintained home,2,2,gemma-4-31b
+character,against,standard brick residential style,2,1,gemma-4-31b
+beauty,for,mural,2,1,gemma-4-31b
+nature,against,chain-link fence,2,2,gemma-4-31b
+nature,conditional,river or bay in the background,2,1,gemma-4-31b
+community,for,local grocery store,2,2,gemma-4-31b
+community,for,public art,2,2,gemma-4-31b
+order,against,"piles of trash bags, scrap metal, and debris",2,1,gemma-4-31b
+character,for,"the large, colorful mural",2,2,gemma-4-31b
+character,against,red brick building,2,2,gemma-4-31b
+character,for,bright blue house,2,1,gemma-4-31b
+other,for,"large, leafy trees provide a lot of shade",2,2,gemma-4-31b
+other,for,"large, leafy trees",2,2,gemma-4-31b
+other,for,"large, leafy tree",2,2,gemma-4-31b
+beauty,for,skyline,2,2,gemma-4-31b
+community,conditional,crosswalks and sidewalks,2,2,gemma-4-31b
+modernity,for,storefront,2,2,gemma-4-31b
+beauty,for,red brick building,2,2,gemma-4-31b
+community,conditional,dense neighborhood,2,2,gemma-4-31b
+community,for,people sitting on the stoops,2,1,gemma-4-31b
+character,for,street art,2,1,gemma-4-31b
+character,for,textured stone facade,2,1,gemma-4-31b
+beauty,against,a plain concrete wall,2,2,gemma-4-31b
+edge,for,external fire escape,2,2,gemma-4-31b
+other,for,trees,2,2,gemma-4-31b
+other,for,three large air conditioning units,2,1,gemma-4-31b
+edge,for,fire escape,2,2,gemma-4-31b
+vitality,against,a parking area under a bridge,2,1,gemma-4-31b
+edge,for,fire escapes,2,2,gemma-4-31b
+order,against,old buildings,2,2,gemma-4-31b
+character,against,standard brick apartment building,2,2,gemma-4-31b
+character,against,standard brick apartment buildings,2,1,gemma-4-31b
+edge,for,graffiti,2,2,gemma-4-31b
+order,against,scaffolding on the right,2,2,gemma-4-31b
+beauty,for,ornate cornice,2,1,gemma-4-31b
+community,for,playground,2,2,gemma-4-31b
+character,for,real neighborhood,2,2,gemma-4-31b
+comfort,conditional,"peaceful, leafy neighborhood",2,2,gemma-4-31b
+other,conditional,window ac units,2,2,gemma-4-31b
+beauty,for,bay windows,2,2,gemma-4-31b
+comfort,for,"sunny day, nice houses",2,2,gemma-4-31b
+community,conditional,houses are close together,2,2,gemma-4-31b
+community,for,stoops,2,2,gemma-4-31b
+comfort,conditional,overcast sky and dense foliage,2,2,gemma-4-31b
+nature,conditional,that large tree,2,2,gemma-4-31b
+comfort,for,sunny,2,2,gemma-4-31b
+order,against,wall covered in graffiti,2,1,gemma-4-31b
+order,for,"sunny day, clean street",2,2,gemma-4-31b
+nature,against,lack of trees,2,2,gemma-4-31b
+heritage,for,since 1906,2,1,gemma-4-31b
+comfort,for,small balconies,2,1,gemma-4-31b
+status,against,allstate insurance office,2,1,gemma-4-31b
+comfort,against,busy road with concrete barriers,2,1,gemma-4-31b
+other,conditional,the truck in the foreground,2,1,gemma-4-31b
+comfort,for,shade,2,2,gemma-4-31b
+vitality,against,generic parking lot,2,2,gemma-4-31b
+other,conditional,the trees,2,2,gemma-4-31b
+other,conditional,the shade,2,2,gemma-4-31b
+heritage,for,tudor style,2,1,gemma-4-31b
+comfort,conditional,"mature, shady trees",2,2,gemma-4-31b
+status,against,a plumbing and heating shop,2,1,gemma-4-31b
+character,for,tower,2,1,gemma-4-31b
+nature,against,concrete jungle,2,2,gemma-4-31b
+comfort,for,well-maintained,2,2,gemma-4-31b
+community,conditional,brick architecture,2,2,gemma-4-31b
+community,for,row houses,2,2,gemma-4-31b
+character,for,tudor-style home,2,1,gemma-4-31b
+comfort,for,typical residential street,2,2,gemma-4-31b
+character,for,unique architecture,2,2,gemma-4-31b
+order,for,"well-maintained, tudor-style house",2,1,gemma-4-31b
+edge,for,red brick building,2,2,gemma-4-31b
+modernity,conditional,a tall building under construction,2,1,gemma-4-31b
+order,against,litter on the ground,2,2,gemma-4-31b
+order,for,white fence,2,2,gemma-4-31b
+vitality,against,bus stop,2,2,gemma-4-31b
+comfort,for,trees,2,2,gemma-4-31b
+community,conditional,greenery,2,2,gemma-4-31b
+character,against,standard residential area,2,2,gemma-4-31b
+character,conditional,external fire escapes,2,2,gemma-4-31b
+other,for,big tree,2,2,gemma-4-31b
+character,against,standard residential building,2,2,gemma-4-31b
+other,for,big black umbrellas,2,1,gemma-4-31b
+character,against,standard residential design,2,2,gemma-4-31b
+vitality,against,a blank wall,2,2,gemma-4-31b
+beauty,for,brownstones,2,2,gemma-4-31b
+comfort,against,"traffic, concrete",2,2,gemma-4-31b
+other,conditional,big tree,2,2,gemma-4-31b
+character,conditional,brick buildings,2,1,gemma-4-31b
+character,conditional,mix of different house styles,2,2,gemma-4-31b
+modernity,conditional,modern apartment building,2,1,gemma-4-31b
+community,conditional,red brick apartment buildings,2,1,gemma-4-31b
+character,conditional,pawn shops,2,1,gemma-4-31b
+vitality,conditional,towering skyscrapers,2,2,gemma-4-31b
+character,conditional,overgrown orange flowers,2,1,gemma-4-31b
+order,against,boarded-up windows,2,2,gemma-4-31b
+order,for,modern apartment building,2,2,gemma-4-31b
+beauty,against,concrete-heavy,2,2,gemma-4-31b
+modernity,conditional,modern city skyline across the water,2,1,gemma-4-31b
+character,conditional,brick architecture,2,1,gemma-4-31b
+vitality,conditional,city skyline,2,1,gemma-4-31b
+character,conditional,mix of old and new,2,2,gemma-4-31b
+other,against,red spray-painted text,2,1,gemma-4-31b
+status,conditional,club champion,2,1,gemma-4-31b
+modernity,for,architecture,2,2,gemma-4-31b
+vitality,conditional,quiet street,2,2,gemma-4-31b
+modernity,conditional,massive building under construction,2,1,gemma-4-31b
+character,conditional,classic slice of new york city,2,1,gemma-4-31b
+other,against,parking lot,2,1,gemma-4-31b
+beauty,against,concrete overpass,2,2,gemma-4-31b
+beauty,against,"plain, industrial-looking building",2,2,gemma-4-31b
+character,against,modern architecture,2,1,gemma-4-31b
+comfort,for,benches,2,1,gemma-4-31b
+other,against,bright sunlight and clear sky,2,2,gemma-4-31b
+order,against,construction fence,2,2,gemma-4-31b
+beauty,against,"plain, beige-colored building",2,1,gemma-4-31b
+beauty,against,concrete wall,2,2,gemma-4-31b
+character,for,graffiti,2,2,gemma-4-31b
+character,conditional,classic rowhouses,2,2,gemma-4-31b
+vitality,conditional,bustling city street,2,2,gemma-4-31b
+character,for,green tiled roof on the balcony,2,1,gemma-4-31b
+character,conditional,chinese signage above,2,1,gemma-4-31b
+utility,conditional,clear sidewalks and crosswalks,2,2,gemma-4-31b
+status,for,nyc,2,2,gemma-4-31b
+vitality,conditional,space for lease sign,2,1,gemma-4-31b
+vitality,conditional,roller coaster,2,1,gemma-4-31b
+modernity,conditional,towering glass skyscrapers,2,1,gemma-4-31b
+community,conditional,"signs for ""iglesia"" and ""tabernacle""",2,1,gemma-4-31b
+order,for,landscaping,2,2,gemma-4-31b
+character,conditional,blank wall,2,1,gemma-4-31b
+beauty,against,dirt lot,2,1,gemma-4-31b
+order,for,clean sidewalk,2,2,gemma-4-31b
+vitality,conditional,icy melon,2,1,gemma-4-31b
+order,for,clean and well-maintained,2,2,gemma-4-31b
+comfort,against,under an elevated train,2,1,gemma-4-31b
+modernity,conditional,modern-looking multi-story building,2,2,gemma-4-31b
+beauty,against,plain brick buildings,2,2,gemma-4-31b
+character,conditional,architectural mix,2,2,gemma-4-31b
+beauty,against,construction scaffolding,2,2,gemma-4-31b
+order,for,building looks clean,2,2,gemma-4-31b
+modernity,conditional,modern building,2,2,gemma-4-31b
+status,conditional,private garage,2,2,gemma-4-31b
+comfort,against,window air conditioning units,2,2,gemma-4-31b
+character,for,curved window sections,2,1,gemma-4-31b
+character,for,curved glass windows,2,1,gemma-4-31b
+utility,conditional,crosswalk,2,2,gemma-4-31b
+comfort,against,"noisy, crowded",2,2,gemma-4-31b
+character,against,multi-story brick apartment building,2,1,gemma-4-31b
+modernity,conditional,modern skyscrapers,2,2,gemma-4-31b
+status,for,lincoln square,2,1,gemma-4-31b
+comfort,against,overpass,2,1,gemma-4-31b
+comfort,against,parked cars,2,2,gemma-4-31b
+order,conditional,streets,2,1,gemma-4-31b
+character,against,apartment building,2,2,gemma-4-31b
+vitality,against,"traffic, concrete",2,2,gemma-4-31b
+vitality,against,typical city street,2,2,gemma-4-31b
+other,conditional,cranes,2,1,gemma-4-31b
+comfort,for,greenery,2,2,gemma-4-31b
+other,conditional,intaboro two-way radio,2,1,gemma-4-31b
+beauty,against,brick building,2,2,gemma-4-31b
+comfort,for,mature trees,2,2,gemma-4-31b
+vitality,for,busy city street,2,2,gemma-4-31b
+modernity,conditional,gray building,2,2,gemma-4-31b
+character,against,typical urban residential street,2,2,gemma-4-31b
+community,conditional,neighbors know each other,2,2,gemma-4-31b
+vitality,against,residential street,2,2,gemma-4-31b
+comfort,against,narrowness,2,1,gemma-4-31b
+character,for,"large, colorful mural",2,2,gemma-4-31b
+character,for,"""coming soon"" sign",2,1,gemma-4-31b
+other,conditional,gray clouds,2,2,gemma-4-31b
+modernity,conditional,high-rise apartment buildings,2,2,gemma-4-31b
+vitality,against,space for lease,2,1,gemma-4-31b
+order,conditional,well-maintained hedges,2,1,gemma-4-31b
+other,conditional,concrete,2,2,gemma-4-31b
+character,for,big brown door,2,1,gemma-4-31b
+other,conditional,club champion,2,1,gemma-4-31b
+comfort,for,clear blue sky,2,2,gemma-4-31b
+character,for,architectural style,2,2,gemma-4-31b
+other,against,"bright blue sky and the full, green leaves",2,2,gemma-4-31b
+vitality,against,traffic,2,2,gemma-4-31b
+comfort,against,row houses,2,2,gemma-4-31b
+utility,conditional,garage,2,2,gemma-4-31b
+status,conditional,blue sports car,2,1,gemma-4-31b
+comfort,against,row houses share walls,2,2,gemma-4-31b
+order,conditional,"typical house with siding, a wooden deck, a white vinyl fence",2,1,gemma-4-31b
+vitality,conditional,"no shops, cafes, or crowds visible",2,2,gemma-4-31b
+comfort,against,rowhouses,2,2,gemma-4-31b
+vitality,conditional,quiet residential area,2,2,gemma-4-31b
+order,against,construction sites,2,1,gemma-4-31b
+order,conditional,wires,1,1,gemma-4-31b
+order,for,a clean car,1,1,gemma-4-31b
+order,for,a clean city street,1,1,gemma-4-31b
+order,for,a modest storefront in an older brick building,1,1,gemma-4-31b
+order,for,a nice mix of greenery and architecture,1,1,gemma-4-31b
+order,for,a sunny day and a clean street,1,1,gemma-4-31b
+order,for,a well-maintained home,1,1,gemma-4-31b
+order,for,a young tree with supports,1,1,gemma-4-31b
+order,for,air conditioning units in most windows,1,1,gemma-4-31b
+order,against,mix of architectural styles and fencing,1,1,gemma-4-31b
+order,for,"attached garages with white doors, white fencing/gates",1,1,gemma-4-31b
+order,conditional,well-kept,1,1,gemma-4-31b
+order,conditional,"well-kept lawns, mature trees",1,1,gemma-4-31b
+order,conditional,well-kept yard,1,1,gemma-4-31b
+order,conditional,"well-kept, the driveway is paved with nice interlocking stones, and the landscaping is manicured",1,1,gemma-4-31b
+order,conditional,well-maintained and cared for,1,1,gemma-4-31b
+order,conditional,well-maintained houses,1,1,gemma-4-31b
+order,conditional,well-maintained modern residence,1,1,gemma-4-31b
+order,conditional,well-maintained modern suburban development,1,1,gemma-4-31b
+order,conditional,well-maintained residential street,1,1,gemma-4-31b
+order,conditional,"wide, clean sidewalks",1,1,gemma-4-31b
+order,conditional,"well-maintained, classic style, brick driveway, greenery",1,1,gemma-4-31b
+order,conditional,"well-maintained, tidy",1,1,gemma-4-31b
+order,conditional,well-marked bike lanes,1,1,gemma-4-31b
+order,conditional,well-organized parking lot,1,1,gemma-4-31b
+order,conditional,white decorative balustrade,1,1,gemma-4-31b
+order,conditional,white fence,1,1,gemma-4-31b
+order,against,graffiti and trash,1,1,gemma-4-31b
+order,against,graffiti and weathered concrete,1,1,gemma-4-31b
+modernity,against,"minimalist interior design, instagrammable aesthetic, trendy fusion menu",1,1,gemma-4-31b
+modernity,against,modern architecture,1,1,gemma-4-31b
+modernity,against,modern glass-and-steel,1,1,gemma-4-31b
+modernity,against,modern glass-and-steel apartment complex,1,1,gemma-4-31b
+modernity,against,modern high-rise,1,1,gemma-4-31b
+modernity,against,"modest, traditional, and varied",1,1,gemma-4-31b
+modernity,against,new glass-and-steel condo,1,1,gemma-4-31b
+modernity,against,"no sleek lines, glass, or contemporary designs",1,1,gemma-4-31b
+modernity,against,old brick houses,1,1,gemma-4-31b
+modernity,against,older brick structures,1,1,gemma-4-31b
+modernity,against,older buildings,1,1,gemma-4-31b
+modernity,against,older siding and standard style,1,1,gemma-4-31b
+modernity,against,plain concrete wall,1,1,gemma-4-31b
+modernity,against,rectangular building,1,1,gemma-4-31b
+modernity,against,red brick townhouses,1,1,gemma-4-31b
+modernity,against,"red brick, rectangular, functional",1,1,gemma-4-31b
+modernity,against,"red brick, square windows, basic balconies",1,1,gemma-4-31b
+modernity,against,red-brick building,1,1,gemma-4-31b
+modernity,against,old urban buildings,1,1,gemma-4-31b
+modernity,against,brown brick building next to a grey paneled one,1,1,gemma-4-31b
+modernity,against,buildings,1,1,gemma-4-31b
+modernity,against,buildings are older and functional,1,1,gemma-4-31b
+modernity,against,cape cod or bungalow style,1,1,gemma-4-31b
+nature,against,pavement and steel,1,1,gemma-4-31b
+nature,against,predominantly concrete and brick,1,1,gemma-4-31b
+nature,against,"quiet parks, wide-open spaces",1,1,gemma-4-31b
+nature,against,"road, the concrete barriers, and the overcast sky",1,1,gemma-4-31b
+nature,against,sidewalks/small yards,1,1,gemma-4-31b
+nature,against,skyscrapers,1,1,gemma-4-31b
+nature,against,small lawn,1,1,gemma-4-31b
+nature,against,small stoop/sidewalk,1,1,gemma-4-31b
+nature,against,some nice trees,1,1,gemma-4-31b
+nature,against,street trees,1,1,gemma-4-31b
+nature,against,"traffic, the crowds, and the lack of greenery",1,1,gemma-4-31b
+nature,against,trees in the distance,1,1,gemma-4-31b
+modernity,for,street art,1,1,gemma-4-31b
+modernity,for,street art and the tall skyscrapers,1,1,gemma-4-31b
+modernity,for,"tall, angular, modern sculpture",1,1,gemma-4-31b
+modernity,for,"taller, more modern brick building",1,1,gemma-4-31b
+modernity,for,tallest and most modern skyscrapers,1,1,gemma-4-31b
+modernity,for,the car in the foreground,1,1,gemma-4-31b
+modernity,for,the scooter,1,1,gemma-4-31b
+modernity,for,towering skyscrapers,1,1,gemma-4-31b
+modernity,for,"traditional brick buildings right next to that stark, modern grey building",1,1,gemma-4-31b
+modernity,for,white electric scooter,1,1,gemma-4-31b
+modernity,for,"two modern, tall brick buildings",1,1,gemma-4-31b
+modernity,conditional,mix of old and new,1,1,gemma-4-31b
+modernity,conditional,modern architecture and urban development,1,1,gemma-4-31b
+modernity,conditional,"modern brick architecture, large windows",1,1,gemma-4-31b
+modernity,conditional,modern brick building,1,1,gemma-4-31b
+modernity,for,storefront 'city',1,1,gemma-4-31b
+modernity,for,grey building,1,1,gemma-4-31b
+modernity,for,"grid of vibrant, stylized portraits",1,1,gemma-4-31b
+modernity,for,high-rise building,1,1,gemma-4-31b
+modernity,for,"high-rise buildings, modern architecture",1,1,gemma-4-31b
+utility,conditional,building materials,1,1,gemma-4-31b
+utility,conditional,buildings,1,1,gemma-4-31b
+utility,conditional,built-in garage,1,1,gemma-4-31b
+utility,conditional,built-in garages,1,1,gemma-4-31b
+utility,conditional,bus stop is visible,1,1,gemma-4-31b
+utility,conditional,bus stop right in front,1,1,gemma-4-31b
+utility,conditional,"bus stop, mixed-use buildings, sidewalks",1,1,gemma-4-31b
+utility,conditional,"cafes, shops, offices, and public transit",1,1,gemma-4-31b
+utility,conditional,cars parked on the street,1,1,gemma-4-31b
+other,against,"concrete ground, metal fences, industrial bridge, parking lot",1,1,gemma-4-31b
+utility,conditional,centrally located,1,1,gemma-4-31b
+utility,conditional,"chain-link fence with barbed wire, parking lot, utility poles",1,1,gemma-4-31b
+utility,conditional,cheap car,1,1,gemma-4-31b
+utility,conditional,citibank,1,1,gemma-4-31b
+utility,conditional,citibank and a fedex delivery truck,1,1,gemma-4-31b
+utility,conditional,clear crosswalk,1,1,gemma-4-31b
+utility,conditional,clear crosswalks and mixed-use buildings,1,1,gemma-4-31b
+utility,conditional,"clear crosswalks, public transit stops",1,1,gemma-4-31b
+utility,conditional,concrete driveways,1,1,gemma-4-31b
+utility,conditional,construction signs,1,1,gemma-4-31b
+utility,conditional,cement mixer or power tools,1,1,gemma-4-31b
+utility,conditional,"a laundromat, nail spa, and pawn shop",1,1,gemma-4-31b
+utility,conditional,a one-stop shop for health and food,1,1,gemma-4-31b
+utility,for,"single story, large yard",1,1,gemma-4-31b
+utility,for,single-story layout,1,1,gemma-4-31b
+utility,for,small balconies on the second floor,1,1,gemma-4-31b
+utility,for,standard tennis court,1,1,gemma-4-31b
+utility,for,the train above,1,1,gemma-4-31b
+utility,for,wide concrete driveway and two separate garage bays,1,1,gemma-4-31b
+utility,for,wide sidewalks and a dedicated bike/bus lane,1,1,gemma-4-31b
+utility,for,"world-class museums, theaters, shopping",1,1,gemma-4-31b
+vitality,against,"""brand exposure"" and ""flexible retail"" signs",1,1,gemma-4-31b
+vitality,against,"""retail space for lease"" sign",1,1,gemma-4-31b
+vitality,against,"""retail space for lease"" signs",1,1,gemma-4-31b
+vitality,against,a bank building,1,1,gemma-4-31b
+utility,for,grey building and a tree,1,1,gemma-4-31b
+utility,for,"groceries, an atm, bill payment, cell phone services",1,1,gemma-4-31b
+utility,for,gym and other retail shops right on the ground floor,1,1,gemma-4-31b
+utility,for,gym and shops right downstairs,1,1,gemma-4-31b
+utility,for,high-density residential area,1,1,gemma-4-31b
+utility,for,high-rise buildings and large parking structure,1,1,gemma-4-31b
+utility,for,houses with garages,1,1,gemma-4-31b
+utility,for,integrated garage,1,1,gemma-4-31b
+utility,for,"kiosk selling ""wafels and dinges""",1,1,gemma-4-31b
+utility,for,residential street with some mixed-use commercial,1,1,gemma-4-31b
+utility,for,"large, fenced-in yard",1,1,gemma-4-31b
+utility,for,"large, well-maintained lawn",1,1,gemma-4-31b
+utility,for,local business,1,1,gemma-4-31b
+utility,for,mid-century red-brick apartment complex,1,1,gemma-4-31b
+utility,for,mini market,1,1,gemma-4-31b
+vitality,conditional,"nightlife, street art, or hip cafes",1,1,gemma-4-31b
+vitality,conditional,"no famous landmarks, unusual architecture, or exciting activities",1,1,gemma-4-31b
+vitality,conditional,"no flashing lights, crowds, or obvious ""hot spots""",1,1,gemma-4-31b
+vitality,conditional,"no flashing lights, towering skyscrapers, or unusual landmarks",1,1,gemma-4-31b
+vitality,conditional,"no flashy buildings, neon signs, crowded cafes, or unique architectural landmarks",1,1,gemma-4-31b
+vitality,conditional,"no flashy signs, landmarks, or luxury storefronts",1,1,gemma-4-31b
+vitality,conditional,"no neon lights, futuristic skyscrapers, high-energy crowds, or famous landmarks",1,1,gemma-4-31b
+vitality,conditional,"no neon lights, unique architecture, bustling crowds",1,1,gemma-4-31b
+vitality,conditional,"no neon signs, crowded cafes, street art",1,1,gemma-4-31b
+vitality,conditional,"no obvious landmarks, architecture, or bustling activity",1,1,gemma-4-31b
+vitality,conditional,"no obvious landmarks, neon signs, unique architecture, or bustling storefronts",1,1,gemma-4-31b
+vitality,conditional,"no obvious storefronts, cafes, or entertainment venues",1,1,gemma-4-31b
+vitality,for,"energy, food, art, and diversity",1,1,gemma-4-31b
+vitality,for,entertainment district,1,1,gemma-4-31b
+vitality,for,fenced-in court,1,1,gemma-4-31b
+vitality,for,fenced-in courts,1,1,gemma-4-31b
+vitality,for,food truck,1,1,gemma-4-31b
+vitality,for,"food truck, tall modern buildings",1,1,gemma-4-31b
+vitality,for,galleries and the famous moma ps1,1,1,gemma-4-31b
+vitality,for,graffiti,1,1,gemma-4-31b
+vitality,for,"great people-watching, centrally located, beautiful landscaping, variety of activities",1,1,gemma-4-31b
+vitality,for,"incredible energy, diversity, and endless things to do",1,1,gemma-4-31b
+vitality,for,"grid of vibrant, stylized portraits",1,1,gemma-4-31b
+vitality,for,handball court,1,1,gemma-4-31b
+vitality,for,"handball/racquetball courts, tall leafy trees",1,1,gemma-4-31b
+vitality,for,heart of a city,1,1,gemma-4-31b
+vitality,for,heart of manhattan,1,1,gemma-4-31b
+vitality,for,high-density residential area,1,1,gemma-4-31b
+vitality,for,"high-voltage, fast-paced energy",1,1,gemma-4-31b
+vitality,for,hustle and bustle of a major city,1,1,gemma-4-31b
+vitality,for,hustle and bustle of nyc,1,1,gemma-4-31b
+vitality,for,iconic yellow taxis,1,1,gemma-4-31b
+vitality,for,"green lawns, chairs (moveable), kiosks (food/drinks), the new york public library (right next to it), outdoor movies, ice skating in winter, reading rooms",1,1,gemma-4-31b
+vitality,for,mix of residential living and small businesses,1,1,gemma-4-31b
+vitality,for,"mix of traffic, small businesses, and dense housing",1,1,gemma-4-31b
+vitality,for,mixed-use buildings,1,1,gemma-4-31b
+other,conditional,what's happening *behind* those doors,1,1,gemma-4-31b
+other,conditional,window air conditioning units,1,1,gemma-4-31b
+other,conditional,window framing,1,1,gemma-4-31b
+other,conditional,yellow crane,1,1,gemma-4-31b
+other,for,altec bucket truck,1,1,gemma-4-31b
+other,for,bakery,1,1,gemma-4-31b
+other,for,"basement, cellar, or underground bunker",1,1,gemma-4-31b
+other,for,big leafy trees,1,1,gemma-4-31b
+other,for,black umbrellas providing shade,1,1,gemma-4-31b
+other,for,bright sunlight and the deep shadows under the trees,1,1,gemma-4-31b
+other,for,canal,1,1,gemma-4-31b
+other,for,cellar or basement,1,1,gemma-4-31b
+other,for,"cluttered, dirty foreground and the sleek, modern glass skyline",1,1,gemma-4-31b
+other,for,concrete structures,1,1,gemma-4-31b
+other,for,dense canopy of the tree,1,1,gemma-4-31b
+other,for,"dim, overcast, or late evening/early morning",1,1,gemma-4-31b
+other,for,"fossils, space exhibits, taxidermy",1,1,gemma-4-31b
+other,for,framing,1,1,gemma-4-31b
+other,conditional,tiles and the sterile look,1,1,gemma-4-31b
+other,conditional,tracks,1,1,gemma-4-31b
+other,conditional,tracks and infrastructure,1,1,gemma-4-31b
+status,against,residential exterior,1,1,gemma-4-31b
+status,against,security shutters and older brickwork,1,1,gemma-4-31b
+status,against,spray-painted phone numbers,1,1,gemma-4-31b
+status,against,standard 7-eleven convenience store in a parking lot,1,1,gemma-4-31b
+status,against,standard commercial strip,1,1,gemma-4-31b
+status,against,standard gas station,1,1,gemma-4-31b
+status,against,standard parking alley,1,1,gemma-4-31b
+status,against,standard professional office building,1,1,gemma-4-31b
+status,against,standard residential area,1,1,gemma-4-31b
+status,against,standard suburban house,1,1,gemma-4-31b
+status,against,standard suburban/urban retail strip,1,1,gemma-4-31b
+status,against,standard urban intersection,1,1,gemma-4-31b
+status,against,"standard, functional, working-class urban commercial strip",1,1,gemma-4-31b
+status,against,"standard, light-colored siding suburban house",1,1,gemma-4-31b
+status,against,"standard, modest ranch-style home",1,1,gemma-4-31b
+status,against,street art and cafes,1,1,gemma-4-31b
+status,against,"street art, boutique cafes, or modern architectural twists",1,1,gemma-4-31b
+status,against,strip mall with a pawn shop and a laundromat,1,1,gemma-4-31b
+status,against,"traditional, quiet, and modest residential neighborhood",1,1,gemma-4-31b
+status,against,standard residential street,1,1,gemma-4-31b
+status,against,"no high-end boutiques, modern glass skyscrapers",1,1,gemma-4-31b
+status,conditional,chain coffee shop,1,1,gemma-4-31b
+status,conditional,"classic stone architecture, clean streets, sidewalk cafe",1,1,gemma-4-31b
+status,conditional,"classic stone architecture, wide sidewalks",1,1,gemma-4-31b
+status,conditional,"clean, upscale urban residential neighborhood",1,1,gemma-4-31b
+status,conditional,cobblestone driveway,1,1,gemma-4-31b
+status,conditional,east end avenue on the upper east side,1,1,gemma-4-31b
+status,conditional,expanding rapidly in cities like new york and london,1,1,gemma-4-31b
+status,conditional,fancy shops,1,1,gemma-4-31b
+status,conditional,fancy shops/cafes with umbrellas,1,1,gemma-4-31b
+status,conditional,high arched windows and detailed stonework,1,1,gemma-4-31b
+status,conditional,"high-end boutiques, luxury hotels",1,1,gemma-4-31b
+status,conditional,high-end residence or a gallery,1,1,gemma-4-31b
+status,conditional,high-end residential building,1,1,gemma-4-31b
+status,conditional,high-end sports car,1,1,gemma-4-31b
+status,conditional,houses are very traditional and standard,1,1,gemma-4-31b
+status,conditional,j.p. morgan signage,1,1,gemma-4-31b
+status,conditional,land rover dealership,1,1,gemma-4-31b
+status,conditional,land rover dealership and high-rise luxury apartments,1,1,gemma-4-31b
+status,conditional,large house with its architectural details,1,1,gemma-4-31b
+status,conditional,"grand stone architecture, clean streets, outdoor cafes",1,1,gemma-4-31b
+status,conditional,buildings are older and the storefronts are functional,1,1,gemma-4-31b
+other,against,bright sunlight and the lush green leaves,1,1,gemma-4-31b
+other,against,bright sunlight and the lush green trees,1,1,gemma-4-31b
+other,against,bright sunlight and the sharp shadows,1,1,gemma-4-31b
+other,against,"bright sunlight, blue sky, and green leaves",1,1,gemma-4-31b
+other,against,"bright sunlight, blue sky, green grass",1,1,gemma-4-31b
+other,against,"bright sunlight, clear blue sky, and the full green leaves on the trees",1,1,gemma-4-31b
+other,against,"bright sunlight, clear blue sky, people on the benches are wearing shorts and t-shirts",1,1,gemma-4-31b
+other,against,"bright sunlight, clear sky, and lush green foliage",1,1,gemma-4-31b
+other,against,"bright sunlight, clear sky, people wearing light clothing",1,1,gemma-4-31b
+other,against,"bright, direct sun and the heat-absorbing brick",1,1,gemma-4-31b
+other,against,"bright, direct sunlight; clear blue sky",1,1,gemma-4-31b
+other,against,"bright, high sun and very little shade",1,1,gemma-4-31b
+other,against,"bright, high sun in the sky",1,1,gemma-4-31b
+other,against,"bright, sunny day with a clear blue sky",1,1,gemma-4-31b
+other,against,budget truck in front of some brick buildings,1,1,gemma-4-31b
+other,against,"buildings, cars, traffic lights, and a crosswalk",1,1,gemma-4-31b
+other,against,"cars in traffic, a crosswalk, some low-rise buildings",1,1,gemma-4-31b
+other,against,"cars, leafy green trees, asphalt road, urban buildings",1,1,gemma-4-31b
+status,for,sophisticated neighborhood in new york city,1,1,gemma-4-31b
+status,for,street in nyc,1,1,gemma-4-31b
+status,for,style of the buildings,1,1,gemma-4-31b
+status,for,t logo,1,1,gemma-4-31b
+status,for,"tall buildings, a crosswalk, a white work van",1,1,gemma-4-31b
+status,for,typical busy city street,1,1,gemma-4-31b
+status,for,"typical, pleasant, high-end urban street",1,1,gemma-4-31b
+status,for,upper-middle-class city residence,1,1,gemma-4-31b
+status,for,upscale urban neighborhood,1,1,gemma-4-31b
+status,for,visual style of these buildings,1,1,gemma-4-31b
+status,for,visually bold and repetitive,1,1,gemma-4-31b
+status,for,w 30 st sign,1,1,gemma-4-31b
+status,for,wafels and dinges,1,1,gemma-4-31b
+status,for,warehouse or old factory feel,1,1,gemma-4-31b
+status,for,west village and greenwich village,1,1,gemma-4-31b
+status,for,white porsche suv,1,1,gemma-4-31b
+status,for,"willoughby avenue, brooklyn",1,1,gemma-4-31b
+status,for,world-class spots,1,1,gemma-4-31b
+status,for,upscale-looking residential/commercial mix,1,1,gemma-4-31b
+status,for,interlocking stone driveway,1,1,gemma-4-31b
+status,for,j.p. morgan building,1,1,gemma-4-31b
+status,for,knickerbocker ave,1,1,gemma-4-31b
+character,for,"""dominican stuff"" store",1,1,gemma-4-31b
+character,for,"""funny face bakery""",1,1,gemma-4-31b
+comfort,against,fence and cameras,1,1,gemma-4-31b
+comfort,against,fence and the wall,1,1,gemma-4-31b
+comfort,against,fence and wall,1,1,gemma-4-31b
+beauty,conditional,"a neat, traditional suburban home",1,1,gemma-4-31b
+beauty,conditional,aggregate concrete,1,1,gemma-4-31b
+beauty,conditional,"arched windows, decorative cornices",1,1,gemma-4-31b
+beauty,conditional,city skyline by the water,1,1,gemma-4-31b
+beauty,conditional,classic brick architecture,1,1,gemma-4-31b
+beauty,conditional,classic row houses,1,1,gemma-4-31b
+beauty,conditional,classic urban row houses,1,1,gemma-4-31b
+beauty,conditional,"clean lines and a muted, urban aesthetic",1,1,gemma-4-31b
+beauty,conditional,"clean, modern branding and minimalist shop design",1,1,gemma-4-31b
+beauty,conditional,"clean, white vinyl fence and the industrial black metal fence",1,1,gemma-4-31b
+beauty,conditional,clear blue sky contrasting with the hard lines of the building,1,1,gemma-4-31b
+beauty,conditional,colorful flowers,1,1,gemma-4-31b
+beauty,conditional,architecture,1,1,gemma-4-31b
+beauty,conditional,combination of the specific shade of green and the brown siding,1,1,gemma-4-31b
+beauty,conditional,concrete architecture,1,1,gemma-4-31b
+beauty,conditional,"concrete, chain-link fence, brick",1,1,gemma-4-31b
+beauty,conditional,"construction noise, concrete, lack of nature",1,1,gemma-4-31b
+beauty,conditional,construction project,1,1,gemma-4-31b
+beauty,conditional,contrast between the red brick on the lower level and the light-colored upper floors,1,1,gemma-4-31b
+beauty,conditional,"contrast in colors (tan, red, yellow)",1,1,gemma-4-31b
+beauty,for,a colorful mural,1,1,gemma-4-31b
+beauty,for,"a neutral-toned house next to a bold, royal blue house",1,1,gemma-4-31b
+beauty,for,"a plain, functional wall",1,1,gemma-4-31b
+beauty,for,abstract black sculptures,1,1,gemma-4-31b
+beauty,for,bright red flowerbed and the green trees,1,1,gemma-4-31b
+beauty,for,"bright, artistic foreground",1,1,gemma-4-31b
+beauty,for,"bright, cartoonish artwork and the plain building",1,1,gemma-4-31b
+beauty,for,"bright, whimsical art on the wall",1,1,gemma-4-31b
+beauty,for,brownstone building,1,1,gemma-4-31b
+beauty,for,brownstone-style townhouses,1,1,gemma-4-31b
+beauty,for,city skylines and waterfronts,1,1,gemma-4-31b
+beauty,for,classic brownstones,1,1,gemma-4-31b
+beauty,for,classic piece of architecture,1,1,gemma-4-31b
+beauty,for,arched entryway with the fanlight window,1,1,gemma-4-31b
+beauty,for,"classic, aesthetically pleasing",1,1,gemma-4-31b
+beauty,for,cloud cover,1,1,gemma-4-31b
+beauty,for,cloud pattern,1,1,gemma-4-31b
+edge,for,4x4 truck,1,1,gemma-4-31b
+edge,for,abandoned places,1,1,gemma-4-31b
+edge,for,an unassuming building in a city,1,1,gemma-4-31b
+edge,for,architecture and the fence,1,1,gemma-4-31b
+edge,for,"barbed wire, the old brick building, and the overpass",1,1,gemma-4-31b
+edge,for,big red wall,1,1,gemma-4-31b
+edge,for,black iron fire escapes,1,1,gemma-4-31b
+edge,for,black sculptures,1,1,gemma-4-31b
+edge,for,blue steel and heavy rivets,1,1,gemma-4-31b
+edge,for,"blue steel, heavy rivets",1,1,gemma-4-31b
+edge,for,brick apartment buildings,1,1,gemma-4-31b
+edge,for,a fire escape,1,1,gemma-4-31b
+edge,for,brick apartment buildings with fire escapes,1,1,gemma-4-31b
+edge,for,raw earth and the surrounding architecture,1,1,gemma-4-31b
+edge,for,raw textures of the metal beams,1,1,gemma-4-31b
+edge,for,"raw, textured concrete",1,1,gemma-4-31b
+edge,for,"real, lived-in neighborhood",1,1,gemma-4-31b
+edge,for,red brick,1,1,gemma-4-31b
+edge,for,red brick and the intricate metal fire escapes,1,1,gemma-4-31b
+edge,for,red brick architecture,1,1,gemma-4-31b
+heritage,against,a brick ranch,1,1,gemma-4-31b
+heritage,against,a standard modern city building,1,1,gemma-4-31b
+heritage,against,architecture,1,1,gemma-4-31b
+heritage,against,brick apartment building,1,1,gemma-4-31b
+heritage,against,brick buildings,1,1,gemma-4-31b
+heritage,against,"old red brick, multi-story buildings",1,1,gemma-4-31b
+heritage,against,old school,1,1,gemma-4-31b
+heritage,against,old warehouse,1,1,gemma-4-31b
+heritage,against,"old, unremarkable warehouse",1,1,gemma-4-31b
+heritage,against,"old-world charm, cobblestone streets, and historic buildings",1,1,gemma-4-31b
+heritage,against,"older, low-rise commercial buildings",1,1,gemma-4-31b
+heritage,against,red brick duplex,1,1,gemma-4-31b
+heritage,against,"red brick, multi-unit layout",1,1,gemma-4-31b
+heritage,against,"red brick, multi-unit residential",1,1,gemma-4-31b
+heritage,against,residential buildings,1,1,gemma-4-31b
+heritage,against,row of brick houses,1,1,gemma-4-31b
+heritage,against,"shops on the ground floor, a parking lot/gate",1,1,gemma-4-31b
+heritage,against,"simple, one-story buildings, garage doors",1,1,gemma-4-31b
+heritage,against,single-story ranch-style home,1,1,gemma-4-31b
+heritage,against,standard brick construction,1,1,gemma-4-31b
+heritage,against,standard mid-century modest homes,1,1,gemma-4-31b
+comfort,for,"large, leafy trees",1,1,gemma-4-31b
+comfort,for,"large, lush trees",1,1,gemma-4-31b
+comfort,for,"large, mature tree",1,1,gemma-4-31b
+comfort,for,"large, mature tree providing shade",1,1,gemma-4-31b
+comfort,for,"large, nice trees providing shade",1,1,gemma-4-31b
+comfort,for,"large, old trees, the classic lamppost, and the stone seating",1,1,gemma-4-31b
+comfort,for,"large, shady trees and a tidy white fence",1,1,gemma-4-31b
+comfort,for,little front porch with columns,1,1,gemma-4-31b
+comfort,for,"lots of greenery, a park-like setting",1,1,gemma-4-31b
+comfort,for,"low traffic, residential feel",1,1,gemma-4-31b
+community,against,luxury brands and high-rises,1,1,gemma-4-31b
+community,against,mature deciduous trees,1,1,gemma-4-31b
+community,against,"medical supply, comfort shoes",1,1,gemma-4-31b
+community,against,neighbors very close,1,1,gemma-4-31b
+community,against,nice houses and mature trees,1,1,gemma-4-31b
+community,against,office buildings and clinics,1,1,gemma-4-31b
+community,against,"quiet, established neighborhood",1,1,gemma-4-31b
+community,against,row house,1,1,gemma-4-31b
+community,against,wide roads and large buildings,1,1,gemma-4-31b
+community,conditional,"a ""no outlet"" sign",1,1,gemma-4-31b
+community,conditional,"a bakery, a laundromat, and a grocery store",1,1,gemma-4-31b
+community,conditional,a basketball hoop,1,1,gemma-4-31b
+community,conditional,"a business (furniture store), what looks like an industrial space or garage in the middle, and a residential brick building",1,1,gemma-4-31b
+community,conditional,"a business called ""city""",1,1,gemma-4-31b
+community,conditional,a classic local strip with a barbershop/salon and a multi-service center,1,1,gemma-4-31b
+community,conditional,a clearly marked bike lane and wide sidewalks,1,1,gemma-4-31b
+community,conditional,"a coffee shop, an optician, and a nail spa",1,1,gemma-4-31b
+community,conditional,"a few houses, a street with cars, a crosswalk",1,1,gemma-4-31b
+community,conditional,a hidden corner of a city,1,1,gemma-4-31b
+community,against,"wide roads, parking lots",1,1,gemma-4-31b
+community,against,less diverse in terms of socioeconomic status,1,1,gemma-4-31b
+community,against,attached to neighbors on both sides,1,1,gemma-4-31b
+community,against,brick houses and an nypd communications van,1,1,gemma-4-31b
+community,against,business district,1,1,gemma-4-31b
+community,against,chain-link fence,1,1,gemma-4-31b
+community,against,close proximity to neighbors and street parking,1,1,gemma-4-31b
+community,against,dense urban neighborhoods,1,1,gemma-4-31b
+community,against,dense urban setting,1,1,gemma-4-31b
+community,against,glass towers and luxury car dealerships,1,1,gemma-4-31b
+community,against,lack the seating and community feel,1,1,gemma-4-31b
+community,conditional,bike-sharing,1,1,gemma-4-31b
+community,conditional,"brick apartment buildings, a street corner",1,1,gemma-4-31b
+community,conditional,"brick apartment buildings, the fire escapes",1,1,gemma-4-31b
+edge,against,"plain brick building, a parking lot, and a chain-link fence with barbed wire",1,1,gemma-4-31b
+edge,against,plain trucks and an asphalt lot,1,1,gemma-4-31b
+edge,against,"polished, high-end residential/commercial district",1,1,gemma-4-31b
+edge,against,"railroad tracks, a rusty fence, piles of dirt/gravel",1,1,gemma-4-31b
+edge,against,raw spaces,1,1,gemma-4-31b
+edge,against,road and the concrete barriers,1,1,gemma-4-31b
+edge,against,"road, the concrete barrier, and the cars",1,1,gemma-4-31b
+edge,against,row of closed metal roll-up doors,1,1,gemma-4-31b
+edge,against,"rust, concrete",1,1,gemma-4-31b
+edge,against,scaffolding,1,1,gemma-4-31b
+edge,against,scaffolding and metal platforms,1,1,gemma-4-31b
+edge,against,scaffolding on the ground level,1,1,gemma-4-31b
+edge,against,"scaffolding, barriers, urban grit",1,1,gemma-4-31b
+edge,against,"scaffolding, safety netting, and orange barriers",1,1,gemma-4-31b
+edge,against,security bars on the windows,1,1,gemma-4-31b
+edge,against,"silver pickup truck, tool rental shop, plain architecture",1,1,gemma-4-31b
+edge,against,smoke stacks,1,1,gemma-4-31b
+edge,against,smokestacks,1,1,gemma-4-31b
+edge,against,standard city street,1,1,gemma-4-31b
+edge,against,"rusty, concrete-heavy",1,1,gemma-4-31b
+edge,against,"fences, litter",1,1,gemma-4-31b
+edge,against,graffiti and some trash,1,1,gemma-4-31b
+edge,against,green fence and orange plastic barriers,1,1,gemma-4-31b
+community,for,"the ""tony shipping"" truck",1,1,gemma-4-31b
+community,for,"the ""your family plumber"" slogan",1,1,gemma-4-31b
+community,for,the courts,1,1,gemma-4-31b
+community,for,"the name ""tu esquina grocery""",1,1,gemma-4-31b
+community,for,"the name (""esquina"" is spanish for ""corner"")",1,1,gemma-4-31b
+community,for,"the one selling ""las fajas""",1,1,gemma-4-31b
+community,for,"the signs ""jamaica furniture"" and ""jamaica""",1,1,gemma-4-31b
+community,for,the way the houses sit close together,1,1,gemma-4-31b
+community,for,"trees, building sits right on the street",1,1,gemma-4-31b
+community,for,typical urban brownstone/brick building,1,1,gemma-4-31b
+community,for,typical working-class residential street,1,1,gemma-4-31b
+community,for,urban street,1,1,gemma-4-31b
+community,for,urban vibe,1,1,gemma-4-31b
+community,for,walk to a variety of shops and services,1,1,gemma-4-31b
+community,for,"walkable neighborhood close to cafes, shops, museums, and public transit",1,1,gemma-4-31b
+community,for,"walkable, established residential neighborhood",1,1,gemma-4-31b
+nature,for,trees,144,112,qwen3.5-9b
+nature,for,blue sky,88,77,qwen3.5-9b
+nature,for,clear blue sky,82,65,qwen3.5-9b
+nature,for,sunny day,65,59,qwen3.5-9b
+order,against,power lines,60,45,qwen3.5-9b
+heritage,for,brick buildings,58,49,qwen3.5-9b
+heritage,for,red brick,56,41,qwen3.5-9b
+nature,for,"large, mature trees",56,43,qwen3.5-9b
+nature,for,big trees,55,43,qwen3.5-9b
+nature,for,green trees,54,51,qwen3.5-9b
+comfort,for,sunny day,51,49,qwen3.5-9b
+nature,for,big tree,51,37,qwen3.5-9b
+heritage,for,brick building,47,41,qwen3.5-9b
+nature,for,the big tree,47,38,qwen3.5-9b
+nature,for,greenery,42,37,qwen3.5-9b
+beauty,against,power lines,39,30,qwen3.5-9b
+nature,for,mature trees,37,31,qwen3.5-9b
+order,against,scaffolding,36,16,qwen3.5-9b
+character,for,brick buildings,36,31,qwen3.5-9b
+nature,for,bright blue sky,35,31,qwen3.5-9b
+nature,for,tree,34,27,qwen3.5-9b
+order,for,well-maintained,33,29,qwen3.5-9b
+nature,for,large tree,33,27,qwen3.5-9b
+heritage,for,brick architecture,32,27,qwen3.5-9b
+heritage,for,red brick buildings,31,21,qwen3.5-9b
+nature,for,the tree,30,27,qwen3.5-9b
+nature,for,sunny weather,29,29,qwen3.5-9b
+utility,against,parking lot,29,19,qwen3.5-9b
+nature,for,"large, leafy trees",27,21,qwen3.5-9b
+heritage,for,red brick building,27,23,qwen3.5-9b
+heritage,for,brickwork,27,25,qwen3.5-9b
+edge,for,scaffolding,27,13,qwen3.5-9b
+edge,for,graffiti,27,17,qwen3.5-9b
+order,against,wires,25,19,qwen3.5-9b
+comfort,for,sunny,25,24,qwen3.5-9b
+heritage,for,brownstones,25,15,qwen3.5-9b
+comfort,for,quiet residential street,25,25,qwen3.5-9b
+nature,for,"sunny, blue sky",23,21,qwen3.5-9b
+beauty,against,overcast sky,22,19,qwen3.5-9b
+order,against,graffiti,21,13,qwen3.5-9b
+nature,for,"massive, mature trees",21,17,qwen3.5-9b
+character,for,graffiti,20,13,qwen3.5-9b
+beauty,for,red brick,20,18,qwen3.5-9b
+nature,for,sky,20,19,qwen3.5-9b
+nature,for,large trees,19,16,qwen3.5-9b
+nature,for,"big, leafy trees",19,17,qwen3.5-9b
+edge,for,power lines,19,16,qwen3.5-9b
+edge,for,fire escapes,18,13,qwen3.5-9b
+beauty,for,lighting,18,18,qwen3.5-9b
+utility,against,chain-link fence,18,13,qwen3.5-9b
+edge,for,overcast sky,17,13,qwen3.5-9b
+nature,for,"large, leafy tree",17,12,qwen3.5-9b
+nature,for,massive tree,17,15,qwen3.5-9b
+edge,conditional,graffiti,17,13,qwen3.5-9b
+character,for,fire escapes,17,11,qwen3.5-9b
+nature,for,"big, mature trees",17,16,qwen3.5-9b
+heritage,for,brick row houses,16,15,qwen3.5-9b
+beauty,for,brickwork,16,15,qwen3.5-9b
+edge,for,fire escape,16,13,qwen3.5-9b
+order,against,overhead wires,15,13,qwen3.5-9b
+heritage,for,brick facade,15,14,qwen3.5-9b
+character,for,fire escape,14,13,qwen3.5-9b
+character,for,brick architecture,14,14,qwen3.5-9b
+comfort,for,dappled sunlight,14,11,qwen3.5-9b
+order,for,houses,14,14,qwen3.5-9b
+heritage,for,row houses,14,12,qwen3.5-9b
+beauty,for,red car,14,8,qwen3.5-9b
+comfort,for,sunny weather,14,14,qwen3.5-9b
+heritage,for,brick,14,14,qwen3.5-9b
+heritage,for,red brick facade,14,14,qwen3.5-9b
+comfort,for,"sunny day, blue sky",13,13,qwen3.5-9b
+heritage,for,architecture,13,12,qwen3.5-9b
+edge,conditional,scaffolding,13,10,qwen3.5-9b
+character,for,brick building,13,10,qwen3.5-9b
+edge,for,brick building,12,12,qwen3.5-9b
+comfort,for,blue sky,12,11,qwen3.5-9b
+beauty,against,scaffolding,12,8,qwen3.5-9b
+edge,against,chain-link fence,12,11,qwen3.5-9b
+beauty,for,overcast sky,11,11,qwen3.5-9b
+beauty,for,sunny day,11,11,qwen3.5-9b
+modernity,for,solar panels,11,5,qwen3.5-9b
+utility,against,construction site,11,10,qwen3.5-9b
+beauty,for,dappled sunlight,11,10,qwen3.5-9b
+order,against,trash cans,11,9,qwen3.5-9b
+order,for,clean streets,10,9,qwen3.5-9b
+utility,against,brick building,10,10,qwen3.5-9b
+beauty,for,golden hour,10,7,qwen3.5-9b
+vitality,for,basketball hoop,10,7,qwen3.5-9b
+community,for,basketball hoop,10,6,qwen3.5-9b
+other,for,overcast sky,10,9,qwen3.5-9b
+beauty,for,brick building,10,10,qwen3.5-9b
+order,against,chain-link fence,10,9,qwen3.5-9b
+beauty,against,brick building,10,10,qwen3.5-9b
+order,against,weeds,9,7,qwen3.5-9b
+heritage,for,fire escapes,9,5,qwen3.5-9b
+beauty,for,orange car,9,6,qwen3.5-9b
+heritage,for,fire escape,9,7,qwen3.5-9b
+beauty,against,overcast,9,9,qwen3.5-9b
+heritage,for,red brick row houses,9,5,qwen3.5-9b
+heritage,for,brick houses,9,7,qwen3.5-9b
+edge,for,red brick building,9,6,qwen3.5-9b
+comfort,for,quiet street,9,9,qwen3.5-9b
+heritage,for,old brick buildings,9,8,qwen3.5-9b
+beauty,for,"bright, sunny day",9,9,qwen3.5-9b
+character,against,brick building,9,9,qwen3.5-9b
+order,against,ac units,9,8,qwen3.5-9b
+beauty,for,red brick building,9,5,qwen3.5-9b
+heritage,for,classic brick row houses,9,8,qwen3.5-9b
+character,for,red brick,9,9,qwen3.5-9b
+order,against,trash on the ground,8,5,qwen3.5-9b
+beauty,against,plain brick building,8,8,qwen3.5-9b
+order,against,trash bins,8,8,qwen3.5-9b
+character,for,brick row houses,8,7,qwen3.5-9b
+comfort,against,security bars,8,7,qwen3.5-9b
+beauty,against,ac units,8,8,qwen3.5-9b
+beauty,for,sunlight,8,8,qwen3.5-9b
+comfort,for,"bright, sunny day",8,8,qwen3.5-9b
+character,for,old brick buildings,8,8,qwen3.5-9b
+order,against,construction site,8,7,qwen3.5-9b
+modernity,for,solar panels on the roof,8,4,qwen3.5-9b
+heritage,for,classic red brick row house,8,4,qwen3.5-9b
+comfort,for,quiet residential neighborhood,8,8,qwen3.5-9b
+edge,for,chain-link fence,8,8,qwen3.5-9b
+comfort,for,sunlight,7,7,qwen3.5-9b
+heritage,for,classic brick apartment building,7,7,qwen3.5-9b
+order,for,sidewalk,7,6,qwen3.5-9b
+beauty,against,grey sky,7,5,qwen3.5-9b
+vitality,against,traffic,7,6,qwen3.5-9b
+order,against,peeling paint,7,6,qwen3.5-9b
+beauty,for,city skyline,7,4,qwen3.5-9b
+character,for,red brick building,7,6,qwen3.5-9b
+comfort,for,bright blue sky,7,6,qwen3.5-9b
+order,against,parked cars,7,7,qwen3.5-9b
+community,for,parked cars,7,7,qwen3.5-9b
+heritage,for,brick townhouses,7,7,qwen3.5-9b
+beauty,for,brick texture,7,5,qwen3.5-9b
+heritage,for,red brick apartment building,7,6,qwen3.5-9b
+heritage,for,red brick architecture,7,7,qwen3.5-9b
+character,for,brick facade,7,6,qwen3.5-9b
+edge,for,overhead wires,7,6,qwen3.5-9b
+edge,against,power lines,7,7,qwen3.5-9b
+character,for,mix of architectural styles,7,7,qwen3.5-9b
+modernity,for,bike lane,7,5,qwen3.5-9b
+edge,for,grey sky,7,7,qwen3.5-9b
+comfort,for,overcast sky,7,6,qwen3.5-9b
+beauty,against,overhead wires,7,7,qwen3.5-9b
+edge,for,power lines overhead,7,7,qwen3.5-9b
+comfort,for,"large, mature trees",7,7,qwen3.5-9b
+order,for,manicured bushes,7,6,qwen3.5-9b
+beauty,against,utility pole,7,5,qwen3.5-9b
+utility,against,ac units,7,7,qwen3.5-9b
+order,against,construction,7,6,qwen3.5-9b
+beauty,for,sunlight filtering through the leaves,6,6,qwen3.5-9b
+order,against,boarded-up windows,6,5,qwen3.5-9b
+vitality,for,cars,6,6,qwen3.5-9b
+status,for,nyc,6,6,qwen3.5-9b
+character,for,older brick buildings,6,6,qwen3.5-9b
+beauty,for,sky,6,6,qwen3.5-9b
+heritage,conditional,brick building,6,6,qwen3.5-9b
+beauty,for,bright orange car,6,4,qwen3.5-9b
+beauty,for,scaffolding,6,4,qwen3.5-9b
+beauty,for,arched windows,6,5,qwen3.5-9b
+vitality,for,people walking by,6,4,qwen3.5-9b
+comfort,for,"bright, sunny day with a clear blue sky",6,6,qwen3.5-9b
+comfort,for,clear blue sky,6,5,qwen3.5-9b
+comfort,for,trees providing shade,6,6,qwen3.5-9b
+order,against,bushes,6,6,qwen3.5-9b
+comfort,for,"large, leafy trees",6,5,qwen3.5-9b
+comfort,for,trees,6,6,qwen3.5-9b
+order,for,cars are parked neatly,6,6,qwen3.5-9b
+character,for,brickwork,6,6,qwen3.5-9b
+beauty,for,bright red car,6,4,qwen3.5-9b
+beauty,for,skyline,6,3,qwen3.5-9b
+vitality,for,people walking on the sidewalk,6,6,qwen3.5-9b
+comfort,for,"quiet, residential neighborhood",6,6,qwen3.5-9b
+order,for,landscaping,6,6,qwen3.5-9b
+edge,for,brick buildings,6,6,qwen3.5-9b
+edge,for,graffiti on the wall,6,4,qwen3.5-9b
+comfort,for,big trees,6,6,qwen3.5-9b
+beauty,for,sun flare,6,6,qwen3.5-9b
+character,for,red brick facade,6,6,qwen3.5-9b
+beauty,for,dappled light,6,5,qwen3.5-9b
+nature,conditional,big trees,6,6,qwen3.5-9b
+modernity,for,large glass windows,6,4,qwen3.5-9b
+utility,against,scaffolding,6,5,qwen3.5-9b
+beauty,for,shadows,6,4,qwen3.5-9b
+comfort,for,quiet neighborhood,6,6,qwen3.5-9b
+character,conditional,graffiti,5,5,qwen3.5-9b
+comfort,for,golden hour,5,5,qwen3.5-9b
+beauty,against,power lines overhead,5,5,qwen3.5-9b
+other,for,big trees,5,5,qwen3.5-9b
+nature,conditional,blue sky,5,5,qwen3.5-9b
+utility,against,power lines overhead,5,5,qwen3.5-9b
+utility,against,brick apartment building,5,5,qwen3.5-9b
+character,for,colorful mural,5,2,qwen3.5-9b
+utility,against,concrete,5,5,qwen3.5-9b
+character,for,exposed brick,5,5,qwen3.5-9b
+character,for,mix of old and new,5,5,qwen3.5-9b
+beauty,against,overhead power lines,5,5,qwen3.5-9b
+other,for,grey sky,5,3,qwen3.5-9b
+order,against,construction zone,5,4,qwen3.5-9b
+vitality,for,scaffolding,5,4,qwen3.5-9b
+edge,for,black metal fire escape,5,4,qwen3.5-9b
+beauty,against,overcast and grey,5,5,qwen3.5-9b
+order,against,window ac units,5,5,qwen3.5-9b
+comfort,for,shade,5,5,qwen3.5-9b
+comfort,for,residential street,5,5,qwen3.5-9b
+character,for,row houses,5,5,qwen3.5-9b
+character,for,bay window,5,4,qwen3.5-9b
+vitality,for,people walking,5,5,qwen3.5-9b
+modernity,for,electric scooters,5,1,qwen3.5-9b
+utility,against,construction zone,5,5,qwen3.5-9b
+heritage,against,building,5,5,qwen3.5-9b
+order,against,construction fence,5,2,qwen3.5-9b
+utility,against,construction,5,4,qwen3.5-9b
+edge,for,elevated train tracks,5,5,qwen3.5-9b
+edge,for,power lines crisscrossing the sky,5,5,qwen3.5-9b
+utility,against,building under construction,5,5,qwen3.5-9b
+order,against,paint,4,3,qwen3.5-9b
+order,against,air conditioning units,4,4,qwen3.5-9b
+edge,for,brick apartment buildings,4,4,qwen3.5-9b
+nature,against,overcast sky,4,4,qwen3.5-9b
+vitality,for,"""coming soon"" sign",4,1,qwen3.5-9b
+order,for,well-kept houses,4,4,qwen3.5-9b
+beauty,against,overcast weather,4,4,qwen3.5-9b
+beauty,against,sky,4,4,qwen3.5-9b
+modernity,for,black car,4,4,qwen3.5-9b
+beauty,against,fence,4,4,qwen3.5-9b
+edge,for,"overcast, cloudy sky",4,4,qwen3.5-9b
+modernity,for,scaffolding,4,4,qwen3.5-9b
+heritage,conditional,brick row houses,4,4,qwen3.5-9b
+utility,against,multi-story brick building,4,3,qwen3.5-9b
+comfort,conditional,sunny day,4,4,qwen3.5-9b
+modernity,conditional,black suv,4,2,qwen3.5-9b
+order,against,utility wires,4,4,qwen3.5-9b
+community,for,row houses,4,4,qwen3.5-9b
+edge,for,overcast,4,4,qwen3.5-9b
+nature,conditional,massive tree,4,4,qwen3.5-9b
+character,for,mix of buildings,4,3,qwen3.5-9b
+order,for,"clean, sunny",4,4,qwen3.5-9b
+order,against,power lines overhead,4,4,qwen3.5-9b
+character,for,mix of materials,4,4,qwen3.5-9b
+order,against,overhead power lines,4,4,qwen3.5-9b
+character,for,classic yellow school bus,4,2,qwen3.5-9b
+character,against,brick apartment building,4,4,qwen3.5-9b
+vitality,against,parking lot,4,4,qwen3.5-9b
+community,for,quiet residential street,4,4,qwen3.5-9b
+edge,for,trash cans,4,2,qwen3.5-9b
+heritage,conditional,red brick facade,4,4,qwen3.5-9b
+community,for,local businesses,4,4,qwen3.5-9b
+order,for,white siding,4,3,qwen3.5-9b
+community,for,people walking on the sidewalk,4,4,qwen3.5-9b
+order,conditional,scaffolding,4,3,qwen3.5-9b
+beauty,against,concrete wall,4,3,qwen3.5-9b
+edge,for,tangled wires,4,4,qwen3.5-9b
+edge,conditional,brick buildings,4,4,qwen3.5-9b
+order,for,storefront,4,3,qwen3.5-9b
+character,against,standard residential street,4,4,qwen3.5-9b
+heritage,against,brick building,4,4,qwen3.5-9b
+character,for,mix of styles,4,4,qwen3.5-9b
+modernity,for,"sleek, modern glass skyscraper",4,4,qwen3.5-9b
+status,for,ford bronco,4,1,qwen3.5-9b
+other,for,overcast and grey,4,1,qwen3.5-9b
+character,for,scaffolding,4,4,qwen3.5-9b
+order,for,the brick is clean,4,4,qwen3.5-9b
+character,against,standard brick building,4,4,qwen3.5-9b
+utility,against,concrete wall,4,3,qwen3.5-9b
+other,for,shade,4,4,qwen3.5-9b
+edge,against,chain link fence,4,4,qwen3.5-9b
+vitality,for,basketball court,4,2,qwen3.5-9b
+modernity,for,construction,4,4,qwen3.5-9b
+edge,conditional,construction site,4,3,qwen3.5-9b
+order,for,brickwork,4,4,qwen3.5-9b
+utility,for,"""free delivery""",4,1,qwen3.5-9b
+vitality,for,people are walking by,4,4,qwen3.5-9b
+vitality,for,people are walking on the sidewalk,4,4,qwen3.5-9b
+edge,conditional,power lines,4,4,qwen3.5-9b
+comfort,against,chain-link fence,4,3,qwen3.5-9b
+edge,for,overhead power lines,4,4,qwen3.5-9b
+beauty,against,brick wall,3,3,qwen3.5-9b
+modernity,for,building,3,3,qwen3.5-9b
+utility,against,red brick apartment building,3,2,qwen3.5-9b
+status,for,lincoln square,3,1,qwen3.5-9b
+edge,conditional,graffiti on the wall,3,3,qwen3.5-9b
+community,for,tu esquina grocery,3,1,qwen3.5-9b
+beauty,against,wires,3,3,qwen3.5-9b
+vitality,for,yellow taxi,3,3,qwen3.5-9b
+community,against,fence,3,3,qwen3.5-9b
+beauty,against,building,3,3,qwen3.5-9b
+edge,for,smokestacks,3,1,qwen3.5-9b
+vitality,for,bike rack,3,2,qwen3.5-9b
+order,for,the houses,3,3,qwen3.5-9b
+utility,against,allstate insurance agency,3,1,qwen3.5-9b
+utility,against,standard parking lot,3,3,qwen3.5-9b
+utility,against,asphalt,3,3,qwen3.5-9b
+status,for,red fiat 500,3,1,qwen3.5-9b
+utility,against,cars,3,3,qwen3.5-9b
+edge,against,concrete,3,3,qwen3.5-9b
+modernity,for,glass-and-steel skyscraper,3,2,qwen3.5-9b
+heritage,conditional,classic brick architecture,3,3,qwen3.5-9b
+edge,conditional,security bars,3,2,qwen3.5-9b
+utility,against,storefront,3,2,qwen3.5-9b
+vitality,for,the person walking,3,3,qwen3.5-9b
+edge,for,red brick,3,3,qwen3.5-9b
+other,for,overcast,3,3,qwen3.5-9b
+heritage,conditional,old brick buildings,3,3,qwen3.5-9b
+order,for,white fence,3,3,qwen3.5-9b
+modernity,for,tesla,3,2,qwen3.5-9b
+community,for,playground,3,2,qwen3.5-9b
+nature,conditional,trees,3,3,qwen3.5-9b
+community,for,"quiet, established neighborhood",3,3,qwen3.5-9b
+utility,against,chain link fence,3,3,qwen3.5-9b
+beauty,conditional,overcast sky,3,3,qwen3.5-9b
+other,for,"overcast, cloudy sky",3,3,qwen3.5-9b
+character,against,standard tract housing,3,2,qwen3.5-9b
+beauty,against,brick apartment building,3,3,qwen3.5-9b
+edge,conditional,chain-link fence,3,3,qwen3.5-9b
+vitality,against,highway,3,3,qwen3.5-9b
+vitality,for,food truck,3,2,qwen3.5-9b
+modernity,for,red bike lane,3,2,qwen3.5-9b
+modernity,for,black suv,3,3,qwen3.5-9b
+edge,conditional,boarded-up windows,3,2,qwen3.5-9b
+other,for,scaffolding,3,3,qwen3.5-9b
+modernity,for,"modern, multi-story building",3,3,qwen3.5-9b
+character,against,generic brick building,3,3,qwen3.5-9b
+edge,against,scaffolding,3,2,qwen3.5-9b
+community,for,air conditioning units in the windows,3,3,qwen3.5-9b
+community,for,mature trees,3,3,qwen3.5-9b
+modernity,for,modern glass skyscrapers,3,2,qwen3.5-9b
+utility,against,fence,3,3,qwen3.5-9b
+status,for,j.p. morgan,3,1,qwen3.5-9b
+beauty,against,construction,3,3,qwen3.5-9b
+nature,against,concrete and asphalt,3,3,qwen3.5-9b
+beauty,against,plain building,3,3,qwen3.5-9b
+community,for,"the ""ramadan kareem"" sign",3,1,qwen3.5-9b
+modernity,for,black window frames,3,2,qwen3.5-9b
+status,for,brooklyn,3,3,qwen3.5-9b
+vitality,against,"""for lease"" sign",3,1,qwen3.5-9b
+other,for,trees,3,2,qwen3.5-9b
+order,for,green lawn,3,3,qwen3.5-9b
+beauty,against,concrete walls,3,3,qwen3.5-9b
+community,for,residential street,3,3,qwen3.5-9b
+order,for,green grass,3,3,qwen3.5-9b
+vitality,for,parked cars,3,3,qwen3.5-9b
+beauty,against,grey/overcast,3,3,qwen3.5-9b
+comfort,conditional,overcast sky,3,3,qwen3.5-9b
+nature,conditional,big tree,3,3,qwen3.5-9b
+community,for,storefronts,3,3,qwen3.5-9b
+modernity,for,modern-looking building,3,3,qwen3.5-9b
+character,against,building,3,3,qwen3.5-9b
+utility,against,highway overpass,3,3,qwen3.5-9b
+heritage,conditional,row houses,3,2,qwen3.5-9b
+other,for,shade from the trees,3,3,qwen3.5-9b
+community,for,stoops,3,3,qwen3.5-9b
+modernity,for,skyscrapers,3,3,qwen3.5-9b
+comfort,against,the fence,3,3,qwen3.5-9b
+order,for,clean sidewalk,3,3,qwen3.5-9b
+order,for,clean street,3,3,qwen3.5-9b
+heritage,conditional,fire escapes,3,3,qwen3.5-9b
+utility,against,parked cars,3,3,qwen3.5-9b
+community,for,people hanging out,3,3,qwen3.5-9b
+vitality,against,cars,3,3,qwen3.5-9b
+order,for,buildings,3,3,qwen3.5-9b
+other,conditional,overcast,3,3,qwen3.5-9b
+heritage,conditional,brick buildings,3,3,qwen3.5-9b
+nature,conditional,sunny day,3,3,qwen3.5-9b
+utility,against,white van,3,2,qwen3.5-9b
+vitality,for,person walking,3,3,qwen3.5-9b
+character,against,houses,3,3,qwen3.5-9b
+character,conditional,brick building,3,3,qwen3.5-9b
+nature,against,tree,3,3,qwen3.5-9b
+heritage,conditional,brick architecture,3,3,qwen3.5-9b
+comfort,against,dark,3,3,qwen3.5-9b
+heritage,against,fire escapes,3,3,qwen3.5-9b
+modernity,for,modern building with large glass windows,3,2,qwen3.5-9b
+order,for,well-maintained houses,2,2,qwen3.5-9b
+edge,conditional,shipping containers,2,1,qwen3.5-9b
+order,for,well-maintained house,2,2,qwen3.5-9b
+modernity,for,"""now open""",2,1,qwen3.5-9b
+utility,for,free delivery,2,1,qwen3.5-9b
+status,for,dark blue suv,2,2,qwen3.5-9b
+modernity,conditional,solar panels on the roof,2,2,qwen3.5-9b
+utility,for,large windows,2,2,qwen3.5-9b
+edge,conditional,concrete,2,2,qwen3.5-9b
+edge,conditional,brick building,2,2,qwen3.5-9b
+status,for,land rover sign,2,1,qwen3.5-9b
+status,for,land rover dealership,2,1,qwen3.5-9b
+modernity,against,"ac units, bars",2,2,qwen3.5-9b
+status,for,jeep wrangler,2,2,qwen3.5-9b
+edge,conditional,"brick buildings, fire escapes",2,2,qwen3.5-9b
+status,for,le rouge beauty studio,2,1,qwen3.5-9b
+modernity,conditional,clean air hybrid electric bus,2,1,qwen3.5-9b
+community,for,a mix of businesses,2,2,qwen3.5-9b
+order,for,paint looks fresh,2,2,qwen3.5-9b
+order,for,well-maintained neighborhood,2,2,qwen3.5-9b
+utility,for,benches,2,2,qwen3.5-9b
+order,for,white car,2,2,qwen3.5-9b
+character,against,a fence and trees,2,2,qwen3.5-9b
+utility,conditional,every one approved,2,1,qwen3.5-9b
+status,for,willoughby avenue,2,1,qwen3.5-9b
+edge,conditional,"red brick, fire escapes",2,2,qwen3.5-9b
+status,for,wafels & dinges,2,1,qwen3.5-9b
+edge,conditional,"large, horizontal bands of windows",2,1,qwen3.5-9b
+edge,conditional,industrial-looking brick building,2,1,qwen3.5-9b
+edge,conditional,web of power lines,2,2,qwen3.5-9b
+edge,conditional,old brick architecture,2,2,qwen3.5-9b
+edge,conditional,overcast sky,2,2,qwen3.5-9b
+edge,conditional,urban textures,2,2,qwen3.5-9b
+edge,conditional,old brick,2,2,qwen3.5-9b
+edge,conditional,overhead wires,2,2,qwen3.5-9b
+status,for,row houses,2,2,qwen3.5-9b
+order,conditional,power lines,2,2,qwen3.5-9b
+community,conditional,quiet residential street,2,2,qwen3.5-9b
+status,for,silver ford bronco,2,1,qwen3.5-9b
+edge,conditional,exposed brick,2,2,qwen3.5-9b
+status,for,shake shack,2,1,qwen3.5-9b
+community,for,"""premium grocery""",2,1,qwen3.5-9b
+order,conditional,graffiti,2,2,qwen3.5-9b
+status,for,porsche,2,2,qwen3.5-9b
+edge,conditional,gritty architecture,2,2,qwen3.5-9b
+status,for,the cars,2,2,qwen3.5-9b
+status,for,silver suv,2,2,qwen3.5-9b
+status,for,stone facade,2,2,qwen3.5-9b
+status,for,sports car,2,2,qwen3.5-9b
+edge,conditional,fire escapes,2,2,qwen3.5-9b
+status,against,mobil gas station,2,1,qwen3.5-9b
+nature,conditional,sky,2,2,qwen3.5-9b
+community,for,knickerbocker food corp,2,1,qwen3.5-9b
+status,against,medical offices,2,2,qwen3.5-9b
+modernity,for,modern architecture,2,2,qwen3.5-9b
+other,conditional,scaffolding,2,2,qwen3.5-9b
+vitality,for,cars driving by,2,2,qwen3.5-9b
+other,conditional,massive tree,2,2,qwen3.5-9b
+vitality,for,bike-sharing station,2,2,qwen3.5-9b
+modernity,for,"large, black-framed windows",2,1,qwen3.5-9b
+status,against,parking lot,2,2,qwen3.5-9b
+vitality,for,blue soccer goal,2,1,qwen3.5-9b
+modernity,for,lime scooter,2,1,qwen3.5-9b
+community,for,lived-in neighborhood,2,2,qwen3.5-9b
+status,against,construction,2,2,qwen3.5-9b
+vitality,for,construction zones,2,1,qwen3.5-9b
+modernity,for,modern glass skyscraper,2,2,qwen3.5-9b
+community,for,the car,2,2,qwen3.5-9b
+nature,conditional,"large, mature trees",2,2,qwen3.5-9b
+nature,conditional,"large, leafy tree",2,2,qwen3.5-9b
+character,conditional,classic rowhouse,2,2,qwen3.5-9b
+nature,conditional,green spaces,2,2,qwen3.5-9b
+character,conditional,colorful windows,2,1,qwen3.5-9b
+community,for,the cars are parked casually,2,2,qwen3.5-9b
+community,for,"large, mature trees",2,2,qwen3.5-9b
+vitality,for,cars parked in front,2,2,qwen3.5-9b
+vitality,for,"cars, pedestrians",2,2,qwen3.5-9b
+vitality,for,construction,2,2,qwen3.5-9b
+nature,conditional,nice weather,2,2,qwen3.5-9b
+nature,conditional,nice sunny day,2,2,qwen3.5-9b
+vitality,for,colorful food truck,2,2,qwen3.5-9b
+vitality,for,colorful mural,2,2,qwen3.5-9b
+nature,conditional,"massive, mature trees",2,2,qwen3.5-9b
+edge,against,concrete retaining wall,2,2,qwen3.5-9b
+community,for,"dominican style, grocery",2,1,qwen3.5-9b
+status,conditional,nyc,2,2,qwen3.5-9b
+vitality,against,space for lease sign,2,1,qwen3.5-9b
+community,for,corner store,2,2,qwen3.5-9b
+character,against,the car,2,2,qwen3.5-9b
+beauty,conditional,brick walls,2,2,qwen3.5-9b
+nature,conditional,tree-lined street,2,2,qwen3.5-9b
+other,conditional,jeep,2,2,qwen3.5-9b
+other,conditional,fallen leaves,2,2,qwen3.5-9b
+nature,conditional,the tree,2,2,qwen3.5-9b
+character,against,standard suburban street,2,2,qwen3.5-9b
+edge,against,bars on the windows,2,2,qwen3.5-9b
+status,against,"standard, working-class neighborhood",2,2,qwen3.5-9b
+nature,conditional,weeds and trees,2,2,qwen3.5-9b
+status,against,standard suburban home,2,2,qwen3.5-9b
+status,against,standard residential street,2,2,qwen3.5-9b
+vitality,conditional,the graffiti,2,2,qwen3.5-9b
+character,conditional,row houses,2,2,qwen3.5-9b
+heritage,conditional,old-school brick architecture,2,2,qwen3.5-9b
+heritage,conditional,brick rowhouses,2,2,qwen3.5-9b
+nature,against,grass,2,1,qwen3.5-9b
+heritage,conditional,row of brick townhouses,2,2,qwen3.5-9b
+comfort,against,overcast,2,2,qwen3.5-9b
+heritage,conditional,red brick row houses,2,2,qwen3.5-9b
+other,for,road,2,2,qwen3.5-9b
+nature,against,cloudy/gloomy,2,2,qwen3.5-9b
+heritage,conditional,red brick buildings,2,2,qwen3.5-9b
+heritage,conditional,red brick building,2,2,qwen3.5-9b
+heritage,conditional,brick apartment building,2,2,qwen3.5-9b
+comfort,against,fence,2,2,qwen3.5-9b
+comfort,against,bars on the windows,2,2,qwen3.5-9b
+other,for,massive structure,2,2,qwen3.5-9b
+heritage,conditional,large red brick building,2,2,qwen3.5-9b
+heritage,conditional,brick textures,2,2,qwen3.5-9b
+other,for,"huge, mature trees",2,2,qwen3.5-9b
+other,for,jeep,2,2,qwen3.5-9b
+comfort,against,concrete jersey barriers,2,1,qwen3.5-9b
+character,conditional,slice of everyday life,2,2,qwen3.5-9b
+heritage,conditional,brickwork,2,2,qwen3.5-9b
+other,for,overcast and grey sky,2,2,qwen3.5-9b
+comfort,against,barred windows,2,2,qwen3.5-9b
+heritage,conditional,brutalist architecture,2,2,qwen3.5-9b
+heritage,conditional,classic brick row houses,2,2,qwen3.5-9b
+nature,conditional,clear blue sky,2,2,qwen3.5-9b
+character,conditional,graffiti on the wall,2,2,qwen3.5-9b
+nature,against,grass looks a bit dry/brown,2,2,qwen3.5-9b
+other,for,trees provide shade,2,2,qwen3.5-9b
+nature,conditional,bright blue sky,2,2,qwen3.5-9b
+other,for,trees and shade,2,2,qwen3.5-9b
+other,for,tree cover,2,2,qwen3.5-9b
+comfort,conditional,quiet residential street,2,2,qwen3.5-9b
+comfort,conditional,quiet neighborhood,2,2,qwen3.5-9b
+other,conditional,trees provide shade,2,2,qwen3.5-9b
+nature,against,sky,2,2,qwen3.5-9b
+nature,against,overcast and grey,2,2,qwen3.5-9b
+heritage,against,older building,2,2,qwen3.5-9b
+heritage,against,red brick,2,2,qwen3.5-9b
+other,for,cloudy sky,2,2,qwen3.5-9b
+heritage,against,row of brick townhouses,2,2,qwen3.5-9b
+other,for,silver scion xb,2,1,qwen3.5-9b
+heritage,conditional,tall brick apartment buildings,2,2,qwen3.5-9b
+character,conditional,liberty lines transit,2,1,qwen3.5-9b
+other,for,the car,2,2,qwen3.5-9b
+heritage,against,brick buildings,2,2,qwen3.5-9b
+vitality,against,"""space for lease"" sign",2,1,qwen3.5-9b
+edge,against,guardrail,2,1,qwen3.5-9b
+character,against,parked cars,2,2,qwen3.5-9b
+other,against,the car,2,2,qwen3.5-9b
+status,for,bright orange/red suv,2,1,qwen3.5-9b
+vitality,against,overcast sky,2,2,qwen3.5-9b
+character,against,power lines crisscrossing the sky,2,2,qwen3.5-9b
+status,conditional,working-class area,2,2,qwen3.5-9b
+status,for,brownstone neighborhoods,2,2,qwen3.5-9b
+vitality,against,no people,2,2,qwen3.5-9b
+other,against,trees,2,2,qwen3.5-9b
+status,for,bmw,2,2,qwen3.5-9b
+edge,against,overhead wires,2,2,qwen3.5-9b
+character,against,generic cars,2,2,qwen3.5-9b
+vitality,against,fence,2,2,qwen3.5-9b
+character,against,generic pharmacy,2,1,qwen3.5-9b
+character,against,generic storefronts,2,1,qwen3.5-9b
+status,for,blank street coffee,2,1,qwen3.5-9b
+vitality,against,an insurance office,2,1,qwen3.5-9b
+edge,against,power lines everywhere,2,2,qwen3.5-9b
+other,against,sunny day,2,2,qwen3.5-9b
+vitality,against,empty storefront,2,2,qwen3.5-9b
+other,against,sunny,2,2,qwen3.5-9b
+vitality,against,construction zone,2,2,qwen3.5-9b
+edge,against,overcast,2,2,qwen3.5-9b
+status,conditional,shake shack,2,1,qwen3.5-9b
+character,against,regular brick building,2,2,qwen3.5-9b
+other,against,fence,2,2,qwen3.5-9b
+nature,conditional,big tree canopy and green lawn,1,1,qwen3.5-9b
+nature,conditional,big tree in the center,1,1,qwen3.5-9b
+nature,conditional,big tree on the right,1,1,qwen3.5-9b
+nature,conditional,big trees and blue skies,1,1,qwen3.5-9b
+nature,conditional,big trees and quiet streets,1,1,qwen3.5-9b
+nature,conditional,"big trees, red brick buildings",1,1,qwen3.5-9b
+nature,conditional,"big, fluffy cumulus clouds and bright blue sky",1,1,qwen3.5-9b
+nature,against,trees on the right look a bit bare,1,1,qwen3.5-9b
+nature,against,trees look a little scraggly or sparse,1,1,qwen3.5-9b
+nature,against,cloudy sky,1,1,qwen3.5-9b
+nature,against,cloudy and dull,1,1,qwen3.5-9b
+nature,against,brown and dry,1,1,qwen3.5-9b
+nature,against,brown and dormant grass,1,1,qwen3.5-9b
+nature,against,gloomy sky,1,1,qwen3.5-9b
+nature,against,fences and driveways,1,1,qwen3.5-9b
+nature,against,fence and the side of the building,1,1,qwen3.5-9b
+nature,against,"deciduous, brown leaves",1,1,qwen3.5-9b
+nature,against,"concrete, steel, and grey water",1,1,qwen3.5-9b
+nature,against,concrete jersey barriers and fences,1,1,qwen3.5-9b
+nature,against,all concrete,1,1,qwen3.5-9b
+nature,against,"a large, dense wall of bushes and trees",1,1,qwen3.5-9b
+nature,against,black cables,1,1,qwen3.5-9b
+nature,against,bare tree,1,1,qwen3.5-9b
+nature,against,bare dead tree,1,1,qwen3.5-9b
+heritage,conditional,yellow siding on the center house versus the stone cladding on the right,1,1,qwen3.5-9b
+heritage,conditional,yellow horizontal siding and gable roofs,1,1,qwen3.5-9b
+heritage,conditional,yellow brick,1,1,qwen3.5-9b
+modernity,conditional,window air conditioning units,1,1,qwen3.5-9b
+modernity,conditional,"visual clutter elements (wires, trash)",1,1,qwen3.5-9b
+modernity,conditional,vertical fins,1,1,qwen3.5-9b
+modernity,conditional,the vehicle in the bottom left corner,1,1,qwen3.5-9b
+modernity,conditional,"the name ""blank street""",1,1,qwen3.5-9b
+modernity,against,heavy door,1,1,qwen3.5-9b
+modernity,against,gold/beige ford explorer,1,1,qwen3.5-9b
+modernity,against,glass-and-steel look,1,1,qwen3.5-9b
+modernity,against,"fabric awnings, air conditioners",1,1,qwen3.5-9b
+modernity,against,"external ac units, visible wiring/cables, and some grime",1,1,qwen3.5-9b
+modernity,against,dated wires,1,1,qwen3.5-9b
+modernity,against,cluttered with rolls of carpet,1,1,qwen3.5-9b
+modernity,against,classic mid-20th-century brick,1,1,qwen3.5-9b
+modernity,conditional,the house is actually quite hard to see,1,1,qwen3.5-9b
+modernity,against,brick building,1,1,qwen3.5-9b
+modernity,against,bp sign,1,1,qwen3.5-9b
+modernity,against,bp canopy,1,1,qwen3.5-9b
+modernity,against,boxy air conditioners,1,1,qwen3.5-9b
+modernity,against,beige stucco and brick,1,1,qwen3.5-9b
+modernity,against,awnings are yellowing slightly,1,1,qwen3.5-9b
+modernity,against,aluminum wrap-around on the bay window,1,1,qwen3.5-9b
+modernity,against,air conditioning units,1,1,qwen3.5-9b
+modernity,against,ac units sticking out of the walls,1,1,qwen3.5-9b
+modernity,against,brick on the bottom and siding/white paint on top,1,1,qwen3.5-9b
+modernity,against,"sterile, modern glass skyscraper",1,1,qwen3.5-9b
+modernity,against,"standard, perhaps slightly older, suburban homes",1,1,qwen3.5-9b
+modernity,against,"standard urban/suburban american (fire escapes, beige brick)",1,1,qwen3.5-9b
+modernity,against,standard suburban or urban residential home,1,1,qwen3.5-9b
+modernity,against,standard residential street,1,1,qwen3.5-9b
+modernity,against,standard residential architecture,1,1,qwen3.5-9b
+modernity,conditional,"older, traditional structures",1,1,qwen3.5-9b
+modernity,conditional,"newer, multi-story apartment complex or condo",1,1,qwen3.5-9b
+modernity,conditional,new buildings,1,1,qwen3.5-9b
+modernity,conditional,modern-looking windows,1,1,qwen3.5-9b
+modernity,conditional,modern-looking building,1,1,qwen3.5-9b
+modernity,conditional,modern-looking brick building,1,1,qwen3.5-9b
+modernity,conditional,"modern, minimalist glass towers",1,1,qwen3.5-9b
+modernity,conditional,"modern, glass-walled luxury apartment complex",1,1,qwen3.5-9b
+modernity,conditional,modern renovation,1,1,qwen3.5-9b
+modernity,conditional,"modern hotel facade, clean lines",1,1,qwen3.5-9b
+modernity,conditional,modern hotel entrance,1,1,qwen3.5-9b
+modernity,conditional,modern glass towers,1,1,qwen3.5-9b
+modernity,conditional,modern glass condos,1,1,qwen3.5-9b
+modernity,conditional,modern brick buildings + bridges,1,1,qwen3.5-9b
+modernity,conditional,modern apartments,1,1,qwen3.5-9b
+modernity,conditional,massive structure looming over the street,1,1,qwen3.5-9b
+status,conditional,west side highway in new york city,1,1,qwen3.5-9b
+status,conditional,weathered brick and metal,1,1,qwen3.5-9b
+status,conditional,wall street/city hall,1,1,qwen3.5-9b
+status,conditional,urban development area,1,1,qwen3.5-9b
+status,conditional,typical suburbia,1,1,qwen3.5-9b
+status,conditional,these shops are closed,1,1,qwen3.5-9b
+status,conditional,newer car (silver suv),1,1,qwen3.5-9b
+status,conditional,"new construction, modern design",1,1,qwen3.5-9b
+status,conditional,new construction,1,1,qwen3.5-9b
+status,conditional,near the high line or meatpacking district,1,1,qwen3.5-9b
+status,conditional,massive construction site next to finished skyscrapers,1,1,qwen3.5-9b
+status,conditional,marshall's,1,1,qwen3.5-9b
+status,conditional,luxury or high-design,1,1,qwen3.5-9b
+status,conditional,lincoln navigators,1,1,qwen3.5-9b
+status,conditional,"large, multi-pane upper windows",1,1,qwen3.5-9b
+status,conditional,the lincoln,1,1,qwen3.5-9b
+status,conditional,jeep,1,1,qwen3.5-9b
+status,conditional,j.p. morgan,1,1,qwen3.5-9b
+status,conditional,huge chain,1,1,qwen3.5-9b
+status,conditional,high-fashion architecture,1,1,qwen3.5-9b
+status,conditional,great weather and a nice luxury car,1,1,qwen3.5-9b
+status,conditional,gated yard,1,1,qwen3.5-9b
+vitality,conditional,shake shack,1,1,qwen3.5-9b
+vitality,conditional,school buses,1,1,qwen3.5-9b
+vitality,conditional,scaffolding on the right building and the construction cone,1,1,qwen3.5-9b
+vitality,conditional,repurposed industrial zones,1,1,qwen3.5-9b
+vitality,conditional,reflections,1,1,qwen3.5-9b
+vitality,conditional,"quiet, suburban neighborhood",1,1,qwen3.5-9b
+vitality,conditional,pressfit,1,1,qwen3.5-9b
+vitality,conditional,playground,1,1,qwen3.5-9b
+vitality,conditional,overcast,1,1,qwen3.5-9b
+vitality,conditional,"orange barriers, scaffolding",1,1,qwen3.5-9b
+vitality,conditional,off-price retailer and a bodega,1,1,qwen3.5-9b
+vitality,conditional,no crowds of people,1,1,qwen3.5-9b
+vitality,conditional,new tenants,1,1,qwen3.5-9b
+vitality,conditional,new building going up,1,1,qwen3.5-9b
+vitality,conditional,massive construction site,1,1,qwen3.5-9b
+vitality,conditional,large white truck,1,1,qwen3.5-9b
+vitality,conditional,infrastructure is expanding,1,1,qwen3.5-9b
+vitality,conditional,people walking along the sidewalk,1,1,qwen3.5-9b
+vitality,conditional,"workers, crane, forming",1,1,qwen3.5-9b
+vitality,conditional,work van parked in front,1,1,qwen3.5-9b
+vitality,conditional,"signs in the window advertise ""prime liquidation""",1,1,qwen3.5-9b
+vitality,conditional,traffic,1,1,qwen3.5-9b
+vitality,conditional,track/lane,1,1,qwen3.5-9b
+vitality,conditional,the sign on the right identifies this as 3-65 beach 56th street in queens,1,1,qwen3.5-9b
+vitality,against,"yellow building, brick building, truck",1,1,qwen3.5-9b
+vitality,against,windows are barred up,1,1,qwen3.5-9b
+vitality,against,"white vinyl fence, power lines, split-level houses",1,1,qwen3.5-9b
+vitality,against,warehouse,1,1,qwen3.5-9b
+vitality,against,waiting room,1,1,qwen3.5-9b
+vitality,against,vacant lot,1,1,qwen3.5-9b
+vitality,against,uniform brick and scaffolding,1,1,qwen3.5-9b
+vitality,against,unfinished windows and exposed structural beams,1,1,qwen3.5-9b
+vitality,against,typical suburban neighborhood,1,1,qwen3.5-9b
+vitality,against,two parked cars,1,1,qwen3.5-9b
+vitality,against,two of them,1,1,qwen3.5-9b
+vitality,against,"two houses, green lawns, trees, power lines",1,1,qwen3.5-9b
+utility,for,attached parking/garage access,1,1,qwen3.5-9b
+utility,for,"atm, money orders, food",1,1,qwen3.5-9b
+utility,for,"atm, food, produce, bilingual service",1,1,qwen3.5-9b
+utility,for,"atm, coffee, groceries",1,1,qwen3.5-9b
+utility,for,air conditioning units,1,1,qwen3.5-9b
+utility,for,active construction,1,1,qwen3.5-9b
+utility,for,a main house and a separate living space or garage apartment,1,1,qwen3.5-9b
+utility,for,a large central air conditioning unit,1,1,qwen3.5-9b
+utility,for,7-eleven,1,1,qwen3.5-9b
+utility,for,"""open 24 hrs"" sign",1,1,qwen3.5-9b
+utility,for,"""free delivery"" and ""fresh food""",1,1,qwen3.5-9b
+utility,for,"""3 for 10"" sign",1,1,qwen3.5-9b
+utility,conditional,wire mesh/netting,1,1,qwen3.5-9b
+utility,conditional,"white siding, vertical windows, and a detached garage",1,1,qwen3.5-9b
+utility,conditional,weathered wood,1,1,qwen3.5-9b
+utility,conditional,utility route with some nice greenery,1,1,qwen3.5-9b
+utility,conditional,utility pole and parked cars,1,1,qwen3.5-9b
+utility,for,a chain-link fence,1,1,qwen3.5-9b
+utility,for,cars visible,1,1,qwen3.5-9b
+utility,for,cars parked along the curb,1,1,qwen3.5-9b
+utility,for,"carpet, furniture, food",1,1,qwen3.5-9b
+utility,for,car parked right outside,1,1,qwen3.5-9b
+utility,for,building,1,1,qwen3.5-9b
+utility,for,bright red strip running along the curb,1,1,qwen3.5-9b
+utility,for,bridges and buses,1,1,qwen3.5-9b
+utility,for,brick rowhouse/townhouse complex,1,1,qwen3.5-9b
+utility,conditional,large brick building,1,1,qwen3.5-9b
+utility,conditional,highway/roadway scene,1,1,qwen3.5-9b
+utility,conditional,grocery store with an atm,1,1,qwen3.5-9b
+utility,conditional,"functional, sturdy look",1,1,qwen3.5-9b
+utility,conditional,"finding brands like nike, apple, or patagonia for pennies",1,1,qwen3.5-9b
+utility,conditional,"dirt, steel",1,1,qwen3.5-9b
+utility,conditional,diagonal metal arm and the overhead wires,1,1,qwen3.5-9b
+utility,conditional,decorative metal gates,1,1,qwen3.5-9b
+utility,conditional,trash truck,1,1,qwen3.5-9b
+utility,conditional,concrete sidewalks and pavement,1,1,qwen3.5-9b
+utility,conditional,concrete pillars supporting an overpass/bridge,1,1,qwen3.5-9b
+utility,conditional,commercial building,1,1,qwen3.5-9b
+utility,conditional,building in the center,1,1,qwen3.5-9b
+utility,conditional,brick style,1,1,qwen3.5-9b
+utility,conditional,"brick first floor, siding second floor",1,1,qwen3.5-9b
+utility,conditional,brick duplex,1,1,qwen3.5-9b
+utility,conditional,"brick building, chain-link fences",1,1,qwen3.5-9b
+utility,conditional,blue color is clean,1,1,qwen3.5-9b
+utility,conditional,containers,1,1,qwen3.5-9b
+order,conditional,construction scaffolding,1,1,qwen3.5-9b
+order,conditional,construction materials or bags on the sidewalk,1,1,qwen3.5-9b
+order,conditional,construction and parking,1,1,qwen3.5-9b
+order,conditional,construction,1,1,qwen3.5-9b
+order,conditional,concrete wall looks a bit dull or stained,1,1,qwen3.5-9b
+order,conditional,clutter on the ground level,1,1,qwen3.5-9b
+order,conditional,"clean houses, paved driveways, gate",1,1,qwen3.5-9b
+order,conditional,clean driveway,1,1,qwen3.5-9b
+order,conditional,bushes are trimmed neatly,1,1,qwen3.5-9b
+order,conditional,bushes and trees are a little wild and overgrown,1,1,qwen3.5-9b
+order,conditional,buildings show their age and wear,1,1,qwen3.5-9b
+order,conditional,"brown brick, white garage door",1,1,qwen3.5-9b
+order,conditional,"brick bases, siding upper stories",1,1,qwen3.5-9b
+order,conditional,boarded-up windows,1,1,qwen3.5-9b
+order,conditional,bins out by the curb,1,1,qwen3.5-9b
+order,conditional,bike station wall,1,1,qwen3.5-9b
+order,conditional,big white altec bucket truck,1,1,qwen3.5-9b
+order,conditional,chain-link fence is functional but simple,1,1,qwen3.5-9b
+order,conditional,merchandise spilling onto the sidewalk,1,1,qwen3.5-9b
+order,conditional,massive tangle of electrical wires,1,1,qwen3.5-9b
+order,conditional,manicured park,1,1,qwen3.5-9b
+order,conditional,houses,1,1,qwen3.5-9b
+other,for,covered breezeways or skybridges,1,1,qwen3.5-9b
+other,for,contrast between dark shadow and bright sky,1,1,qwen3.5-9b
+other,for,construction barrier,1,1,qwen3.5-9b
+other,for,construction,1,1,qwen3.5-9b
+other,conditional,massive white overhead gate frame,1,1,qwen3.5-9b
+other,conditional,"low light, grainy quality, and shadows",1,1,qwen3.5-9b
+other,conditional,long wooden stairs,1,1,qwen3.5-9b
+other,conditional,lime scooter,1,1,qwen3.5-9b
+other,conditional,lighting is quite low,1,1,qwen3.5-9b
+other,conditional,leaves turning yellow,1,1,qwen3.5-9b
+other,conditional,leaves on the ground,1,1,qwen3.5-9b
+other,conditional,large yellow crane,1,1,qwen3.5-9b
+other,conditional,large tree overhanging the street,1,1,qwen3.5-9b
+other,conditional,large object covered by the grey tarp,1,1,qwen3.5-9b
+other,conditional,hybrid electric bus,1,1,qwen3.5-9b
+other,conditional,hybrid electric,1,1,qwen3.5-9b
+other,conditional,huge oak tree provides a massive canopy of shade,1,1,qwen3.5-9b
+other,conditional,"honest work, blue skies, and yellow machines",1,1,qwen3.5-9b
+other,conditional,highway,1,1,qwen3.5-9b
+other,conditional,high contrast,1,1,qwen3.5-9b
+other,conditional,heavy-duty netting and metal framework,1,1,qwen3.5-9b
+other,conditional,large trees providing canopy coverage,1,1,qwen3.5-9b
+other,conditional,pipes on the ground,1,1,qwen3.5-9b
+status,against,"neon signs, exposed brick interiors, or modern furniture",1,1,qwen3.5-9b
+status,against,modest single-family homes,1,1,qwen3.5-9b
+status,against,modern luxury buildings,1,1,qwen3.5-9b
+status,against,modern beige siding with a brick storefront,1,1,qwen3.5-9b
+status,against,"mixed materials (brick and siding), chain-link fences, and common family cars",1,1,qwen3.5-9b
+status,against,mini mart,1,1,qwen3.5-9b
+status,against,metal security grates,1,1,qwen3.5-9b
+status,against,medical solution's and what looks like a pharmacy or clinic,1,1,qwen3.5-9b
+status,against,massive industrial truck,1,1,qwen3.5-9b
+status,against,massive concrete parking garage,1,1,qwen3.5-9b
+status,against,large silver vehicle,1,1,qwen3.5-9b
+status,against,large brick apartment buildings,1,1,qwen3.5-9b
+status,against,industrial or semi-urban area with a fence and road,1,1,qwen3.5-9b
+status,against,"houses, power lines, and mailboxes",1,1,qwen3.5-9b
+status,against,"highway, storage facility",1,1,qwen3.5-9b
+status,against,high-end boutiques and pristine streetscapes,1,1,qwen3.5-9b
+status,against,grocery store,1,1,qwen3.5-9b
+status,against,massive web of power lines,1,1,qwen3.5-9b
+other,against,massive grey light pole,1,1,qwen3.5-9b
+other,against,large and official-looking,1,1,qwen3.5-9b
+other,against,hot humid place,1,1,qwen3.5-9b
+other,against,highway traffic,1,1,qwen3.5-9b
+other,against,harsh sunlight,1,1,qwen3.5-9b
+other,against,harsh shadows and the bright glare of the sun,1,1,qwen3.5-9b
+other,against,"green leaves, bright light, short shadows",1,1,qwen3.5-9b
+other,against,graffiti,1,1,qwen3.5-9b
+other,against,generic allstate office on a residential/commercial street corner,1,1,qwen3.5-9b
+other,against,front lawn is a bit narrow,1,1,qwen3.5-9b
+other,against,flowers blooming,1,1,qwen3.5-9b
+other,against,entrance to a prison,1,1,qwen3.5-9b
+other,against,easy approval plan,1,1,qwen3.5-9b
+other,against,direct sunlight on a massive aluminum structure,1,1,qwen3.5-9b
+other,against,digital noise,1,1,qwen3.5-9b
+other,against,curtain-covered construction site,1,1,qwen3.5-9b
+other,against,"construction, potential car damage",1,1,qwen3.5-9b
+other,against,giant white wall,1,1,qwen3.5-9b
+other,against,police van,1,1,qwen3.5-9b
+other,against,police barricade,1,1,qwen3.5-9b
+character,against,"tall, blank white fence",1,1,qwen3.5-9b
+character,against,"tall white vinyl fence, utilitarian wooden power pole, satellite dishes",1,1,qwen3.5-9b
+character,against,tall white vinyl fence,1,1,qwen3.5-9b
+character,against,"supermarket (""total foods""), a clinic (""healthcare network""), and a cell phone store",1,1,qwen3.5-9b
+character,against,strip mall fence or schoolyard,1,1,qwen3.5-9b
+character,against,"standard, utilitarian apartment building",1,1,qwen3.5-9b
+character,against,"standard, unrenovated brick building",1,1,qwen3.5-9b
+character,against,"standard, somewhat unpretentious brick apartment building",1,1,qwen3.5-9b
+character,conditional,black iron fire escape,1,1,qwen3.5-9b
+character,conditional,black car in the foreground,1,1,qwen3.5-9b
+character,conditional,bilingual sign,1,1,qwen3.5-9b
+character,conditional,"big, bold numbers",1,1,qwen3.5-9b
+character,conditional,big trees and historic brick buildings,1,1,qwen3.5-9b
+character,conditional,big trees and classic architecture,1,1,qwen3.5-9b
+character,conditional,big old trees,1,1,qwen3.5-9b
+character,conditional,big apartment blocks and tree-lined streets,1,1,qwen3.5-9b
+character,conditional,beautiful brick buildings,1,1,qwen3.5-9b
+character,conditional,"bay windows, a covered front porch with columns, and a dormer window",1,1,qwen3.5-9b
+character,conditional,bay windows and porch columns,1,1,qwen3.5-9b
+character,conditional,balconies and brickwork,1,1,qwen3.5-9b
+character,conditional,"authentic, old-school chinatown eatery",1,1,qwen3.5-9b
+character,conditional,area that isn't full of tourists,1,1,qwen3.5-9b
+character,conditional,architectural details,1,1,qwen3.5-9b
+character,conditional,architectural contrast,1,1,qwen3.5-9b
+character,conditional,america's largest injury law firm,1,1,qwen3.5-9b
+beauty,conditional,sunlight hitting the concrete vs. shadows under the bridge,1,1,qwen3.5-9b
+beauty,conditional,"strong lines of the concrete, the flat horizon, and the wispy clouds",1,1,qwen3.5-9b
+beauty,conditional,strong horizontal lines and rhythmic vertical lines,1,1,qwen3.5-9b
+beauty,conditional,strong horizontal lines,1,1,qwen3.5-9b
+beauty,conditional,strong horizontal and vertical lines,1,1,qwen3.5-9b
+beauty,conditional,straightforward brick facade,1,1,qwen3.5-9b
+beauty,conditional,"stone walls, purple trees, open skies",1,1,qwen3.5-9b
+beauty,conditional,"stark, white cinder block wall",1,1,qwen3.5-9b
+beauty,conditional,"soft beige/tan of the wall, the slate grey of the cars, the deep green of the ""action"" dumpster",1,1,qwen3.5-9b
+beauty,conditional,"smooth painted siding, rough brick, wood utility poles, and glass windows",1,1,qwen3.5-9b
+beauty,conditional,"sleek, bright red sports car parked next to a row of utilitarian white moving trucks",1,1,qwen3.5-9b
+beauty,conditional,side of city life,1,1,qwen3.5-9b
+beauty,conditional,"sharp contrast between the bottom half—a sleek, curved, modern white facade with a green stripe—and the top half, which is a tall, red-brick apartment building",1,1,qwen3.5-9b
+beauty,conditional,shadows,1,1,qwen3.5-9b
+beauty,conditional,scaffolding framing the bridge,1,1,qwen3.5-9b
+beauty,conditional,rusty orange of the shipping containers,1,1,qwen3.5-9b
+beauty,conditional,rusty colors of the tracks and fence,1,1,qwen3.5-9b
+beauty,conditional,standard house,1,1,qwen3.5-9b
+beauty,conditional,the way the sun hits the ground,1,1,qwen3.5-9b
+beauty,conditional,the tops of the trees are glowing against the bright sky,1,1,qwen3.5-9b
+beauty,conditional,the sun is behind the trees (backlighting),1,1,qwen3.5-9b
+beauty,conditional,the small rectangles of the windows,1,1,qwen3.5-9b
+beauty,conditional,"the sky, the bird, the vanishing point",1,1,qwen3.5-9b
+edge,against,industrial trash bins near the loading dock,1,1,qwen3.5-9b
+edge,against,industrial and fenced off,1,1,qwen3.5-9b
+edge,against,hundreds of tires,1,1,qwen3.5-9b
+edge,against,heavy shadow,1,1,qwen3.5-9b
+edge,against,heavy metal security gate,1,1,qwen3.5-9b
+edge,against,"heavy metal gate, chain-link fence",1,1,qwen3.5-9b
+edge,against,heavy iron bars,1,1,qwen3.5-9b
+edge,against,heavy chain-link fence,1,1,qwen3.5-9b
+edge,against,ground near the tree trunk looks dirt/dry leaves,1,1,qwen3.5-9b
+edge,against,"gritty, dated appearance",1,1,qwen3.5-9b
+edge,against,green scaffolding,1,1,qwen3.5-9b
+edge,against,green fence on the right and orange barriers,1,1,qwen3.5-9b
+edge,against,green dumpster,1,1,qwen3.5-9b
+edge,against,"graffiti, closed doors",1,1,qwen3.5-9b
+heritage,against,"standard, slightly dated rowhouse",1,1,qwen3.5-9b
+heritage,against,"standard, older commercial strip building",1,1,qwen3.5-9b
+heritage,against,standard shingles,1,1,qwen3.5-9b
+heritage,against,standard mid-20th-century construction,1,1,qwen3.5-9b
+heritage,against,signs,1,1,qwen3.5-9b
+heritage,against,siding on top,1,1,qwen3.5-9b
+heritage,against,school,1,1,qwen3.5-9b
+heritage,against,rowhouse architecture,1,1,qwen3.5-9b
+heritage,against,regular residential street corner,1,1,qwen3.5-9b
+heritage,against,"porch columns, the brickwork",1,1,qwen3.5-9b
+heritage,against,"peeling garage doors, exposed pipes, trash bins",1,1,qwen3.5-9b
+heritage,against,parking garage,1,1,qwen3.5-9b
+heritage,against,paint on one house is peeling,1,1,qwen3.5-9b
+heritage,against,"older, traditional brick houses",1,1,qwen3.5-9b
+heritage,against,older styles,1,1,qwen3.5-9b
+heritage,against,older neighborhoods,1,1,qwen3.5-9b
+heritage,against,older brick buildings,1,1,qwen3.5-9b
+heritage,against,older brick apartment building,1,1,qwen3.5-9b
+comfort,against,barriers and cones,1,1,qwen3.5-9b
+comfort,against,barrels and barriers,1,1,qwen3.5-9b
+comfort,against,"barbed wire, graffiti",1,1,qwen3.5-9b
+comfort,against,barbed wire,1,1,qwen3.5-9b
+comfort,against,back alleys,1,1,qwen3.5-9b
+comfort,against,attached,1,1,qwen3.5-9b
+comfort,against,asphalt at the very bottom,1,1,qwen3.5-9b
+comfort,against,"ambulance or utility van, several parked cars",1,1,qwen3.5-9b
+comfort,against,a dirty highway wall,1,1,qwen3.5-9b
+comfort,against,a busy street with cars,1,1,qwen3.5-9b
+comfort,against,"""all traffic"" sign",1,1,qwen3.5-9b
+comfort,against,a secluded alley or behind-a-building area,1,1,qwen3.5-9b
+comfort,against,cars driving on a road,1,1,qwen3.5-9b
+comfort,against,cars are parked tightly,1,1,qwen3.5-9b
+comfort,against,car in the foreground,1,1,qwen3.5-9b
+comfort,against,cameras,1,1,qwen3.5-9b
+comfort,conditional,nice houses,1,1,qwen3.5-9b
+comfort,conditional,nice home and good weather,1,1,qwen3.5-9b
+comfort,conditional,nice driveways,1,1,qwen3.5-9b
+comfort,conditional,nice big yard/green space,1,1,qwen3.5-9b
+comfort,conditional,"next to a ""tool rental""",1,1,qwen3.5-9b
+comfort,conditional,metal shutters pulled down,1,1,qwen3.5-9b
+comfort,conditional,metal fence,1,1,qwen3.5-9b
+comfort,conditional,metal driveway gate,1,1,qwen3.5-9b
+comfort,conditional,"low-crime, family-friendly area",1,1,qwen3.5-9b
+comfort,conditional,"lovely, sunny afternoon",1,1,qwen3.5-9b
+comfort,conditional,long white fence,1,1,qwen3.5-9b
+comfort,conditional,long shadows,1,1,qwen3.5-9b
+comfort,conditional,leafy street,1,1,qwen3.5-9b
+comfort,conditional,lawnmowers and birds chirping,1,1,qwen3.5-9b
+comfort,conditional,lawn is manicured,1,1,qwen3.5-9b
+comfort,conditional,"large, mature trees",1,1,qwen3.5-9b
+comfort,conditional,"large, luxury suv",1,1,qwen3.5-9b
+comfort,conditional,"massive, leafy tree",1,1,qwen3.5-9b
+comfort,conditional,quiet moment to enjoy the sun,1,1,qwen3.5-9b
+comfort,conditional,quiet family neighborhood,1,1,qwen3.5-9b
+comfort,conditional,quiet and empty,1,1,qwen3.5-9b
+community,against,heavy use of fences and gates,1,1,qwen3.5-9b
+community,against,fences,1,1,qwen3.5-9b
+community,against,dense building,1,1,qwen3.5-9b
+community,against,crowded nyc streets,1,1,qwen3.5-9b
+community,against,chain-link fence,1,1,qwen3.5-9b
+community,against,buildings packed close together and parked cars,1,1,qwen3.5-9b
+community,against,"blue recycling bins, a stroller, and utility boxes",1,1,qwen3.5-9b
+community,against,"black fence with the yellow and orange posts, the wooden utility pole, and the parked car",1,1,qwen3.5-9b
+community,against,"air conditioning units, trash cans, stains",1,1,qwen3.5-9b
+community,conditional,"excavator, the white pickup truck, and the scaffolding",1,1,qwen3.5-9b
+community,conditional,empty lot,1,1,qwen3.5-9b
+community,conditional,brick bungalow with a small yard and close-knit neighbors,1,1,qwen3.5-9b
+community,conditional,brick buildings that look like row houses,1,1,qwen3.5-9b
+community,conditional,brick buildings,1,1,qwen3.5-9b
+community,conditional,birds flying overhead,1,1,qwen3.5-9b
+community,conditional,basketball hoop in the driveway,1,1,qwen3.5-9b
+community,conditional,back alleys and loading zones,1,1,qwen3.5-9b
+community,conditional,"apartment buildings, cars parked",1,1,qwen3.5-9b
+community,against,power lines crisscross the whole sky,1,1,qwen3.5-9b
+community,conditional,a small enclosed yard with a wooden bench and some greenery,1,1,qwen3.5-9b
+community,conditional,a green rental scooter,1,1,qwen3.5-9b
+community,against,work vans,1,1,qwen3.5-9b
+community,against,weathered wooden building,1,1,qwen3.5-9b
+community,against,typical suburban street,1,1,qwen3.5-9b
+community,against,tu esquina grocery,1,1,qwen3.5-9b
+community,against,"the ""for lease"" sign",1,1,qwen3.5-9b
+community,against,security fence,1,1,qwen3.5-9b
+community,against,road,1,1,qwen3.5-9b
+community,conditional,actual local businesses,1,1,qwen3.5-9b
+community,conditional,"gmc work van, a delivery truck, and standard sedans",1,1,qwen3.5-9b
+community,conditional,"red awning that says ""win 9¢ & up store""",1,1,qwen3.5-9b
+community,conditional,prospect park,1,1,qwen3.5-9b
+community,conditional,potted plants on the windowsill,1,1,qwen3.5-9b
+community,conditional,people out on the courts,1,1,qwen3.5-9b
+community,conditional,people live there,1,1,qwen3.5-9b
+community,conditional,"parked cars out front, fire escapes",1,1,qwen3.5-9b
+community,conditional,older residential neighborhoods,1,1,qwen3.5-9b
+community,conditional,older industrial district,1,1,qwen3.5-9b
+community,conditional,neighborhood like brooklyn or the east village,1,1,qwen3.5-9b
+community,conditional,narrow streets and walkable nature,1,1,qwen3.5-9b
+community,conditional,"mix of parked cars, people walking, and the graffiti",1,1,qwen3.5-9b

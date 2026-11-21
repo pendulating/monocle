@@ -1,0 +1,11 @@
+{
+  "plot-title": "The answer when a direction is added to the patches",
+  "plot-caption": "Mean change of the 8-form answer margin of Gemma-4-31B against no addition, over the steered images, when a patch direction times the dose is added to all 256 image patches at 1 layer. Directions: fit on the mean patch (shared over 14 prompts, or the cool, pretty, ugly prompt alone), and a random control at the dose of the shared direction.",
+  "plot-tags": [
+    "F10.35",
+    "gemma-4-31b",
+    "steering",
+    "patches"
+  ],
+  "version": "1.0.0"
+}

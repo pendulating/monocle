@@ -1,0 +1,550 @@
+model,layer,estimand,end,rank,word,z_diff
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,1,cinematic,5.226372241973877
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,2,either,5.204853057861328
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,3,cinemat,5.144769668579102
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,4,film,5.086300849914551
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,5,escena,4.957301616668701
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,6,screenplay,4.881859302520752
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,7,dramat,4.603944778442383
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,8,scene,4.4243268966674805
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,9,actor,4.387051105499268
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,10,cinematographer,4.383275985717773
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,11,movie,4.370347499847412
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,12,narration,4.351408958435059
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,13,episodic,4.327930450439453
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,14,vignettes,4.323603630065918
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",scene end,15,cine,4.207184314727783
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,1,and,-4.9215240478515625
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,2,postcode,-4.725862503051758
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,3,depositors,-4.364771842956543
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,4,expats,-4.250836372375488
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,5,landfill,-4.1189866065979
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,6,dormitory,-4.053401470184326
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,7,depository,-3.813627243041992
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,8,restroom,-3.808924913406372
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,9,hostel,-3.8046021461486816
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,10,fertilizer,-3.7890589237213135
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,11,landfills,-3.761885166168213
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,12,wetlands,-3.7584166526794434
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,13,zipcode,-3.7298948764801025
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,14,highlands,-3.6312694549560547
+gemma-4-31b,24,"embedded (no-image readout, scene minus place)",place end,15,negeri,-3.622976541519165
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,1,inland,2.2831661701202393
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,2,archipelago,2.2326393127441406
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,3,own,2.0849647521972656
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,4,eco,2.005889415740967
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,5,ecosystem,1.9829484224319458
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,6,que,1.9701699018478394
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,7,ocean,1.9633288383483887
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,8,hydropower,1.9593722820281982
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,9,tourism,1.9591223001480103
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,10,meteorological,1.938655972480774
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,11,penduduk,1.9048625230789185
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,12,mainland,1.9029793739318848
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,13,seaside,1.9011116027832031
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,14,oceanic,1.894277811050415
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),scene end,15,ecosystems,1.8850445747375488
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,1,rehears,-2.1822683811187744
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,2,actress,-2.132493019104004
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,3,rehearsals,-1.8532993793487549
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,4,sexually,-1.849024772644043
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,5,sentenced,-1.807485818862915
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,6,audition,-1.8036727905273438
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,7,theatrical,-1.7791190147399902
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,8,scripted,-1.7666268348693848
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,9,assass,-1.75520920753479
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,10,dramat,-1.7038002014160156
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,11,choreographer,-1.6911993026733398
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,12,misog,-1.6699165105819702
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,13,rehearsal,-1.6633111238479614
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,14,femme,-1.6493464708328247
+gemma-4-31b,24,image-caused (C2 of scene minus C2 of place),place end,15,murdered,-1.6439602375030518
+gemma-4-31b,24,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.16177201305601582
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,1,scene,6.133058547973633
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,2,cinematic,5.925582408905029
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,3,escena,5.914381980895996
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,4,screenplay,5.449967861175537
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,5,cinemat,5.334801197052002
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,6,scenes,5.04653263092041
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,7,movie,4.887269973754883
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,8,scen,4.887068748474121
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,9,vignettes,4.8779449462890625
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,10,film,4.872244834899902
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,11,escenas,4.826712131500244
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,12,vignette,4.787284851074219
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,13,cinematography,4.657772064208984
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,14,either,4.607071876525879
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",scene end,15,narration,4.602170467376709
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,1,postcode,-5.089000701904297
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,2,landfill,-4.2264275550842285
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,3,dormitory,-4.0813517570495605
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,4,terra,-4.040930271148682
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,5,landfills,-3.992255210876465
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,6,negeri,-3.9783735275268555
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,7,headquarters,-3.9455602169036865
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,8,mainland,-3.929393768310547
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,9,restroom,-3.917034864425659
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,10,hostel,-3.9028005599975586
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,11,depositors,-3.8787715435028076
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,12,expats,-3.7463316917419434
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,13,monastery,-3.727428913116455
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,14,someplace,-3.72562313079834
+gemma-4-31b,28,"embedded (no-image readout, scene minus place)",place end,15,monasteries,-3.7125401496887207
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,1,que,2.016359329223633
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,2,ecosystem,1.9787524938583374
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,3,biodiversity,1.9350647926330566
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,4,ecosystems,1.9040637016296387
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,5,eco,1.8784148693084717
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,6,euros,1.8598524332046509
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,7,terra,1.8556288480758667
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,8,biodivers,1.8020424842834473
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,9,pollin,1.7105565071105957
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,10,planet,1.7073028087615967
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,11,euro,1.7054617404937744
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,12,pollinators,1.697759985923767
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,13,inland,1.6894285678863525
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,14,airports,1.661874771118164
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),scene end,15,grassland,1.6073085069656372
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,1,sexually,-1.86202073097229
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,2,bloody,-1.731636881828308
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,3,misog,-1.7274173498153687
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,4,rehears,-1.6957924365997314
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,5,backstage,-1.6922776699066162
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,6,fucking,-1.6641278266906738
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,7,damned,-1.66103196144104
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,8,prostit,-1.649393081665039
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,9,theatrical,-1.647381067276001
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,10,adultery,-1.6420369148254395
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,11,rehearsal,-1.6369690895080566
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,12,sparring,-1.6256122589111328
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,13,rehearsals,-1.6252388954162598
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,14,shirtless,-1.6248598098754883
+gemma-4-31b,28,image-caused (C2 of scene minus C2 of place),place end,15,actress,-1.6071659326553345
+gemma-4-31b,28,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.38090372921462734
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,1,aforementioned,0.028316378593444824
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,2,eigen,0.022913247346878052
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,3,disampaikan,0.022494792938232422
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,4,else,0.022000521421432495
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,5,esquerda,0.02186870574951172
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,6,adversarial,0.021841682493686676
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,7,gerekti,0.02125096321105957
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,8,biliary,0.021175742149353027
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,9,siden,0.02106630802154541
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,10,seguintes,0.020762398838996887
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,11,salidas,0.02026975154876709
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,12,realidade,0.01951134204864502
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,13,ketua,0.01945405825972557
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,14,nicotine,0.019386231899261475
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",scene end,15,oath,0.01923084259033203
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,1,cheques,-0.029922902584075928
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,2,alber,-0.022584542632102966
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,3,dets,-0.021906476467847824
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,4,even,-0.021861791610717773
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,5,transfected,-0.021046698093414307
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,6,recc,-0.020940303802490234
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,7,categ,-0.02058112621307373
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,8,municipalities,-0.020453639328479767
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,9,ron,-0.020272284746170044
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,10,postcards,-0.019793212413787842
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,11,payers,-0.01972736418247223
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,12,xls,-0.019674748182296753
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,13,climat,-0.019648373126983643
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,14,manj,-0.01956772804260254
+gemma-4-31b,56,"embedded (no-image readout, scene minus place)",place end,15,progressions,-0.01954883337020874
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,1,scene,8.07262897491455
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,2,scenes,6.372406482696533
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,3,own,5.706562519073486
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,4,escena,4.85719108581543
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,5,scen,4.469243049621582
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,6,escenas,4.278323173522949
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,7,cena,3.9821534156799316
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,8,scena,3.7830851078033447
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,9,depicting,3.4873766899108887
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,10,depict,3.4635045528411865
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,11,depicts,3.347560167312622
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,12,cenas,3.2412595748901367
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,13,bevat,3.0681238174438477
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,14,contains,3.0448527336120605
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),scene end,15,contain,3.0431411266326904
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,1,place,-7.87090539932251
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,2,tempat,-5.861882209777832
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,3,places,-5.714066982269287
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,4,lugar,-5.3244123458862305
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,5,plc,-4.4076738357543945
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,6,miejsce,-4.403794765472412
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,7,yeri,-4.179084300994873
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,8,plac,-4.147253513336182
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,9,lugares,-3.988656997680664
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,10,placebo,-3.9720194339752197
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,11,miesto,-3.791172504425049
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,12,plas,-3.727494478225708
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,13,plek,-3.6724295616149902
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,14,plr,-3.5599427223205566
+gemma-4-31b,56,image-caused (C2 of scene minus C2 of place),place end,15,miejsca,-3.511638879776001
+gemma-4-31b,56,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.9218581162645101
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,1,scn,4.185333251953125
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,2,vign,4.038074970245361
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,3,cinematic,4.011598587036133
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,4,ballet,3.9943904876708984
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,5,chore,3.851470947265625
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,6,dramatic,3.760272979736328
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,7,dramat,3.7436680793762207
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,8,reen,3.7053864002227783
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,9,tableau,3.648135185241699
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,10,chromat,3.5628151893615723
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,11,storyboard,3.5329833030700684
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,12,theatrical,3.489469528198242
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,13,chrom,3.464510917663574
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,14,scenes,3.3870952129364014
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",scene end,15,melod,3.365396738052368
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,1,pound,-3.56945538520813
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,2,lus,-3.4866044521331787
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,3,establishments,-3.4257700443267822
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,4,domicile,-3.2478036880493164
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,5,hostel,-3.181950330734253
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,6,plur,-3.1690707206726074
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,7,leased,-3.1687607765197754
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,8,dollar,-3.1147632598876953
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,9,passport,-3.0890350341796875
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,10,potato,-3.0740597248077393
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,11,tourist,-3.0738978385925293
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,12,facilities,-3.064882516860962
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,13,locality,-3.0459303855895996
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,14,kaz,-3.0390238761901855
+qwen3.5-9b,16,"embedded (no-image readout, scene minus place)",place end,15,resort,-3.022472858428955
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,1,ecosystem,2.0959784984588623
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,2,tourist,1.9196683168411255
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,3,wildlife,1.820203423500061
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,4,habitat,1.721407175064087
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,5,fisheries,1.7201998233795166
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,6,landscape,1.7127835750579834
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,7,gravel,1.6464393138885498
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,8,hiking,1.6384634971618652
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,9,geom,1.621746301651001
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,10,ekos,1.6098405122756958
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,11,panorama,1.6011921167373657
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,12,terrain,1.600917100906372
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,13,geographic,1.5960801839828491
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,14,granite,1.5923749208450317
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),scene end,15,ecosystems,1.5837342739105225
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,1,chore,-1.9511315822601318
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,2,vamp,-1.9220776557922363
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,3,vampire,-1.7882860898971558
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,4,assass,-1.7699549198150635
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,5,cocaine,-1.719789743423462
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,6,dramat,-1.7100803852081299
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,7,heroine,-1.7031257152557373
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,8,flashback,-1.6989091634750366
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,9,episode,-1.6830275058746338
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,10,queens,-1.6684290170669556
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,11,playwright,-1.6315455436706543
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,12,vampires,-1.6224957704544067
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,13,script,-1.6096904277801514
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,14,episodes,-1.599586844444275
+qwen3.5-9b,16,image-caused (C2 of scene minus C2 of place),place end,15,dramatic,-1.5987865924835205
+qwen3.5-9b,16,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.35990870525414115
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,1,scn,6.862592697143555
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,2,scen,5.62789249420166
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,3,scenes,5.482151985168457
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,4,scene,5.334318161010742
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,5,screenplay,5.045329570770264
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,6,escena,4.989771842956543
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,7,scena,4.770356178283691
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,8,szen,4.577561378479004
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,9,vign,4.174568176269531
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,10,cenas,4.1194915771484375
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,11,depict,4.098602294921875
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,12,scenari,4.017667770385742
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,13,escen,3.884521007537842
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,14,scenarios,3.8233628273010254
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",scene end,15,dramat,3.81081485748291
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,1,plac,-4.597173690795898
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,2,pla,-4.481729984283447
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,3,plut,-3.7654807567596436
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,4,plc,-3.6730306148529053
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,5,pls,-3.6049563884735107
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,6,plaz,-3.5638957023620605
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,7,opl,-3.4888699054718018
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,8,pll,-3.4510412216186523
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,9,plur,-3.38120174407959
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,10,plazas,-3.372069835662842
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,11,plat,-3.3432326316833496
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,12,named,-3.334437608718872
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,13,placa,-3.3092737197875977
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,14,plats,-3.244757652282715
+qwen3.5-9b,24,"embedded (no-image readout, scene minus place)",place end,15,plaster,-3.1897714138031006
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,1,daylight,1.528570532798767
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,2,rural,1.510482668876648
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,3,urban,1.4627947807312012
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,4,daytime,1.4138078689575195
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,5,pokr,1.3830077648162842
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,6,nighttime,1.329714059829712
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,7,photographed,1.3037059307098389
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,8,konser,1.2834866046905518
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,9,downtown,1.260915994644165
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,10,nonprofit,1.2583768367767334
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,11,outside,1.2481727600097656
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,12,siang,1.245600938796997
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,13,polluted,1.237027645111084
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,14,dominated,1.2282257080078125
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),scene end,15,noct,1.2029192447662354
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,1,descriptions,-1.9272024631500244
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,2,description,-1.8921332359313965
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,3,dialogue,-1.7050964832305908
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,4,screenplay,-1.675427794456482
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,5,characterization,-1.5872795581817627
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,6,suspense,-1.5315101146697998
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,7,script,-1.5242390632629395
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,8,endings,-1.3802634477615356
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,9,impro,-1.3615224361419678
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,10,from,-1.3440039157867432
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,11,sequences,-1.3308616876602173
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,12,literary,-1.3281711339950562
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,13,dialog,-1.325804591178894
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,14,scripts,-1.31563138961792
+qwen3.5-9b,24,image-caused (C2 of scene minus C2 of place),place end,15,chore,-1.313138484954834
+qwen3.5-9b,24,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.495834667563078
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,1,description,4.386481285095215
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,2,describing,3.966385841369629
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,3,descriptions,3.8406198024749756
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,4,describe,3.6749775409698486
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,5,describes,3.6683552265167236
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,6,descriptive,3.575925827026367
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,7,depiction,3.532853126525879
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,8,descrip,3.5260515213012695
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,9,descri,3.4515929222106934
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,10,depict,3.4376726150512695
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,11,depicting,3.388099193572998
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,12,depicts,3.139477491378784
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,13,dep,3.1232781410217285
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,14,from,3.101386308670044
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",scene end,15,descr,3.0896453857421875
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,1,place,-4.4039201736450195
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,2,places,-3.9875452518463135
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,3,tempat,-3.4915390014648438
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,4,lugar,-3.4770493507385254
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,5,called,-3.4501538276672363
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,6,named,-3.3896565437316895
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,7,pets,-3.1764252185821533
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,8,miejsce,-3.037371873855591
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,9,visited,-2.9797210693359375
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,10,reserv,-2.9693329334259033
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,11,dogs,-2.9636895656585693
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,12,lugares,-2.8781673908233643
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,13,dog,-2.7754554748535156
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,14,designated,-2.765444755554199
+qwen3.5-9b,28,"embedded (no-image readout, scene minus place)",place end,15,pet,-2.7391669750213623
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,1,daylight,2.370065689086914
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,2,daytime,2.2865636348724365
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,3,noct,2.0922272205352783
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,4,captured,2.0836033821105957
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,5,dominated,2.0505409240722656
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,6,polluted,2.0017800331115723
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,7,taking,1.9967697858810425
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,8,indoor,1.943793535232544
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,9,aufgenommen,1.9274749755859375
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,10,inland,1.9120538234710693
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,11,captura,1.8949832916259766
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,12,photographed,1.8739018440246582
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,13,took,1.865753173828125
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,14,take,1.8642897605895996
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),scene end,15,urban,1.8309111595153809
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,1,descriptions,-2.638455867767334
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,2,description,-2.601971387863159
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,3,descriptive,-2.417044162750244
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,4,writing,-2.265505075454712
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,5,descrip,-2.06760311126709
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,6,vivid,-2.0671164989471436
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,7,suspense,-2.020995855331421
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,8,descri,-1.9681992530822754
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,9,describe,-1.968137264251709
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,10,describes,-1.9337018728256226
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,11,plausible,-1.915877342224121
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,12,descrit,-1.904563069343567
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,13,emotionally,-1.892270803451538
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,14,describing,-1.8643068075180054
+qwen3.5-9b,28,image-caused (C2 of scene minus C2 of place),place end,15,described,-1.7928986549377441
+qwen3.5-9b,28,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.5521898102806828
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,1,scenes,5.183217525482178
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,2,cinematic,5.173827648162842
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,3,film,4.968960762023926
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,4,storyboard,4.96011209487915
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,5,cinemat,4.866296768188477
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,6,screenplay,4.854445457458496
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,7,scene,4.661281108856201
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,8,drama,4.650437831878662
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,9,dramat,4.566898822784424
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,10,dram,4.544323921203613
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,11,filmed,4.482594966888428
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,12,theatrical,4.461650371551514
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,13,narrative,4.4367289543151855
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,14,actress,4.421009063720703
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",scene end,15,actors,4.272156238555908
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,1,tourist,-3.770704984664917
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,2,tourists,-3.501275062561035
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,3,somebody,-3.4751572608947754
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,4,places,-3.311817169189453
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,5,yummy,-3.2194409370422363
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,6,everywhere,-3.2183167934417725
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,7,people,-3.149308681488037
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,8,turist,-3.147639274597168
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,9,hospitality,-3.1397347450256348
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,10,locals,-3.0837831497192383
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,11,nice,-3.0760743618011475
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,12,visitor,-3.053968906402588
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,13,tourism,-3.0027670860290527
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,14,everything,-2.9845006465911865
+qwen3.6-27b,24,"embedded (no-image readout, scene minus place)",place end,15,stores,-2.9689548015594482
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,1,coconut,1.708732008934021
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,2,tropical,1.6936856508255005
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,3,foliage,1.5977342128753662
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,4,traffic,1.5832690000534058
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,5,roadside,1.5538426637649536
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,6,waterproof,1.5296120643615723
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,7,competit,1.5101628303527832
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,8,animale,1.4918068647384644
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,9,zoo,1.4917612075805664
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,10,animals,1.4576079845428467
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,11,fauna,1.4483306407928467
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,12,burro,1.4435523748397827
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,13,motorists,1.4425709247589111
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,14,maintenance,1.4390203952789307
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),scene end,15,pavement,1.4365875720977783
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,1,film,-2.795179843902588
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,2,screenplay,-2.7393815517425537
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,3,cinematic,-2.725648880004883
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,4,movie,-2.719486951828003
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,5,cinema,-2.6436781883239746
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,6,movies,-2.4849979877471924
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,7,cinemat,-2.4521679878234863
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,8,films,-2.4366793632507324
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,9,cinematograf,-2.3837602138519287
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,10,actress,-2.368664026260376
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,11,cine,-2.2433743476867676
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,12,actresses,-2.228828191757202
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,13,actors,-2.226518392562866
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,14,theatre,-2.1289641857147217
+qwen3.6-27b,24,image-caused (C2 of scene minus C2 of place),place end,15,storyboard,-2.089817523956299
+qwen3.6-27b,24,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.33528798999741427
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,1,cinematic,6.305041313171387
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,2,theatrical,5.558371067047119
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,3,cinemat,5.513328552246094
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,4,screenplay,5.271758556365967
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,5,scenes,5.132311820983887
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,6,storyboard,5.132122039794922
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,7,drama,4.896111011505127
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,8,dramat,4.877867698669434
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,9,dramatic,4.720762729644775
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,10,film,4.621327877044678
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,11,narrative,4.5144877433776855
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,12,dram,4.49130392074585
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,13,scene,4.44608211517334
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,14,melod,4.391270160675049
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",scene end,15,dramas,4.3361639976501465
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,1,tourist,-4.693970203399658
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,2,locals,-4.407838344573975
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,3,gps,-4.152814865112305
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,4,national,-3.983198881149292
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,5,nationals,-3.967679500579834
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,6,country,-3.903825521469116
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,7,tourists,-3.8890957832336426
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,8,restaurants,-3.867891311645508
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,9,tourism,-3.8632476329803467
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,10,hostel,-3.861392021179199
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,11,limestone,-3.814826488494873
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,12,turist,-3.716256618499756
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,13,establishments,-3.5326995849609375
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,14,nation,-3.516061305999756
+qwen3.6-27b,32,"embedded (no-image readout, scene minus place)",place end,15,nationwide,-3.4927408695220947
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,1,urban,2.6803784370422363
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,2,sunny,2.3745174407958984
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,3,municipal,2.3331458568573
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,4,sidewalk,2.2703325748443604
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,5,bins,2.2355797290802
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,6,pedestrians,2.2043204307556152
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,7,municipalities,2.1109719276428223
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,8,municipality,2.1088297367095947
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,9,tourist,2.105574607849121
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,10,downtown,2.102994918823242
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,11,parked,2.053870439529419
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,12,outdoor,2.0390100479125977
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,13,tropical,2.0339388847351074
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,14,parking,2.030897617340088
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),scene end,15,civic,2.0167481899261475
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,1,screenplay,-2.7640013694763184
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,2,actress,-2.5911011695861816
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,3,dram,-2.5168280601501465
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,4,melod,-2.502227306365967
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,5,theatrical,-2.4841670989990234
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,6,playwright,-2.471101760864258
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,7,movie,-2.425295829772949
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,8,dramat,-2.4230804443359375
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,9,productions,-2.3994803428649902
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,10,actresses,-2.299011707305908
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,11,story,-2.2645280361175537
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,12,drama,-2.260671377182007
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,13,theater,-2.251326084136963
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,14,assassination,-2.2400097846984863
+qwen3.6-27b,32,image-caused (C2 of scene minus C2 of place),place end,15,cinematic,-2.2303197383880615
+qwen3.6-27b,32,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.2769724725606387
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,1,screenplay,4.385450839996338
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,2,from,4.151724815368652
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,3,excerpt,3.911991596221924
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,4,graph,3.6939749717712402
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,5,description,3.6319499015808105
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,6,scene,3.5837764739990234
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,7,depicting,3.5110065937042236
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,8,descri,3.4704079627990723
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,9,snippet,3.410940170288086
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,10,script,3.405244827270508
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,11,descriptive,3.3608109951019287
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,12,depict,3.353571653366089
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,13,dari,3.353363513946533
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,14,transc,3.3494865894317627
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",scene end,15,descr,3.329059600830078
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,1,place,-4.852784156799316
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,2,places,-4.569686412811279
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,3,closed,-4.035968780517578
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,4,called,-4.034237861633301
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,5,named,-3.9953927993774414
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,6,designated,-3.5475642681121826
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,7,open,-3.5363306999206543
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,8,business,-3.364901065826416
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,9,lodging,-3.3281314373016357
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,10,lugar,-3.3179445266723633
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,11,nearby,-3.2659711837768555
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,12,listed,-3.2158584594726562
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,13,catering,-3.1713221073150635
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,14,singled,-3.1707301139831543
+qwen3.6-27b,60,"embedded (no-image readout, scene minus place)",place end,15,yer,-3.0912137031555176
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,1,outdoor,2.570690631866455
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,2,daylight,2.3995184898376465
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,3,daytime,2.3624043464660645
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,4,indoor,2.3335845470428467
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,5,captured,2.33148455619812
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,6,permanently,2.2979896068573
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,7,urban,2.262416362762451
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,8,outside,2.241922378540039
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,9,outdoors,2.228090524673462
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,10,closures,2.1766178607940674
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,11,opened,2.1708521842956543
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,12,pets,2.155174493789673
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,13,aufgenommen,2.13045334815979
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,14,housed,2.0968997478485107
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),scene end,15,closed,2.082986831665039
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,1,screenplay,-3.2422118186950684
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,2,script,-2.977708578109741
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,3,emotionally,-2.951300621032715
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,4,from,-2.634644031524658
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,5,description,-2.538583278656006
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,6,descriptive,-2.5157296657562256
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,7,scripting,-2.4982082843780518
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,8,excerpt,-2.4915759563446045
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,9,emotional,-2.43831205368042
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,10,scripted,-2.402595043182373
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,11,descriptions,-2.390327215194702
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,12,descri,-2.370696544647217
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,13,prose,-2.331425189971924
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,14,dramatic,-2.2772319316864014
+qwen3.6-27b,60,image-caused (C2 of scene minus C2 of place),place end,15,rewrite,-2.2696547508239746
+qwen3.6-27b,60,r of the 2 C2 contrasts at the noun (scene vs place),,0,,0.5424927789832864

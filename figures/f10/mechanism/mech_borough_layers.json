@@ -1,0 +1,10 @@
+{
+  "plot-title": "Borough words through the layers",
+  "plot-caption": "Words of top-12 contrast C3 at the cool token through the layers of Gemma-4-31B.",
+  "plot-latex-label": "fig:borough-layers",
+  "plot-tags": [
+    "F10.22",
+    "C3",
+    "gemma-4-31b"
+  ]
+}

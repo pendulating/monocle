@@ -1,0 +1,30 @@
+{
+  "plot-title": "What the image patches hold",
+  "plot-caption": "One street image for each borough, with the answer of gemma-4-31b to 'Is this place cool?'. Each image is an urban street scene with the answer no to cool, nice and pretty. On each 4x4 block of patches: a word of the shared aesthetic direction in the top 30 of its patches. Teal: a word of the yes end at layer 32. Coral: a severe word of the no end (within rank 2000) at layer 16. The image comes before the question, so the words do not depend on it.",
+  "plot-latex-label": "fig:teaser",
+  "plot-tags": [
+    "F10.33",
+    "gemma-4-31b",
+    "J++ Lens",
+    "patch words",
+    "shared direction",
+    "severe words"
+  ],
+  "margin_test": {
+    "n_up": {
+      "r": 0.458,
+      "p": 5.748124020203675e-32,
+      "n": 591
+    },
+    "n_down": {
+      "r": -0.471,
+      "p": 5.443637959665873e-34,
+      "n": 591
+    }
+  },
+  "n_pole": 300,
+  "rank_max": 2000,
+  "up_layer": 32,
+  "down_layer": 16,
+  "version": "2.3.0"
+}

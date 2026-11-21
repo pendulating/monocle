@@ -1,0 +1,613 @@
+model,pair,position,token,layer,r_c2_all_words
+gemma-4-31b,cool-nice,place, place,0,1.0
+gemma-4-31b,cool-nice,place, place,4,1.0
+gemma-4-31b,cool-nice,place, place,8,1.0
+gemma-4-31b,cool-nice,place, place,12,1.0
+gemma-4-31b,cool-nice,place, place,16,1.0
+gemma-4-31b,cool-nice,place, place,20,0.9999999999999998
+gemma-4-31b,cool-nice,place, place,24,1.0
+gemma-4-31b,cool-nice,place, place,28,0.9999999999999998
+gemma-4-31b,cool-nice,place, place,32,1.0
+gemma-4-31b,cool-nice,place, place,36,0.9999999999999998
+gemma-4-31b,cool-nice,place, place,40,1.0
+gemma-4-31b,cool-nice,place, place,44,1.0
+gemma-4-31b,cool-nice,place, place,48,1.0
+gemma-4-31b,cool-nice,place, place,52,1.0
+gemma-4-31b,cool-nice,place, place,56,1.0
+gemma-4-31b,cool-nice,adj, cool,0,0.8688094065501283
+gemma-4-31b,cool-nice,adj, cool,4,0.7463913120407513
+gemma-4-31b,cool-nice,adj, cool,8,0.6772309263198851
+gemma-4-31b,cool-nice,adj, cool,12,0.5744220039358461
+gemma-4-31b,cool-nice,adj, cool,16,0.6511526202157653
+gemma-4-31b,cool-nice,adj, cool,20,0.4943289871714216
+gemma-4-31b,cool-nice,adj, cool,24,0.38602842845182334
+gemma-4-31b,cool-nice,adj, cool,28,0.646957786816628
+gemma-4-31b,cool-nice,adj, cool,32,0.5829137318736596
+gemma-4-31b,cool-nice,adj, cool,36,0.5394753103630506
+gemma-4-31b,cool-nice,adj, cool,40,0.6872393438272812
+gemma-4-31b,cool-nice,adj, cool,44,0.6399760018404635
+gemma-4-31b,cool-nice,adj, cool,48,0.6068211608010274
+gemma-4-31b,cool-nice,adj, cool,52,0.6115817428885783
+gemma-4-31b,cool-nice,adj, cool,56,0.540085482611567
+gemma-4-31b,cool-nice,qm,?,0,0.9229896663805305
+gemma-4-31b,cool-nice,qm,?,4,0.9598990982337646
+gemma-4-31b,cool-nice,qm,?,8,0.9245088288216264
+gemma-4-31b,cool-nice,qm,?,12,0.9267535057491779
+gemma-4-31b,cool-nice,qm,?,16,0.9276740024862151
+gemma-4-31b,cool-nice,qm,?,20,0.9117240197305929
+gemma-4-31b,cool-nice,qm,?,24,0.8159324566816472
+gemma-4-31b,cool-nice,qm,?,28,0.9007855319979996
+gemma-4-31b,cool-nice,qm,?,32,0.9166283791849176
+gemma-4-31b,cool-nice,qm,?,36,0.9290164170979741
+gemma-4-31b,cool-nice,qm,?,40,0.9540652092898158
+gemma-4-31b,cool-nice,qm,?,44,0.9420363826051393
+gemma-4-31b,cool-nice,qm,?,48,0.9335845305720188
+gemma-4-31b,cool-nice,qm,?,52,0.8242139675507909
+gemma-4-31b,cool-nice,qm,?,56,0.7931862127369712
+gemma-4-31b,cool-nice,final,<channel|>,0,0.9997061035656163
+gemma-4-31b,cool-nice,final,<channel|>,4,0.9997427626069196
+gemma-4-31b,cool-nice,final,<channel|>,8,0.9989794250814696
+gemma-4-31b,cool-nice,final,<channel|>,12,0.998726016346184
+gemma-4-31b,cool-nice,final,<channel|>,16,0.9987553296941734
+gemma-4-31b,cool-nice,final,<channel|>,20,0.9987020541076307
+gemma-4-31b,cool-nice,final,<channel|>,24,0.9944004440097353
+gemma-4-31b,cool-nice,final,<channel|>,28,0.9852478887278854
+gemma-4-31b,cool-nice,final,<channel|>,32,0.9847448626970048
+gemma-4-31b,cool-nice,final,<channel|>,36,0.9675540840110413
+gemma-4-31b,cool-nice,final,<channel|>,40,0.9212427933972946
+gemma-4-31b,cool-nice,final,<channel|>,44,0.917317010823815
+gemma-4-31b,cool-nice,final,<channel|>,48,0.9114843108472505
+gemma-4-31b,cool-nice,final,<channel|>,52,0.8575642157207229
+gemma-4-31b,cool-nice,final,<channel|>,56,0.7515020478532849
+gemma-4-31b,cool-ordinary,place, place,0,1.0
+gemma-4-31b,cool-ordinary,place, place,4,1.0
+gemma-4-31b,cool-ordinary,place, place,8,1.0
+gemma-4-31b,cool-ordinary,place, place,12,1.0
+gemma-4-31b,cool-ordinary,place, place,16,1.0
+gemma-4-31b,cool-ordinary,place, place,20,0.9999999999999998
+gemma-4-31b,cool-ordinary,place, place,24,1.0
+gemma-4-31b,cool-ordinary,place, place,28,0.9999999999999998
+gemma-4-31b,cool-ordinary,place, place,32,1.0
+gemma-4-31b,cool-ordinary,place, place,36,0.9999999999999998
+gemma-4-31b,cool-ordinary,place, place,40,1.0
+gemma-4-31b,cool-ordinary,place, place,44,1.0
+gemma-4-31b,cool-ordinary,place, place,48,1.0
+gemma-4-31b,cool-ordinary,place, place,52,1.0
+gemma-4-31b,cool-ordinary,place, place,56,1.0
+gemma-4-31b,cool-ordinary,adj, cool,0,0.7999804882631442
+gemma-4-31b,cool-ordinary,adj, cool,4,0.5558042948381138
+gemma-4-31b,cool-ordinary,adj, cool,8,0.4898582270115904
+gemma-4-31b,cool-ordinary,adj, cool,12,0.5400688724856697
+gemma-4-31b,cool-ordinary,adj, cool,16,0.442446958295832
+gemma-4-31b,cool-ordinary,adj, cool,20,0.40536247689872257
+gemma-4-31b,cool-ordinary,adj, cool,24,0.2672910180170109
+gemma-4-31b,cool-ordinary,adj, cool,28,0.4594694896123915
+gemma-4-31b,cool-ordinary,adj, cool,32,0.27915377067670244
+gemma-4-31b,cool-ordinary,adj, cool,36,0.3474200980079878
+gemma-4-31b,cool-ordinary,adj, cool,40,0.4690099102431827
+gemma-4-31b,cool-ordinary,adj, cool,44,0.5295565340448359
+gemma-4-31b,cool-ordinary,adj, cool,48,0.46318105103502044
+gemma-4-31b,cool-ordinary,adj, cool,52,0.5303537938900786
+gemma-4-31b,cool-ordinary,adj, cool,56,0.437557263496988
+gemma-4-31b,cool-ordinary,qm,?,0,0.9206071423415129
+gemma-4-31b,cool-ordinary,qm,?,4,0.9198677029534592
+gemma-4-31b,cool-ordinary,qm,?,8,0.8039927104398862
+gemma-4-31b,cool-ordinary,qm,?,12,0.8305062825056255
+gemma-4-31b,cool-ordinary,qm,?,16,0.8257504288811962
+gemma-4-31b,cool-ordinary,qm,?,20,0.7670110682297208
+gemma-4-31b,cool-ordinary,qm,?,24,0.6182464875545408
+gemma-4-31b,cool-ordinary,qm,?,28,0.72269833339254
+gemma-4-31b,cool-ordinary,qm,?,32,0.6786373793203538
+gemma-4-31b,cool-ordinary,qm,?,36,0.5774281481055443
+gemma-4-31b,cool-ordinary,qm,?,40,0.6628341915376991
+gemma-4-31b,cool-ordinary,qm,?,44,0.6443112202923831
+gemma-4-31b,cool-ordinary,qm,?,48,0.6349789688638857
+gemma-4-31b,cool-ordinary,qm,?,52,0.6112622126128852
+gemma-4-31b,cool-ordinary,qm,?,56,0.5266356447133904
+gemma-4-31b,cool-ordinary,final,<channel|>,0,0.9998544478726314
+gemma-4-31b,cool-ordinary,final,<channel|>,4,0.99857301550471
+gemma-4-31b,cool-ordinary,final,<channel|>,8,0.9983248968717802
+gemma-4-31b,cool-ordinary,final,<channel|>,12,0.997527376137684
+gemma-4-31b,cool-ordinary,final,<channel|>,16,0.9981187830528704
+gemma-4-31b,cool-ordinary,final,<channel|>,20,0.995308321344531
+gemma-4-31b,cool-ordinary,final,<channel|>,24,0.9755542024752458
+gemma-4-31b,cool-ordinary,final,<channel|>,28,0.9580027717068357
+gemma-4-31b,cool-ordinary,final,<channel|>,32,0.966103382830726
+gemma-4-31b,cool-ordinary,final,<channel|>,36,0.8905954271238504
+gemma-4-31b,cool-ordinary,final,<channel|>,40,0.6339414503220876
+gemma-4-31b,cool-ordinary,final,<channel|>,44,0.5196652777603439
+gemma-4-31b,cool-ordinary,final,<channel|>,48,0.5388424433961628
+gemma-4-31b,cool-ordinary,final,<channel|>,52,0.46900703079172806
+gemma-4-31b,cool-ordinary,final,<channel|>,56,0.1448678116669539
+gemma-4-31b,nice-ordinary,place, place,0,1.0
+gemma-4-31b,nice-ordinary,place, place,4,1.0
+gemma-4-31b,nice-ordinary,place, place,8,1.0
+gemma-4-31b,nice-ordinary,place, place,12,1.0
+gemma-4-31b,nice-ordinary,place, place,16,1.0
+gemma-4-31b,nice-ordinary,place, place,20,0.9999999999999998
+gemma-4-31b,nice-ordinary,place, place,24,1.0
+gemma-4-31b,nice-ordinary,place, place,28,0.9999999999999998
+gemma-4-31b,nice-ordinary,place, place,32,1.0
+gemma-4-31b,nice-ordinary,place, place,36,0.9999999999999998
+gemma-4-31b,nice-ordinary,place, place,40,1.0
+gemma-4-31b,nice-ordinary,place, place,44,1.0
+gemma-4-31b,nice-ordinary,place, place,48,1.0
+gemma-4-31b,nice-ordinary,place, place,52,1.0
+gemma-4-31b,nice-ordinary,place, place,56,1.0
+gemma-4-31b,nice-ordinary,adj, nice,0,0.7756587479404042
+gemma-4-31b,nice-ordinary,adj, nice,4,0.6073619034211837
+gemma-4-31b,nice-ordinary,adj, nice,8,0.5185215609888227
+gemma-4-31b,nice-ordinary,adj, nice,12,0.503738985305433
+gemma-4-31b,nice-ordinary,adj, nice,16,0.40531121994781427
+gemma-4-31b,nice-ordinary,adj, nice,20,0.32452403623508974
+gemma-4-31b,nice-ordinary,adj, nice,24,0.24441118976372467
+gemma-4-31b,nice-ordinary,adj, nice,28,0.44966053987847954
+gemma-4-31b,nice-ordinary,adj, nice,32,0.34495865398338027
+gemma-4-31b,nice-ordinary,adj, nice,36,0.3502404350951547
+gemma-4-31b,nice-ordinary,adj, nice,40,0.4048209862066287
+gemma-4-31b,nice-ordinary,adj, nice,44,0.4367020496887883
+gemma-4-31b,nice-ordinary,adj, nice,48,0.42636134451711044
+gemma-4-31b,nice-ordinary,adj, nice,52,0.47964477273884765
+gemma-4-31b,nice-ordinary,adj, nice,56,0.3971013106380499
+gemma-4-31b,nice-ordinary,qm,?,0,0.9356872081770804
+gemma-4-31b,nice-ordinary,qm,?,4,0.9097416447918188
+gemma-4-31b,nice-ordinary,qm,?,8,0.8197574711980344
+gemma-4-31b,nice-ordinary,qm,?,12,0.826488306759313
+gemma-4-31b,nice-ordinary,qm,?,16,0.8528738374859407
+gemma-4-31b,nice-ordinary,qm,?,20,0.7911910520744698
+gemma-4-31b,nice-ordinary,qm,?,24,0.6585821476084622
+gemma-4-31b,nice-ordinary,qm,?,28,0.734370712943913
+gemma-4-31b,nice-ordinary,qm,?,32,0.7174715475417361
+gemma-4-31b,nice-ordinary,qm,?,36,0.5871782776565957
+gemma-4-31b,nice-ordinary,qm,?,40,0.6814547789954116
+gemma-4-31b,nice-ordinary,qm,?,44,0.6410280948264425
+gemma-4-31b,nice-ordinary,qm,?,48,0.5963878560903426
+gemma-4-31b,nice-ordinary,qm,?,52,0.6124597634329907
+gemma-4-31b,nice-ordinary,qm,?,56,0.5023199729669695
+gemma-4-31b,nice-ordinary,final,<channel|>,0,0.9996709537242963
+gemma-4-31b,nice-ordinary,final,<channel|>,4,0.9987737568625533
+gemma-4-31b,nice-ordinary,final,<channel|>,8,0.9975936502316193
+gemma-4-31b,nice-ordinary,final,<channel|>,12,0.996862855197389
+gemma-4-31b,nice-ordinary,final,<channel|>,16,0.9970377504686762
+gemma-4-31b,nice-ordinary,final,<channel|>,20,0.9951244282798135
+gemma-4-31b,nice-ordinary,final,<channel|>,24,0.9757711345256114
+gemma-4-31b,nice-ordinary,final,<channel|>,28,0.9687112627549164
+gemma-4-31b,nice-ordinary,final,<channel|>,32,0.9721496874135476
+gemma-4-31b,nice-ordinary,final,<channel|>,36,0.9194252232037385
+gemma-4-31b,nice-ordinary,final,<channel|>,40,0.6715590898476888
+gemma-4-31b,nice-ordinary,final,<channel|>,44,0.5910207010451961
+gemma-4-31b,nice-ordinary,final,<channel|>,48,0.6132712934113932
+gemma-4-31b,nice-ordinary,final,<channel|>,52,0.5253616521561131
+gemma-4-31b,nice-ordinary,final,<channel|>,56,0.42285369979600995
+qwen3.5-9b,cool-nice,place, place,0,1.0
+qwen3.5-9b,cool-nice,place, place,4,0.9999999999999998
+qwen3.5-9b,cool-nice,place, place,8,1.0
+qwen3.5-9b,cool-nice,place, place,12,1.0
+qwen3.5-9b,cool-nice,place, place,16,1.0
+qwen3.5-9b,cool-nice,place, place,20,1.0
+qwen3.5-9b,cool-nice,place, place,24,1.0
+qwen3.5-9b,cool-nice,place, place,28,0.9999999999999998
+qwen3.5-9b,cool-nice,adj, cool,0,0.6324766412864135
+qwen3.5-9b,cool-nice,adj, cool,4,0.5850879601159152
+qwen3.5-9b,cool-nice,adj, cool,8,0.5010693008005792
+qwen3.5-9b,cool-nice,adj, cool,12,0.60865209672401
+qwen3.5-9b,cool-nice,adj, cool,16,0.6406406923704419
+qwen3.5-9b,cool-nice,adj, cool,20,0.7124000151200042
+qwen3.5-9b,cool-nice,adj, cool,24,0.7064890714096869
+qwen3.5-9b,cool-nice,adj, cool,28,0.6706088489632015
+qwen3.5-9b,cool-nice,qm,?,0,0.9875348005727577
+qwen3.5-9b,cool-nice,qm,?,4,0.8093689342385236
+qwen3.5-9b,cool-nice,qm,?,8,0.7286087747931078
+qwen3.5-9b,cool-nice,qm,?,12,0.806409455807517
+qwen3.5-9b,cool-nice,qm,?,16,0.796463161559479
+qwen3.5-9b,cool-nice,qm,?,20,0.8828232736492593
+qwen3.5-9b,cool-nice,qm,?,24,0.8796149339958325
+qwen3.5-9b,cool-nice,qm,?,28,0.8245223144367514
+qwen3.5-9b,cool-nice,final,"
+
+",0,0.9997401462829295
+qwen3.5-9b,cool-nice,final,"
+
+",4,0.9970326207567152
+qwen3.5-9b,cool-nice,final,"
+
+",8,0.9962964120406435
+qwen3.5-9b,cool-nice,final,"
+
+",12,0.990319252813236
+qwen3.5-9b,cool-nice,final,"
+
+",16,0.9830049582338387
+qwen3.5-9b,cool-nice,final,"
+
+",20,0.957474386397968
+qwen3.5-9b,cool-nice,final,"
+
+",24,0.9583108962312998
+qwen3.5-9b,cool-nice,final,"
+
+",28,0.9506660665036598
+qwen3.5-9b,cool-ordinary,place, place,0,1.0
+qwen3.5-9b,cool-ordinary,place, place,4,0.9999999999999998
+qwen3.5-9b,cool-ordinary,place, place,8,1.0
+qwen3.5-9b,cool-ordinary,place, place,12,1.0
+qwen3.5-9b,cool-ordinary,place, place,16,1.0
+qwen3.5-9b,cool-ordinary,place, place,20,1.0
+qwen3.5-9b,cool-ordinary,place, place,24,1.0
+qwen3.5-9b,cool-ordinary,place, place,28,0.9999999999999998
+qwen3.5-9b,cool-ordinary,adj, cool,0,0.717983589431867
+qwen3.5-9b,cool-ordinary,adj, cool,4,0.30515237343919843
+qwen3.5-9b,cool-ordinary,adj, cool,8,0.27805162475339046
+qwen3.5-9b,cool-ordinary,adj, cool,12,0.42668970754508767
+qwen3.5-9b,cool-ordinary,adj, cool,16,0.4861362929538572
+qwen3.5-9b,cool-ordinary,adj, cool,20,0.49209252576934953
+qwen3.5-9b,cool-ordinary,adj, cool,24,0.5450090338212559
+qwen3.5-9b,cool-ordinary,adj, cool,28,0.5340052286578962
+qwen3.5-9b,cool-ordinary,qm,?,0,0.9913711649679926
+qwen3.5-9b,cool-ordinary,qm,?,4,0.6213211181981346
+qwen3.5-9b,cool-ordinary,qm,?,8,0.6172203017515395
+qwen3.5-9b,cool-ordinary,qm,?,12,0.5967128356871213
+qwen3.5-9b,cool-ordinary,qm,?,16,0.6275643269383017
+qwen3.5-9b,cool-ordinary,qm,?,20,0.781945082327548
+qwen3.5-9b,cool-ordinary,qm,?,24,0.7102392494056217
+qwen3.5-9b,cool-ordinary,qm,?,28,0.6863921152727018
+qwen3.5-9b,cool-ordinary,final,"
+
+",0,0.9997454638055292
+qwen3.5-9b,cool-ordinary,final,"
+
+",4,0.9958542215612357
+qwen3.5-9b,cool-ordinary,final,"
+
+",8,0.9928417022972253
+qwen3.5-9b,cool-ordinary,final,"
+
+",12,0.9807202472139959
+qwen3.5-9b,cool-ordinary,final,"
+
+",16,0.9679561529334332
+qwen3.5-9b,cool-ordinary,final,"
+
+",20,0.8993580985015184
+qwen3.5-9b,cool-ordinary,final,"
+
+",24,0.8556267175803941
+qwen3.5-9b,cool-ordinary,final,"
+
+",28,0.8387643895495714
+qwen3.5-9b,nice-ordinary,place, place,0,1.0
+qwen3.5-9b,nice-ordinary,place, place,4,0.9999999999999998
+qwen3.5-9b,nice-ordinary,place, place,8,1.0
+qwen3.5-9b,nice-ordinary,place, place,12,1.0
+qwen3.5-9b,nice-ordinary,place, place,16,1.0
+qwen3.5-9b,nice-ordinary,place, place,20,1.0
+qwen3.5-9b,nice-ordinary,place, place,24,1.0
+qwen3.5-9b,nice-ordinary,place, place,28,0.9999999999999998
+qwen3.5-9b,nice-ordinary,adj, nice,0,0.5069197678936885
+qwen3.5-9b,nice-ordinary,adj, nice,4,0.4223172362047603
+qwen3.5-9b,nice-ordinary,adj, nice,8,0.2709300541804533
+qwen3.5-9b,nice-ordinary,adj, nice,12,0.4613635695760059
+qwen3.5-9b,nice-ordinary,adj, nice,16,0.4496596309608369
+qwen3.5-9b,nice-ordinary,adj, nice,20,0.5216138013997887
+qwen3.5-9b,nice-ordinary,adj, nice,24,0.6059874598225031
+qwen3.5-9b,nice-ordinary,adj, nice,28,0.5830564961024605
+qwen3.5-9b,nice-ordinary,qm,?,0,0.9861166878142074
+qwen3.5-9b,nice-ordinary,qm,?,4,0.7770806134548416
+qwen3.5-9b,nice-ordinary,qm,?,8,0.5989195077794977
+qwen3.5-9b,nice-ordinary,qm,?,12,0.5517169346839458
+qwen3.5-9b,nice-ordinary,qm,?,16,0.5470536267925118
+qwen3.5-9b,nice-ordinary,qm,?,20,0.7696132145136193
+qwen3.5-9b,nice-ordinary,qm,?,24,0.7213317235910183
+qwen3.5-9b,nice-ordinary,qm,?,28,0.6650162864450311
+qwen3.5-9b,nice-ordinary,final,"
+
+",0,0.9997257056892765
+qwen3.5-9b,nice-ordinary,final,"
+
+",4,0.9952543002190463
+qwen3.5-9b,nice-ordinary,final,"
+
+",8,0.992764287814115
+qwen3.5-9b,nice-ordinary,final,"
+
+",12,0.9839759238197663
+qwen3.5-9b,nice-ordinary,final,"
+
+",16,0.9672350428639508
+qwen3.5-9b,nice-ordinary,final,"
+
+",20,0.8782722079685941
+qwen3.5-9b,nice-ordinary,final,"
+
+",24,0.8321874903189116
+qwen3.5-9b,nice-ordinary,final,"
+
+",28,0.8129192767163312
+qwen3.6-27b,cool-nice,place, place,0,1.0
+qwen3.6-27b,cool-nice,place, place,4,1.0
+qwen3.6-27b,cool-nice,place, place,8,1.0
+qwen3.6-27b,cool-nice,place, place,12,1.0
+qwen3.6-27b,cool-nice,place, place,16,1.0
+qwen3.6-27b,cool-nice,place, place,20,1.0
+qwen3.6-27b,cool-nice,place, place,24,1.0
+qwen3.6-27b,cool-nice,place, place,28,1.0
+qwen3.6-27b,cool-nice,place, place,32,0.9999999999999998
+qwen3.6-27b,cool-nice,place, place,36,1.0
+qwen3.6-27b,cool-nice,place, place,40,0.9999999999999998
+qwen3.6-27b,cool-nice,place, place,44,0.9999999999999998
+qwen3.6-27b,cool-nice,place, place,48,1.0
+qwen3.6-27b,cool-nice,place, place,52,1.0
+qwen3.6-27b,cool-nice,place, place,56,1.0
+qwen3.6-27b,cool-nice,place, place,60,0.9999999999999999
+qwen3.6-27b,cool-nice,adj, cool,0,0.5594517556049377
+qwen3.6-27b,cool-nice,adj, cool,4,0.4371216792401577
+qwen3.6-27b,cool-nice,adj, cool,8,0.521857338228501
+qwen3.6-27b,cool-nice,adj, cool,12,0.4132125866623457
+qwen3.6-27b,cool-nice,adj, cool,16,0.5901164179077081
+qwen3.6-27b,cool-nice,adj, cool,20,0.6090190648449555
+qwen3.6-27b,cool-nice,adj, cool,24,0.47544641048026437
+qwen3.6-27b,cool-nice,adj, cool,28,0.5045772340578699
+qwen3.6-27b,cool-nice,adj, cool,32,0.5490480710698119
+qwen3.6-27b,cool-nice,adj, cool,36,0.6650965690772976
+qwen3.6-27b,cool-nice,adj, cool,40,0.54905740102877
+qwen3.6-27b,cool-nice,adj, cool,44,0.4563472410103736
+qwen3.6-27b,cool-nice,adj, cool,48,0.6019841290304819
+qwen3.6-27b,cool-nice,adj, cool,52,0.6590874637980904
+qwen3.6-27b,cool-nice,adj, cool,56,0.6232945558197187
+qwen3.6-27b,cool-nice,adj, cool,60,0.5913981332195217
+qwen3.6-27b,cool-nice,qm,?,0,0.9800415228628425
+qwen3.6-27b,cool-nice,qm,?,4,0.9017625538245945
+qwen3.6-27b,cool-nice,qm,?,8,0.6012510116234496
+qwen3.6-27b,cool-nice,qm,?,12,0.7538275358199027
+qwen3.6-27b,cool-nice,qm,?,16,0.8471953491899971
+qwen3.6-27b,cool-nice,qm,?,20,0.7299529430765469
+qwen3.6-27b,cool-nice,qm,?,24,0.6535812939449509
+qwen3.6-27b,cool-nice,qm,?,28,0.7857055129294469
+qwen3.6-27b,cool-nice,qm,?,32,0.7748019077227944
+qwen3.6-27b,cool-nice,qm,?,36,0.8087209830250454
+qwen3.6-27b,cool-nice,qm,?,40,0.8025886590560368
+qwen3.6-27b,cool-nice,qm,?,44,0.8054382002331876
+qwen3.6-27b,cool-nice,qm,?,48,0.8514851006743653
+qwen3.6-27b,cool-nice,qm,?,52,0.8014403860811402
+qwen3.6-27b,cool-nice,qm,?,56,0.7758480753964431
+qwen3.6-27b,cool-nice,qm,?,60,0.7692316271396944
+qwen3.6-27b,cool-nice,final,"
+
+",0,0.999447128623642
+qwen3.6-27b,cool-nice,final,"
+
+",4,0.998192451055043
+qwen3.6-27b,cool-nice,final,"
+
+",8,0.9974323110860017
+qwen3.6-27b,cool-nice,final,"
+
+",12,0.9934294609080581
+qwen3.6-27b,cool-nice,final,"
+
+",16,0.993810065695236
+qwen3.6-27b,cool-nice,final,"
+
+",20,0.9927485129177183
+qwen3.6-27b,cool-nice,final,"
+
+",24,0.9871066328079081
+qwen3.6-27b,cool-nice,final,"
+
+",28,0.9919331780332441
+qwen3.6-27b,cool-nice,final,"
+
+",32,0.9816304335259842
+qwen3.6-27b,cool-nice,final,"
+
+",36,0.9699529562811332
+qwen3.6-27b,cool-nice,final,"
+
+",40,0.9672303228788416
+qwen3.6-27b,cool-nice,final,"
+
+",44,0.9432125946662616
+qwen3.6-27b,cool-nice,final,"
+
+",48,0.9274064488793243
+qwen3.6-27b,cool-nice,final,"
+
+",52,0.9409285526179716
+qwen3.6-27b,cool-nice,final,"
+
+",56,0.9498150214497264
+qwen3.6-27b,cool-nice,final,"
+
+",60,0.9648417751353244
+qwen3.6-27b,cool-ordinary,place, place,0,1.0
+qwen3.6-27b,cool-ordinary,place, place,4,1.0
+qwen3.6-27b,cool-ordinary,place, place,8,1.0
+qwen3.6-27b,cool-ordinary,place, place,12,1.0
+qwen3.6-27b,cool-ordinary,place, place,16,1.0
+qwen3.6-27b,cool-ordinary,place, place,20,1.0
+qwen3.6-27b,cool-ordinary,place, place,24,1.0
+qwen3.6-27b,cool-ordinary,place, place,28,1.0
+qwen3.6-27b,cool-ordinary,place, place,32,0.9999999999999998
+qwen3.6-27b,cool-ordinary,place, place,36,1.0
+qwen3.6-27b,cool-ordinary,place, place,40,0.9999999999999998
+qwen3.6-27b,cool-ordinary,place, place,44,0.9999999999999998
+qwen3.6-27b,cool-ordinary,place, place,48,1.0
+qwen3.6-27b,cool-ordinary,place, place,52,1.0
+qwen3.6-27b,cool-ordinary,place, place,56,1.0
+qwen3.6-27b,cool-ordinary,place, place,60,0.9999999999999999
+qwen3.6-27b,cool-ordinary,adj, cool,0,0.185478559372361
+qwen3.6-27b,cool-ordinary,adj, cool,4,0.38221175868367174
+qwen3.6-27b,cool-ordinary,adj, cool,8,0.41208487023482687
+qwen3.6-27b,cool-ordinary,adj, cool,12,0.4142305908919092
+qwen3.6-27b,cool-ordinary,adj, cool,16,0.4234051704806522
+qwen3.6-27b,cool-ordinary,adj, cool,20,0.5207705364186991
+qwen3.6-27b,cool-ordinary,adj, cool,24,0.3351110664327161
+qwen3.6-27b,cool-ordinary,adj, cool,28,0.28166697534075474
+qwen3.6-27b,cool-ordinary,adj, cool,32,0.2539855952670292
+qwen3.6-27b,cool-ordinary,adj, cool,36,0.4878291530483782
+qwen3.6-27b,cool-ordinary,adj, cool,40,0.4296827966894913
+qwen3.6-27b,cool-ordinary,adj, cool,44,0.35422978427608265
+qwen3.6-27b,cool-ordinary,adj, cool,48,0.45649188556160664
+qwen3.6-27b,cool-ordinary,adj, cool,52,0.5022593901922029
+qwen3.6-27b,cool-ordinary,adj, cool,56,0.5107499748178322
+qwen3.6-27b,cool-ordinary,adj, cool,60,0.4801905270417473
+qwen3.6-27b,cool-ordinary,qm,?,0,0.9901140332506237
+qwen3.6-27b,cool-ordinary,qm,?,4,0.8801972951543483
+qwen3.6-27b,cool-ordinary,qm,?,8,0.6092763583981542
+qwen3.6-27b,cool-ordinary,qm,?,12,0.6219634691136267
+qwen3.6-27b,cool-ordinary,qm,?,16,0.6928357338011079
+qwen3.6-27b,cool-ordinary,qm,?,20,0.6219325057830227
+qwen3.6-27b,cool-ordinary,qm,?,24,0.4906041381254039
+qwen3.6-27b,cool-ordinary,qm,?,28,0.5422526591471432
+qwen3.6-27b,cool-ordinary,qm,?,32,0.5016468583022442
+qwen3.6-27b,cool-ordinary,qm,?,36,0.5409978411412792
+qwen3.6-27b,cool-ordinary,qm,?,40,0.49775042708142264
+qwen3.6-27b,cool-ordinary,qm,?,44,0.5559727286631342
+qwen3.6-27b,cool-ordinary,qm,?,48,0.5564616485822417
+qwen3.6-27b,cool-ordinary,qm,?,52,0.5841878275820808
+qwen3.6-27b,cool-ordinary,qm,?,56,0.5602518102620259
+qwen3.6-27b,cool-ordinary,qm,?,60,0.5521461803131251
+qwen3.6-27b,cool-ordinary,final,"
+
+",0,0.9997948721790395
+qwen3.6-27b,cool-ordinary,final,"
+
+",4,0.9958386756152044
+qwen3.6-27b,cool-ordinary,final,"
+
+",8,0.9898513156439482
+qwen3.6-27b,cool-ordinary,final,"
+
+",12,0.9850807518291282
+qwen3.6-27b,cool-ordinary,final,"
+
+",16,0.9788432658506467
+qwen3.6-27b,cool-ordinary,final,"
+
+",20,0.9845093583620295
+qwen3.6-27b,cool-ordinary,final,"
+
+",24,0.9773066481645305
+qwen3.6-27b,cool-ordinary,final,"
+
+",28,0.9743350990862807
+qwen3.6-27b,cool-ordinary,final,"
+
+",32,0.956438748186767
+qwen3.6-27b,cool-ordinary,final,"
+
+",36,0.932231302209024
+qwen3.6-27b,cool-ordinary,final,"
+
+",40,0.9120266544767452
+qwen3.6-27b,cool-ordinary,final,"
+
+",44,0.8750559415005141
+qwen3.6-27b,cool-ordinary,final,"
+
+",48,0.8347094646429449
+qwen3.6-27b,cool-ordinary,final,"
+
+",52,0.8040357512884897
+qwen3.6-27b,cool-ordinary,final,"
+
+",56,0.8173700582151291
+qwen3.6-27b,cool-ordinary,final,"
+
+",60,0.8197916011010395
+qwen3.6-27b,nice-ordinary,place, place,0,1.0
+qwen3.6-27b,nice-ordinary,place, place,4,1.0
+qwen3.6-27b,nice-ordinary,place, place,8,1.0
+qwen3.6-27b,nice-ordinary,place, place,12,1.0
+qwen3.6-27b,nice-ordinary,place, place,16,1.0
+qwen3.6-27b,nice-ordinary,place, place,20,1.0
+qwen3.6-27b,nice-ordinary,place, place,24,1.0
+qwen3.6-27b,nice-ordinary,place, place,28,1.0
+qwen3.6-27b,nice-ordinary,place, place,32,0.9999999999999998
+qwen3.6-27b,nice-ordinary,place, place,36,1.0
+qwen3.6-27b,nice-ordinary,place, place,40,0.9999999999999998
+qwen3.6-27b,nice-ordinary,place, place,44,0.9999999999999998
+qwen3.6-27b,nice-ordinary,place, place,48,1.0
+qwen3.6-27b,nice-ordinary,place, place,52,1.0
+qwen3.6-27b,nice-ordinary,place, place,56,1.0
+qwen3.6-27b,nice-ordinary,place, place,60,0.9999999999999999
+qwen3.6-27b,nice-ordinary,adj, nice,0,0.3450776471127512
+qwen3.6-27b,nice-ordinary,adj, nice,4,0.4960964166273371
+qwen3.6-27b,nice-ordinary,adj, nice,8,0.4479680722239223
+qwen3.6-27b,nice-ordinary,adj, nice,12,0.409883014696844
+qwen3.6-27b,nice-ordinary,adj, nice,16,0.4637292468126232
+qwen3.6-27b,nice-ordinary,adj, nice,20,0.5835413272712
+qwen3.6-27b,nice-ordinary,adj, nice,24,0.41814759086939296
+qwen3.6-27b,nice-ordinary,adj, nice,28,0.40232429340434395
+qwen3.6-27b,nice-ordinary,adj, nice,32,0.3585758765242318
+qwen3.6-27b,nice-ordinary,adj, nice,36,0.5627867225348073
+qwen3.6-27b,nice-ordinary,adj, nice,40,0.5111624031939809
+qwen3.6-27b,nice-ordinary,adj, nice,44,0.46746125834782154
+qwen3.6-27b,nice-ordinary,adj, nice,48,0.6043380508713582
+qwen3.6-27b,nice-ordinary,adj, nice,52,0.6414523833103704
+qwen3.6-27b,nice-ordinary,adj, nice,56,0.6566775862829674
+qwen3.6-27b,nice-ordinary,adj, nice,60,0.658733801082622
+qwen3.6-27b,nice-ordinary,qm,?,0,0.9795791580384989
+qwen3.6-27b,nice-ordinary,qm,?,4,0.8247063308212003
+qwen3.6-27b,nice-ordinary,qm,?,8,0.6026551164037061
+qwen3.6-27b,nice-ordinary,qm,?,12,0.5698048844720064
+qwen3.6-27b,nice-ordinary,qm,?,16,0.6598265782182274
+qwen3.6-27b,nice-ordinary,qm,?,20,0.6114367944864891
+qwen3.6-27b,nice-ordinary,qm,?,24,0.3906107029907195
+qwen3.6-27b,nice-ordinary,qm,?,28,0.559146829608611
+qwen3.6-27b,nice-ordinary,qm,?,32,0.5608122104186714
+qwen3.6-27b,nice-ordinary,qm,?,36,0.6167731493375659
+qwen3.6-27b,nice-ordinary,qm,?,40,0.5278327957892834
+qwen3.6-27b,nice-ordinary,qm,?,44,0.5737220125642178
+qwen3.6-27b,nice-ordinary,qm,?,48,0.5967924078756334
+qwen3.6-27b,nice-ordinary,qm,?,52,0.6446273163701488
+qwen3.6-27b,nice-ordinary,qm,?,56,0.62291440999906
+qwen3.6-27b,nice-ordinary,qm,?,60,0.5896899174984704
+qwen3.6-27b,nice-ordinary,final,"
+
+",0,0.9993392955719673
+qwen3.6-27b,nice-ordinary,final,"
+
+",4,0.9955833197437559
+qwen3.6-27b,nice-ordinary,final,"
+
+",8,0.9925370497517386
+qwen3.6-27b,nice-ordinary,final,"
+
+",12,0.9889833833347785
+qwen3.6-27b,nice-ordinary,final,"
+
+",16,0.982217867038613
+qwen3.6-27b,nice-ordinary,final,"
+
+",20,0.9855430263061139
+qwen3.6-27b,nice-ordinary,final,"
+
+",24,0.9767615918044896
+qwen3.6-27b,nice-ordinary,final,"
+
+",28,0.9745647924436356
+qwen3.6-27b,nice-ordinary,final,"
+
+",32,0.9600987518135607
+qwen3.6-27b,nice-ordinary,final,"
+
+",36,0.9263021062606785
+qwen3.6-27b,nice-ordinary,final,"
+
+",40,0.9047599632597614
+qwen3.6-27b,nice-ordinary,final,"
+
+",44,0.8604850127862944
+qwen3.6-27b,nice-ordinary,final,"
+
+",48,0.8355225411877735
+qwen3.6-27b,nice-ordinary,final,"
+
+",52,0.7974639296476849
+qwen3.6-27b,nice-ordinary,final,"
+
+",56,0.8214717168548459
+qwen3.6-27b,nice-ordinary,final,"
+
+",60,0.8329124443393927

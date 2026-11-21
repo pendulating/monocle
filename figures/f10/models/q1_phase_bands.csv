@@ -1,0 +1,10 @@
+model,phase,first,last
+gemma-4-31b,sense,12.0,32.0
+gemma-4-31b,"standard (gain at ? at least half of peak, from onset)",32.0,44.0
+gemma-4-31b,verdict (last token r at least .95),44.0,56.0
+qwen3.5-9b,sense,4.0,28.0
+qwen3.5-9b,"standard (gain at ? at least half of peak, from onset)",12.0,28.0
+qwen3.5-9b,verdict (last token r at least .95),28.0,28.0
+qwen3.6-27b,sense,8.0,44.0
+qwen3.6-27b,"standard (gain at ? at least half of peak, from onset)",32.0,
+qwen3.6-27b,verdict (last token r at least .95),,

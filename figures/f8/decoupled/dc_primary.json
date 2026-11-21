@@ -1,0 +1,9 @@
+{
+  "plot-title": "The decoupled cue: the whiter name minus the other name",
+  "plot-caption": "Paired mean, 95% CI. race: w_poor - n_match (the same income); reversed: w_poor - n_rich (the whiter name is the poorer name). Filled: Bonferroni p < 0.05 over 32 tests; hollow: not significant.",
+  "plot-latex-label": "fig:dc-primary",
+  "plot-tags": [
+    "F8.5",
+    "decoupled cue"
+  ]
+}

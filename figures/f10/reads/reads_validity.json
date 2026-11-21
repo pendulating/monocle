@@ -1,0 +1,9 @@
+{
+  "plot-title": "Do the lens reads track the answers?",
+  "plot-caption": "Pearson r of the lens read of a word on 1,000 images for each case, against the answer of the same model to the F9 prompt. Filled: the word reads (expected sign, Bonferroni, above the control threshold). The grey bar marks the 95th percentile of the absolute r of the band control words.",
+  "plot-latex-label": "fig:reads-validity",
+  "plot-tags": [
+    "F10.2",
+    "read"
+  ]
+}

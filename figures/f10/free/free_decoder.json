@@ -1,0 +1,9 @@
+{
+  "plot-title": "Margin decoder at each cell",
+  "plot-caption": "Out-of-fold R2 of a ridge decoder from the residual at a token and layer to the answer margin, with 5 folds by NTA, over 591 images. No lens is used.",
+  "plot-latex-label": "fig:free-decoder",
+  "plot-tags": [
+    "F10.9",
+    "decoder"
+  ]
+}

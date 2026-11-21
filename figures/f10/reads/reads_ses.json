@@ -1,0 +1,10 @@
+{
+  "plot-title": "The lens reads and area income",
+  "plot-caption": "Kendall tau of the mean read over the images of a community district with its median household income: a description. Filled: the absolute tau exceeds the grey bar, the 95th percentile of the absolute tau of the band control words. No word passed the gated area test.",
+  "plot-latex-label": "fig:reads-ses",
+  "plot-tags": [
+    "F10.2",
+    "read",
+    "acs"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "plot-title": "The sense of cool and the verdict",
+  "plot-caption": "Each point is 1 of 591 images. The sense score is the mean read of social words minus the mean read of temperature words. Left: the score does not follow the cool margin. Right: the score follows the share of separate reasoning traces that name temperature.",
+  "plot-latex-label": "fig:mech-sense",
+  "plot-tags": [
+    "F10.17",
+    "sense"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "plot-title": "The coordinate swap against the text swap",
+  "plot-caption": "Mean change of c_yes_i from the clean prompt, paired over 100 images, 95% CI. The bar marks the effect of the text swap on the same images. swap: the lens coordinates of Manhattan and Bronx. swap_logit: the same with the rows of the unembedding. null: the name against an unrelated noun. random: a pair of random vectors.",
+  "plot-latex-label": "fig:swap-shifts",
+  "plot-tags": [
+    "F10.3",
+    "coordinate swap"
+  ]
+}

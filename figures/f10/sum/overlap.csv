@@ -1,0 +1,55 @@
+model,direction,end,shared_with_urban,shared_with_nice,shared_with_cool,shared_with_ordinary
+gemma-4-31b,urban,up,20,0,0,0
+gemma-4-31b,urban,down,20,0,0,0
+gemma-4-31b,nice,up,0,20,3,0
+gemma-4-31b,nice,down,0,20,4,0
+gemma-4-31b,cool,up,0,3,20,0
+gemma-4-31b,cool,down,0,4,20,0
+gemma-4-31b,ordinary,up,0,0,0,20
+gemma-4-31b,ordinary,down,0,0,0,20
+gemma-4-31b,nice+urban,up,0,1,6,0
+gemma-4-31b,nice+urban,down,0,3,6,0
+gemma-4-31b,cool+urban,up,2,0,2,0
+gemma-4-31b,cool+urban,down,0,0,3,0
+gemma-4-31b,ordinary+urban,up,0,0,0,0
+gemma-4-31b,ordinary+urban,down,0,0,0,0
+gemma-4-31b,nice+cool+ordinary+urban,up,0,5,5,0
+gemma-4-31b,nice+cool+ordinary+urban,down,0,9,6,0
+gemma-4-31b,shared (F10.27),up,0,8,8,0
+gemma-4-31b,shared (F10.27),down,0,9,10,0
+qwen3.5-9b,urban,up,20,0,0,0
+qwen3.5-9b,urban,down,20,0,0,0
+qwen3.5-9b,nice,up,0,20,1,0
+qwen3.5-9b,nice,down,0,20,1,0
+qwen3.5-9b,cool,up,0,1,20,0
+qwen3.5-9b,cool,down,0,1,20,0
+qwen3.5-9b,ordinary,up,0,0,0,20
+qwen3.5-9b,ordinary,down,0,0,0,20
+qwen3.5-9b,nice+urban,up,1,1,7,0
+qwen3.5-9b,nice+urban,down,0,0,4,0
+qwen3.5-9b,cool+urban,up,2,0,8,0
+qwen3.5-9b,cool+urban,down,4,0,0,0
+qwen3.5-9b,ordinary+urban,up,0,0,0,1
+qwen3.5-9b,ordinary+urban,down,0,0,0,0
+qwen3.5-9b,nice+cool+ordinary+urban,up,0,5,5,0
+qwen3.5-9b,nice+cool+ordinary+urban,down,0,6,3,0
+qwen3.5-9b,shared (F10.27),up,0,4,9,0
+qwen3.5-9b,shared (F10.27),down,0,12,7,0
+qwen3.6-27b,urban,up,20,0,0,0
+qwen3.6-27b,urban,down,20,0,0,0
+qwen3.6-27b,nice,up,0,20,0,0
+qwen3.6-27b,nice,down,0,20,0,0
+qwen3.6-27b,cool,up,0,0,20,0
+qwen3.6-27b,cool,down,0,0,20,0
+qwen3.6-27b,ordinary,up,0,0,0,20
+qwen3.6-27b,ordinary,down,0,0,0,20
+qwen3.6-27b,nice+urban,up,0,0,2,0
+qwen3.6-27b,nice+urban,down,0,0,10,0
+qwen3.6-27b,cool+urban,up,6,0,4,0
+qwen3.6-27b,cool+urban,down,7,0,3,0
+qwen3.6-27b,ordinary+urban,up,0,0,0,0
+qwen3.6-27b,ordinary+urban,down,0,0,0,0
+qwen3.6-27b,nice+cool+ordinary+urban,up,0,0,0,0
+qwen3.6-27b,nice+cool+ordinary+urban,down,0,0,3,0
+qwen3.6-27b,shared (F10.27),up,0,4,2,0
+qwen3.6-27b,shared (F10.27),down,0,8,0,0

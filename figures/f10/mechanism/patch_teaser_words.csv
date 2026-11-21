@@ -1,0 +1,81 @@
+borough,sample_id,block_row,block_col,word,end
+Manhattan,W0E65GB6,0,0,,0
+Manhattan,W0E65GB6,0,1,,0
+Manhattan,W0E65GB6,0,2,,0
+Manhattan,W0E65GB6,0,3,,0
+Manhattan,W0E65GB6,1,0,decorations,1
+Manhattan,W0E65GB6,1,1,,0
+Manhattan,W0E65GB6,1,2,,0
+Manhattan,W0E65GB6,1,3,ornament,1
+Manhattan,W0E65GB6,2,0,gardens,1
+Manhattan,W0E65GB6,2,1,,0
+Manhattan,W0E65GB6,2,2,,0
+Manhattan,W0E65GB6,2,3,,0
+Manhattan,W0E65GB6,3,0,pastel,1
+Manhattan,W0E65GB6,3,1,,0
+Manhattan,W0E65GB6,3,2,ornament,1
+Manhattan,W0E65GB6,3,3,trash,-1
+Brooklyn,W0E8V32I,0,0,vacation,1
+Brooklyn,W0E8V32I,0,1,,0
+Brooklyn,W0E8V32I,0,2,balkon,1
+Brooklyn,W0E8V32I,0,3,eldest,1
+Brooklyn,W0E8V32I,1,0,sewage,-1
+Brooklyn,W0E8V32I,1,1,ornament,1
+Brooklyn,W0E8V32I,1,2,balkon,1
+Brooklyn,W0E8V32I,1,3,decorations,1
+Brooklyn,W0E8V32I,2,0,decorations,1
+Brooklyn,W0E8V32I,2,1,,0
+Brooklyn,W0E8V32I,2,2,,0
+Brooklyn,W0E8V32I,2,3,sewage,-1
+Brooklyn,W0E8V32I,3,0,,0
+Brooklyn,W0E8V32I,3,1,dumping,-1
+Brooklyn,W0E8V32I,3,2,,0
+Brooklyn,W0E8V32I,3,3,ornament,1
+Queens,W0E4I5X2,0,0,gardens,1
+Queens,W0E4I5X2,0,1,,0
+Queens,W0E4I5X2,0,2,decorations,1
+Queens,W0E4I5X2,0,3,slaughter,-1
+Queens,W0E4I5X2,1,0,gardens,1
+Queens,W0E4I5X2,1,1,sewage,-1
+Queens,W0E4I5X2,1,2,,0
+Queens,W0E4I5X2,1,3,decorations,1
+Queens,W0E4I5X2,2,0,,0
+Queens,W0E4I5X2,2,1,punk,-1
+Queens,W0E4I5X2,2,2,punk,-1
+Queens,W0E4I5X2,2,3,,0
+Queens,W0E4I5X2,3,0,sludge,-1
+Queens,W0E4I5X2,3,1,scavenging,-1
+Queens,W0E4I5X2,3,2,sludge,-1
+Queens,W0E4I5X2,3,3,sewage,-1
+Bronx,W0EM9QBY,0,0,pastel,1
+Bronx,W0EM9QBY,0,1,,0
+Bronx,W0EM9QBY,0,2,ornament,1
+Bronx,W0EM9QBY,0,3,slaughter,-1
+Bronx,W0EM9QBY,1,0,pastel,1
+Bronx,W0EM9QBY,1,1,gardens,1
+Bronx,W0EM9QBY,1,2,,0
+Bronx,W0EM9QBY,1,3,,0
+Bronx,W0EM9QBY,2,0,sewage,-1
+Bronx,W0EM9QBY,2,1,decorations,1
+Bronx,W0EM9QBY,2,2,gardens,1
+Bronx,W0EM9QBY,2,3,,0
+Bronx,W0EM9QBY,3,0,decorations,1
+Bronx,W0EM9QBY,3,1,,0
+Bronx,W0EM9QBY,3,2,ornament,1
+Bronx,W0EM9QBY,3,3,,0
+Staten Island,W0EL0NBS,0,0,,0
+Staten Island,W0EL0NBS,0,1,vacation,1
+Staten Island,W0EL0NBS,0,2,vacation,1
+Staten Island,W0EL0NBS,0,3,slaughter,-1
+Staten Island,W0EL0NBS,1,0,,0
+Staten Island,W0EL0NBS,1,1,gardens,1
+Staten Island,W0EL0NBS,1,2,plumage,1
+Staten Island,W0EL0NBS,1,3,gardens,1
+Staten Island,W0EL0NBS,2,0,,0
+Staten Island,W0EL0NBS,2,1,sewage,-1
+Staten Island,W0EL0NBS,2,2,sewage,-1
+Staten Island,W0EL0NBS,2,3,eldest,1
+Staten Island,W0EL0NBS,3,0,,0
+Staten Island,W0EL0NBS,3,1,,0
+Staten Island,W0EL0NBS,3,2,ornament,1
+Staten Island,W0EL0NBS,3,3,,0

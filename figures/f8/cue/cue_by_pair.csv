@@ -1,0 +1,321 @@
+model,case,readout,borough,rich_name,poor_name,n,diff,share_rich_higher
+gemma-4-12b,restaurant,c_yes,Bronx,Pelham Gardens,Melrose,60,-0.3414478192726771,0.4666666666666667
+gemma-4-12b,restaurant,c_yes,Bronx,Riverdale,Mott Haven,47,0.22166685141781542,0.46808510638297873
+gemma-4-12b,restaurant,c_yes,Brooklyn,Brooklyn Heights,East New York,122,1.4318711913999964,0.6557377049180327
+gemma-4-12b,restaurant,c_yes,Brooklyn,Park Slope,Brownsville,137,2.2172248613660352,0.7883211678832117
+gemma-4-12b,restaurant,c_yes,Manhattan,Tribeca,West Harlem,179,1.2350989859863366,0.6871508379888268
+gemma-4-12b,restaurant,c_yes,Manhattan,Upper East Side,East Harlem,164,0.18250148252743045,0.5304878048780488
+gemma-4-12b,restaurant,c_yes,Queens,Douglaston,Jamaica,98,-0.09450279145824667,0.45918367346938777
+gemma-4-12b,restaurant,c_yes,Queens,Long Island City,Far Rockaway,112,0.9975937699366894,0.7053571428571429
+gemma-4-12b,restaurant,c_yes,Staten Island,Great Kills,St. George,12,-0.21948321660359701,0.4166666666666667
+gemma-4-12b,restaurant,c_yes,Staten Island,Tottenville,Stapleton,15,0.469499142964681,0.6666666666666666
+gemma-4-12b,restaurant,c_cool,Bronx,Pelham Gardens,Melrose,60,-0.4344852288564046,0.4166666666666667
+gemma-4-12b,restaurant,c_cool,Bronx,Riverdale,Mott Haven,47,-0.5459762634115016,0.2978723404255319
+gemma-4-12b,restaurant,c_cool,Brooklyn,Brooklyn Heights,East New York,122,-0.023851007711691935,0.47540983606557374
+gemma-4-12b,restaurant,c_cool,Brooklyn,Park Slope,Brownsville,137,0.10513830881049163,0.48175182481751827
+gemma-4-12b,restaurant,c_cool,Manhattan,Tribeca,West Harlem,179,-0.35769836063491567,0.43575418994413406
+gemma-4-12b,restaurant,c_cool,Manhattan,Upper East Side,East Harlem,164,-0.22138545280549585,0.4695121951219512
+gemma-4-12b,restaurant,c_cool,Queens,Douglaston,Jamaica,98,-0.7532967888579076,0.41836734693877553
+gemma-4-12b,restaurant,c_cool,Queens,Long Island City,Far Rockaway,112,0.5784767695835659,0.5892857142857143
+gemma-4-12b,restaurant,c_cool,Staten Island,Great Kills,St. George,12,-0.48885953426361084,0.4166666666666667
+gemma-4-12b,restaurant,c_cool,Staten Island,Tottenville,Stapleton,15,-0.566452439626058,0.4666666666666667
+gemma-4-12b,restaurant,c_yes_i,Bronx,Pelham Gardens,Melrose,60,-0.5661742746844538,0.45
+gemma-4-12b,restaurant,c_yes_i,Bronx,Riverdale,Mott Haven,47,0.5433364543314383,0.5106382978723404
+gemma-4-12b,restaurant,c_yes_i,Brooklyn,Brooklyn Heights,East New York,122,1.0563469434289532,0.6639344262295082
+gemma-4-12b,restaurant,c_yes_i,Brooklyn,Park Slope,Brownsville,137,2.297100630214702,0.7007299270072993
+gemma-4-12b,restaurant,c_yes_i,Manhattan,Tribeca,West Harlem,179,1.054244610783135,0.6312849162011173
+gemma-4-12b,restaurant,c_yes_i,Manhattan,Upper East Side,East Harlem,164,0.027259808008053124,0.47560975609756095
+gemma-4-12b,restaurant,c_yes_i,Queens,Douglaston,Jamaica,98,-1.0117115495346038,0.46938775510204084
+gemma-4-12b,restaurant,c_yes_i,Queens,Long Island City,Far Rockaway,112,1.2015796201098234,0.5714285714285714
+gemma-4-12b,restaurant,c_yes_i,Staten Island,Great Kills,St. George,12,-0.2034052206824223,0.5833333333333334
+gemma-4-12b,restaurant,c_yes_i,Staten Island,Tottenville,Stapleton,15,1.6201998900350494,0.6
+gemma-4-12b,restaurant,c_cool_i,Bronx,Pelham Gardens,Melrose,60,-0.6124387158138992,0.45
+gemma-4-12b,restaurant,c_cool_i,Bronx,Riverdale,Mott Haven,47,0.4180232420812601,0.5531914893617021
+gemma-4-12b,restaurant,c_cool_i,Brooklyn,Brooklyn Heights,East New York,122,1.1246655784215625,0.5901639344262295
+gemma-4-12b,restaurant,c_cool_i,Brooklyn,Park Slope,Brownsville,137,2.649421051219687,0.6642335766423357
+gemma-4-12b,restaurant,c_cool_i,Manhattan,Tribeca,West Harlem,179,1.2496285982433815,0.6033519553072626
+gemma-4-12b,restaurant,c_cool_i,Manhattan,Upper East Side,East Harlem,164,0.14040001373886438,0.5365853658536586
+gemma-4-12b,restaurant,c_cool_i,Queens,Douglaston,Jamaica,98,-1.0908724841116129,0.45918367346938777
+gemma-4-12b,restaurant,c_cool_i,Queens,Long Island City,Far Rockaway,112,0.9962741215094246,0.5892857142857143
+gemma-4-12b,restaurant,c_cool_i,Staten Island,Great Kills,St. George,12,-0.9029457485821885,0.5
+gemma-4-12b,restaurant,c_cool_i,Staten Island,Tottenville,Stapleton,15,3.3814536091724885,0.4666666666666667
+gemma-4-31b,restaurant,c_yes,Bronx,Pelham Gardens,Melrose,63,-0.3317212490808396,0.4603174603174603
+gemma-4-31b,restaurant,c_yes,Bronx,Riverdale,Mott Haven,48,-0.08723960242544611,0.4375
+gemma-4-31b,restaurant,c_yes,Brooklyn,Brooklyn Heights,East New York,127,0.7171966979118782,0.6456692913385826
+gemma-4-31b,restaurant,c_yes,Brooklyn,Park Slope,Brownsville,149,1.019269109172309,0.6912751677852349
+gemma-4-31b,restaurant,c_yes,Manhattan,Tribeca,West Harlem,178,0.01402298356877284,0.4438202247191011
+gemma-4-31b,restaurant,c_yes,Manhattan,Upper East Side,East Harlem,171,-0.08249307567204692,0.52046783625731
+gemma-4-31b,restaurant,c_yes,Queens,Douglaston,Jamaica,99,0.11375473176289086,0.5151515151515151
+gemma-4-31b,restaurant,c_yes,Queens,Long Island City,Far Rockaway,110,0.768002177266912,0.7454545454545455
+gemma-4-31b,restaurant,c_yes,Staten Island,Great Kills,St. George,12,-0.19466145833333334,0.5
+gemma-4-31b,restaurant,c_yes,Staten Island,Tottenville,Stapleton,14,-0.8763950892857143,0.2857142857142857
+gemma-4-31b,restaurant,c_cool,Bronx,Pelham Gardens,Melrose,63,-0.03985373179117838,0.5396825396825397
+gemma-4-31b,restaurant,c_cool,Bronx,Riverdale,Mott Haven,48,-0.34708688656489056,0.375
+gemma-4-31b,restaurant,c_cool,Brooklyn,Brooklyn Heights,East New York,127,0.987896506241926,0.5905511811023622
+gemma-4-31b,restaurant,c_cool,Brooklyn,Park Slope,Brownsville,149,0.8289251903559538,0.5906040268456376
+gemma-4-31b,restaurant,c_cool,Manhattan,Tribeca,West Harlem,178,0.07983994751833798,0.47191011235955055
+gemma-4-31b,restaurant,c_cool,Manhattan,Upper East Side,East Harlem,171,-0.20984562098631385,0.47368421052631576
+gemma-4-31b,restaurant,c_cool,Queens,Douglaston,Jamaica,99,-0.2915807203813033,0.42424242424242425
+gemma-4-31b,restaurant,c_cool,Queens,Long Island City,Far Rockaway,110,0.46329280679876156,0.5545454545454546
+gemma-4-31b,restaurant,c_cool,Staten Island,Great Kills,St. George,12,-0.6002605756123861,0.4166666666666667
+gemma-4-31b,restaurant,c_cool,Staten Island,Tottenville,Stapleton,14,0.3749995912824358,0.5
+gemma-4-31b,restaurant,c_yes_i,Bronx,Pelham Gardens,Melrose,63,-0.6869728916217914,0.49206349206349204
+gemma-4-31b,restaurant,c_yes_i,Bronx,Riverdale,Mott Haven,48,-0.7605793444906664,0.4375
+gemma-4-31b,restaurant,c_yes_i,Brooklyn,Brooklyn Heights,East New York,127,2.614511522035771,0.6614173228346457
+gemma-4-31b,restaurant,c_yes_i,Brooklyn,Park Slope,Brownsville,149,2.429228917202778,0.6845637583892618
+gemma-4-31b,restaurant,c_yes_i,Manhattan,Tribeca,West Harlem,178,-1.754262864670935,0.38764044943820225
+gemma-4-31b,restaurant,c_yes_i,Manhattan,Upper East Side,East Harlem,171,-0.9460401005610383,0.49122807017543857
+gemma-4-31b,restaurant,c_yes_i,Queens,Douglaston,Jamaica,99,0.3158735530000235,0.5555555555555556
+gemma-4-31b,restaurant,c_yes_i,Queens,Long Island City,Far Rockaway,110,2.6235795507637434,0.6909090909090909
+gemma-4-31b,restaurant,c_yes_i,Staten Island,Great Kills,St. George,12,0.5859376572386736,0.5
+gemma-4-31b,restaurant,c_yes_i,Staten Island,Tottenville,Stapleton,14,-3.2566963842832592,0.35714285714285715
+gemma-4-31b,restaurant,c_cool_i,Bronx,Pelham Gardens,Melrose,63,-1.4904426332560035,0.4126984126984127
+gemma-4-31b,restaurant,c_cool_i,Bronx,Riverdale,Mott Haven,48,-1.3744710207591826,0.2708333333333333
+gemma-4-31b,restaurant,c_cool_i,Brooklyn,Brooklyn Heights,East New York,127,-0.025728954750869518,0.49606299212598426
+gemma-4-31b,restaurant,c_cool_i,Brooklyn,Park Slope,Brownsville,149,-1.3840544401272363,0.4966442953020134
+gemma-4-31b,restaurant,c_cool_i,Manhattan,Tribeca,West Harlem,178,-2.8024645193371662,0.33707865168539325
+gemma-4-31b,restaurant,c_cool_i,Manhattan,Upper East Side,East Harlem,171,-1.6012576937230196,0.4093567251461988
+gemma-4-31b,restaurant,c_cool_i,Queens,Douglaston,Jamaica,99,-1.358217483283299,0.3838383838383838
+gemma-4-31b,restaurant,c_cool_i,Queens,Long Island City,Far Rockaway,110,-0.7645108565471617,0.5818181818181818
+gemma-4-31b,restaurant,c_cool_i,Staten Island,Great Kills,St. George,12,1.7572835153862905,0.6666666666666666
+gemma-4-31b,restaurant,c_cool_i,Staten Island,Tottenville,Stapleton,14,-0.7908761652158302,0.2857142857142857
+qwen3.5-9b,restaurant,c_yes,Bronx,Pelham Gardens,Melrose,54,-0.4463200679531804,0.2777777777777778
+qwen3.5-9b,restaurant,c_yes,Bronx,Riverdale,Mott Haven,42,0.12912635363283612,0.5952380952380952
+qwen3.5-9b,restaurant,c_yes,Brooklyn,Brooklyn Heights,East New York,94,0.4834120302124226,0.6382978723404256
+qwen3.5-9b,restaurant,c_yes,Brooklyn,Park Slope,Brownsville,106,-0.41441058423721566,0.41509433962264153
+qwen3.5-9b,restaurant,c_yes,Manhattan,Tribeca,West Harlem,115,0.2391597252825032,0.5391304347826087
+qwen3.5-9b,restaurant,c_yes,Manhattan,Upper East Side,East Harlem,110,-0.4177883045239882,0.36363636363636365
+qwen3.5-9b,restaurant,c_yes,Queens,Douglaston,Jamaica,77,-0.05001742034763485,0.4675324675324675
+qwen3.5-9b,restaurant,c_yes,Queens,Long Island City,Far Rockaway,96,-0.06599001462260883,0.4791666666666667
+qwen3.5-9b,restaurant,c_yes,Staten Island,Great Kills,St. George,12,-0.696032260855039,0.5
+qwen3.5-9b,restaurant,c_yes,Staten Island,Tottenville,Stapleton,13,-0.22748056741861197,0.38461538461538464
+qwen3.5-9b,restaurant,c_cool,Bronx,Pelham Gardens,Melrose,54,0.15335137535024573,0.6666666666666666
+qwen3.5-9b,restaurant,c_cool,Bronx,Riverdale,Mott Haven,42,-0.08589722429003034,0.42857142857142855
+qwen3.5-9b,restaurant,c_cool,Brooklyn,Brooklyn Heights,East New York,94,-0.1566158558459992,0.43617021276595747
+qwen3.5-9b,restaurant,c_cool,Brooklyn,Park Slope,Brownsville,106,-0.1444343789568487,0.4339622641509434
+qwen3.5-9b,restaurant,c_cool,Manhattan,Tribeca,West Harlem,115,0.08402177147243334,0.5826086956521739
+qwen3.5-9b,restaurant,c_cool,Manhattan,Upper East Side,East Harlem,110,-0.05221641172062267,0.45454545454545453
+qwen3.5-9b,restaurant,c_cool,Queens,Douglaston,Jamaica,77,0.2718208006450108,0.6883116883116883
+qwen3.5-9b,restaurant,c_cool,Queens,Long Island City,Far Rockaway,96,-0.11596550916632016,0.4270833333333333
+qwen3.5-9b,restaurant,c_cool,Staten Island,Great Kills,St. George,12,0.1250753402709961,0.75
+qwen3.5-9b,restaurant,c_cool,Staten Island,Tottenville,Stapleton,13,0.19711564137385443,0.5384615384615384
+qwen3.5-9b,restaurant,c_yes_i,Bronx,Pelham Gardens,Melrose,54,-0.34422927874105946,0.35185185185185186
+qwen3.5-9b,restaurant,c_yes_i,Bronx,Riverdale,Mott Haven,42,0.03314864919299171,0.5952380952380952
+qwen3.5-9b,restaurant,c_yes_i,Brooklyn,Brooklyn Heights,East New York,94,0.3279061368171205,0.6170212765957447
+qwen3.5-9b,restaurant,c_yes_i,Brooklyn,Park Slope,Brownsville,106,-0.32962499699502623,0.44339622641509435
+qwen3.5-9b,restaurant,c_yes_i,Manhattan,Tribeca,West Harlem,115,0.3536472652269446,0.5565217391304348
+qwen3.5-9b,restaurant,c_yes_i,Manhattan,Upper East Side,East Harlem,110,-0.23743365786292336,0.4090909090909091
+qwen3.5-9b,restaurant,c_yes_i,Queens,Douglaston,Jamaica,77,-0.13072543794458563,0.44155844155844154
+qwen3.5-9b,restaurant,c_yes_i,Queens,Long Island City,Far Rockaway,96,0.12552588060498238,0.5729166666666666
+qwen3.5-9b,restaurant,c_yes_i,Staten Island,Great Kills,St. George,12,-0.4382659395535787,0.25
+qwen3.5-9b,restaurant,c_yes_i,Staten Island,Tottenville,Stapleton,13,-0.07715227053715633,0.3076923076923077
+qwen3.5-9b,restaurant,c_cool_i,Bronx,Pelham Gardens,Melrose,54,-0.5046299469971994,0.4074074074074074
+qwen3.5-9b,restaurant,c_cool_i,Bronx,Riverdale,Mott Haven,42,0.16706879118629286,0.5714285714285714
+qwen3.5-9b,restaurant,c_cool_i,Brooklyn,Brooklyn Heights,East New York,94,0.661569023586282,0.5638297872340425
+qwen3.5-9b,restaurant,c_cool_i,Brooklyn,Park Slope,Brownsville,106,-0.6415238339805859,0.36792452830188677
+qwen3.5-9b,restaurant,c_cool_i,Manhattan,Tribeca,West Harlem,115,0.5505500349805516,0.5739130434782609
+qwen3.5-9b,restaurant,c_cool_i,Manhattan,Upper East Side,East Harlem,110,-0.479562537000377,0.38181818181818183
+qwen3.5-9b,restaurant,c_cool_i,Queens,Douglaston,Jamaica,77,-0.352632407307649,0.4025974025974026
+qwen3.5-9b,restaurant,c_cool_i,Queens,Long Island City,Far Rockaway,96,0.4261196219054,0.5833333333333334
+qwen3.5-9b,restaurant,c_cool_i,Staten Island,Great Kills,St. George,12,-0.7708970626699738,0.25
+qwen3.5-9b,restaurant,c_cool_i,Staten Island,Tottenville,Stapleton,13,-0.5576923205785883,0.38461538461538464
+qwen3.8-27b,restaurant,c_yes,Bronx,Pelham Gardens,Melrose,63,0.6019525527954102,0.5555555555555556
+qwen3.8-27b,restaurant,c_yes,Bronx,Riverdale,Mott Haven,48,0.5674554488311211,0.5208333333333334
+qwen3.8-27b,restaurant,c_yes,Brooklyn,Brooklyn Heights,East New York,128,0.9181496608071029,0.65625
+qwen3.8-27b,restaurant,c_yes,Brooklyn,Park Slope,Brownsville,149,0.7593675339781998,0.610738255033557
+qwen3.8-27b,restaurant,c_yes,Manhattan,Tribeca,West Harlem,178,0.4609176753444618,0.5561797752808989
+qwen3.8-27b,restaurant,c_yes,Manhattan,Upper East Side,East Harlem,177,0.27978261261336546,0.5536723163841808
+qwen3.8-27b,restaurant,c_yes,Queens,Douglaston,Jamaica,96,-0.1089568380266428,0.4166666666666667
+qwen3.8-27b,restaurant,c_yes,Queens,Long Island City,Far Rockaway,109,0.3040065535711586,0.6330275229357798
+qwen3.8-27b,restaurant,c_yes,Staten Island,Great Kills,St. George,12,0.500261664390564,0.6666666666666666
+qwen3.8-27b,restaurant,c_yes,Staten Island,Tottenville,Stapleton,15,-0.9067330121994018,0.4
+qwen3.8-27b,restaurant,c_cool,Bronx,Pelham Gardens,Melrose,63,0.24702877846975174,0.5873015873015873
+qwen3.8-27b,restaurant,c_cool,Bronx,Riverdale,Mott Haven,48,0.06607170899709065,0.5
+qwen3.8-27b,restaurant,c_cool,Brooklyn,Brooklyn Heights,East New York,128,0.09050802700221539,0.5546875
+qwen3.8-27b,restaurant,c_cool,Brooklyn,Park Slope,Brownsville,149,-0.058026048161039415,0.4697986577181208
+qwen3.8-27b,restaurant,c_cool,Manhattan,Tribeca,West Harlem,178,0.276246586542451,0.6404494382022472
+qwen3.8-27b,restaurant,c_cool,Manhattan,Upper East Side,East Harlem,177,0.2901662594854495,0.6440677966101694
+qwen3.8-27b,restaurant,c_cool,Queens,Douglaston,Jamaica,96,0.6627126187086105,0.7708333333333334
+qwen3.8-27b,restaurant,c_cool,Queens,Long Island City,Far Rockaway,109,0.16892391169836762,0.5137614678899083
+qwen3.8-27b,restaurant,c_cool,Staten Island,Great Kills,St. George,12,-0.22656269868214926,0.5
+qwen3.8-27b,restaurant,c_cool,Staten Island,Tottenville,Stapleton,15,0.66875,0.6666666666666666
+qwen3.8-27b,restaurant,c_yes_i,Bronx,Pelham Gardens,Melrose,63,0.20980720671396408,0.5873015873015873
+qwen3.8-27b,restaurant,c_yes_i,Bronx,Riverdale,Mott Haven,48,0.15436902766426405,0.5208333333333334
+qwen3.8-27b,restaurant,c_yes_i,Brooklyn,Brooklyn Heights,East New York,128,0.21745388925774023,0.5625
+qwen3.8-27b,restaurant,c_yes_i,Brooklyn,Park Slope,Brownsville,149,0.022624247826185804,0.46308724832214765
+qwen3.8-27b,restaurant,c_yes_i,Manhattan,Tribeca,West Harlem,178,-0.008721386783578422,0.5112359550561798
+qwen3.8-27b,restaurant,c_yes_i,Manhattan,Upper East Side,East Harlem,177,0.08288920868588033,0.5423728813559322
+qwen3.8-27b,restaurant,c_yes_i,Queens,Douglaston,Jamaica,96,-0.023145596807201702,0.4583333333333333
+qwen3.8-27b,restaurant,c_yes_i,Queens,Long Island City,Far Rockaway,109,-0.16021059631207668,0.3853211009174312
+qwen3.8-27b,restaurant,c_yes_i,Staten Island,Great Kills,St. George,12,-0.06753776967525482,0.5
+qwen3.8-27b,restaurant,c_yes_i,Staten Island,Tottenville,Stapleton,15,-0.09135998884836832,0.4666666666666667
+qwen3.8-27b,restaurant,c_cool_i,Bronx,Pelham Gardens,Melrose,63,0.268007055165187,0.5873015873015873
+qwen3.8-27b,restaurant,c_cool_i,Bronx,Riverdale,Mott Haven,48,0.07666267839097902,0.6041666666666666
+qwen3.8-27b,restaurant,c_cool_i,Brooklyn,Brooklyn Heights,East New York,128,0.3559185908586642,0.625
+qwen3.8-27b,restaurant,c_cool_i,Brooklyn,Park Slope,Brownsville,149,0.3673723615399693,0.5906040268456376
+qwen3.8-27b,restaurant,c_cool_i,Manhattan,Tribeca,West Harlem,178,0.18932713864399303,0.5449438202247191
+qwen3.8-27b,restaurant,c_cool_i,Manhattan,Upper East Side,East Harlem,177,0.21095973890640451,0.5536723163841808
+qwen3.8-27b,restaurant,c_cool_i,Queens,Douglaston,Jamaica,96,0.08410918134723033,0.6145833333333334
+qwen3.8-27b,restaurant,c_cool_i,Queens,Long Island City,Far Rockaway,109,0.010844273460519483,0.5504587155963303
+qwen3.8-27b,restaurant,c_cool_i,Staten Island,Great Kills,St. George,12,-0.06970554563061644,0.5
+qwen3.8-27b,restaurant,c_cool_i,Staten Island,Tottenville,Stapleton,15,-0.1419548780657351,0.4666666666666667
+gemma-4-12b,street,c_yes,Bronx,Pelham Gardens,Melrose,92,-1.1629836084118679,0.32608695652173914
+gemma-4-12b,street,c_yes,Bronx,Riverdale,Mott Haven,93,-1.3340141487618287,0.3225806451612903
+gemma-4-12b,street,c_yes,Brooklyn,Brooklyn Heights,East New York,123,0.12699796807596353,0.5121951219512195
+gemma-4-12b,street,c_yes,Brooklyn,Park Slope,Brownsville,142,1.4823146075351348,0.6690140845070423
+gemma-4-12b,street,c_yes,Manhattan,Tribeca,West Harlem,89,-0.8011117902364624,0.42696629213483145
+gemma-4-12b,street,c_yes,Manhattan,Upper East Side,East Harlem,71,-0.42786978242892615,0.5211267605633803
+gemma-4-12b,street,c_yes,Queens,Douglaston,Jamaica,134,0.8795305542342031,0.6044776119402985
+gemma-4-12b,street,c_yes,Queens,Long Island City,Far Rockaway,161,-1.3403336941409185,0.37888198757763975
+gemma-4-12b,street,c_yes,Staten Island,Great Kills,St. George,43,0.919408411653929,0.6511627906976745
+gemma-4-12b,street,c_yes,Staten Island,Tottenville,Stapleton,37,0.667247959488147,0.5405405405405406
+gemma-4-12b,street,c_cool,Bronx,Pelham Gardens,Melrose,92,0.7963485354962556,0.6956521739130435
+gemma-4-12b,street,c_cool,Bronx,Riverdale,Mott Haven,93,-0.039992558058872016,0.4946236559139785
+gemma-4-12b,street,c_cool,Brooklyn,Brooklyn Heights,East New York,123,-0.7830726809617949,0.34959349593495936
+gemma-4-12b,street,c_cool,Brooklyn,Park Slope,Brownsville,142,-1.5786389968764614,0.21830985915492956
+gemma-4-12b,street,c_cool,Manhattan,Tribeca,West Harlem,89,-0.25465456287512617,0.47191011235955055
+gemma-4-12b,street,c_cool,Manhattan,Upper East Side,East Harlem,71,-0.7958668084211753,0.3380281690140845
+gemma-4-12b,street,c_cool,Queens,Douglaston,Jamaica,134,-0.7785469346971654,0.35074626865671643
+gemma-4-12b,street,c_cool,Queens,Long Island City,Far Rockaway,161,-0.07749418590379797,0.4968944099378882
+gemma-4-12b,street,c_cool,Staten Island,Great Kills,St. George,43,0.14598307498665744,0.5348837209302325
+gemma-4-12b,street,c_cool,Staten Island,Tottenville,Stapleton,37,-0.10983041814855628,0.43243243243243246
+gemma-4-12b,street,c_yes_i,Bronx,Pelham Gardens,Melrose,92,-0.3996434059861357,0.41304347826086957
+gemma-4-12b,street,c_yes_i,Bronx,Riverdale,Mott Haven,93,-2.3931405300275364,0.25806451612903225
+gemma-4-12b,street,c_yes_i,Brooklyn,Brooklyn Heights,East New York,123,-0.7524457094013627,0.5853658536585366
+gemma-4-12b,street,c_yes_i,Brooklyn,Park Slope,Brownsville,142,-0.6171186258582655,0.5352112676056338
+gemma-4-12b,street,c_yes_i,Manhattan,Tribeca,West Harlem,89,-1.519345808375026,0.43820224719101125
+gemma-4-12b,street,c_yes_i,Manhattan,Upper East Side,East Harlem,71,-0.8158351389489761,0.4084507042253521
+gemma-4-12b,street,c_yes_i,Queens,Douglaston,Jamaica,134,-0.22908703672792466,0.5597014925373134
+gemma-4-12b,street,c_yes_i,Queens,Long Island City,Far Rockaway,161,-2.457097477782181,0.38509316770186336
+gemma-4-12b,street,c_yes_i,Staten Island,Great Kills,St. George,43,1.1345892815113687,0.6046511627906976
+gemma-4-12b,street,c_yes_i,Staten Island,Tottenville,Stapleton,37,0.5852636584995462,0.5675675675675675
+gemma-4-12b,street,c_cool_i,Bronx,Pelham Gardens,Melrose,92,-0.595343427224019,0.40217391304347827
+gemma-4-12b,street,c_cool_i,Bronx,Riverdale,Mott Haven,93,-3.2217560959713216,0.24731182795698925
+gemma-4-12b,street,c_cool_i,Brooklyn,Brooklyn Heights,East New York,123,-1.2147495871969765,0.5609756097560976
+gemma-4-12b,street,c_cool_i,Brooklyn,Park Slope,Brownsville,142,-0.8076788568735646,0.4647887323943662
+gemma-4-12b,street,c_cool_i,Manhattan,Tribeca,West Harlem,89,-1.8685805558083823,0.43820224719101125
+gemma-4-12b,street,c_cool_i,Manhattan,Upper East Side,East Harlem,71,-0.7300301903759441,0.4507042253521127
+gemma-4-12b,street,c_cool_i,Queens,Douglaston,Jamaica,134,0.1846111501573196,0.5671641791044776
+gemma-4-12b,street,c_cool_i,Queens,Long Island City,Far Rockaway,161,-3.332725459298258,0.37267080745341613
+gemma-4-12b,street,c_cool_i,Staten Island,Great Kills,St. George,43,1.6946280992815013,0.6511627906976745
+gemma-4-12b,street,c_cool_i,Staten Island,Tottenville,Stapleton,37,1.0923666529589495,0.5405405405405406
+gemma-4-31b,street,c_yes,Bronx,Pelham Gardens,Melrose,92,-1.252091000261514,0.358695652173913
+gemma-4-31b,street,c_yes,Bronx,Riverdale,Mott Haven,93,-2.2973029043084834,0.22580645161290322
+gemma-4-31b,street,c_yes,Brooklyn,Brooklyn Heights,East New York,123,1.5126591424147289,0.5934959349593496
+gemma-4-31b,street,c_yes,Brooklyn,Park Slope,Brownsville,142,2.1516026149333363,0.6690140845070423
+gemma-4-31b,street,c_yes,Manhattan,Tribeca,West Harlem,89,0.9679285247674149,0.5730337078651685
+gemma-4-31b,street,c_yes,Manhattan,Upper East Side,East Harlem,71,-0.7662922009615831,0.4507042253521127
+gemma-4-31b,street,c_yes,Queens,Douglaston,Jamaica,134,0.49103091545959016,0.5
+gemma-4-31b,street,c_yes,Queens,Long Island City,Far Rockaway,161,1.397063290110286,0.7515527950310559
+gemma-4-31b,street,c_yes,Staten Island,Great Kills,St. George,43,1.1465071134789044,0.5581395348837209
+gemma-4-31b,street,c_yes,Staten Island,Tottenville,Stapleton,37,-1.3587415798290357,0.3783783783783784
+gemma-4-31b,street,c_cool,Bronx,Pelham Gardens,Melrose,92,0.08967355023259702,0.5108695652173914
+gemma-4-31b,street,c_cool,Bronx,Riverdale,Mott Haven,93,0.014123557716287592,0.5483870967741935
+gemma-4-31b,street,c_cool,Brooklyn,Brooklyn Heights,East New York,123,-1.2889671170614598,0.3902439024390244
+gemma-4-31b,street,c_cool,Brooklyn,Park Slope,Brownsville,142,-0.27877339175049687,0.5
+gemma-4-31b,street,c_cool,Manhattan,Tribeca,West Harlem,89,-0.28230342436372563,0.48314606741573035
+gemma-4-31b,street,c_cool,Manhattan,Upper East Side,East Harlem,71,-0.5932056332977724,0.38028169014084506
+gemma-4-31b,street,c_cool,Queens,Douglaston,Jamaica,134,-0.7136050622854659,0.3656716417910448
+gemma-4-31b,street,c_cool,Queens,Long Island City,Far Rockaway,161,0.05315053240853067,0.515527950310559
+gemma-4-31b,street,c_cool,Staten Island,Great Kills,St. George,43,-0.05523272447807844,0.4418604651162791
+gemma-4-31b,street,c_cool,Staten Island,Tottenville,Stapleton,37,-0.8234797039547482,0.21621621621621623
+gemma-4-31b,street,c_yes_i,Bronx,Pelham Gardens,Melrose,92,-4.094043122655363,0.2717391304347826
+gemma-4-31b,street,c_yes_i,Bronx,Riverdale,Mott Haven,93,-9.654779809939678,0.0967741935483871
+gemma-4-31b,street,c_yes_i,Brooklyn,Brooklyn Heights,East New York,123,-6.958109948790694,0.3252032520325203
+gemma-4-31b,street,c_yes_i,Brooklyn,Park Slope,Brownsville,142,-6.650823909401729,0.2676056338028169
+gemma-4-31b,street,c_yes_i,Manhattan,Tribeca,West Harlem,89,-1.9796422960271602,0.39325842696629215
+gemma-4-31b,street,c_yes_i,Manhattan,Upper East Side,East Harlem,71,-5.069047121752708,0.2112676056338028
+gemma-4-31b,street,c_yes_i,Queens,Douglaston,Jamaica,134,-2.3440963992422468,0.44029850746268656
+gemma-4-31b,street,c_yes_i,Queens,Long Island City,Far Rockaway,161,-1.349427433149336,0.39751552795031053
+gemma-4-31b,street,c_yes_i,Staten Island,Great Kills,St. George,43,0.9490143364346785,0.5348837209302325
+gemma-4-31b,street,c_yes_i,Staten Island,Tottenville,Stapleton,37,-5.635029493370259,0.35135135135135137
+gemma-4-31b,street,c_cool_i,Bronx,Pelham Gardens,Melrose,92,-3.8590087869253975,0.29347826086956524
+gemma-4-31b,street,c_cool_i,Bronx,Riverdale,Mott Haven,93,-8.872353842716018,0.13978494623655913
+gemma-4-31b,street,c_cool_i,Brooklyn,Brooklyn Heights,East New York,123,-9.230341687367801,0.25203252032520324
+gemma-4-31b,street,c_cool_i,Brooklyn,Park Slope,Brownsville,142,-8.27658379059678,0.2323943661971831
+gemma-4-31b,street,c_cool_i,Manhattan,Tribeca,West Harlem,89,-2.7172138472313945,0.34831460674157305
+gemma-4-31b,street,c_cool_i,Manhattan,Upper East Side,East Harlem,71,-5.301221397276858,0.22535211267605634
+gemma-4-31b,street,c_cool_i,Queens,Douglaston,Jamaica,134,-3.761619176219302,0.3880597014925373
+gemma-4-31b,street,c_cool_i,Queens,Long Island City,Far Rockaway,161,-3.053419801370626,0.2981366459627329
+gemma-4-31b,street,c_cool_i,Staten Island,Great Kills,St. George,43,2.321902300871679,0.6046511627906976
+gemma-4-31b,street,c_cool_i,Staten Island,Tottenville,Stapleton,37,-5.123310857069201,0.40540540540540543
+qwen3.5-9b,street,c_yes,Bronx,Pelham Gardens,Melrose,92,-0.15660577882891116,0.5
+qwen3.5-9b,street,c_yes,Bronx,Riverdale,Mott Haven,93,-0.13697729251718008,0.45161290322580644
+qwen3.5-9b,street,c_yes,Brooklyn,Brooklyn Heights,East New York,121,0.1534473046290973,0.6033057851239669
+qwen3.5-9b,street,c_yes,Brooklyn,Park Slope,Brownsville,141,0.04153290898241895,0.5673758865248227
+qwen3.5-9b,street,c_yes,Manhattan,Tribeca,West Harlem,86,-0.25058754065702127,0.43023255813953487
+qwen3.5-9b,street,c_yes,Manhattan,Upper East Side,East Harlem,69,-0.31436015384784644,0.3333333333333333
+qwen3.5-9b,street,c_yes,Queens,Douglaston,Jamaica,134,0.07583784323130081,0.5
+qwen3.5-9b,street,c_yes,Queens,Long Island City,Far Rockaway,161,-0.18742656152440895,0.4472049689440994
+qwen3.5-9b,street,c_yes,Staten Island,Great Kills,St. George,43,0.25349649301795074,0.627906976744186
+qwen3.5-9b,street,c_yes,Staten Island,Tottenville,Stapleton,37,0.1393981318216066,0.5675675675675675
+qwen3.5-9b,street,c_cool,Bronx,Pelham Gardens,Melrose,92,0.095498686251433,0.6413043478260869
+qwen3.5-9b,street,c_cool,Bronx,Riverdale,Mott Haven,93,0.07239743458327427,0.5161290322580645
+qwen3.5-9b,street,c_cool,Brooklyn,Brooklyn Heights,East New York,121,-0.5059641589803144,0.23140495867768596
+qwen3.5-9b,street,c_cool,Brooklyn,Park Slope,Brownsville,141,-0.47083834384350065,0.1773049645390071
+qwen3.5-9b,street,c_cool,Manhattan,Tribeca,West Harlem,86,0.13135826310446097,0.6395348837209303
+qwen3.5-9b,street,c_cool,Manhattan,Upper East Side,East Harlem,69,-0.10989529153575069,0.43478260869565216
+qwen3.5-9b,street,c_cool,Queens,Douglaston,Jamaica,134,0.11349818777682176,0.5970149253731343
+qwen3.5-9b,street,c_cool,Queens,Long Island City,Far Rockaway,161,-0.2837338832594593,0.30434782608695654
+qwen3.5-9b,street,c_cool,Staten Island,Great Kills,St. George,43,-0.020844697952270508,0.4418604651162791
+qwen3.5-9b,street,c_cool,Staten Island,Tottenville,Stapleton,37,0.008127811792734507,0.5135135135135135
+qwen3.5-9b,street,c_yes_i,Bronx,Pelham Gardens,Melrose,92,-0.030095883037732994,0.4673913043478261
+qwen3.5-9b,street,c_yes_i,Bronx,Riverdale,Mott Haven,93,-0.11626947054298975,0.41935483870967744
+qwen3.5-9b,street,c_yes_i,Brooklyn,Brooklyn Heights,East New York,121,0.5686196768579405,0.7107438016528925
+qwen3.5-9b,street,c_yes_i,Brooklyn,Park Slope,Brownsville,141,0.26889680378825953,0.6312056737588653
+qwen3.5-9b,street,c_yes_i,Manhattan,Tribeca,West Harlem,86,0.028047852737959043,0.5465116279069767
+qwen3.5-9b,street,c_yes_i,Manhattan,Upper East Side,East Harlem,69,-0.08152658351953479,0.4492753623188406
+qwen3.5-9b,street,c_yes_i,Queens,Douglaston,Jamaica,134,-0.1012464263545933,0.44029850746268656
+qwen3.5-9b,street,c_yes_i,Queens,Long Island City,Far Rockaway,161,0.15244310613004317,0.546583850931677
+qwen3.5-9b,street,c_yes_i,Staten Island,Great Kills,St. George,43,0.1588167756102806,0.5581395348837209
+qwen3.5-9b,street,c_yes_i,Staten Island,Tottenville,Stapleton,37,0.1554054054054054,0.5405405405405406
+qwen3.5-9b,street,c_cool_i,Bronx,Pelham Gardens,Melrose,92,-0.058423912420988454,0.5
+qwen3.5-9b,street,c_cool_i,Bronx,Riverdale,Mott Haven,93,-0.5550853601988263,0.3548387096774194
+qwen3.5-9b,street,c_cool_i,Brooklyn,Brooklyn Heights,East New York,121,0.5619791944644787,0.6115702479338843
+qwen3.5-9b,street,c_cool_i,Brooklyn,Park Slope,Brownsville,141,-0.036805735371633494,0.48936170212765956
+qwen3.5-9b,street,c_cool_i,Manhattan,Tribeca,West Harlem,86,-0.16355443852473908,0.46511627906976744
+qwen3.5-9b,street,c_cool_i,Manhattan,Upper East Side,East Harlem,69,-0.5480553088396002,0.391304347826087
+qwen3.5-9b,street,c_cool_i,Queens,Douglaston,Jamaica,134,-0.17725458395161967,0.43283582089552236
+qwen3.5-9b,street,c_cool_i,Queens,Long Island City,Far Rockaway,161,0.3253501484862721,0.5714285714285714
+qwen3.5-9b,street,c_cool_i,Staten Island,Great Kills,St. George,43,0.5799810223761597,0.7209302325581395
+qwen3.5-9b,street,c_cool_i,Staten Island,Tottenville,Stapleton,37,0.35472937172351127,0.6216216216216216
+qwen3.8-27b,street,c_yes,Bronx,Pelham Gardens,Melrose,91,0.16293366138751691,0.5274725274725275
+qwen3.8-27b,street,c_yes,Bronx,Riverdale,Mott Haven,93,-0.028487713106216922,0.4731182795698925
+qwen3.8-27b,street,c_yes,Brooklyn,Brooklyn Heights,East New York,123,0.3205651287140885,0.5121951219512195
+qwen3.8-27b,street,c_yes,Brooklyn,Park Slope,Brownsville,141,-0.2624271853384397,0.5035460992907801
+qwen3.8-27b,street,c_yes,Manhattan,Tribeca,West Harlem,89,-0.37512885201513096,0.38202247191011235
+qwen3.8-27b,street,c_yes,Manhattan,Upper East Side,East Harlem,71,-0.3285651742152765,0.4507042253521127
+qwen3.8-27b,street,c_yes,Queens,Douglaston,Jamaica,134,-0.39648777391038725,0.44776119402985076
+qwen3.8-27b,street,c_yes,Queens,Long Island City,Far Rockaway,160,-0.27918562535196545,0.425
+qwen3.8-27b,street,c_yes,Staten Island,Great Kills,St. George,43,0.7768902931102487,0.6511627906976745
+qwen3.8-27b,street,c_yes,Staten Island,Tottenville,Stapleton,37,-0.24372394020492966,0.32432432432432434
+qwen3.8-27b,street,c_cool,Bronx,Pelham Gardens,Melrose,91,0.004322044141999968,0.4945054945054945
+qwen3.8-27b,street,c_cool,Bronx,Riverdale,Mott Haven,93,0.0669596323402979,0.5483870967741935
+qwen3.8-27b,street,c_cool,Brooklyn,Brooklyn Heights,East New York,123,0.0646748504018396,0.5365853658536586
+qwen3.8-27b,street,c_cool,Brooklyn,Park Slope,Brownsville,141,-0.36275542036015934,0.2978723404255319
+qwen3.8-27b,street,c_cool,Manhattan,Tribeca,West Harlem,89,-0.1379695554797569,0.43820224719101125
+qwen3.8-27b,street,c_cool,Manhattan,Upper East Side,East Harlem,71,0.0281760659016354,0.5633802816901409
+qwen3.8-27b,street,c_cool,Queens,Douglaston,Jamaica,134,0.13673064424030817,0.5373134328358209
+qwen3.8-27b,street,c_cool,Queens,Long Island City,Far Rockaway,160,-0.037894369661808015,0.51875
+qwen3.8-27b,street,c_cool,Staten Island,Great Kills,St. George,43,0.023816391479137333,0.4418604651162791
+qwen3.8-27b,street,c_cool,Staten Island,Tottenville,Stapleton,37,0.10490196460002177,0.5135135135135135
+qwen3.8-27b,street,c_yes_i,Bronx,Pelham Gardens,Melrose,91,-0.09591440119586148,0.42857142857142855
+qwen3.8-27b,street,c_yes_i,Bronx,Riverdale,Mott Haven,93,0.02366059858311889,0.4731182795698925
+qwen3.8-27b,street,c_yes_i,Brooklyn,Brooklyn Heights,East New York,123,0.12268454260457821,0.5609756097560976
+qwen3.8-27b,street,c_yes_i,Brooklyn,Park Slope,Brownsville,141,-0.261036789903404,0.3617021276595745
+qwen3.8-27b,street,c_yes_i,Manhattan,Tribeca,West Harlem,89,-0.05191685811857159,0.4943820224719101
+qwen3.8-27b,street,c_yes_i,Manhattan,Upper East Side,East Harlem,71,-0.054975317397587736,0.4084507042253521
+qwen3.8-27b,street,c_yes_i,Queens,Douglaston,Jamaica,134,-0.13193403595863884,0.44776119402985076
+qwen3.8-27b,street,c_yes_i,Queens,Long Island City,Far Rockaway,160,-0.20079062227159739,0.3875
+qwen3.8-27b,street,c_yes_i,Staten Island,Great Kills,St. George,43,-0.0027376240076020706,0.4186046511627907
+qwen3.8-27b,street,c_yes_i,Staten Island,Tottenville,Stapleton,37,-0.13539805525058024,0.4594594594594595
+qwen3.8-27b,street,c_cool_i,Bronx,Pelham Gardens,Melrose,91,-0.14350115037462444,0.4725274725274725
+qwen3.8-27b,street,c_cool_i,Bronx,Riverdale,Mott Haven,93,-0.03734275205042845,0.5268817204301075
+qwen3.8-27b,street,c_cool_i,Brooklyn,Brooklyn Heights,East New York,123,0.34334311864405775,0.6097560975609756
+qwen3.8-27b,street,c_cool_i,Brooklyn,Park Slope,Brownsville,141,0.01966668630314203,0.5602836879432624
+qwen3.8-27b,street,c_cool_i,Manhattan,Tribeca,West Harlem,89,0.016749376902246215,0.4943820224719101
+qwen3.8-27b,street,c_cool_i,Manhattan,Upper East Side,East Harlem,71,-0.21856621758332706,0.4507042253521127
+qwen3.8-27b,street,c_cool_i,Queens,Douglaston,Jamaica,134,0.032769568544174385,0.5223880597014925
+qwen3.8-27b,street,c_cool_i,Queens,Long Island City,Far Rockaway,160,-0.24570130789957148,0.425
+qwen3.8-27b,street,c_cool_i,Staten Island,Great Kills,St. George,43,0.7058477979694862,0.6976744186046512
+qwen3.8-27b,street,c_cool_i,Staten Island,Tottenville,Stapleton,37,-0.33403272006025136,0.5135135135135135

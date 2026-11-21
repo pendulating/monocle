@@ -1,0 +1,15 @@
+{
+  "plot-title": "Patch words when a direction is added",
+  "plot-caption": "The teaser images, with 96 sigma of each patch direction of gemma-4-31b added to all 256 image patches at layer 32. Directions are fit on the mean patch: shared over 14 prompts (toward 'nice'), or the cool, pretty and ugly prompt alone (toward yes); random is a control at the dose of shared. Words: the teaser lists in the top 30 of each patch at layer 32 (coral: severe words of the down end of the aesthetic direction; teal: up end). Frame: the answer to 'Is this place cool?' in that condition (teal yes, coral no).",
+  "plot-latex-label": "fig:patch-steer",
+  "plot-tags": [
+    "F10.35",
+    "gemma-4-31b",
+    "steering",
+    "patch words"
+  ],
+  "hook": 32,
+  "read": 32,
+  "alpha": 96.0,
+  "version": "1.1.0"
+}

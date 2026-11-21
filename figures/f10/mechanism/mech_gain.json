@@ -1,0 +1,9 @@
+{
+  "plot-title": "Margin information beyond the mean patch",
+  "plot-caption": "Largest gain in out-of-fold R2 over the layers of each token, when a read of the cell joins a ridge decoder on the mean patch of the image at all layers. Folds follow the NTA. Holm covers the cells of 1 model.",
+  "plot-latex-label": "fig:mech-gain",
+  "plot-tags": [
+    "F10.9",
+    "decoder"
+  ]
+}

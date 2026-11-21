@@ -1,0 +1,10 @@
+{
+  "plot-title": "Embedded and image-caused words",
+  "plot-caption": "Rank of each word in the Qwen3.5-9B read with and without an image. Bold values count the words of each kind in the top 100.",
+  "plot-latex-label": "fig:ranks",
+  "plot-tags": [
+    "F10.21",
+    "rank_added",
+    "qwen3.5-9b"
+  ]
+}

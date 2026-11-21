@@ -1,0 +1,17 @@
+model,case,arm,n,errors,cut,completion_tokens_p50
+gemma-4-12b,restaurant,rich,1000,0,43,1128.5
+gemma-4-12b,restaurant,poor,1000,0,15,1118.0
+gemma-4-12b,street,rich,985,0,0,1477.0
+gemma-4-12b,street,poor,985,0,0,1473.0
+gemma-4-31b,restaurant,rich,1000,0,23,954.5
+gemma-4-31b,restaurant,poor,1000,0,10,959.0
+gemma-4-31b,street,rich,985,0,0,1117.0
+gemma-4-31b,street,poor,985,0,0,1110.0
+qwen3.5-9b,restaurant,rich,1000,0,208,3105.5
+qwen3.5-9b,restaurant,poor,1000,0,155,2714.0
+qwen3.5-9b,street,rich,985,0,7,2248.0
+qwen3.5-9b,street,poor,985,0,4,2129.0
+qwen3.8-27b,restaurant,rich,1000,0,21,2730.5
+qwen3.8-27b,restaurant,poor,1000,0,6,2609.5
+qwen3.8-27b,street,rich,985,0,1,2658.0
+qwen3.8-27b,street,poor,985,0,1,2637.0

@@ -1,0 +1,9 @@
+case,field,model,texts,images,with_outcome,ntas
+restaurant,answer,gemma-4-12b,9937,9937,9937,204
+restaurant,answer,gemma-4-31b,9960,9960,9960,204
+restaurant,answer,qwen3.5-9b,9942,9942,9942,204
+restaurant,answer,qwen3.8-27b,9838,9838,9838,204
+street,answer,gemma-4-12b,10000,10000,10000,197
+street,answer,gemma-4-31b,10000,10000,10000,197
+street,answer,qwen3.5-9b,9871,9871,9871,197
+street,answer,qwen3.8-27b,9879,9879,9879,197

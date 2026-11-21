@@ -1,0 +1,37 @@
+model,adjective,phase,first,onset,last,peak,rule
+gemma-4-31b,cool,scene,0.0,8.0,32.0,0.8362265570450264,"mean-patch R2 at least 0.9 of peak, to the peak"
+gemma-4-31b,cool,sense,12.0,12.0,32.0,0.62722649255331,"axis 1 share at least 0.40 and abs r at least 0.95, at the adjective"
+gemma-4-31b,cool,standard,32.0,32.0,,0.126998501271075,"gain over the mean patch at least half of its peak, at ?"
+gemma-4-31b,cool,verdict,,,,,not run: needs the lens margin (job 114592)
+gemma-4-31b,nice,scene,0.0,8.0,32.0,0.8967589941350596,"mean-patch R2 at least 0.9 of peak, to the peak"
+gemma-4-31b,nice,sense,,,,0.5223062711326757,no layer passes
+gemma-4-31b,nice,standard,28.0,28.0,,0.0884586886967748,"gain over the mean patch at least half of its peak, at ?"
+gemma-4-31b,nice,verdict,,,,,not run: needs the lens margin (job 114592)
+gemma-4-31b,ordinary,scene,0.0,20.0,36.0,0.6402602876346977,"mean-patch R2 at least 0.9 of peak, to the peak"
+gemma-4-31b,ordinary,sense,,,,0.3692425605613759,no layer passes
+gemma-4-31b,ordinary,standard,28.0,28.0,,0.2654178771862125,"gain over the mean patch at least half of its peak, at ?"
+gemma-4-31b,ordinary,verdict,,,,,not run: needs the lens margin (job 114592)
+qwen3.5-9b,cool,scene,0.0,0.0,24.0,0.7577100919746292,"mean-patch R2 at least 0.9 of peak, to the peak"
+qwen3.5-9b,cool,sense,4.0,4.0,28.0,0.7025990824378571,"axis 1 share at least 0.40 and abs r at least 0.95, at the adjective"
+qwen3.5-9b,cool,standard,12.0,12.0,,0.1768527469506364,"gain over the mean patch at least half of its peak, at ?"
+qwen3.5-9b,cool,verdict,,,,,not run: needs the lens margin (job 114592)
+qwen3.5-9b,nice,scene,0.0,0.0,24.0,0.8828034477799068,"mean-patch R2 at least 0.9 of peak, to the peak"
+qwen3.5-9b,nice,sense,,,,0.5482014300478719,no layer passes
+qwen3.5-9b,nice,standard,12.0,12.0,,0.1015159234880552,"gain over the mean patch at least half of its peak, at ?"
+qwen3.5-9b,nice,verdict,,,,,not run: needs the lens margin (job 114592)
+qwen3.5-9b,ordinary,scene,0.0,0.0,12.0,0.8256736750429003,"mean-patch R2 at least 0.9 of peak, to the peak"
+qwen3.5-9b,ordinary,sense,,,,0.4081214846297231,no layer passes
+qwen3.5-9b,ordinary,standard,12.0,12.0,,0.1489189600422913,"gain over the mean patch at least half of its peak, at ?"
+qwen3.5-9b,ordinary,verdict,,,,,not run: needs the lens margin (job 114592)
+qwen3.6-27b,cool,scene,0.0,28.0,44.0,0.5696183318725428,"mean-patch R2 at least 0.9 of peak, to the peak"
+qwen3.6-27b,cool,sense,8.0,8.0,44.0,0.6452012179167391,"axis 1 share at least 0.40 and abs r at least 0.95, at the adjective"
+qwen3.6-27b,cool,standard,32.0,32.0,,0.2060748074944862,"gain over the mean patch at least half of its peak, at ?"
+qwen3.6-27b,cool,verdict,,,,,not run: needs the lens margin (job 114592)
+qwen3.6-27b,nice,scene,0.0,0.0,36.0,0.8410733169321716,"mean-patch R2 at least 0.9 of peak, to the peak"
+qwen3.6-27b,nice,sense,,,,0.4618123099261768,no layer passes
+qwen3.6-27b,nice,standard,32.0,32.0,,0.0933888876680835,"gain over the mean patch at least half of its peak, at ?"
+qwen3.6-27b,nice,verdict,,,,,not run: needs the lens margin (job 114592)
+qwen3.6-27b,ordinary,scene,0.0,24.0,32.0,0.7409060096779434,"mean-patch R2 at least 0.9 of peak, to the peak"
+qwen3.6-27b,ordinary,sense,,,,0.521824426113751,no layer passes
+qwen3.6-27b,ordinary,standard,32.0,32.0,,0.1585897012039878,"gain over the mean patch at least half of its peak, at ?"
+qwen3.6-27b,ordinary,verdict,,,,,not run: needs the lens margin (job 114592)

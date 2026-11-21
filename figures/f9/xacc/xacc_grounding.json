@@ -1,0 +1,10 @@
+{
+  "plot-title": "The grounding of the extracted spans",
+  "plot-caption": "The share of the spans of each class whose text equals the source slice, character for character (`is_verbatim`), over the reasoning and response fields. Hollow: the F4 prompt; filled: the F9 prompt. The aligner checks this for every span; it is not an estimate. A verbatim span exists in the text, but its class and its attributes can still be wrong.",
+  "plot-latex-label": "fig:xacc-grounding",
+  "plot-tags": [
+    "f9",
+    "extraction",
+    "grounding"
+  ]
+}

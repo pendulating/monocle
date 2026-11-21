@@ -1,0 +1,625 @@
+model,noun,position,layer,prompt,n,r2_oof
+gemma-4-31b,place,noun,0,place cool,591,0.2764667297460017
+gemma-4-31b,place,noun,0,place nice,296,0.3898488554010139
+gemma-4-31b,place,noun,0,place ordinary,591,0.2231473929846911
+gemma-4-31b,place,noun,0,place pretty,466,0.3545678318085099
+gemma-4-31b,place,noun,0,place ugly,20,-0.2341880422398397
+gemma-4-31b,place,noun,0,place fancy,591,0.21599828156690704
+gemma-4-31b,place,noun,0,place urban,591,0.44207860293621515
+gemma-4-31b,place,noun,0,place cool sense score L24,591,0.34648433656486743
+gemma-4-31b,place,noun,4,place cool,591,0.5826048344101912
+gemma-4-31b,place,noun,4,place nice,296,0.6833144148294084
+gemma-4-31b,place,noun,4,place ordinary,591,0.3889567924840761
+gemma-4-31b,place,noun,4,place pretty,466,0.695552613011766
+gemma-4-31b,place,noun,4,place ugly,20,-0.20582411604520612
+gemma-4-31b,place,noun,4,place fancy,591,0.4008764490901241
+gemma-4-31b,place,noun,4,place urban,591,0.701301480760933
+gemma-4-31b,place,noun,4,place cool sense score L24,591,0.7674700249345352
+gemma-4-31b,place,noun,8,place cool,591,0.570630636087891
+gemma-4-31b,place,noun,8,place nice,296,0.804546480139035
+gemma-4-31b,place,noun,8,place ordinary,591,0.03455328215872777
+gemma-4-31b,place,noun,8,place pretty,466,0.7283923984027434
+gemma-4-31b,place,noun,8,place ugly,20,0.05212708574359237
+gemma-4-31b,place,noun,8,place fancy,591,0.30590359013877044
+gemma-4-31b,place,noun,8,place urban,591,0.7219100053571543
+gemma-4-31b,place,noun,8,place cool sense score L24,591,0.8573110955538422
+gemma-4-31b,place,noun,12,place cool,591,0.5852516186987915
+gemma-4-31b,place,noun,12,place nice,296,0.8387705657355493
+gemma-4-31b,place,noun,12,place ordinary,591,0.21879316184372266
+gemma-4-31b,place,noun,12,place pretty,466,0.7466441870836444
+gemma-4-31b,place,noun,12,place ugly,20,-0.016570494432070593
+gemma-4-31b,place,noun,12,place fancy,591,0.21085502244419585
+gemma-4-31b,place,noun,12,place urban,591,0.6708527434400147
+gemma-4-31b,place,noun,12,place cool sense score L24,591,0.8699629808245148
+gemma-4-31b,place,noun,16,place cool,591,0.6967135912140168
+gemma-4-31b,place,noun,16,place nice,296,0.8538693777962936
+gemma-4-31b,place,noun,16,place ordinary,591,0.3533833437851047
+gemma-4-31b,place,noun,16,place pretty,466,0.7778945601079177
+gemma-4-31b,place,noun,16,place ugly,20,0.05465779770717005
+gemma-4-31b,place,noun,16,place fancy,591,0.4048326250855787
+gemma-4-31b,place,noun,16,place urban,591,0.7602082190593314
+gemma-4-31b,place,noun,16,place cool sense score L24,591,0.8892943721137888
+gemma-4-31b,place,noun,20,place cool,591,0.7021656515157452
+gemma-4-31b,place,noun,20,place nice,296,0.87389033373995
+gemma-4-31b,place,noun,20,place ordinary,591,0.42743735452210097
+gemma-4-31b,place,noun,20,place pretty,466,0.8195283502810297
+gemma-4-31b,place,noun,20,place ugly,20,0.1480249641411191
+gemma-4-31b,place,noun,20,place fancy,591,0.5290051899129982
+gemma-4-31b,place,noun,20,place urban,591,0.7987190001584783
+gemma-4-31b,place,noun,20,place cool sense score L24,591,0.8951539932285253
+gemma-4-31b,place,noun,24,place cool,591,0.7742284993229867
+gemma-4-31b,place,noun,24,place nice,296,0.8904727529445426
+gemma-4-31b,place,noun,24,place ordinary,591,0.5818307321706395
+gemma-4-31b,place,noun,24,place pretty,466,0.8622164459183028
+gemma-4-31b,place,noun,24,place ugly,20,0.17300305972727614
+gemma-4-31b,place,noun,24,place fancy,591,0.5761564628277388
+gemma-4-31b,place,noun,24,place urban,591,0.846694314977323
+gemma-4-31b,place,noun,24,place cool sense score L24,591,0.8718876345306024
+gemma-4-31b,place,noun,28,place cool,591,0.7914965497748243
+gemma-4-31b,place,noun,28,place nice,296,0.8769598707374949
+gemma-4-31b,place,noun,28,place ordinary,591,0.615353841506786
+gemma-4-31b,place,noun,28,place pretty,466,0.8392187636776811
+gemma-4-31b,place,noun,28,place ugly,20,0.16596058694499372
+gemma-4-31b,place,noun,28,place fancy,591,0.422402121154951
+gemma-4-31b,place,noun,28,place urban,591,0.7763201597613588
+gemma-4-31b,place,noun,28,place cool sense score L24,591,0.8046833386844126
+gemma-4-31b,place,noun,32,place cool,591,0.8475832770231018
+gemma-4-31b,place,noun,32,place nice,296,0.9223570009781665
+gemma-4-31b,place,noun,32,place ordinary,591,0.6986782181441187
+gemma-4-31b,place,noun,32,place pretty,466,0.882948243321075
+gemma-4-31b,place,noun,32,place ugly,20,0.25187919633301814
+gemma-4-31b,place,noun,32,place fancy,591,0.5820106943229995
+gemma-4-31b,place,noun,32,place urban,591,0.770321839808529
+gemma-4-31b,place,noun,32,place cool sense score L24,591,0.7903948306846753
+gemma-4-31b,place,noun,36,place cool,591,0.8500408429892741
+gemma-4-31b,place,noun,36,place nice,296,0.9097034639886149
+gemma-4-31b,place,noun,36,place ordinary,591,0.6893964883430485
+gemma-4-31b,place,noun,36,place pretty,466,0.8830468344650169
+gemma-4-31b,place,noun,36,place ugly,20,0.1668360323890865
+gemma-4-31b,place,noun,36,place fancy,591,0.5633974074796195
+gemma-4-31b,place,noun,36,place urban,591,0.7759177928046899
+gemma-4-31b,place,noun,36,place cool sense score L24,591,0.7338932492490398
+gemma-4-31b,place,noun,40,place cool,591,0.8527623150991261
+gemma-4-31b,place,noun,40,place nice,296,0.8937296953300106
+gemma-4-31b,place,noun,40,place ordinary,591,0.6875559862724303
+gemma-4-31b,place,noun,40,place pretty,466,0.8791052944186035
+gemma-4-31b,place,noun,40,place ugly,20,0.1518391318155058
+gemma-4-31b,place,noun,40,place fancy,591,0.4589990672341884
+gemma-4-31b,place,noun,40,place urban,591,0.7438024709962353
+gemma-4-31b,place,noun,40,place cool sense score L24,591,0.7556103426361984
+gemma-4-31b,place,noun,44,place cool,591,0.8660728693951706
+gemma-4-31b,place,noun,44,place nice,296,0.8922090561384466
+gemma-4-31b,place,noun,44,place ordinary,591,0.7103258445884437
+gemma-4-31b,place,noun,44,place pretty,466,0.8536091586499773
+gemma-4-31b,place,noun,44,place ugly,20,0.20799772735302358
+gemma-4-31b,place,noun,44,place fancy,591,0.5318596841377785
+gemma-4-31b,place,noun,44,place urban,591,0.77920867309477
+gemma-4-31b,place,noun,44,place cool sense score L24,591,0.7722890976014161
+gemma-4-31b,place,noun,48,place cool,591,0.8673258751682198
+gemma-4-31b,place,noun,48,place nice,296,0.9072855879713589
+gemma-4-31b,place,noun,48,place ordinary,591,0.7060753947635394
+gemma-4-31b,place,noun,48,place pretty,466,0.8672527859062725
+gemma-4-31b,place,noun,48,place ugly,20,0.2219441147669562
+gemma-4-31b,place,noun,48,place fancy,591,0.4958106691285499
+gemma-4-31b,place,noun,48,place urban,591,0.7600865828897037
+gemma-4-31b,place,noun,48,place cool sense score L24,591,0.7742463246786867
+gemma-4-31b,place,noun,52,place cool,591,0.8341156432059296
+gemma-4-31b,place,noun,52,place nice,296,0.8854269600473168
+gemma-4-31b,place,noun,52,place ordinary,591,0.7281951384511359
+gemma-4-31b,place,noun,52,place pretty,466,0.8440442479151234
+gemma-4-31b,place,noun,52,place ugly,20,0.17736552588791743
+gemma-4-31b,place,noun,52,place fancy,591,0.4892431289247724
+gemma-4-31b,place,noun,52,place urban,591,0.7645374524232572
+gemma-4-31b,place,noun,52,place cool sense score L24,591,0.7314916265513178
+gemma-4-31b,place,noun,56,place cool,591,0.8041506755289407
+gemma-4-31b,place,noun,56,place nice,296,0.8882435968436324
+gemma-4-31b,place,noun,56,place ordinary,591,0.6771050647802144
+gemma-4-31b,place,noun,56,place pretty,466,0.8365936770014966
+gemma-4-31b,place,noun,56,place ugly,20,0.1534677190958963
+gemma-4-31b,place,noun,56,place fancy,591,0.4076879068551206
+gemma-4-31b,place,noun,56,place urban,591,0.7732676895745473
+gemma-4-31b,place,noun,56,place cool sense score L24,591,0.7391523180909723
+gemma-4-31b,scene,noun,0,scene cool,591,0.36425485603939733
+gemma-4-31b,scene,noun,0,scene nice,533,0.4771833974287052
+gemma-4-31b,scene,noun,0,scene ordinary,591,0.3093533810583554
+gemma-4-31b,scene,noun,0,scene pretty,589,0.5013734303548064
+gemma-4-31b,scene,noun,0,scene ugly,83,-0.5623619571541172
+gemma-4-31b,scene,noun,0,scene fancy,591,0.159364314198564
+gemma-4-31b,scene,noun,0,scene urban,591,0.5475263361580215
+gemma-4-31b,scene,noun,0,scene cool sense score L24,591,0.5567641320282494
+gemma-4-31b,scene,noun,4,scene cool,591,0.59844494936281
+gemma-4-31b,scene,noun,4,scene nice,533,0.7072093501743419
+gemma-4-31b,scene,noun,4,scene ordinary,591,0.42068777611224495
+gemma-4-31b,scene,noun,4,scene pretty,589,0.7714900604377504
+gemma-4-31b,scene,noun,4,scene ugly,83,0.02826222128885969
+gemma-4-31b,scene,noun,4,scene fancy,591,0.34570138893036495
+gemma-4-31b,scene,noun,4,scene urban,591,0.7021540061453851
+gemma-4-31b,scene,noun,4,scene cool sense score L24,591,0.7718414002513243
+gemma-4-31b,scene,noun,8,scene cool,591,0.5502244881404873
+gemma-4-31b,scene,noun,8,scene nice,533,0.7077148687643975
+gemma-4-31b,scene,noun,8,scene ordinary,591,-0.005941101430509965
+gemma-4-31b,scene,noun,8,scene pretty,589,0.7394828460054803
+gemma-4-31b,scene,noun,8,scene ugly,83,-0.003268374648625283
+gemma-4-31b,scene,noun,8,scene fancy,591,0.0045939968334585135
+gemma-4-31b,scene,noun,8,scene urban,591,0.6265693045640832
+gemma-4-31b,scene,noun,8,scene cool sense score L24,591,0.8779713254956473
+gemma-4-31b,scene,noun,12,scene cool,591,0.565940746019758
+gemma-4-31b,scene,noun,12,scene nice,533,0.7363287106915838
+gemma-4-31b,scene,noun,12,scene ordinary,591,0.20041717569819617
+gemma-4-31b,scene,noun,12,scene pretty,589,0.7267731337405858
+gemma-4-31b,scene,noun,12,scene ugly,83,0.14720888908144825
+gemma-4-31b,scene,noun,12,scene fancy,591,0.11576471316237202
+gemma-4-31b,scene,noun,12,scene urban,591,0.6183833572869796
+gemma-4-31b,scene,noun,12,scene cool sense score L24,591,0.8938902936097957
+gemma-4-31b,scene,noun,16,scene cool,591,0.6549977333204691
+gemma-4-31b,scene,noun,16,scene nice,533,0.7702180763099686
+gemma-4-31b,scene,noun,16,scene ordinary,591,0.32804424798024234
+gemma-4-31b,scene,noun,16,scene pretty,589,0.7640192713204617
+gemma-4-31b,scene,noun,16,scene ugly,83,0.2026551724605825
+gemma-4-31b,scene,noun,16,scene fancy,591,0.1978155055918368
+gemma-4-31b,scene,noun,16,scene urban,591,0.6907496966514095
+gemma-4-31b,scene,noun,16,scene cool sense score L24,591,0.928064735351385
+gemma-4-31b,scene,noun,20,scene cool,591,0.6686179044929532
+gemma-4-31b,scene,noun,20,scene nice,533,0.8190274228869836
+gemma-4-31b,scene,noun,20,scene ordinary,591,0.40783651699418066
+gemma-4-31b,scene,noun,20,scene pretty,589,0.8161550535865414
+gemma-4-31b,scene,noun,20,scene ugly,83,0.24159479864647204
+gemma-4-31b,scene,noun,20,scene fancy,591,0.18186652343274168
+gemma-4-31b,scene,noun,20,scene urban,591,0.7340897777884463
+gemma-4-31b,scene,noun,20,scene cool sense score L24,591,0.9436134202526043
+gemma-4-31b,scene,noun,24,scene cool,591,0.7495286273516122
+gemma-4-31b,scene,noun,24,scene nice,533,0.8596580342168985
+gemma-4-31b,scene,noun,24,scene ordinary,591,0.5146577061863085
+gemma-4-31b,scene,noun,24,scene pretty,589,0.8580685929732111
+gemma-4-31b,scene,noun,24,scene ugly,83,0.3277696679913157
+gemma-4-31b,scene,noun,24,scene fancy,591,0.39168423088710536
+gemma-4-31b,scene,noun,24,scene urban,591,0.8145284476344606
+gemma-4-31b,scene,noun,24,scene cool sense score L24,591,0.9459172983472245
+gemma-4-31b,scene,noun,28,scene cool,591,0.7442600233555614
+gemma-4-31b,scene,noun,28,scene nice,533,0.8469571624279483
+gemma-4-31b,scene,noun,28,scene ordinary,591,0.5926656849695888
+gemma-4-31b,scene,noun,28,scene pretty,589,0.8613047766098241
+gemma-4-31b,scene,noun,28,scene ugly,83,0.36982937601236476
+gemma-4-31b,scene,noun,28,scene fancy,591,0.2991469233532853
+gemma-4-31b,scene,noun,28,scene urban,591,0.7771535267038266
+gemma-4-31b,scene,noun,28,scene cool sense score L24,591,0.9001111055060543
+gemma-4-31b,scene,noun,32,scene cool,591,0.8203964077886241
+gemma-4-31b,scene,noun,32,scene nice,533,0.8723263694453565
+gemma-4-31b,scene,noun,32,scene ordinary,591,0.6882716888564393
+gemma-4-31b,scene,noun,32,scene pretty,589,0.8790319808927893
+gemma-4-31b,scene,noun,32,scene ugly,83,0.5344923958328153
+gemma-4-31b,scene,noun,32,scene fancy,591,0.27319522046590905
+gemma-4-31b,scene,noun,32,scene urban,591,0.708353711995255
+gemma-4-31b,scene,noun,32,scene cool sense score L24,591,0.8658600164921357
+gemma-4-31b,scene,noun,36,scene cool,591,0.8070053495371168
+gemma-4-31b,scene,noun,36,scene nice,533,0.8843964522325113
+gemma-4-31b,scene,noun,36,scene ordinary,591,0.6672624759714849
+gemma-4-31b,scene,noun,36,scene pretty,589,0.8844169548785626
+gemma-4-31b,scene,noun,36,scene ugly,83,0.5736336155763662
+gemma-4-31b,scene,noun,36,scene fancy,591,0.19560617678786896
+gemma-4-31b,scene,noun,36,scene urban,591,0.7563278599018551
+gemma-4-31b,scene,noun,36,scene cool sense score L24,591,0.8745166623413424
+gemma-4-31b,scene,noun,40,scene cool,591,0.8289070325534968
+gemma-4-31b,scene,noun,40,scene nice,533,0.8767119438203811
+gemma-4-31b,scene,noun,40,scene ordinary,591,0.6443495391139062
+gemma-4-31b,scene,noun,40,scene pretty,589,0.8659828855764583
+gemma-4-31b,scene,noun,40,scene ugly,83,0.5333484863308673
+gemma-4-31b,scene,noun,40,scene fancy,591,0.23575834133739204
+gemma-4-31b,scene,noun,40,scene urban,591,0.7155693599087238
+gemma-4-31b,scene,noun,40,scene cool sense score L24,591,0.8795651974967789
+gemma-4-31b,scene,noun,44,scene cool,591,0.8247026354882523
+gemma-4-31b,scene,noun,44,scene nice,533,0.8814604292120436
+gemma-4-31b,scene,noun,44,scene ordinary,591,0.7183199596844019
+gemma-4-31b,scene,noun,44,scene pretty,589,0.879454365939076
+gemma-4-31b,scene,noun,44,scene ugly,83,0.4932265128798379
+gemma-4-31b,scene,noun,44,scene fancy,591,0.26139026040446334
+gemma-4-31b,scene,noun,44,scene urban,591,0.733318737151454
+gemma-4-31b,scene,noun,44,scene cool sense score L24,591,0.8890504766352878
+gemma-4-31b,scene,noun,48,scene cool,591,0.8290243706244891
+gemma-4-31b,scene,noun,48,scene nice,533,0.8934001417465047
+gemma-4-31b,scene,noun,48,scene ordinary,591,0.7376014563260527
+gemma-4-31b,scene,noun,48,scene pretty,589,0.874528504438484
+gemma-4-31b,scene,noun,48,scene ugly,83,0.5100042923332877
+gemma-4-31b,scene,noun,48,scene fancy,591,0.34774353665679836
+gemma-4-31b,scene,noun,48,scene urban,591,0.7518421621478004
+gemma-4-31b,scene,noun,48,scene cool sense score L24,591,0.8870017700481452
+gemma-4-31b,scene,noun,52,scene cool,591,0.8070428743565152
+gemma-4-31b,scene,noun,52,scene nice,533,0.8837934141750562
+gemma-4-31b,scene,noun,52,scene ordinary,591,0.7237114920828744
+gemma-4-31b,scene,noun,52,scene pretty,589,0.8553060698989295
+gemma-4-31b,scene,noun,52,scene ugly,83,0.5193507455892068
+gemma-4-31b,scene,noun,52,scene fancy,591,0.31119213225597986
+gemma-4-31b,scene,noun,52,scene urban,591,0.7397399011347117
+gemma-4-31b,scene,noun,52,scene cool sense score L24,591,0.8908504396173674
+gemma-4-31b,scene,noun,56,scene cool,591,0.8120600353566355
+gemma-4-31b,scene,noun,56,scene nice,533,0.8667061497648005
+gemma-4-31b,scene,noun,56,scene ordinary,591,0.7068525439402422
+gemma-4-31b,scene,noun,56,scene pretty,589,0.8512125671256499
+gemma-4-31b,scene,noun,56,scene ugly,83,0.5067226007204781
+gemma-4-31b,scene,noun,56,scene fancy,591,0.2632131789395479
+gemma-4-31b,scene,noun,56,scene urban,591,0.7254242725155036
+gemma-4-31b,scene,noun,56,scene cool sense score L24,591,0.8606964750897885
+qwen3.5-9b,place,noun,0,place cool,591,0.45780175472093454
+qwen3.5-9b,place,noun,0,place nice,591,0.5414610799997224
+qwen3.5-9b,place,noun,0,place ordinary,591,0.43704940510523893
+qwen3.5-9b,place,noun,0,place pretty,591,0.5259370026641281
+qwen3.5-9b,place,noun,0,place ugly,591,0.59666301698429
+qwen3.5-9b,place,noun,0,place fancy,591,0.30597500863117133
+qwen3.5-9b,place,noun,0,place urban,591,0.6685784926528644
+qwen3.5-9b,place,noun,0,place cool sense score L24,591,0.6653679707334902
+qwen3.5-9b,place,noun,4,place cool,591,0.5325914514775172
+qwen3.5-9b,place,noun,4,place nice,591,0.7747594203447234
+qwen3.5-9b,place,noun,4,place ordinary,591,0.7269810350067412
+qwen3.5-9b,place,noun,4,place pretty,591,0.7740054202806596
+qwen3.5-9b,place,noun,4,place ugly,591,0.7806035168176272
+qwen3.5-9b,place,noun,4,place fancy,591,0.6634582102511639
+qwen3.5-9b,place,noun,4,place urban,591,0.85098733270636
+qwen3.5-9b,place,noun,4,place cool sense score L24,591,0.8603284158604868
+qwen3.5-9b,place,noun,8,place cool,591,0.6565978971083282
+qwen3.5-9b,place,noun,8,place nice,591,0.865993355731255
+qwen3.5-9b,place,noun,8,place ordinary,591,0.7760803625915725
+qwen3.5-9b,place,noun,8,place pretty,591,0.8451442798191091
+qwen3.5-9b,place,noun,8,place ugly,591,0.7826894795847288
+qwen3.5-9b,place,noun,8,place fancy,591,0.7660729137798636
+qwen3.5-9b,place,noun,8,place urban,591,0.8969893301361865
+qwen3.5-9b,place,noun,8,place cool sense score L24,591,0.8977837618083684
+qwen3.5-9b,place,noun,12,place cool,591,0.7404940145530725
+qwen3.5-9b,place,noun,12,place nice,591,0.8763426694270855
+qwen3.5-9b,place,noun,12,place ordinary,591,0.8023134135917676
+qwen3.5-9b,place,noun,12,place pretty,591,0.8594276142436582
+qwen3.5-9b,place,noun,12,place ugly,591,0.823965394948147
+qwen3.5-9b,place,noun,12,place fancy,591,0.7732559286460297
+qwen3.5-9b,place,noun,12,place urban,591,0.8917215399987735
+qwen3.5-9b,place,noun,12,place cool sense score L24,591,0.9031424559177236
+qwen3.5-9b,place,noun,16,place cool,591,0.7778329911484823
+qwen3.5-9b,place,noun,16,place nice,591,0.893034475326591
+qwen3.5-9b,place,noun,16,place ordinary,591,0.8230200036218472
+qwen3.5-9b,place,noun,16,place pretty,591,0.8571941458153394
+qwen3.5-9b,place,noun,16,place ugly,591,0.8203524034231098
+qwen3.5-9b,place,noun,16,place fancy,591,0.7317988674911797
+qwen3.5-9b,place,noun,16,place urban,591,0.894133572985072
+qwen3.5-9b,place,noun,16,place cool sense score L24,591,0.8849512789630215
+qwen3.5-9b,place,noun,20,place cool,591,0.7652426459106668
+qwen3.5-9b,place,noun,20,place nice,591,0.9023726609472452
+qwen3.5-9b,place,noun,20,place ordinary,591,0.8302580594329002
+qwen3.5-9b,place,noun,20,place pretty,591,0.8729855671950837
+qwen3.5-9b,place,noun,20,place ugly,591,0.8253715512116655
+qwen3.5-9b,place,noun,20,place fancy,591,0.7181179431491727
+qwen3.5-9b,place,noun,20,place urban,591,0.8904864282528998
+qwen3.5-9b,place,noun,20,place cool sense score L24,591,0.8816312134904034
+qwen3.5-9b,place,noun,24,place cool,591,0.745628452122185
+qwen3.5-9b,place,noun,24,place nice,591,0.8772923062097725
+qwen3.5-9b,place,noun,24,place ordinary,591,0.8323611076884759
+qwen3.5-9b,place,noun,24,place pretty,591,0.8499519107608855
+qwen3.5-9b,place,noun,24,place ugly,591,0.7982562571295228
+qwen3.5-9b,place,noun,24,place fancy,591,0.7181184090415229
+qwen3.5-9b,place,noun,24,place urban,591,0.8692640553762432
+qwen3.5-9b,place,noun,24,place cool sense score L24,591,0.8802404868548518
+qwen3.5-9b,place,noun,28,place cool,591,0.6331619062280663
+qwen3.5-9b,place,noun,28,place nice,591,0.8628790880715008
+qwen3.5-9b,place,noun,28,place ordinary,591,0.8091840984469266
+qwen3.5-9b,place,noun,28,place pretty,591,0.8043888128323538
+qwen3.5-9b,place,noun,28,place ugly,591,0.803364784374977
+qwen3.5-9b,place,noun,28,place fancy,591,0.6759483004024907
+qwen3.5-9b,place,noun,28,place urban,591,0.8447827643497322
+qwen3.5-9b,place,noun,28,place cool sense score L24,591,0.8652400698932641
+qwen3.5-9b,scene,noun,0,scene cool,591,0.47228423965861077
+qwen3.5-9b,scene,noun,0,scene nice,591,0.5855811574365872
+qwen3.5-9b,scene,noun,0,scene ordinary,591,0.5947992046535368
+qwen3.5-9b,scene,noun,0,scene pretty,591,0.6315747259314638
+qwen3.5-9b,scene,noun,0,scene ugly,591,0.5405451978113072
+qwen3.5-9b,scene,noun,0,scene fancy,591,0.5080619129719603
+qwen3.5-9b,scene,noun,0,scene urban,591,0.6627203472347568
+qwen3.5-9b,scene,noun,0,scene cool sense score L24,591,0.6456768109776501
+qwen3.5-9b,scene,noun,4,scene cool,591,0.5975648569997127
+qwen3.5-9b,scene,noun,4,scene nice,591,0.7659456333913895
+qwen3.5-9b,scene,noun,4,scene ordinary,591,0.7303161781793053
+qwen3.5-9b,scene,noun,4,scene pretty,591,0.7972202980030576
+qwen3.5-9b,scene,noun,4,scene ugly,591,0.7708363510741788
+qwen3.5-9b,scene,noun,4,scene fancy,591,0.7060799367083757
+qwen3.5-9b,scene,noun,4,scene urban,591,0.8235529876678169
+qwen3.5-9b,scene,noun,4,scene cool sense score L24,591,0.7926406813779735
+qwen3.5-9b,scene,noun,8,scene cool,591,0.6617846237018534
+qwen3.5-9b,scene,noun,8,scene nice,591,0.8401815119606876
+qwen3.5-9b,scene,noun,8,scene ordinary,591,0.8040383990816588
+qwen3.5-9b,scene,noun,8,scene pretty,591,0.8582227636221484
+qwen3.5-9b,scene,noun,8,scene ugly,591,0.8343373922062254
+qwen3.5-9b,scene,noun,8,scene fancy,591,0.6649998591254891
+qwen3.5-9b,scene,noun,8,scene urban,591,0.8543642589498366
+qwen3.5-9b,scene,noun,8,scene cool sense score L24,591,0.8315852500637918
+qwen3.5-9b,scene,noun,12,scene cool,591,0.6843854233603736
+qwen3.5-9b,scene,noun,12,scene nice,591,0.8589757927572802
+qwen3.5-9b,scene,noun,12,scene ordinary,591,0.8254283280623659
+qwen3.5-9b,scene,noun,12,scene pretty,591,0.8736398535920256
+qwen3.5-9b,scene,noun,12,scene ugly,591,0.8599193691463893
+qwen3.5-9b,scene,noun,12,scene fancy,591,0.6547978413951642
+qwen3.5-9b,scene,noun,12,scene urban,591,0.8472132334252646
+qwen3.5-9b,scene,noun,12,scene cool sense score L24,591,0.8390073589774767
+qwen3.5-9b,scene,noun,16,scene cool,591,0.6955642518467623
+qwen3.5-9b,scene,noun,16,scene nice,591,0.876482681216952
+qwen3.5-9b,scene,noun,16,scene ordinary,591,0.8486609750544758
+qwen3.5-9b,scene,noun,16,scene pretty,591,0.8750600786358859
+qwen3.5-9b,scene,noun,16,scene ugly,591,0.8763673615223643
+qwen3.5-9b,scene,noun,16,scene fancy,591,0.6757260489586818
+qwen3.5-9b,scene,noun,16,scene urban,591,0.8362501872473029
+qwen3.5-9b,scene,noun,16,scene cool sense score L24,591,0.8155079048234928
+qwen3.5-9b,scene,noun,20,scene cool,591,0.699056042568368
+qwen3.5-9b,scene,noun,20,scene nice,591,0.8789264952911302
+qwen3.5-9b,scene,noun,20,scene ordinary,591,0.8483810404044922
+qwen3.5-9b,scene,noun,20,scene pretty,591,0.8796529523360882
+qwen3.5-9b,scene,noun,20,scene ugly,591,0.8731538272751821
+qwen3.5-9b,scene,noun,20,scene fancy,591,0.7254058836354891
+qwen3.5-9b,scene,noun,20,scene urban,591,0.8605828736776807
+qwen3.5-9b,scene,noun,20,scene cool sense score L24,591,0.8277689657033189
+qwen3.5-9b,scene,noun,24,scene cool,591,0.7399060765047207
+qwen3.5-9b,scene,noun,24,scene nice,591,0.8607123569878448
+qwen3.5-9b,scene,noun,24,scene ordinary,591,0.8330995984296333
+qwen3.5-9b,scene,noun,24,scene pretty,591,0.8619741574479487
+qwen3.5-9b,scene,noun,24,scene ugly,591,0.8591424906679721
+qwen3.5-9b,scene,noun,24,scene fancy,591,0.7269853414709487
+qwen3.5-9b,scene,noun,24,scene urban,591,0.8638433767428295
+qwen3.5-9b,scene,noun,24,scene cool sense score L24,591,0.8488596028867613
+qwen3.5-9b,scene,noun,28,scene cool,591,0.6444175732345941
+qwen3.5-9b,scene,noun,28,scene nice,591,0.8244409333345737
+qwen3.5-9b,scene,noun,28,scene ordinary,591,0.7907922399676106
+qwen3.5-9b,scene,noun,28,scene pretty,591,0.8117189199990247
+qwen3.5-9b,scene,noun,28,scene ugly,591,0.8482654727673078
+qwen3.5-9b,scene,noun,28,scene fancy,591,0.7110916406213966
+qwen3.5-9b,scene,noun,28,scene urban,591,0.836085872974286
+qwen3.5-9b,scene,noun,28,scene cool sense score L24,591,0.8027009060421704
+qwen3.6-27b,place,noun,0,place cool,591,-0.11596546783428341
+qwen3.6-27b,place,noun,0,place nice,591,0.3237652417657154
+qwen3.6-27b,place,noun,0,place ordinary,591,-0.07099417586541512
+qwen3.6-27b,place,noun,0,place pretty,591,0.41382452420880533
+qwen3.6-27b,place,noun,0,place ugly,591,0.3009911555691599
+qwen3.6-27b,place,noun,0,place fancy,591,0.013266686148706519
+qwen3.6-27b,place,noun,0,place urban,591,0.6691886741061388
+qwen3.6-27b,place,noun,0,place cool sense score L24,591,0.5994917169888689
+qwen3.6-27b,place,noun,4,place cool,591,0.04202278868631948
+qwen3.6-27b,place,noun,4,place nice,591,0.642948013218877
+qwen3.6-27b,place,noun,4,place ordinary,591,0.39545254060334023
+qwen3.6-27b,place,noun,4,place pretty,591,0.6653159387886634
+qwen3.6-27b,place,noun,4,place ugly,591,0.6498901889352914
+qwen3.6-27b,place,noun,4,place fancy,591,0.4679864351654145
+qwen3.6-27b,place,noun,4,place urban,591,0.8025564850554112
+qwen3.6-27b,place,noun,4,place cool sense score L24,591,0.837390125945348
+qwen3.6-27b,place,noun,8,place cool,591,0.17236808211799015
+qwen3.6-27b,place,noun,8,place nice,591,0.6575334261892456
+qwen3.6-27b,place,noun,8,place ordinary,591,0.5454567824185543
+qwen3.6-27b,place,noun,8,place pretty,591,0.7057967428020195
+qwen3.6-27b,place,noun,8,place ugly,591,0.6903213992357977
+qwen3.6-27b,place,noun,8,place fancy,591,0.574505874640534
+qwen3.6-27b,place,noun,8,place urban,591,0.854624208720858
+qwen3.6-27b,place,noun,8,place cool sense score L24,591,0.8976778989982208
+qwen3.6-27b,place,noun,12,place cool,591,0.2971614824019858
+qwen3.6-27b,place,noun,12,place nice,591,0.6787496075755232
+qwen3.6-27b,place,noun,12,place ordinary,591,0.4958710320298867
+qwen3.6-27b,place,noun,12,place pretty,591,0.7338665903312112
+qwen3.6-27b,place,noun,12,place ugly,591,0.7310871083512012
+qwen3.6-27b,place,noun,12,place fancy,591,0.5700903042905225
+qwen3.6-27b,place,noun,12,place urban,591,0.8766703607337305
+qwen3.6-27b,place,noun,12,place cool sense score L24,591,0.8885818853500843
+qwen3.6-27b,place,noun,16,place cool,591,0.2943956690365441
+qwen3.6-27b,place,noun,16,place nice,591,0.7121559453355057
+qwen3.6-27b,place,noun,16,place ordinary,591,0.5037654794125752
+qwen3.6-27b,place,noun,16,place pretty,591,0.7450435353790974
+qwen3.6-27b,place,noun,16,place ugly,591,0.7368025989589085
+qwen3.6-27b,place,noun,16,place fancy,591,0.5740683844723281
+qwen3.6-27b,place,noun,16,place urban,591,0.8552837716174921
+qwen3.6-27b,place,noun,16,place cool sense score L24,591,0.8937481254877876
+qwen3.6-27b,place,noun,20,place cool,591,0.34791041835191483
+qwen3.6-27b,place,noun,20,place nice,591,0.7497208735535618
+qwen3.6-27b,place,noun,20,place ordinary,591,0.5264179310230297
+qwen3.6-27b,place,noun,20,place pretty,591,0.7736331478398554
+qwen3.6-27b,place,noun,20,place ugly,591,0.7555284764890934
+qwen3.6-27b,place,noun,20,place fancy,591,0.5939728458313817
+qwen3.6-27b,place,noun,20,place urban,591,0.8545287636129069
+qwen3.6-27b,place,noun,20,place cool sense score L24,591,0.8929998943039088
+qwen3.6-27b,place,noun,24,place cool,591,0.3380986231545695
+qwen3.6-27b,place,noun,24,place nice,591,0.7791994501830564
+qwen3.6-27b,place,noun,24,place ordinary,591,0.53713080284678
+qwen3.6-27b,place,noun,24,place pretty,591,0.780911843627349
+qwen3.6-27b,place,noun,24,place ugly,591,0.757062117874328
+qwen3.6-27b,place,noun,24,place fancy,591,0.6163852112305362
+qwen3.6-27b,place,noun,24,place urban,591,0.877040083144043
+qwen3.6-27b,place,noun,24,place cool sense score L24,591,0.9027811426645632
+qwen3.6-27b,place,noun,28,place cool,591,0.47152974521701774
+qwen3.6-27b,place,noun,28,place nice,591,0.7368266523006768
+qwen3.6-27b,place,noun,28,place ordinary,591,0.5659623892470917
+qwen3.6-27b,place,noun,28,place pretty,591,0.7543621958117877
+qwen3.6-27b,place,noun,28,place ugly,591,0.7627374009217128
+qwen3.6-27b,place,noun,28,place fancy,591,0.6633932325717408
+qwen3.6-27b,place,noun,28,place urban,591,0.855006791694573
+qwen3.6-27b,place,noun,28,place cool sense score L24,591,0.8902398832771952
+qwen3.6-27b,place,noun,32,place cool,591,0.5135383795113213
+qwen3.6-27b,place,noun,32,place nice,591,0.8093125888889388
+qwen3.6-27b,place,noun,32,place ordinary,591,0.6698532146721818
+qwen3.6-27b,place,noun,32,place pretty,591,0.807063279042783
+qwen3.6-27b,place,noun,32,place ugly,591,0.8155448053241855
+qwen3.6-27b,place,noun,32,place fancy,591,0.7283383282099931
+qwen3.6-27b,place,noun,32,place urban,591,0.8731322136611015
+qwen3.6-27b,place,noun,32,place cool sense score L24,591,0.8632549598941472
+qwen3.6-27b,place,noun,36,place cool,591,0.526047640495581
+qwen3.6-27b,place,noun,36,place nice,591,0.838706144414577
+qwen3.6-27b,place,noun,36,place ordinary,591,0.7130140462357795
+qwen3.6-27b,place,noun,36,place pretty,591,0.8332738044912633
+qwen3.6-27b,place,noun,36,place ugly,591,0.8211134263706067
+qwen3.6-27b,place,noun,36,place fancy,591,0.7253448296385324
+qwen3.6-27b,place,noun,36,place urban,591,0.8702001628035051
+qwen3.6-27b,place,noun,36,place cool sense score L24,591,0.8657344800399074
+qwen3.6-27b,place,noun,40,place cool,591,0.5267129729611119
+qwen3.6-27b,place,noun,40,place nice,591,0.8428318045786405
+qwen3.6-27b,place,noun,40,place ordinary,591,0.7122321650483916
+qwen3.6-27b,place,noun,40,place pretty,591,0.8377275919271403
+qwen3.6-27b,place,noun,40,place ugly,591,0.8108864004916337
+qwen3.6-27b,place,noun,40,place fancy,591,0.7418724066913169
+qwen3.6-27b,place,noun,40,place urban,591,0.8783756184781331
+qwen3.6-27b,place,noun,40,place cool sense score L24,591,0.8530196714069823
+qwen3.6-27b,place,noun,44,place cool,591,0.5735727918559561
+qwen3.6-27b,place,noun,44,place nice,591,0.8497075987990599
+qwen3.6-27b,place,noun,44,place ordinary,591,0.7165427043397106
+qwen3.6-27b,place,noun,44,place pretty,591,0.832661656783904
+qwen3.6-27b,place,noun,44,place ugly,591,0.8035422065718978
+qwen3.6-27b,place,noun,44,place fancy,591,0.7356615075253765
+qwen3.6-27b,place,noun,44,place urban,591,0.8770925574888518
+qwen3.6-27b,place,noun,44,place cool sense score L24,591,0.8566784727285199
+qwen3.6-27b,place,noun,48,place cool,591,0.5488608504524175
+qwen3.6-27b,place,noun,48,place nice,591,0.8493557130355796
+qwen3.6-27b,place,noun,48,place ordinary,591,0.7190876340187559
+qwen3.6-27b,place,noun,48,place pretty,591,0.8415444298875246
+qwen3.6-27b,place,noun,48,place ugly,591,0.8194498744469424
+qwen3.6-27b,place,noun,48,place fancy,591,0.7495605916383291
+qwen3.6-27b,place,noun,48,place urban,591,0.8742782942627848
+qwen3.6-27b,place,noun,48,place cool sense score L24,591,0.8513379698183954
+qwen3.6-27b,place,noun,52,place cool,591,0.4767730424604857
+qwen3.6-27b,place,noun,52,place nice,591,0.8413429882693505
+qwen3.6-27b,place,noun,52,place ordinary,591,0.6895531889063449
+qwen3.6-27b,place,noun,52,place pretty,591,0.8231164939991935
+qwen3.6-27b,place,noun,52,place ugly,591,0.8016784753934271
+qwen3.6-27b,place,noun,52,place fancy,591,0.705523138163776
+qwen3.6-27b,place,noun,52,place urban,591,0.8649078953454262
+qwen3.6-27b,place,noun,52,place cool sense score L24,591,0.8480366830599932
+qwen3.6-27b,place,noun,56,place cool,591,0.5051221727368209
+qwen3.6-27b,place,noun,56,place nice,591,0.8423177107789526
+qwen3.6-27b,place,noun,56,place ordinary,591,0.7099736393710536
+qwen3.6-27b,place,noun,56,place pretty,591,0.82104815163406
+qwen3.6-27b,place,noun,56,place ugly,591,0.7965437500367301
+qwen3.6-27b,place,noun,56,place fancy,591,0.7059649714035903
+qwen3.6-27b,place,noun,56,place urban,591,0.8590145754101455
+qwen3.6-27b,place,noun,56,place cool sense score L24,591,0.8359880605441748
+qwen3.6-27b,place,noun,60,place cool,591,0.5079829514634553
+qwen3.6-27b,place,noun,60,place nice,591,0.8386255487808679
+qwen3.6-27b,place,noun,60,place ordinary,591,0.6823880856980192
+qwen3.6-27b,place,noun,60,place pretty,591,0.8173018894802129
+qwen3.6-27b,place,noun,60,place ugly,591,0.8072229521582809
+qwen3.6-27b,place,noun,60,place fancy,591,0.7225906201694486
+qwen3.6-27b,place,noun,60,place urban,591,0.874350775584505
+qwen3.6-27b,place,noun,60,place cool sense score L24,591,0.8395397654870732
+qwen3.6-27b,scene,noun,0,scene cool,591,-0.34060601044322514
+qwen3.6-27b,scene,noun,0,scene nice,591,0.3001954078462393
+qwen3.6-27b,scene,noun,0,scene ordinary,591,-0.2609117185869565
+qwen3.6-27b,scene,noun,0,scene pretty,591,0.43394985652685236
+qwen3.6-27b,scene,noun,0,scene ugly,591,0.22414769448279726
+qwen3.6-27b,scene,noun,0,scene fancy,591,0.19486076806887231
+qwen3.6-27b,scene,noun,0,scene urban,591,0.6714590213333085
+qwen3.6-27b,scene,noun,0,scene cool sense score L24,591,0.5800192744510375
+qwen3.6-27b,scene,noun,4,scene cool,591,0.32553707136928844
+qwen3.6-27b,scene,noun,4,scene nice,591,0.6554605395807063
+qwen3.6-27b,scene,noun,4,scene ordinary,591,0.0775194966125422
+qwen3.6-27b,scene,noun,4,scene pretty,591,0.7103811041525185
+qwen3.6-27b,scene,noun,4,scene ugly,591,0.6781869044662847
+qwen3.6-27b,scene,noun,4,scene fancy,591,0.5756983959356705
+qwen3.6-27b,scene,noun,4,scene urban,591,0.7990545296348437
+qwen3.6-27b,scene,noun,4,scene cool sense score L24,591,0.8468819050177061
+qwen3.6-27b,scene,noun,8,scene cool,591,0.37394995244601226
+qwen3.6-27b,scene,noun,8,scene nice,591,0.6636352413270586
+qwen3.6-27b,scene,noun,8,scene ordinary,591,0.175712493442727
+qwen3.6-27b,scene,noun,8,scene pretty,591,0.7298810270781175
+qwen3.6-27b,scene,noun,8,scene ugly,591,0.7421936794622915
+qwen3.6-27b,scene,noun,8,scene fancy,591,0.5750297795860997
+qwen3.6-27b,scene,noun,8,scene urban,591,0.8425604098829703
+qwen3.6-27b,scene,noun,8,scene cool sense score L24,591,0.878393585964927
+qwen3.6-27b,scene,noun,12,scene cool,591,0.41721820578851365
+qwen3.6-27b,scene,noun,12,scene nice,591,0.6982913831356482
+qwen3.6-27b,scene,noun,12,scene ordinary,591,0.24553731601385897
+qwen3.6-27b,scene,noun,12,scene pretty,591,0.7564585501841543
+qwen3.6-27b,scene,noun,12,scene ugly,591,0.7500868677770338
+qwen3.6-27b,scene,noun,12,scene fancy,591,0.6490674370933827
+qwen3.6-27b,scene,noun,12,scene urban,591,0.8453974901756994
+qwen3.6-27b,scene,noun,12,scene cool sense score L24,591,0.8756585866209518
+qwen3.6-27b,scene,noun,16,scene cool,591,0.3869975804755048
+qwen3.6-27b,scene,noun,16,scene nice,591,0.7001262375527864
+qwen3.6-27b,scene,noun,16,scene ordinary,591,0.24853681776517922
+qwen3.6-27b,scene,noun,16,scene pretty,591,0.7501766315316494
+qwen3.6-27b,scene,noun,16,scene ugly,591,0.7560687504011385
+qwen3.6-27b,scene,noun,16,scene fancy,591,0.6446642520725188
+qwen3.6-27b,scene,noun,16,scene urban,591,0.8479543718723112
+qwen3.6-27b,scene,noun,16,scene cool sense score L24,591,0.874930444044985
+qwen3.6-27b,scene,noun,20,scene cool,591,0.41191893357193776
+qwen3.6-27b,scene,noun,20,scene nice,591,0.7197777175044235
+qwen3.6-27b,scene,noun,20,scene ordinary,591,0.29400062984525877
+qwen3.6-27b,scene,noun,20,scene pretty,591,0.7661732394802198
+qwen3.6-27b,scene,noun,20,scene ugly,591,0.7367290358425043
+qwen3.6-27b,scene,noun,20,scene fancy,591,0.6613719282844976
+qwen3.6-27b,scene,noun,20,scene urban,591,0.8359402803646674
+qwen3.6-27b,scene,noun,20,scene cool sense score L24,591,0.8843165409354877
+qwen3.6-27b,scene,noun,24,scene cool,591,0.4288296285406652
+qwen3.6-27b,scene,noun,24,scene nice,591,0.745913293359026
+qwen3.6-27b,scene,noun,24,scene ordinary,591,0.26596491428056324
+qwen3.6-27b,scene,noun,24,scene pretty,591,0.7962936679254857
+qwen3.6-27b,scene,noun,24,scene ugly,591,0.762008614359464
+qwen3.6-27b,scene,noun,24,scene fancy,591,0.6409706260004246
+qwen3.6-27b,scene,noun,24,scene urban,591,0.8418965243784775
+qwen3.6-27b,scene,noun,24,scene cool sense score L24,591,0.8822135756847925
+qwen3.6-27b,scene,noun,28,scene cool,591,0.5277541367827241
+qwen3.6-27b,scene,noun,28,scene nice,591,0.7602213255028446
+qwen3.6-27b,scene,noun,28,scene ordinary,591,0.36980581074605945
+qwen3.6-27b,scene,noun,28,scene pretty,591,0.7895670581222959
+qwen3.6-27b,scene,noun,28,scene ugly,591,0.7701067860563237
+qwen3.6-27b,scene,noun,28,scene fancy,591,0.7059636587277034
+qwen3.6-27b,scene,noun,28,scene urban,591,0.8628640771271796
+qwen3.6-27b,scene,noun,28,scene cool sense score L24,591,0.8837296219297426
+qwen3.6-27b,scene,noun,32,scene cool,591,0.5693431031327237
+qwen3.6-27b,scene,noun,32,scene nice,591,0.7942777885756263
+qwen3.6-27b,scene,noun,32,scene ordinary,591,0.38520185809712604
+qwen3.6-27b,scene,noun,32,scene pretty,591,0.8061734569771146
+qwen3.6-27b,scene,noun,32,scene ugly,591,0.8048361725507317
+qwen3.6-27b,scene,noun,32,scene fancy,591,0.7110118306634239
+qwen3.6-27b,scene,noun,32,scene urban,591,0.8791750949732124
+qwen3.6-27b,scene,noun,32,scene cool sense score L24,591,0.871944631514593
+qwen3.6-27b,scene,noun,36,scene cool,591,0.5847665000106637
+qwen3.6-27b,scene,noun,36,scene nice,591,0.8121244364989522
+qwen3.6-27b,scene,noun,36,scene ordinary,591,0.5092177682089241
+qwen3.6-27b,scene,noun,36,scene pretty,591,0.83405227237374
+qwen3.6-27b,scene,noun,36,scene ugly,591,0.8255501606626607
+qwen3.6-27b,scene,noun,36,scene fancy,591,0.7297381089663408
+qwen3.6-27b,scene,noun,36,scene urban,591,0.8662922374033506
+qwen3.6-27b,scene,noun,36,scene cool sense score L24,591,0.8698911878646757
+qwen3.6-27b,scene,noun,40,scene cool,591,0.5824354605200806
+qwen3.6-27b,scene,noun,40,scene nice,591,0.8217463165671108
+qwen3.6-27b,scene,noun,40,scene ordinary,591,0.5013819305937937
+qwen3.6-27b,scene,noun,40,scene pretty,591,0.8398143215965908
+qwen3.6-27b,scene,noun,40,scene ugly,591,0.8262210475497245
+qwen3.6-27b,scene,noun,40,scene fancy,591,0.7301011826602826
+qwen3.6-27b,scene,noun,40,scene urban,591,0.8657022943080056
+qwen3.6-27b,scene,noun,40,scene cool sense score L24,591,0.8634274585910383
+qwen3.6-27b,scene,noun,44,scene cool,591,0.5498938283710422
+qwen3.6-27b,scene,noun,44,scene nice,591,0.8314398133844555
+qwen3.6-27b,scene,noun,44,scene ordinary,591,0.5769727108741792
+qwen3.6-27b,scene,noun,44,scene pretty,591,0.831519127916886
+qwen3.6-27b,scene,noun,44,scene ugly,591,0.8313675020690293
+qwen3.6-27b,scene,noun,44,scene fancy,591,0.7403864051844073
+qwen3.6-27b,scene,noun,44,scene urban,591,0.880797010998124
+qwen3.6-27b,scene,noun,44,scene cool sense score L24,591,0.8631751838132047
+qwen3.6-27b,scene,noun,48,scene cool,591,0.552957298723617
+qwen3.6-27b,scene,noun,48,scene nice,591,0.8319375828272106
+qwen3.6-27b,scene,noun,48,scene ordinary,591,0.5973468701086799
+qwen3.6-27b,scene,noun,48,scene pretty,591,0.8299354519631674
+qwen3.6-27b,scene,noun,48,scene ugly,591,0.8232880823408204
+qwen3.6-27b,scene,noun,48,scene fancy,591,0.7592014830220002
+qwen3.6-27b,scene,noun,48,scene urban,591,0.8815073837404261
+qwen3.6-27b,scene,noun,48,scene cool sense score L24,591,0.8553061041856731
+qwen3.6-27b,scene,noun,52,scene cool,591,0.5595566559839356
+qwen3.6-27b,scene,noun,52,scene nice,591,0.8140363182245695
+qwen3.6-27b,scene,noun,52,scene ordinary,591,0.6016066525919924
+qwen3.6-27b,scene,noun,52,scene pretty,591,0.8088511145041105
+qwen3.6-27b,scene,noun,52,scene ugly,591,0.8263893358619108
+qwen3.6-27b,scene,noun,52,scene fancy,591,0.7307907497577
+qwen3.6-27b,scene,noun,52,scene urban,591,0.8801605900422056
+qwen3.6-27b,scene,noun,52,scene cool sense score L24,591,0.8494106191788368
+qwen3.6-27b,scene,noun,56,scene cool,591,0.567039823132033
+qwen3.6-27b,scene,noun,56,scene nice,591,0.8273439710141229
+qwen3.6-27b,scene,noun,56,scene ordinary,591,0.550685491002711
+qwen3.6-27b,scene,noun,56,scene pretty,591,0.8288891249838556
+qwen3.6-27b,scene,noun,56,scene ugly,591,0.8359594916675284
+qwen3.6-27b,scene,noun,56,scene fancy,591,0.7478832122474666
+qwen3.6-27b,scene,noun,56,scene urban,591,0.8829289753681016
+qwen3.6-27b,scene,noun,56,scene cool sense score L24,591,0.8439001213310179
+qwen3.6-27b,scene,noun,60,scene cool,591,0.5302456625642278
+qwen3.6-27b,scene,noun,60,scene nice,591,0.8089975140109754
+qwen3.6-27b,scene,noun,60,scene ordinary,591,0.5455351942943771
+qwen3.6-27b,scene,noun,60,scene pretty,591,0.816471335843514
+qwen3.6-27b,scene,noun,60,scene ugly,591,0.8230460691777489
+qwen3.6-27b,scene,noun,60,scene fancy,591,0.7243449688494092
+qwen3.6-27b,scene,noun,60,scene urban,591,0.8890631611216078
+qwen3.6-27b,scene,noun,60,scene cool sense score L24,591,0.8497647417359334

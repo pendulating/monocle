@@ -1,0 +1,9 @@
+{
+  "plot-title": "Reads and the later argument: text",
+  "plot-caption": "Mean centred read over the text words of the argument of the same image, minus the same value for the other images of the borough, at each token and layer. The arguments come from separate runs with thinking on.",
+  "plot-latex-label": "fig:link-text",
+  "plot-tags": [
+    "F10.12",
+    "arguments"
+  ]
+}

@@ -1,0 +1,100 @@
+list,word,form,token_id,token,first_token
+upscale,upscale, upscale,90773,▁upscale,False
+upscale,high-end, high-end,1494,▁high,True
+upscale,upmarket, upmarket,872,▁up,True
+upscale,luxury,luxury,114271,luxury,False
+upscale,luxury, luxury,15818,▁luxury,False
+upscale,luxury,Luxury,120392,Luxury,False
+upscale,luxury, Luxury,59169,▁Luxury,False
+upscale,luxurious, luxurious,37848,▁luxurious,False
+upscale,luxurious, Luxurious,201522,▁Luxurious,False
+upscale,elegant,elegant,110208,elegant,False
+upscale,elegant, elegant,19185,▁elegant,False
+upscale,elegant,Elegant,130922,Elegant,False
+upscale,elegant, Elegant,98036,▁Elegant,False
+upscale,sophisticated, sophisticated,26446,▁sophisticated,False
+upscale,refined,refined,206583,refined,False
+upscale,refined, refined,33093,▁refined,False
+upscale,chic,chic,134497,chic,False
+upscale,chic, chic,40491,▁chic,False
+upscale,chic, Chic,92796,▁Chic,False
+upscale,pricey, pricey,100665,▁pricey,False
+upscale,expensive,expensive,39519,expensive,False
+upscale,expensive, expensive,11162,▁expensive,False
+upscale,expensive,Expensive,203872,Expensive,False
+upscale,expensive, Expensive,140143,▁Expensive,False
+upscale,exclusive,exclusive,78928,exclusive,False
+upscale,exclusive, exclusive,14417,▁exclusive,False
+upscale,exclusive,Exclusive,128996,Exclusive,False
+upscale,exclusive, Exclusive,68039,▁Exclusive,False
+upscale,posh, posh,126657,▁posh,False
+upscale,fancy,fancy,108404,fancy,False
+upscale,fancy, fancy,28149,▁fancy,False
+upscale,fancy,Fancy,143905,Fancy,False
+upscale,fancy, Fancy,84392,▁Fancy,False
+upscale,swanky, swanky,2353,▁sw,True
+cheap,cheap,cheap,87708,cheap,False
+cheap,cheap, cheap,12907,▁cheap,False
+cheap,cheap,Cheap,197694,Cheap,False
+cheap,cheap, Cheap,94804,▁Cheap,False
+cheap,affordable,affordable,232320,affordable,False
+cheap,affordable, affordable,17075,▁affordable,False
+cheap,affordable, Affordable,92690,▁Affordable,False
+cheap,budget,budget,51128,budget,False
+cheap,budget, budget,7715,▁budget,False
+cheap,budget,Budget,71653,Budget,False
+cheap,budget, Budget,29125,▁Budget,False
+cheap,inexpensive, inexpensive,46387,▁inexpensive,False
+cheap,bargain, bargain,54124,▁bargain,False
+cheap,no-frills, no-frills,951,▁no,True
+cheap,low-cost, low-cost,2708,▁low,True
+cheap,hole-in-the-wall, hole-in-the-wall,12401,▁hole,True
+cheap,cheap eats, cheap eats,12907,▁cheap,True
+danger,unsafe,unsafe,30908,unsafe,False
+danger,unsafe, unsafe,25793,▁unsafe,False
+danger,dangerous,dangerous,193883,dangerous,False
+danger,dangerous, dangerous,13588,▁dangerous,False
+danger,dangerous,Dangerous,236536,Dangerous,False
+danger,dangerous, Dangerous,109466,▁Dangerous,False
+danger,sketchy, sketchy,191399,▁sketchy,False
+danger,rough,rough,1266,rough,False
+danger,rough, rough,10887,▁rough,False
+danger,rough,Rough,122700,Rough,False
+danger,rough, Rough,68580,▁Rough,False
+danger,gritty, gritty,125923,▁gritty,False
+danger,seedy, seedy,636,▁se,True
+danger,crime,crime,103815,crime,False
+danger,crime, crime,12158,▁crime,False
+danger,crime,Crime,132998,Crime,False
+danger,crime, Crime,31055,▁Crime,False
+danger,run-down, run-down,1845,▁run,True
+danger,rundown, rundown,127147,▁rundown,False
+danger,dilapidated, dilapidated,176451,▁dilapidated,False
+danger,neglected, neglected,35034,▁neglected,False
+safe,safe,safe,12977,safe,False
+safe,safe, safe,6338,▁safe,False
+safe,safe,Safe,39316,Safe,False
+safe,safe, Safe,30164,▁Safe,False
+safe,secure,secure,45505,secure,False
+safe,secure, secure,9584,▁secure,False
+safe,secure,Secure,85692,Secure,False
+safe,secure, Secure,57843,▁Secure,False
+safe,peaceful, peaceful,26169,▁peaceful,False
+safe,peaceful, Peaceful,233998,▁Peaceful,False
+safe,quiet,quiet,53586,quiet,False
+safe,quiet, quiet,12010,▁quiet,False
+safe,quiet,Quiet,161576,Quiet,False
+safe,quiet, Quiet,91638,▁Quiet,False
+safe,tranquil, tranquil,61673,▁tranquil,False
+cities,Philadelphia,Philadelphia,104561,Philadelphia,False
+cities,Philadelphia, Philadelphia,19662,▁Philadelphia,False
+cities,Boston,Boston,67784,Boston,False
+cities,Boston, Boston,14850,▁Boston,False
+cities,Chicago,Chicago,49548,Chicago,False
+cities,Chicago, Chicago,10561,▁Chicago,False
+cities,London,London,27822,London,False
+cities,London, London,5860,▁London,False
+cities,Paris,Paris,50429,Paris,False
+cities,Paris, Paris,9079,▁Paris,False
+cities,Toronto,Toronto,87866,Toronto,False
+cities,Toronto, Toronto,20422,▁Toronto,False
