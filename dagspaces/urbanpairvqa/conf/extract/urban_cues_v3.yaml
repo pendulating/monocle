@@ -1,0 +1,855 @@
+# @package extract
+# Urban cue schema, version 3 (2026-09-28). DRAFT, not yet run.
+#
+# Version 3 puts the classes on the Integrative Complexity (IC) codebook and
+# rewrites the examples in the style of the human gold set
+# (`data/label_studio/ic_traces_high_depiction_confidence_10_out_of_30.json`).
+# The review of 2026-09-28 found that the version 2 examples take a phrase
+# ("trash can", "slightly neglected") where the annotator takes the clause,
+# and that they mark 32% of a trace where the annotator marks 77%. The
+# extractors reached half the human spans at a precision of 0.9: they
+# followed the examples, not the annotator. The extraction task and the
+# evaluation task must share one convention, or the score measures the gap
+# between 2 conventions and not the extractor.
+#
+# The classes, by IC code category:
+#
+# | IC category | Class | Version 2 name |
+# |-------------|-------|----------------|
+# | 1, descriptive observation | dimension | visual_evidence |
+# | 1, evaluative observation | inference | inference |
+# | 2, evaluative standard | perspective | (lumped into inference) |
+# | 3, comparative weighing | weighing, justification | (none) |
+# | 3, compartmentalization | dismissal | (none) |
+# | 3, pseudo-differentiation | verdict, uncertainty (marker reconsideration) | (comparison, uncertainty) |
+# | 3, tolerance for ambiguity | uncertainty (marker), justification | uncertainty |
+# | scaffold | decision, comparison, person_reference, image_artifact | the same |
+#
+# The changes:
+#
+# 1. A span is the whole clause, first word to end punctuation. The list
+#    marker and the bold header at its head stay out.
+# 2. `visual_evidence` becomes `dimension`: a property graspable by sight.
+#    Its `category` enum becomes a free `name`, because the codebook asks the
+#    coder to develop the dimension names. `valence` stays.
+# 3. `inference` is the IC evaluative observation and the context-laden
+#    claim: "modern", "historic", "well-maintained", "standard", "feels
+#    city-like". To call a building modern takes knowledge of what modern
+#    is. It gains a free `name`. The IC dimension count of a trace is the
+#    count of distinct names over `dimension` and `inference` together.
+# 4. New class `perspective` (IC code category 2): the evaluative standard.
+#    Free `name`, `favors`, `wins` (the standard the decision follows), and
+#    `source`. A perspective need not be general: "They both look pretty
+#    standard for NYC" applies a standard to this pair, and the mode word
+#    inside an inference ("classic", "high-end", "prestigious") is a
+#    perspective of its own, nested in the inference. Decided 2026-09-28.
+# 5. The differentiation mechanisms (IC code category 3) as span classes,
+#    on the design of `dagspaces/common/ic_schema.py`: `weighing` (with a
+#    mechanism), `justification` (the span that says WHY, linked to its
+#    weighing, perspective, uncertainty, or dismissal by position on the
+#    CPU), `dismissal` (with `about: premise` for "I don't see a library"),
+#    `verdict` (an answer the model later restates or changes), and
+#    `uncertainty.marker` (qualifier, contrastive, explicit_doubt,
+#    reconsideration). The prompt never asks for a judgment such as
+#    "justified: yes"; it asks for the span, and the code derives from the
+#    span. The trace-level codes (compartmentalization, pseudo-
+#    differentiation, tolerance for ambiguity, comparative weighing) derive
+#    on the CPU from these spans, as `ic_codes.py` does for the IC pipeline.
+# 6. A span may sit inside a span of another class, or carry 2 classes. The
+#    aligner places a nested span by its fuzzy pass, and `validate_examples`
+#    accepts a fuzzy match whose slice is verbatim. Tested 2026-09-28.
+# 7. A 4th worked example, the first trace of `ic_examples_v2.json`, shows
+#    the differentiation mechanisms: 5 reconsiderations that change nothing,
+#    3 verdicts with 1 label, a perspective developed 3 times, a qualifier
+#    raised and dismissed, and the weighing inside the dismissal.
+#
+# The smoke of 2026-09-28 (Qwen3.8-27B, 120 gemma subway traces, 39 min):
+# no truncation, 99.6% verbatim, 2.7% duplicates, 74 spans and 9
+# perspectives for each trace, 22% of spans nested. No weighing in 120
+# traces, and 1 weighing word in the text: the class is rare, not missed.
+# 9 traces got no decision, because the last line hedged ('"Same" seems most
+# appropriate.') and the extractor read it as an uncertainty alone. Rule 7
+# now names that case.
+#
+# Warning: the schema holds only the classes that an example teaches. The
+# example set must hold at least 1 span of every class above.
+#
+# Warning: the examples are chosen to show every class at least one time.
+# They are not a sample: most traces hold no weighing, no dismissal, and no
+# justification. Rule 6 of the prompt says so to the model.
+#
+# Warning: keep `attribute_values` in step with `VOCABULARY` in
+# `notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
+# that the 2 agree.
+#
+# See `vlm-narratives-docs/langextract-trace-extraction.md` and
+# `vlm-narratives-docs/ic-ingredient-extraction.md`.
+
+name: urban_cues
+schema_version: v3
+
+max_char_buffer: 40000
+max_model_len: 32768
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+
+# Clause-length spans, nesting, and 12 classes write more text for each
+# trace than version 2. The cap stays at the room the engine leaves; watch
+# `answers_truncated` on the smoke run.
+max_tokens: 16384
+use_guided_json: true
+require_extraction: true
+
+# vLLM's repetition penalty; 1.0 is off. Gemma-4-31B on a long qwen trace
+# wrote the same 50 to 77 spans up to 27 times until the cap (2026-09-29,
+# 70% duplicate spans). The qwen-trace Gemma31 arm sets 1.05 at submit.
+repetition_penalty: 1.0
+
+# The values the model may write. The grammar enforces them. `name`, `target`,
+# and `comparison.dimension` are free phrases and are absent here on purpose.
+attribute_values:
+  dimension:
+    image: &id001
+    - A
+    - B
+    - both
+    - unclear
+    valence:
+    - good
+    - bad
+    - neutral
+  inference:
+    image: *id001
+    kind:
+    - safety
+    - quality
+    - upkeep
+    - wealth
+    - class
+    - crime
+    - demographic
+    - other
+  perspective:
+    favors:
+    - A
+    - B
+    - neither
+    wins:
+    - 'yes'
+    - 'no'
+    source:
+    - world_knowledge
+    - task_convention
+    - other
+  weighing:
+    mechanism:
+    - weighing
+    - balancing
+    - prioritization
+    - trade_off
+    - conditional
+    favors:
+    - A
+    - B
+    - neither
+  justification:
+    of:
+    - weighing
+    - perspective
+    - uncertainty
+    - dismissal
+    role:
+    - reason
+    - condition
+  dismissal:
+    about:
+    - cue
+    - perspective
+    - premise
+  verdict:
+    label: &id002
+    - MuchLess
+    - Less
+    - Same
+    - More
+    - MuchMore
+    - NotSure
+  decision:
+    label: *id002
+  comparison:
+    direction:
+    - A
+    - B
+    - neither
+    hedged:
+    - 'yes'
+    - 'no'
+  uncertainty:
+    reason:
+    - looks_equal
+    - cannot_see
+    - out_of_view
+    - other
+    marker:
+    - qualifier
+    - contrastive
+    - explicit_doubt
+    - reconsideration
+  person_reference:
+    image: *id001
+    used_in_judgment:
+    - 'yes'
+    - 'no'
+  image_artifact:
+    image: *id001
+    kind:
+    - blur
+    - angle
+    - occlusion
+    - time_of_day
+    - weather
+    - other
+
+prompt_description: |
+  You read the private reasoning that a vision-language model wrote while it
+  compared two street-level photographs of New York City. Extract what the model
+  says. Do not judge the images yourself, and do not add anything the text does
+  not say.
+
+  The classes follow the Integrative Complexity codebook, and they stand in a
+  logical order. First the model observes DIMENSIONS: single instances that
+  describe a scene, descriptive ("multi-story brick buildings") or evaluative
+  ("a well-maintained street"). Then PERSPECTIVES follow from the dimensions:
+  a perspective is the evaluative standard by which the model informs its
+  judgment, and it explains how or why a dimension counts for or against the
+  scene. A dimension describes; a perspective is a deductive mode of
+  valuation, the mode through which the model values the scene: "urban",
+  "suburban", "classic", "prestigious". Then the DIFFERENTIATION classes
+  (weighing, justification, dismissal, verdict, uncertainty) record HOW the
+  model reasons with its dimensions and perspectives toward the decision. You
+  extract the spans; a later step derives the code from them.
+
+  Use exactly these classes:
+
+  - dimension: a single instance that describes the scene, a property
+    graspable by sight: an object, a material, a colour, a count, legible
+    text, a lighting condition ("well-lit"), the layout of the street. It
+    needs no knowledge beyond the pixels. It is what a perspective later
+    counts for or against the scene.
+    attributes: image (A, B, both, unclear); valence (good, bad, neutral);
+    name (a short phrase that names the attribute observed: architecture,
+    infrastructure, lighting, greenery, vehicles, signage, street furniture,
+    construction, sidewalk condition, facade condition)
+  - inference: an evaluative observation, or a claim that reads knowledge of
+    the world into what is seen: that a building is modern, historic,
+    high-end, neglected, well-maintained, standard, institutional, a private
+    school; that an area is affluent, safe, gritty; that a scene feels
+    city-like or drab. To call a building modern takes knowledge of what
+    modern is.
+    attributes: image (A, B, both, unclear); kind (safety, quality, upkeep,
+    wealth, class, crime, demographic, other); name (a short phrase that names
+    the attribute evaluated: maintenance, modernity, prestige, school type,
+    standardness, hazard, aesthetic sentiment)
+  - perspective: the evaluative standard by which the model informs its
+    judgment. It follows from a dimension and explains how or why that
+    dimension counts for or against the scene. It is a deductive mode of
+    valuation, not an observation: the model takes the perspective that the
+    scene can be valued through the mode "classic", "high-end",
+    "prestigious", "modern", "historic", "utilitarian", "well-maintained",
+    "clean". The test: "well-lit" that names the lighting of a street is a
+    dimension; the safety the model reads out of the lighting is the
+    perspective. A perspective takes 3 shapes: a general rule ("Affluence
+    often correlates with perceived safety", "Construction zones are
+    inherently less safe for the general public"), a standard applied to this
+    pair ("They both look pretty standard for NYC"), or the mode word itself
+    inside the inference that applies it. Extract the word or the short
+    phrase as its own span inside the clause that holds it. Ask of each
+    evaluative attribute: is this the standard on which the model grounds its
+    eventual decision?
+    attributes: name (a short phrase that names the mode: classic, prestige,
+    modern, maintenance, NYC baseline, construction hazard); favors (A, B,
+    neither: the image the standard counts FOR); wins (yes when the decision
+    follows this standard, no when the model names it and then decides on
+    another); source (world_knowledge, task_convention, other)
+  - weighing: the model sets two standards, or two dimensions, against each
+    other and says which one counts more: "construction hazards usually
+    outweigh a guard", "the difference in lighting matters more here than the
+    graffiti".
+    attributes: mechanism (weighing, balancing, prioritization, trade_off,
+    conditional); favors (A, B, neither)
+  - justification: the span that explains WHY: why one side of a weighing
+    counts more, why a standard holds, why the model doubts, or why it sets a
+    cue aside. Extract it only when the text gives a reason; "overall" and
+    "on balance" are not reasons. A condition under which the weight would
+    change takes role condition.
+    attributes: of (weighing, perspective, uncertainty, dismissal); role
+    (reason, condition)
+  - dismissal: the model names a cue or a standard and then sets it aside as
+    not relevant, or not worth more thought. When it doubts that the image
+    shows the thing the prompt names ("I don't see a library in Image A"),
+    about is premise.
+    attributes: target (a short phrase for what is set aside); about (cue,
+    perspective, premise)
+  - verdict: a statement of the answer that the model later restates or
+    changes: "Therefore, the school in Image A is *Less* good", "So Image A
+    is Less safe". A trace that decides three times gives two verdicts and one
+    decision.
+    attributes: label (MuchLess, Less, Same, More, MuchMore, NotSure)
+  - decision: the one sentence that states the FINAL answer.
+    attributes: label (MuchLess, Less, Same, More, MuchMore, NotSure)
+  - comparison: an explicit statement that sets image A against image B on a
+    quality.
+    attributes: direction (A, B, neither: the image that has MORE of the
+    quality named); dimension (a short phrase); hedged (yes, no)
+  - uncertainty: a hedge, a statement that the model cannot decide, or a
+    reconsideration: the model stops, says "Wait" or "Actually", reads the
+    prompt again, looks again, or weighs two labels.
+    attributes: reason (looks_equal, cannot_see, out_of_view, other); marker
+    (qualifier for probably, might, seems, usually; contrastive for but,
+    however, while, although; explicit_doubt for "hard to tell", "I cannot
+    see"; reconsideration for "Wait", "Let me re-evaluate", "Let me check
+    again")
+  - person_reference: a statement about the people in a photograph.
+    attributes: image (A, B, both, unclear); used_in_judgment (yes, no)
+  - image_artifact: a statement about the photograph itself, not about the
+    place: the angle, the blur, an obstruction, the time of day, the weather.
+    attributes: image (A, B, both, unclear); kind (blur, angle, occlusion,
+    time_of_day, weather, other)
+
+  Every listed attribute value must be one of the values given. Use `other` or
+  `unclear` when no listed value fits. Never invent a listed value. The `name`,
+  `target`, and `dimension` attributes are free short phrases: reuse a name
+  when the same attribute or standard appears again in the trace.
+
+  Rules:
+
+  1. Copy each extraction from the trace, character for character. It must be a
+     span you can point to in the text. Never paraphrase, never join two parts
+     of the text, and never shorten a phrase to its meaning.
+  2. Extract the whole clause. A span runs from its first word to its end
+     punctuation. Leave out a list marker ("- ", "* ") and a bold header
+     ("**Image A:**") at its head. Keep the words "Image A" or "Image B" when
+     they open the clause.
+  3. A span may sit inside another span, or carry two classes. An inference
+     often rests on things the model names as visible: extract the inference
+     clause, and extract the visible things inside it as a dimension too. A
+     sentence that states a standard and also sets A against B is both a
+     perspective and a comparison. The mode word inside an inference is a
+     perspective of its own. A weighing may sit inside a dismissal. A
+     hedged observation is both a dimension and an uncertainty. Never extract
+     the same span two times with the same class.
+  4. Extract in the order that the spans appear in the text.
+  5. The opening sentence restates the question the model was asked. Extract
+     nothing from it. A later sentence in which the model reads the prompt
+     again is an uncertainty with marker reconsideration.
+  6. Never answer with an empty list. Every trace names at least one thing that
+     it sees. Extract what is there, and stop. A repeated thought is 1
+     extraction, not 2. Many traces hold no weighing, no dismissal, and no
+     justification: do not invent one.
+  7. Extract exactly 1 decision: the LAST sentence that states the answer. An
+     earlier sentence that states an answer is a verdict. The decision is
+     usually the final line of the trace, and it often reads "Final decision:
+     Less", "Label: More", "I will go with MuchLess", or "So A is Less safe".
+     A "Therefore, ..." sentence in the middle of the
+     trace is a verdict, not the decision, when the model goes on to
+     reconsider. The last sentence that names the answer is the decision even
+     when it hedges: '"Same" seems most appropriate.', 'I think they look
+     about the same.', 'I'll lean "Less".' are decisions. Such a sentence is
+     also an uncertainty when it hedges. Every trace that gives an answer has
+     a decision.
+  8. A sentence that only lists the possible labels, or that only restates the
+     answer format, is not evidence. Extract nothing from it.
+
+examples:
+  # 1. Subway safety, gemma-4-12b. Clause-length spans; an inference that
+  #    holds the dimensions it rests on; a perspective that wins; the decision.
+  - text: |
+      The user wants me to compare the safety of two subway station entrances.
+
+      **Image A analysis:**
+      - There are people walking around, some on skateboards.
+      - There's a trash can, a sign, and traffic lights.
+      - The area seems well-lit and has some foot traffic.
+
+      **Image B analysis:**
+      - Shows a subway entrance behind a construction fence.
+      - The sidewalk has some debris or unevenness due to construction.
+
+      **Comparison of safety:**
+      - Image A has more clear visibility of the surroundings.
+      - Is there a significant difference in safety? They both look pretty standard for NYC.
+      - I'll go with "Same".
+    extractions:
+    - extraction_class: person_reference
+      extraction_text: There are people walking around, some on skateboards.
+      attributes: {image: A, used_in_judgment: 'no'}
+    - extraction_class: dimension
+      extraction_text: There's a trash can, a sign, and traffic lights.
+      attributes: {image: A, valence: neutral, name: street furniture}
+    - extraction_class: inference
+      extraction_text: The area seems well-lit and has some foot traffic.
+      attributes: {image: A, kind: safety, name: activity and lighting}
+    - extraction_class: dimension
+      extraction_text: well-lit
+      attributes: {image: A, valence: good, name: lighting}
+    - extraction_class: person_reference
+      extraction_text: foot traffic
+      attributes: {image: A, used_in_judgment: 'yes'}
+    - extraction_class: dimension
+      extraction_text: Shows a subway entrance behind a construction fence.
+      attributes: {image: B, valence: bad, name: construction}
+    - extraction_class: inference
+      extraction_text: The sidewalk has some debris or unevenness due to construction.
+      attributes: {image: B, kind: upkeep, name: sidewalk condition}
+    - extraction_class: dimension
+      extraction_text: debris or unevenness
+      attributes: {image: B, valence: bad, name: sidewalk condition}
+    - extraction_class: comparison
+      extraction_text: Image A has more clear visibility of the surroundings.
+      attributes: {direction: A, dimension: visibility, hedged: 'no'}
+    - extraction_class: uncertainty
+      extraction_text: Is there a significant difference in safety?
+      attributes: {reason: looks_equal, marker: explicit_doubt}
+    - extraction_class: perspective
+      extraction_text: They both look pretty standard for NYC.
+      attributes: {name: NYC baseline, favors: neither, wins: 'yes', source: world_knowledge}
+    - extraction_class: decision
+      extraction_text: I'll go with "Same".
+      attributes: {label: Same}
+  # 2. Library upkeep, gemma-4-12b. An inference that holds both a dimension
+  #    and a hedge; a camera-angle artifact that is also a hedge.
+  - text: |
+      The user wants me to compare the maintenance of two New York City public library buildings.
+
+      - **Image A:** Shows a side view of a large, mostly white brick building with a flat roof. The wall looks plain and might have some weathering or dirt, but it's hard to tell for sure.
+      - **Image B:** Shows a classic red brick building with arched windows and decorative masonry. It looks very well-maintained and clean.
+
+      Image B looks like a high-end, prestigious building. Image A looks like a standard, slightly neglected industrial-style building.
+      It's hard to judge maintenance from a side wall.
+      Therefore, Image A is likely "Less" well-maintained than Image B.
+    extractions:
+    - extraction_class: dimension
+      extraction_text: Shows a side view of a large, mostly white brick building with a flat roof.
+      attributes: {image: A, valence: neutral, name: architecture}
+    - extraction_class: inference
+      extraction_text: The wall looks plain and might have some weathering or dirt, but it's hard to tell for sure.
+      attributes: {image: A, kind: upkeep, name: facade condition}
+    - extraction_class: dimension
+      extraction_text: weathering or dirt
+      attributes: {image: A, valence: bad, name: facade condition}
+    - extraction_class: uncertainty
+      extraction_text: it's hard to tell for sure
+      attributes: {reason: cannot_see, marker: explicit_doubt}
+    - extraction_class: dimension
+      extraction_text: Shows a classic red brick building with arched windows and decorative masonry.
+      attributes: {image: B, valence: good, name: architecture}
+    - extraction_class: perspective
+      extraction_text: classic
+      attributes: {name: classic, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: inference
+      extraction_text: It looks very well-maintained and clean.
+      attributes: {image: B, kind: upkeep, name: maintenance}
+    - extraction_class: perspective
+      extraction_text: well-maintained
+      attributes: {name: maintenance, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: clean
+      attributes: {name: cleanliness, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: inference
+      extraction_text: Image B looks like a high-end, prestigious building.
+      attributes: {image: B, kind: class, name: prestige}
+    - extraction_class: perspective
+      extraction_text: high-end
+      attributes: {name: high-end, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: prestigious
+      attributes: {name: prestige, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: inference
+      extraction_text: Image A looks like a standard, slightly neglected industrial-style building.
+      attributes: {image: A, kind: upkeep, name: maintenance}
+    - extraction_class: perspective
+      extraction_text: slightly neglected
+      attributes: {name: maintenance, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: industrial-style
+      attributes: {name: industrial, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: image_artifact
+      extraction_text: It's hard to judge maintenance from a side wall.
+      attributes: {image: A, kind: angle}
+    - extraction_class: uncertainty
+      extraction_text: It's hard to judge maintenance from a side wall.
+      attributes: {reason: cannot_see, marker: explicit_doubt}
+    - extraction_class: decision
+      extraction_text: Therefore, Image A is likely "Less" well-maintained than Image B.
+      attributes: {label: Less}
+  # 3. Schools, qwen3.5-9b (trace unit_00006634 of the 2026-08-14 run, with
+  #    the list of labels cut). The model states a verdict, says "Wait", and
+  #    then decides "MuchLess". The earlier statements are verdicts; only the
+  #    last is the decision. The re-reading of the prompt is a reconsideration.
+  #    The sentence that names the standard is both a perspective and a
+  #    comparison.
+  - text: |
+      The user wants me to compare two images of schools and determine which one looks like the "better" school.
+
+      **Image Analysis:**
+      *   **Image A:** Shows a modern-looking, possibly institutional building. It has a flat roof, beige brick or concrete facade with large sections of windows. There are air conditioning units sticking out of windows. It looks like a typical public school in an urban area, perhaps older but functional. There's a white SUV parked in front. A tree is partially obscuring the view.
+      *   **Image B:** Shows a much grander, older brick building. It looks like a historic structure with ornate brickwork, turrets, and Gothic Revival architectural details. It looks like a private school or a very well-funded public school campus. The architecture is significantly more elaborate and high-quality compared to Image A.
+
+      **Comparison:**
+      *   Image A depicts a utilitarian, boxy building that looks like a standard public school. It lacks the architectural flair of Image B.
+      *   Image B depicts a grand, historic-looking brick building that suggests wealth, history, and likely better resources or status. It looks like a prestigious school.
+
+      **Conclusion:**
+      Image B looks like a "better" school in terms of facilities, architecture, and likely prestige/resources compared to the utilitarian building in Image A. Therefore, the school in Image A is *Less* good than the one in Image B.
+
+      Wait, the prompt asks: "Interpret this as 'the school in Image A is a <label> good school than the one in Image B'."
+      So if Image B is better, Image A is *Less* good.
+
+      Let's re-evaluate "MuchLess" vs "Less".
+      Image A is a standard brick building, very functional, somewhat drab.
+      Image B is a grand, expensive-looking brick building.
+      The difference is quite significant in terms of architectural value and perceived prestige. Image B looks like a top-tier institution, while Image A looks like a standard district school.
+      So, Image A is significantly worse. "MuchLess" seems appropriate.
+
+      The gap is noticeable. I will go with "MuchLess".
+    extractions:
+    - extraction_class: inference
+      extraction_text: Shows a modern-looking, possibly institutional building.
+      attributes: {image: A, kind: quality, name: modernity}
+    - extraction_class: perspective
+      extraction_text: modern-looking
+      attributes: {name: modern, favors: A, wins: 'no', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: institutional
+      attributes: {name: institutional, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: dimension
+      extraction_text: It has a flat roof, beige brick or concrete facade with large sections of windows.
+      attributes: {image: A, valence: neutral, name: architecture}
+    - extraction_class: dimension
+      extraction_text: There are air conditioning units sticking out of windows.
+      attributes: {image: A, valence: neutral, name: building fixtures}
+    - extraction_class: inference
+      extraction_text: It looks like a typical public school in an urban area, perhaps older but functional.
+      attributes: {image: A, kind: class, name: school type}
+    - extraction_class: perspective
+      extraction_text: typical public school
+      attributes: {name: standard, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: older but functional
+      attributes: {name: functional, favors: A, wins: 'no', source: world_knowledge}
+    - extraction_class: dimension
+      extraction_text: There's a white SUV parked in front.
+      attributes: {image: A, valence: neutral, name: vehicles}
+    - extraction_class: image_artifact
+      extraction_text: A tree is partially obscuring the view.
+      attributes: {image: A, kind: occlusion}
+    - extraction_class: inference
+      extraction_text: Shows a much grander, older brick building.
+      attributes: {image: B, kind: wealth, name: grandeur}
+    - extraction_class: perspective
+      extraction_text: grander
+      attributes: {name: grand, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: inference
+      extraction_text: It looks like a historic structure with ornate brickwork, turrets, and Gothic Revival architectural details.
+      attributes: {image: B, kind: quality, name: historic character}
+    - extraction_class: perspective
+      extraction_text: historic
+      attributes: {name: historic, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: dimension
+      extraction_text: ornate brickwork, turrets, and Gothic Revival architectural details
+      attributes: {image: B, valence: good, name: architecture}
+    - extraction_class: inference
+      extraction_text: It looks like a private school or a very well-funded public school campus.
+      attributes: {image: B, kind: wealth, name: school type}
+    - extraction_class: perspective
+      extraction_text: private school
+      attributes: {name: resources, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: well-funded
+      attributes: {name: resources, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: comparison
+      extraction_text: The architecture is significantly more elaborate and high-quality compared to Image A.
+      attributes: {direction: B, dimension: architecture, hedged: 'no'}
+    - extraction_class: inference
+      extraction_text: Image A depicts a utilitarian, boxy building that looks like a standard public school.
+      attributes: {image: A, kind: class, name: school type}
+    - extraction_class: perspective
+      extraction_text: utilitarian
+      attributes: {name: utilitarian, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: comparison
+      extraction_text: It lacks the architectural flair of Image B.
+      attributes: {direction: B, dimension: architectural flair, hedged: 'no'}
+    - extraction_class: inference
+      extraction_text: Image B depicts a grand, historic-looking brick building that suggests wealth, history, and likely better resources or status.
+      attributes: {image: B, kind: wealth, name: resources and status}
+    - extraction_class: inference
+      extraction_text: It looks like a prestigious school.
+      attributes: {image: B, kind: class, name: prestige}
+    - extraction_class: perspective
+      extraction_text: prestigious school
+      attributes: {name: prestige, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: Image B looks like a "better" school in terms of facilities, architecture, and likely prestige/resources compared to the utilitarian building in Image A.
+      attributes: {name: 'facilities, architecture and prestige', favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: comparison
+      extraction_text: Image B looks like a "better" school in terms of facilities, architecture, and likely prestige/resources compared to the utilitarian building in Image A.
+      attributes: {direction: B, dimension: overall quality, hedged: 'no'}
+    - extraction_class: verdict
+      extraction_text: Therefore, the school in Image A is *Less* good than the one in Image B.
+      attributes: {label: Less}
+    - extraction_class: uncertainty
+      extraction_text: 'Wait, the prompt asks: "Interpret this as ''the school in Image A is a <label> good school than the one in Image B''."'
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: uncertainty
+      extraction_text: Let's re-evaluate "MuchLess" vs "Less".
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: inference
+      extraction_text: Image A is a standard brick building, very functional, somewhat drab.
+      attributes: {image: A, kind: quality, name: aesthetic sentiment}
+    - extraction_class: perspective
+      extraction_text: very functional
+      attributes: {name: functional, favors: A, wins: 'no', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: somewhat drab
+      attributes: {name: drab, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: inference
+      extraction_text: Image B is a grand, expensive-looking brick building.
+      attributes: {image: B, kind: wealth, name: grandeur}
+    - extraction_class: perspective
+      extraction_text: expensive-looking
+      attributes: {name: expensive, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: comparison
+      extraction_text: The difference is quite significant in terms of architectural value and perceived prestige.
+      attributes: {direction: B, dimension: architectural value and prestige, hedged: 'no'}
+    - extraction_class: inference
+      extraction_text: Image B looks like a top-tier institution, while Image A looks like a standard district school.
+      attributes: {image: both, kind: class, name: school type}
+    - extraction_class: perspective
+      extraction_text: top-tier institution
+      attributes: {name: resources, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: uncertainty
+      extraction_text: '"MuchLess" seems appropriate.'
+      attributes: {reason: other, marker: qualifier}
+    - extraction_class: decision
+      extraction_text: I will go with "MuchLess".
+      attributes: {label: MuchLess}
+  # 4. Subway safety, gemma-4-12b (trace unit_00004632 of the 2026-08-13 run,
+  #    the first example of `ic_examples_v2.json`). The differentiation
+  #    mechanisms: 5 reconsiderations that change nothing, 3 verdicts with 1
+  #    label, a perspective developed 3 times with its justification, a
+  #    qualifier raised and then dismissed, and the weighing inside the
+  #    dismissal.
+  - text: |
+      The user wants me to compare the safety of two subway station entrances in New York City.
+
+      **Image A analysis:**
+      - Shows a subway entrance under construction or renovation.
+      - There are orange construction barriers and fences.
+      - A mobile ticket booth/guard station is visible.
+      - A person is standing near it.
+      - Construction debris or materials might be around.
+      - There is a "DANGER" sign.
+      - It looks less public and potentially more hazardous due to active construction.
+
+      **Image B analysis:**
+      - Shows a typical, well-maintained subway entrance (MTA booth and stairs).
+      - It's on a busy street with pedestrians and cars.
+      - The street is clear, and the station area is standard.
+      - No visible construction hazards.
+
+      **Comparison:**
+      - Image A has active construction, barriers, and a "DANGER" sign. This indicates a potential safety hazard compared to a standard, finished station entrance.
+      - Image B is a standard operational entrance.
+
+      Therefore, the station entrance in Image A is *less* safe than the one in Image B due to the construction activity.
+
+      Let's re-evaluate.
+      Image A: Active construction site. Construction sites are generally less safe for the general public due to tripping hazards, falling objects, etc.
+      Image B: Standard city street and subway entrance.
+
+      Comparing Image A to Image B:
+      Image A is "Less" safe than Image B.
+
+      Wait, let me check if there's any other factor.
+      Image A shows a "Danger" sign and construction fencing.
+      Image B shows a standard street scene.
+
+      Usually, construction zones are considered less safe for pedestrians.
+      So Image A is "Less" safe than Image B.
+
+      Let's re-read the prompt: "Interpret this as 'the station entrance in Image A is <label> safe than the one in Image B'".
+      So "Less" means Image A is less safe than Image B.
+
+      Let me double check.
+      Image A: construction zone, orange barrels, barriers.
+      Image B: normal sidewalk, subway entrance.
+      Construction zones are inherently less safe for the general public.
+
+      Is there anything else?
+      Image A might be perceived as safer because of the guard booth? Probably not, construction hazards usually outweigh a guard.
+      Image B is a very standard, open public space.
+
+      Comparison:
+      Image A: Construction zone.
+      Image B: Finished street/station.
+      Image A is Less safe.
+    extractions:
+    - extraction_class: dimension
+      extraction_text: Shows a subway entrance under construction or renovation.
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: dimension
+      extraction_text: There are orange construction barriers and fences.
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: dimension
+      extraction_text: A mobile ticket booth/guard station is visible.
+      attributes: {image: A, valence: good, name: security presence}
+    - extraction_class: person_reference
+      extraction_text: A person is standing near it.
+      attributes: {image: A, used_in_judgment: 'no'}
+    - extraction_class: dimension
+      extraction_text: Construction debris or materials might be around.
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: uncertainty
+      extraction_text: Construction debris or materials might be around.
+      attributes: {reason: cannot_see, marker: qualifier}
+    - extraction_class: dimension
+      extraction_text: There is a "DANGER" sign.
+      attributes: {image: A, valence: bad, name: signage}
+    - extraction_class: inference
+      extraction_text: It looks less public and potentially more hazardous due to active construction.
+      attributes: {image: A, kind: safety, name: hazard}
+    - extraction_class: perspective
+      extraction_text: more hazardous
+      attributes: {name: construction hazard, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: inference
+      extraction_text: Shows a typical, well-maintained subway entrance (MTA booth and stairs).
+      attributes: {image: B, kind: upkeep, name: maintenance}
+    - extraction_class: perspective
+      extraction_text: well-maintained
+      attributes: {name: maintenance, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: typical
+      attributes: {name: standard, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: dimension
+      extraction_text: MTA booth and stairs
+      attributes: {image: B, valence: neutral, name: station fixtures}
+    - extraction_class: dimension
+      extraction_text: It's on a busy street with pedestrians and cars.
+      attributes: {image: B, valence: neutral, name: activity}
+    - extraction_class: person_reference
+      extraction_text: pedestrians
+      attributes: {image: B, used_in_judgment: 'no'}
+    - extraction_class: inference
+      extraction_text: The street is clear, and the station area is standard.
+      attributes: {image: B, kind: quality, name: standardness}
+    - extraction_class: dimension
+      extraction_text: clear
+      attributes: {image: B, valence: good, name: street condition}
+    - extraction_class: dimension
+      extraction_text: No visible construction hazards.
+      attributes: {image: B, valence: good, name: construction}
+    - extraction_class: dimension
+      extraction_text: Image A has active construction, barriers, and a "DANGER" sign.
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: inference
+      extraction_text: This indicates a potential safety hazard compared to a standard, finished station entrance.
+      attributes: {image: A, kind: safety, name: hazard}
+    - extraction_class: comparison
+      extraction_text: This indicates a potential safety hazard compared to a standard, finished station entrance.
+      attributes: {direction: B, dimension: safety, hedged: 'yes'}
+    - extraction_class: inference
+      extraction_text: Image B is a standard operational entrance.
+      attributes: {image: B, kind: quality, name: standardness}
+    - extraction_class: perspective
+      extraction_text: standard operational entrance
+      attributes: {name: standard, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: verdict
+      extraction_text: Therefore, the station entrance in Image A is *less* safe than the one in Image B due to the construction activity.
+      attributes: {label: Less}
+    - extraction_class: uncertainty
+      extraction_text: Let's re-evaluate.
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: dimension
+      extraction_text: Active construction site.
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: perspective
+      extraction_text: Construction sites are generally less safe for the general public due to tripping hazards, falling objects, etc.
+      attributes: {name: construction hazard, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: justification
+      extraction_text: due to tripping hazards, falling objects, etc.
+      attributes: {of: perspective, role: reason}
+    - extraction_class: inference
+      extraction_text: Standard city street and subway entrance.
+      attributes: {image: B, kind: quality, name: standardness}
+    - extraction_class: verdict
+      extraction_text: Image A is "Less" safe than Image B.
+      attributes: {label: Less}
+    - extraction_class: uncertainty
+      extraction_text: Wait, let me check if there's any other factor.
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: dimension
+      extraction_text: Image A shows a "Danger" sign and construction fencing.
+      attributes: {image: A, valence: bad, name: signage}
+    - extraction_class: inference
+      extraction_text: Image B shows a standard street scene.
+      attributes: {image: B, kind: quality, name: standardness}
+    - extraction_class: perspective
+      extraction_text: Usually, construction zones are considered less safe for pedestrians.
+      attributes: {name: construction hazard, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: verdict
+      extraction_text: So Image A is "Less" safe than Image B.
+      attributes: {label: Less}
+    - extraction_class: uncertainty
+      extraction_text: 'Let''s re-read the prompt: "Interpret this as ''the station entrance in Image A is <label> safe than the one in Image B''".'
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: uncertainty
+      extraction_text: Let me double check.
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: dimension
+      extraction_text: 'Image A: construction zone, orange barrels, barriers.'
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: inference
+      extraction_text: 'Image B: normal sidewalk, subway entrance.'
+      attributes: {image: B, kind: quality, name: standardness}
+    - extraction_class: perspective
+      extraction_text: normal sidewalk
+      attributes: {name: standard, favors: B, wins: 'no', source: world_knowledge}
+    - extraction_class: perspective
+      extraction_text: Construction zones are inherently less safe for the general public.
+      attributes: {name: construction hazard, favors: B, wins: 'yes', source: world_knowledge}
+    - extraction_class: uncertainty
+      extraction_text: Is there anything else?
+      attributes: {reason: other, marker: reconsideration}
+    - extraction_class: uncertainty
+      extraction_text: Image A might be perceived as safer because of the guard booth?
+      attributes: {reason: other, marker: qualifier}
+    - extraction_class: dimension
+      extraction_text: guard booth
+      attributes: {image: A, valence: good, name: security presence}
+    - extraction_class: dismissal
+      extraction_text: Probably not, construction hazards usually outweigh a guard.
+      attributes: {target: guard booth, about: cue}
+    - extraction_class: weighing
+      extraction_text: construction hazards usually outweigh a guard
+      attributes: {mechanism: trade_off, favors: B}
+    - extraction_class: inference
+      extraction_text: Image B is a very standard, open public space.
+      attributes: {image: B, kind: safety, name: openness}
+    - extraction_class: dimension
+      extraction_text: open public space
+      attributes: {image: B, valence: good, name: openness}
+    - extraction_class: dimension
+      extraction_text: 'Image A: Construction zone.'
+      attributes: {image: A, valence: bad, name: construction}
+    - extraction_class: dimension
+      extraction_text: 'Image B: Finished street/station.'
+      attributes: {image: B, valence: good, name: construction}
+    - extraction_class: decision
+      extraction_text: Image A is Less safe.
+      attributes: {label: Less}
+  # 5. The negative example. Every trace opens with the question it was asked.
+  #    That echo is not evidence.
+  - text: |
+      The user wants me to compare two images of New York City street scenes and choose which one looks better. I need to return one label as JSON.
+    extractions: []

@@ -28,7 +28,9 @@
 # rejects a defaults list that adds a group after an override.
 defaults:
   - _self_
-  # The schema, the few-shot examples, and the chunk settings.
+  # The schema, the few-shot examples, and the chunk settings. Version 2
+  # (2026-09-20) has enums on the values and a qwen example. Select it with
+  # `extract=urban_cues_v2` on the CLI.
   - /extract: urban_cues_v1
   - override /hydra/launcher: slurm_monitor
   # The extractor. qwen3.5-9b is NOT the judge of the 2026-08-13 thinking runs,
@@ -72,6 +74,13 @@ trace_extract:
   # by reading every shard of it.
   shard_count: 1
   shard_index: 0
+  # The engine shape for the extractor. A 9B or 12B model in bf16 fits 1 GPU
+  # and holds 128 sequences. A 27B or 31B model needs 2 GPUs
+  # (`tensor_parallel_size: 2`, launcher `slurm_gpu_preempt_2x`) and holds
+  # fewer sequences in the KV cache that the weights leave. The launch script
+  # sets these for each arm.
+  tensor_parallel_size: 1
+  max_num_seqs: 128
 
 pipeline:
   output_root: ${runtime.output_root}
@@ -85,23 +94,24 @@ pipeline:
           # The shard index is in the name. A multirun gives each job its own
           # stage directory, but 2 sweeps that start in the same second can
           # share one, and then 2 shards would write the same file.
-          extractions: outputs/extractions/urban_cues_v1_s${trace_extract.shard_index}_${now:%Y%m%d_%H%M%S}.parquet
+          extractions: outputs/extractions/${extract.name}_${extract.schema_version}_s${trace_extract.shard_index}_${now:%Y%m%d_%H%M%S}.parquet
         overrides:
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
           runtime.skip_inference: ${runtime.skip_inference}
           model.model_source: ${model.model_source}
-          # The prompt holds the instructions, 3 examples, and 1 trace chunk of
-          # up to 12,000 characters. That reaches about 7,000 tokens, and the
-          # answer takes up to 4,096 more. The model default of 6,144 is for a
-          # pairwise image prompt and it is far too small here.
-          model.engine_kwargs.max_model_len: 16384
+          # The prompt holds the instructions, the examples, and 1 trace chunk
+          # of up to `extract.max_char_buffer` characters. The schema group
+          # says how much context that needs: 16,384 for version 1 and 32,768
+          # for version 2. The model default of 6,144 is for a pairwise image
+          # prompt and it is far too small here.
+          model.engine_kwargs.max_model_len: ${extract.max_model_len}
           # The KV cache holds 710k tokens. A real request uses about 5,100
           # (2,500 prompt + 2,600 answer), thus the cache has room for far more
           # than 64 sequences. The "maximum concurrency" line of vLLM assumes
           # the worst case of `max_model_len` and reads low; the scheduler
           # allocates as it goes.
-          model.engine_kwargs.max_num_seqs: 128
+          model.engine_kwargs.max_num_seqs: ${trace_extract.max_num_seqs}
           # EVERY prompt starts with the same 2,000 tokens: the instructions
           # and the 3 examples. Only the trace differs. Without this the engine
           # prefills those 2,000 tokens again for each of 11,000 traces.
@@ -110,8 +120,18 @@ pipeline:
           # image prompt shares no prefix. A text prompt with a fixed preamble
           # is the opposite case.
           model.engine_kwargs.enable_prefix_caching: true
+          # Warning: do NOT set `structured_outputs_config.disable_any_whitespace`.
+          # Both extractors indent the answer, and an indented answer holds
+          # about 2x the tokens of a compact one, thus compact JSON looked
+          # like a free win. It is not. Measured on 2026-09-20 over 120 qwen
+          # traces with `backend: xgrammar, disable_any_whitespace: true`:
+          # gemma-4-12b answered `{"extractions": [{}]}` for 45 of 120
+          # traces (0 under the default), and qwen3.5-9b wrote 2.5 echo spans
+          # for each trace (0.1 under the default). The token masks of the
+          # compact grammar move the model off its own JSON habit. Keep the
+          # default backend and pay the tokens.
           model.engine_kwargs.gpu_memory_utilization: 0.92
-          model.engine_kwargs.tensor_parallel_size: 1
+          model.engine_kwargs.tensor_parallel_size: ${trace_extract.tensor_parallel_size}
           # The extractor reads text. A thought block only wastes decode steps.
           model.thinking_mode: off
         launcher: slurm_gpu_1x

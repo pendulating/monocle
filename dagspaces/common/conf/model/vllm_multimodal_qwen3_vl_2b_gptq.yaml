@@ -4,7 +4,7 @@
 # freeing even more VRAM for KV cache and allowing higher concurrency.
 # Vision tower kept in FP16 (unquantized) for accuracy.
 
-model_source: /share/pierson/matt/zoo/models/Qwen3-VL-2B-Instruct-W4A16-AutoRound-GPTQ
+model_source: /share/ju/matt/zoo/models/Qwen3-VL-2B-Instruct-W4A16-AutoRound-GPTQ
 
 engine_kwargs:
   tensor_parallel_size: 1  # Single GPU -- 2B GPTQ fits easily

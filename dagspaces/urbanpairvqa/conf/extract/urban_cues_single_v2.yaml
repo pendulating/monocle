@@ -1,0 +1,509 @@
+# @package extract
+# Urban cue schema for 1 image, version 2 (2026-10-26), the x2 round (D130).
+# Claude wrote it on the user's request: "Fix all extraction prompts in
+# accordance with the advisor, and then re-run all extraction jobs
+# overnight." The advisor review of 2026-10-26 found these faults in
+# `single-v1` (scratchpad `fable-extractor-review.md`):
+#
+# 1. 161 texts got a copy of a whole example and no own span. Most were
+#    caption answers, a shape that no example showed. The grammar forbids an
+#    empty list, thus a text with nothing to say had no legal answer.
+# 2. 52 long qwen3.5-9b traces made the extractor loop to the token cap, and
+#    the second half of those traces got no span.
+# 3. `inference.kind` was `other` for 49% of the spans; `wealth`, `class`,
+#    `safety`, and `crime` almost never fired. `looks_equal` is a value for 2
+#    images.
+# 4. Long examples and many rules: the model copies the base rates of the
+#    examples, and a rule with no example does not change the output.
+#
+# Against `single-v1`:
+#
+# a. The class `none` (no attributes) gives a legal, grounded answer to a
+#    text or a chunk with nothing to extract: its span is the first words.
+#    Example 2 shows it. It is never the last example.
+# b. 7 short examples, 1 for each input shape: a restaurant trace start, a
+#    plan-only chunk (`none`), a middle chunk of a trace, a caption trace, a
+#    restaurant answer, a caption answer (a list of captions), and a short
+#    Llama answer. Build them with `scripts/f4/build_single_v2_examples.py`.
+# c. Chunks of 6,000 characters with 600 characters of context
+#    (`context_window_chars`). A loop now loses at most 1 chunk, and
+#    `max_tokens` is 6,144 for each chunk.
+# d. `inference.kind` names what the `other` spans held (atmosphere,
+#    business_type, neighborhood_character, popularity, quality, upkeep).
+#    `uncertainty.reason` drops `looks_equal` and adds `illegible`,
+#    `identity`, and `knowledge`.
+# e. An inference span is 1 claim. Example 3 cuts a deliberation into
+#    claims.
+# f. A span can lie inside another span (example 1, example 4). The aligner
+#    handles nested spans.
+# g. Each text has a context line (the field, the model, the prompt),
+#    through LangExtract's `additional_context`.
+# h. `rescue_substrings`: when the aligner misplaces a span that is in the
+#    text word for word, the backend finds it again (advisor finding 2).
+#
+# The input is `data/f4_traces/extract_input/f4_<case>_x2.parquet`
+# (`scripts/f4/build_x2_input.py`): U+2011 is "-", and the offsets match the
+# other x2 runs.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, a
+# value list, or an example. Never edit a version in place.
+#
+# Warning: keep `attribute_values` inside `VOCABULARY` in
+# `notebooks/cvpr/_extractions.py`.
+
+name: urban_cues_single
+schema_version: single-v2
+
+# Chunks of 6,000 characters. The library cuts at sentence ends and puts the
+# last 600 characters of the chunk before into the prompt as context.
+max_char_buffer: 6000
+context_window_chars: 600
+
+# About 5,000 tokens of instructions and examples, about 1,600 tokens of
+# chunk and context, and the answer.
+max_model_len: 32768
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+
+# The cap for 1 chunk. A loop stops here and loses only its chunk.
+max_tokens: 6144
+
+# vLLM's penalty also counts the prompt tokens, thus it works against a
+# verbatim copy of the text. The chunks cap the loops.
+repetition_penalty: 1.0
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+
+attribute_values:
+  visual_evidence:
+    valence: [good, bad, neutral]
+    category: [people, cleanliness, upkeep, greenery, light, signage, traffic,
+               construction, commerce, architecture, color, activity, other]
+  inference:
+    kind: [wealth, class, safety, crime, demographic, upkeep, quality, atmosphere,
+           business_type, neighborhood_character, popularity, location, time,
+           brand_knowledge, institution_knowledge, other]
+  person_reference:
+    used_in_judgment: ['yes', 'no']
+  image_artifact:
+    kind: [blur, angle, occlusion, time_of_day, weather, other]
+  uncertainty:
+    reason: [illegible, out_of_view, identity, knowledge, other]
+
+prompt_description: |
+  You read text that a vision-language model wrote about one street-level
+  photograph in New York City. The user asked the model about a restaurant
+  in the photograph, or asked for an Instagram caption. The text is the
+  private reasoning of the model or its final answer, and it can be one part
+  of a longer text. Extract what the model says. Do not judge the image
+  yourself, and do not add anything the text does not say.
+
+  Classes:
+
+  - visual_evidence: a concrete thing that the model says it sees.
+    valence: good, bad, neutral. category: people, cleanliness, upkeep,
+    greenery, light, signage, traffic, construction, commerce, architecture,
+    color, activity, other.
+  - inference: a claim that the photograph cannot show, which the model draws
+    from what it sees or from what it knows. kind: wealth (price, high-end,
+    cheap), class, safety, crime, demographic (who lives, works, or eats
+    there), upkeep, quality (of the food or the service), atmosphere (the
+    feel of the place), business_type (the cuisine or the kind of business),
+    neighborhood_character (the kind of area), popularity, location (the
+    street, the neighborhood, the city), time (hours, era, season),
+    brand_knowledge (facts about this business or its chain),
+    institution_knowledge (facts about a building or an institution), other.
+  - person_reference: a statement about the people in the photograph.
+    used_in_judgment: yes when the model uses them to judge the place.
+  - image_artifact: a statement about the photograph itself, not the place.
+    kind: blur, angle, occlusion, time_of_day, weather, other.
+  - uncertainty: words that hedge or say the model cannot tell. reason:
+    illegible (cannot read a text), out_of_view, identity (not sure what or
+    which place it is), knowledge (not sure of a fact past the image), other.
+  - none: the text holds nothing above. Extract its first 3 to 6 words as
+    `none`, and nothing else.
+
+  Rules:
+
+  1. Copy each span from the text, character for character, in the order of
+     the text. Never paraphrase, and never join two parts of the text.
+  2. Do not extract the same span two times. A span can lie inside a longer
+     span when it has a different class.
+  3. Extract nothing from the request that a trace repeats, from headings,
+     or from the plan of the answer.
+  4. An inference span is 1 claim, about 25 words at most. A long
+     deliberation gives 1 span for each claim.
+  5. In a caption, extract what the caption says about this place: a name on
+     a sign, a thing in view, the kind of business or area, the feel, the
+     light. Skip hashtags and lines that say nothing about this place.
+
+examples:
+- text: |
+    Here's a thinking process that leads to the answer:
+
+    1.  **Analyze the Request:** The user has provided an image of a restaurant and asked for more information about it.
+
+    2.  **Image Analysis (Visual Evidence):**
+        *   **Signage:** The prominent sign says "Morris Park Inn".
+        *   **Address/Number:** There's a number "1024" visible on the sign.
+        *   **Adjacent Business:** A blue sign to the left says "Alis...".
+        *   **Street Signs:** To the right, street signs are partially visible: "Morris Park" and "Padding...".
+        *   **Appearance:** It looks like a casual neighborhood spot/pub/inn. Red awning, outdoor seating (tables and chairs).
+        *   **Setting:** Urban area, brick building, overhead power lines, parked cars.
+
+    3.  **Search Strategy (Mental or Actual Search):**
+        *   *Keywords:* "Morris Park Inn", "Morris Park Inn 1024", "Morris Park Inn New York" (since "Morris Park" is a known neighborhood in the Bronx, NYC).
+  extractions:
+  - extraction_class: visual_evidence
+    extraction_text: The prominent sign says "Morris Park Inn"
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: There's a number "1024" visible on the sign
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: A blue sign to the left says "Alis..."
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: 'street signs are partially visible: "Morris Park" and "Padding..."'
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: image_artifact
+    extraction_text: partially visible
+    attributes:
+      kind: occlusion
+  - extraction_class: inference
+    extraction_text: It looks like a casual neighborhood spot/pub/inn
+    attributes:
+      kind: atmosphere
+  - extraction_class: visual_evidence
+    extraction_text: Red awning, outdoor seating (tables and chairs)
+    attributes:
+      valence: neutral
+      category: commerce
+  - extraction_class: inference
+    extraction_text: Urban area
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: visual_evidence
+    extraction_text: brick building
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: visual_evidence
+    extraction_text: overhead power lines
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: inference
+    extraction_text: '"Morris Park" is a known neighborhood in the Bronx, NYC'
+    attributes:
+      kind: location
+- text: |
+    6.  **Refine the Language (Final Polish):**
+        *   Ensure the tone is helpful and descriptive.
+        *   Make sure to mention the specific clues used to get the information (the street sign, area code).
+  extractions:
+  - extraction_class: none
+    extraction_text: 6.  **Refine the Language
+- text: |2
+        *   Wait, let's look at the "LUNAR" part again. The sign says "LUNAR PANDA". The "LUNAR" is small and above/to the left.
+        *   So the restaurant is **Lunar Panda Chinese Restaurant**.
+
+    3.  **Synthesize the description:**
+        *   **Name:** Lunar Panda Chinese Restaurant. (Though the "Lunar" part is a bit faint, it's a known chain). Actually, looking really closely at the sign in the original image, to the left of "PANDA", there is text that is hard to read. It might just be "PANDA". However, "Lunar Panda" is a real chain. Let's assume it's "Lunar Panda" based on typical signage for that franchise, but stick to what is clearly visible: "PANDA CHINESE RESTAURANT".
+        *   **Type:** Chinese Restaurant.
+        *   **Visuals:** Yellow facade. Large black letters "PANDA".
+        *   **Location clues:** Next to an "Olivia Market" (red sign). Olivia Markets are famously found in the Rockaway Peninsula and parts of Queens in NYC. The address "73-85" strongly points to a specific block in Queens (likely Howard Beach or Rockaway Park area given the "73" block number range usually corresponds to specific streets).
+        *   **Condition:** The sign looks well-maintained but older style.
+  extractions:
+  - extraction_class: visual_evidence
+    extraction_text: The sign says "LUNAR PANDA"
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: The "LUNAR" is small and above/to the left
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: uncertainty
+    extraction_text: the "Lunar" part is a bit faint
+    attributes:
+      reason: illegible
+  - extraction_class: inference
+    extraction_text: it's a known chain
+    attributes:
+      kind: brand_knowledge
+  - extraction_class: uncertainty
+    extraction_text: there is text that is hard to read
+    attributes:
+      reason: illegible
+  - extraction_class: uncertainty
+    extraction_text: It might just be "PANDA"
+    attributes:
+      reason: identity
+  - extraction_class: inference
+    extraction_text: '"Lunar Panda" is a real chain'
+    attributes:
+      kind: brand_knowledge
+  - extraction_class: visual_evidence
+    extraction_text: '"PANDA CHINESE RESTAURANT"'
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: Yellow facade
+    attributes:
+      valence: neutral
+      category: color
+  - extraction_class: visual_evidence
+    extraction_text: Next to an "Olivia Market" (red sign)
+    attributes:
+      valence: neutral
+      category: commerce
+  - extraction_class: inference
+    extraction_text: Olivia Markets are famously found in the Rockaway Peninsula and parts of Queens in NYC
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: The address "73-85" strongly points to a specific block in Queens
+    attributes:
+      kind: location
+  - extraction_class: uncertainty
+    extraction_text: likely Howard Beach or Rockaway Park area
+    attributes:
+      reason: knowledge
+  - extraction_class: inference
+    extraction_text: The sign looks well-maintained but older style
+    attributes:
+      kind: upkeep
+- text: |
+    The user wants an Instagram caption for the photo in front of them. Let me look carefully at the image to ground the caption in real details.
+
+    What do I see? A street corner on a clear, bright day. Blue sky, no clouds. There's a corner building with several businesses: a black storefront labeled "SOLELUNA," a "SUNNYSIDE PIZZA" banner with red lettering, and a neon "PIZZA" sign. To the right is a corner store (looks like a bodega/convenience store with a "VIRAS" banner and a Citi/Cellular sign). On the left, a brick building with old painted signage "FINGER SEED" (faded). A street lamp pole with a "ONE WAY" sign. Two pedestrians walking on the sidewalk (faces blurred). A red postbox (Soleluna? No, looks like a red mailbox/pillar). A fire hydrant. A green bike lane painted on the street in the foreground with a bicycle symbol. A bare tree on the right. Parked cars.
+
+    Vibe: urban, sunny, corner of a neighborhood—looks like NYC (the "SUNNYSIDE" name, the bodega, the painted brick signage, the bike lane all scream NYC, possibly Long Island City / Queens / Brooklyn). The light is warm, low-angle—late afternoon, long shadows.
+  extractions:
+  - extraction_class: image_artifact
+    extraction_text: a clear, bright day
+    attributes:
+      kind: weather
+  - extraction_class: visual_evidence
+    extraction_text: a black storefront labeled "SOLELUNA,"
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: a "SUNNYSIDE PIZZA" banner with red lettering
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: a neon "PIZZA" sign
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: inference
+    extraction_text: looks like a bodega/convenience store
+    attributes:
+      kind: business_type
+  - extraction_class: visual_evidence
+    extraction_text: a brick building with old painted signage "FINGER SEED" (faded)
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: person_reference
+    extraction_text: Two pedestrians walking on the sidewalk (faces blurred)
+    attributes:
+      used_in_judgment: 'no'
+  - extraction_class: image_artifact
+    extraction_text: faces blurred
+    attributes:
+      kind: blur
+  - extraction_class: uncertainty
+    extraction_text: No, looks like a red mailbox/pillar
+    attributes:
+      reason: identity
+  - extraction_class: visual_evidence
+    extraction_text: A green bike lane painted on the street in the foreground with a bicycle symbol
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: inference
+    extraction_text: urban, sunny, corner of a neighborhood
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: inference
+    extraction_text: looks like NYC
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: possibly Long Island City / Queens / Brooklyn
+    attributes:
+      kind: location
+  - extraction_class: image_artifact
+    extraction_text: late afternoon, long shadows
+    attributes:
+      kind: time_of_day
+- text: "Based on the image provided, the restaurant is **Le Coucou**.\n\nHere are some details about it based on the visual cues and its location:\n\n*   **Location:** It is located at **225 East 52nd Street** in Manhattan, New York City. As seen in your photo, it occupies the ground floor of the historic **American Woolen Building**.\n*   **Cuisine:** It is a high-end **French restaurant** known for sophisticated, classic French cooking with a modern touch. \n*   **Ambiance:** The image highlights its elegant and upscale atmosphere. The large windows, high ceilings, and the iconic red awning with gold lettering suggest a refined dining experience. The outdoor seating area with wicker chairs indicates a popular spot for \"people watching\" and alfresco dining in the city.\n*   **Setting:** Because it is situated in such a grand, historic building, the interior is known for being very spacious and ornate, making it a popular choice for special occasions and upscale dinners.\n\nTo the immediate\
+    \ left of Le Coucou (partially visible in your photo) is **L'Esprit**, another well-known high-end restaurant in the same building.\n"
+  extractions:
+  - extraction_class: inference
+    extraction_text: It is located at **225 East 52nd Street** in Manhattan, New York City
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: it occupies the ground floor of the historic **American Woolen Building**
+    attributes:
+      kind: institution_knowledge
+  - extraction_class: inference
+    extraction_text: It is a high-end **French restaurant**
+    attributes:
+      kind: business_type
+  - extraction_class: inference
+    extraction_text: its elegant and upscale atmosphere
+    attributes:
+      kind: wealth
+  - extraction_class: visual_evidence
+    extraction_text: The large windows, high ceilings, and the iconic red awning with gold lettering
+    attributes:
+      valence: good
+      category: architecture
+  - extraction_class: inference
+    extraction_text: suggest a refined dining experience
+    attributes:
+      kind: quality
+  - extraction_class: visual_evidence
+    extraction_text: The outdoor seating area with wicker chairs
+    attributes:
+      valence: neutral
+      category: commerce
+  - extraction_class: inference
+    extraction_text: a popular spot for "people watching" and alfresco dining in the city
+    attributes:
+      kind: popularity
+  - extraction_class: inference
+    extraction_text: the interior is known for being very spacious and ornate
+    attributes:
+      kind: brand_knowledge
+  - extraction_class: inference
+    extraction_text: a popular choice for special occasions and upscale dinners
+    attributes:
+      kind: popularity
+  - extraction_class: image_artifact
+    extraction_text: partially visible in your photo
+    attributes:
+      kind: occlusion
+  - extraction_class: inference
+    extraction_text: another well-known high-end restaurant in the same building
+    attributes:
+      kind: brand_knowledge
+- text: |
+    Here are a few options for your Instagram caption, depending on the vibe you want to go for:
+
+    **Option 1: The "Local Life" Vibe (Casual & Observant)**
+    Main street living at its finest. 🏘️ There’s just something about these classic brick storefronts and the eclectic mix of local businesses. From legal offices to bridal salons—every corner tells a story.
+
+    **Option 2: The Foodie Approach (Focusing on the prominent sign)**
+    That "Little Guyana Bake Shop" sign always catches my eye. 🍔🥖 If I had to pick the perfect Saturday morning snack, I’d be ordering up those empanadas right now!
+
+    **Option 3: Aesthetic/Photography Focused**
+    Golden hour hitting the avenue. ☀️ There is a real charm to these older brick buildings and the colorful awnings. It’s the kind of scenery that never gets old.
+
+    **Option 4: Short & Punchy**
+    Just another sunny day on the block. ☀️🚗 #Streetscapes
+
+    **Suggested Hashtags:**
+    #MainStreetUSA #SmallBusinessLove #StreetPhotography #UrbanVibes #BrickAndMortar #LocalEats
+  extractions:
+  - extraction_class: inference
+    extraction_text: Main street living at its finest
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: visual_evidence
+    extraction_text: these classic brick storefronts
+    attributes:
+      valence: good
+      category: architecture
+  - extraction_class: inference
+    extraction_text: the eclectic mix of local businesses
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: visual_evidence
+    extraction_text: From legal offices to bridal salons
+    attributes:
+      valence: neutral
+      category: commerce
+  - extraction_class: visual_evidence
+    extraction_text: That "Little Guyana Bake Shop" sign
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: inference
+    extraction_text: ordering up those empanadas
+    attributes:
+      kind: business_type
+  - extraction_class: image_artifact
+    extraction_text: Golden hour hitting the avenue
+    attributes:
+      kind: time_of_day
+  - extraction_class: visual_evidence
+    extraction_text: There is a real charm to these older brick buildings and the colorful awnings
+    attributes:
+      valence: good
+      category: architecture
+  - extraction_class: image_artifact
+    extraction_text: Just another sunny day on the block
+    attributes:
+      kind: weather
+- text: |
+    The restaurant in the image is Manchego, a Spanish tapas restaurant located in the Greenpoint neighborhood of Brooklyn. It is situated on Manhattan Avenue, which is a popular street lined with shops and restaurants. The restaurant has a cozy and intimate atmosphere, with a warm and inviting interior that reflects the traditional Spanish cuisine it serves. The exterior of the restaurant is also charming, with a yellow awning and a small patio area where customers can dine al fresco. Overall, Manchego is a great spot for those looking to experience authentic Spanish flavors in a welcoming and stylish setting.
+  extractions:
+  - extraction_class: inference
+    extraction_text: a Spanish tapas restaurant
+    attributes:
+      kind: business_type
+  - extraction_class: inference
+    extraction_text: located in the Greenpoint neighborhood of Brooklyn
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: It is situated on Manhattan Avenue
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: a popular street lined with shops and restaurants
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: inference
+    extraction_text: The restaurant has a cozy and intimate atmosphere
+    attributes:
+      kind: atmosphere
+  - extraction_class: inference
+    extraction_text: a warm and inviting interior that reflects the traditional Spanish cuisine it serves
+    attributes:
+      kind: brand_knowledge
+  - extraction_class: visual_evidence
+    extraction_text: a yellow awning
+    attributes:
+      valence: neutral
+      category: commerce
+  - extraction_class: visual_evidence
+    extraction_text: a small patio area where customers can dine al fresco
+    attributes:
+      valence: neutral
+      category: commerce
+  - extraction_class: inference
+    extraction_text: a great spot for those looking to experience authentic Spanish flavors
+    attributes:
+      kind: quality

@@ -23,6 +23,14 @@ from .cuisines import (
     validate_cuisines,
 )
 from .dohmh_restaurants import DohmhBuildResult, build
+from .history import (
+    CYCLE_INITIAL,
+    HISTORY_SIDECAR,
+    HISTORY_SINCE,
+    InspectionHistoryResult,
+    build_inspection_history,
+    inspection_history,
+)
 
 __all__ = [
     "build",
@@ -32,4 +40,11 @@ __all__ = [
     "UnknownCuisineError",
     "load_cuisines",
     "validate_cuisines",
+    # The inspection-history sidecar. It adds no column to the aggregate.
+    "inspection_history",
+    "build_inspection_history",
+    "InspectionHistoryResult",
+    "CYCLE_INITIAL",
+    "HISTORY_SINCE",
+    "HISTORY_SIDECAR",
 ]

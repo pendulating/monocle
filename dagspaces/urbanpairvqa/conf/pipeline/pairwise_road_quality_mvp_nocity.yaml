@@ -1,0 +1,10 @@
+# @package _global_
+# NO-CITY variant of `pairwise_road_quality_mvp`.
+#
+# It inherits the whole case — the data, the sampler, the graph, and the output
+# name — and overrides 1 thing: the prompt. Inheritance is deliberate. A copy
+# would drift from the canonical case, and then the ablation would measure the
+# drift as well as the place name.
+defaults:
+  - pairwise_road_quality_mvp
+  - override /prompt: pairwise_road_quality_nocity

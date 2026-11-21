@@ -1,0 +1,87 @@
+# @package _global_
+# TEXT FIRST AT 100,000 PAIRS — rater 2 of 2, gemma-4-12b, 7 cases.
+#
+# Read `million_textfirst_qwen9b.yaml` first. It holds the reasoning. This
+# file changes the rater and the layout that rater needs.
+#
+# ┌─ WHY THIS ARCH USES `text_first_labels`, NOT `text_first` ─────────────────┐
+# │ Plain `text_first` puts the 2 images ADJACENT:                            │
+# │                                                                            │
+# │     text_first          prompt, image A, image B                          │
+# │                                                                            │
+# │ gemma-4-12b reads 2 adjacent image blocks as ONE image. Measured           │
+# │ 2026-08-20 with `limit_mm_per_prompt` pinned, on vLLM 0.25.0: 55 of 70     │
+# │ traces speak of one image, and NotSure reaches 81.4%. That is a BINDING    │
+# │ failure, and it is not what this arm asks about.                          │
+# │                                                                            │
+# │ `text_first_labels` keeps the anchors and moves ONLY the prompt:          │
+# │                                                                            │
+# │     images_then_labels  image A, "Image A.", image B, "Image B.", prompt   │
+# │     text_first_labels   prompt, image A, "Image A.", image B, "Image B."   │
+# │                                                                            │
+# │ The anchor sits between the 2 images, thus the model still binds them,     │
+# │ and the ONE change against production is where the prompt sits.            │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── What this measures ──────────────────────────────────────────────────────
+# Whether the position of the prompt changes the judgment. The model sees the
+# same 2 images, the same anchors and the same words. Only the order moves.
+#
+# Warning: this arm BREAKS the modality order of the gemma-4 card on purpose.
+# It is a probe. Do NOT take its layout as a default for a new sweep.
+# See `feedback_images_then_labels_always` and
+# `vlm-narratives-docs/gemma-4-best-practices.md`.
+#
+# ┌─ THE CONTROL READS CLEANLY HERE ───────────────────────────────────────────┐
+# │ `million_proxy_gemma12b` ran `interleaved_labels`, and this arm runs      │
+# │ `text_first_labels`. Both keep a text block BETWEEN the 2 images, thus    │
+# │ both bind. But they differ in WHERE the prompt sits AND in whether an     │
+# │ image opens the message, thus the delta holds the prompt position and the │
+# │ modality order together.                                                  │
+# │                                                                            │
+# │ The sharper read is against the `nocity` arm's control problem in         │
+# │ reverse: compare this arm with `million_noabstain_gemma12b`, which ran    │
+# │ `images_then_labels`. Do NOT do that either — that arm forbids the        │
+# │ abstention. Report the delta against `million_proxy_gemma12b` and name    │
+# │ both changes.                                                             │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── Sizing ──────────────────────────────────────────────────────────────────
+# | Quantity            | Value                                               |
+# |---------------------|-----------------------------------------------------|
+# | Rows for each case  | 110,000 (100,000 pairs + a 10% repeat fraction)     |
+# | Shards for each case| 5, thus about 22,000 rows for each shard            |
+# | Jobs                | 35 (7 cases x 5 shards)                             |
+# | Chunk               | 2,048 rows — what a preemption loses                |
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  resume: true
+  resume_chunk_rows: 2048
+
+prompt:
+  # THE POINT OF THIS SWEEP. See the box above for why it is not `text_first`.
+  image_layout: text_first_labels
+
+pair_sampler:
+  max_pairs: 100000
+  shard_count: 5
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 5 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,5)

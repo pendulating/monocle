@@ -3,7 +3,7 @@
 # LoRA adapter that ships inside the model repo — hence enable_lora below
 # and the LoRARequest("speech", ...) the asr stage attaches per request.)
 
-model_source: /share/pierson/matt/zoo/models/granite-speech-3.3-2b
+model_source: /share/ju/matt/zoo/models/granite-speech-3.3-2b
 model_family: granite_speech
 speech_lora: true
 

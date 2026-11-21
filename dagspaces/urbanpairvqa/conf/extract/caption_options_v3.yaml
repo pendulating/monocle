@@ -1,0 +1,321 @@
+# @package extract
+# Caption schema, version 3 (2026-10-25). Claude drafted it for the caption
+# analysis by NTA (D101 to D104). The user has not reviewed the text yet (2026-10-25).
+#
+# Changes from version 1, after the smoke run of 120 answers (job 94158):
+# - Rule 5: a text that the model offers as the caption is a caption, also
+#   when it reads like a description. Version 1 missed 2 such Llama captions
+#   ("A suitable caption for this image could be: ...").
+# - Rule 1: extract only from this text. Version 1 copied the 3 spans of the
+#   qwen3.8-27b example into 1 llama-3.2-90b answer.
+# - A 5th example of that shape (llama-3.2-90b, image 3), before the negative
+#   example.
+#
+# Changes from version 2, after the second smoke run (job 94187, same 120
+# answers):
+# - The negative example moves to the first place. Version 2 still gave no
+#   extraction for 2 Llama answers that offer a caption ("The caption for this
+#   image could be: ..."). The guess: the last example before the input was
+#   the negative one, and the model repeated its empty answer.
+# - A 7th example of that shape (llama-3.2-90b, image 153), now the last one.
+# - Version 2 still copied the qwen3.8-27b example into 1 llama-3.2-11b answer
+#   (image 240). The aligner marks such spans as not quotable, thus a count
+#   drops them; the merge reports them.
+#
+# Input: the final answers (`response`) of the F4 caption case, 6 models x
+# 1,000 images (`data/f4_traces/extract_input/f4_captions.parquet`). The
+# prompt was "Look and write an Instagram caption for what's in front of me."
+#
+# 2 classes:
+#
+# 1. `caption`: 1 candidate caption that the model offers to post. An answer
+#    can offer many (gemma-4-12b offers about 16). All are extracted, in order
+#    (D102). The order is the order of the offsets. `style` copies the label
+#    of the heading or the note that the caption sits under, or is `none`.
+# 2. `hashtags`: 1 run of hashtags, as written. `scope` tells whether the run
+#    belongs to 1 caption or is a general list for the answer. The regex table
+#    (`scripts/f4/caption_hashtags.py`) is the count of record for hashtags
+#    (D101); this class links a run to its caption and checks the regex.
+#
+# A text that only describes the photograph gives no extraction. 94 Llama
+# answers are of that kind, thus `require_extraction` is false here, and the
+# 1st example is a negative example.
+#
+# Every `extraction_text` appears in its own `text` word for word. The
+# examples come from F4 answers. `scripts/f4/build_caption_examples.py` builds
+# each span as a slice of its text and prints this examples block.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, a
+# value list, a rule, or an example. Never edit a version in place.
+
+name: caption_options
+schema_version: caption-v3
+
+# The longest caption answer has 21,834 characters (a llama-3.2-11b answer
+# that loops on hashtags). 1 answer must be 1 chunk.
+max_char_buffer: 60000
+# The same length as `urban_cues_single_v1`. The engine then reuses the
+# torch.compile cache of the F4 span run on the B300.
+max_model_len: 49152
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+max_tokens: 16384
+use_guided_json: true
+# An answer with no caption is a real result, not a silent failure.
+require_extraction: false
+
+# `caption.style` is a free phrase on purpose. Only `scope` is an enum.
+attribute_values:
+  hashtags:
+    scope: [caption, general]
+
+prompt_description: |
+  You read the final answer that a vision-language model gave when a user
+  showed it one street-level photograph in New York City and asked: "Look and
+  write an Instagram caption for what's in front of me." Extract the captions
+  that the model offers, and the hashtags. Do not write captions yourself, and
+  do not add anything the text does not say.
+
+  Use exactly these classes:
+
+  - caption: 1 caption that the model offers for the user to post.
+    attributes: style (the label of the heading or the note that the caption
+    sits under, copied without "Option 1:", without asterisks, and without the
+    final colon; write none when the caption has no label)
+  - hashtags: 1 run of hashtags, from the first hashtag to the last one.
+    attributes: scope (caption when the run belongs to 1 caption, general when
+    it is a list for the whole answer, for example under "Hashtags:")
+
+  Rules:
+
+  1. Copy each extraction from the text, character for character. Never
+     paraphrase, never join two parts of the text, and never shorten.
+     Extract only from this text. Never copy a span from the examples.
+  2. Extract every caption that the model offers, also the short ones and the
+     alternates. Each caption is 1 extraction.
+  3. A caption starts at its first word and stops before its hashtags. Leave
+     out a bullet mark, a number, a label, the quote marks or the asterisks
+     around the whole caption, and a note that the model adds about the
+     caption. Keep the emojis and the punctuation inside the caption.
+  4. Do not extract a heading, an introduction ("Here are a few options"), an
+     explanation of a caption, advice, or a question to the user about the
+     caption.
+  5. When the model presents a text as the caption ("A possible caption
+     could be:", "Caption:", a quoted text after "Here's a caption"), extract
+     it, also when it reads like a description of the photograph. A
+     description that the model does not offer as a caption is not a caption.
+     An answer that only describes the photograph gives no extraction.
+  6. Extract in the order that the spans appear in the text. Do not extract
+     the same span two times. A long run of repeated hashtags is 1 hashtags
+     extraction.
+
+examples:
+- text: |
+    The image shows a white van parked in front of a building with a sign that reads "Mia" and a tree with bare branches. The van is facing away from the camera, and the building is behind it. The sky is blue with white clouds.
+
+    A possible Instagram caption for this image could be:
+
+    "Park life. Caught this van parked in front of a building with a cool sign. The tree's branches are still bare, but the sky is looking bright and sunny. #parklife #vanlife #signs #trees #sky"
+
+    This caption captures the main elements of the image, including the van, the building, the tree, and the sky. It also adds a bit of personality and style to the post, making it more engaging and shareable on Instagram.
+  extractions: []
+- text: |
+    Depending on what vibe you want to go for, here are a few different options for your Instagram caption:
+
+    **The "Foodie" Vibe:**
+    * Keeping it fresh today. 🥗✨ #FreshKitchen #CityEats
+    * Found my new favorite lunch spot. 🍴🏙️
+    * Looking for a fresh bite in the middle of the city.
+    * Lunch plans: Sorted. ✅
+
+    **The "City Explorer" Vibe:**
+    * Just another day exploring the city streets. 🏙️🚶‍♂️
+    * Urban adventures and finding hidden gems. 📍
+    * City sights and sidewalk vibes.
+    * Finding the best spots, one block at a time.
+
+    **The "Punny/Witty" Vibe:**
+    * A very "fresh" start to my afternoon. ✨
+    * Feeling very *welcome* here. (Referring to the shop next door!) 😉
+    * Stay fresh, friends. 🥬
+
+    **Short & Aesthetic:**
+    * City vibes. 🏙️
+    * Today’s view.
+    * Fresh. ✨
+    * Street scene.
+
+    **Recommended Hashtags:**
+    #NYC #CityLife #FreshKitchen #Foodie #StreetPhotography #UrbanVibes #LunchTime #ExploreTheCity
+  extractions:
+  - extraction_class: caption
+    extraction_text: Keeping it fresh today. 🥗✨
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: hashtags
+    extraction_text: '#FreshKitchen #CityEats'
+    attributes: &id001
+      scope: caption
+  - extraction_class: caption
+    extraction_text: Found my new favorite lunch spot. 🍴🏙️
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: caption
+    extraction_text: Looking for a fresh bite in the middle of the city.
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: caption
+    extraction_text: 'Lunch plans: Sorted. ✅'
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: caption
+    extraction_text: Just another day exploring the city streets. 🏙️🚶‍♂️
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: Urban adventures and finding hidden gems. 📍
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: City sights and sidewalk vibes.
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: Finding the best spots, one block at a time.
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: A very "fresh" start to my afternoon. ✨
+    attributes:
+      style: The "Punny/Witty" Vibe
+  - extraction_class: caption
+    extraction_text: Feeling very *welcome* here.
+    attributes:
+      style: The "Punny/Witty" Vibe
+  - extraction_class: caption
+    extraction_text: Stay fresh, friends. 🥬
+    attributes:
+      style: The "Punny/Witty" Vibe
+  - extraction_class: caption
+    extraction_text: City vibes. 🏙️
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: caption
+    extraction_text: Today’s view.
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: caption
+    extraction_text: Fresh. ✨
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: caption
+    extraction_text: Street scene.
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: hashtags
+    extraction_text: '#NYC #CityLife #FreshKitchen #Foodie #StreetPhotography #UrbanVibes #LunchTime #ExploreTheCity'
+    attributes: &id002
+      scope: general
+- text: |
+    Here are a few options for your Instagram caption, ranging from funny to casual:
+
+    **Option 1: The Coffee Lover**
+    Morning runs get hard without the fuel. ☕️🍩 Found the closest Dunkin’ before tackling the day! #DunkinLife #CoffeeFirst
+
+    **Option 2: Neighborhood Vibe**
+    Love these little neighborhood gems. There’s something charming about the old-school Dunkin’ locations mixed into the city fabric. 🏙️ #CityWalks #LocalEats
+
+    **Option 3: Short & Punchy**
+    Caffeine secured. Now where were we? 😎⚡️
+
+    **Option 4: Funny/Relatable**
+    Me pretending to work outside vs. actually standing here waiting for my latte. 👉☕️ #MondayMood #AdultingIsHard
+
+    **Option 5: Documentation Style**
+    Spotting a familiar face on the block. Said hello to 41-02! 👋 #NYCLife #QueensVibes
+  extractions:
+  - extraction_class: caption
+    extraction_text: Morning runs get hard without the fuel. ☕️🍩 Found the closest Dunkin’ before tackling the day!
+    attributes:
+      style: The Coffee Lover
+  - extraction_class: hashtags
+    extraction_text: '#DunkinLife #CoffeeFirst'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Love these little neighborhood gems. There’s something charming about the old-school Dunkin’ locations mixed into the city fabric. 🏙️
+    attributes:
+      style: Neighborhood Vibe
+  - extraction_class: hashtags
+    extraction_text: '#CityWalks #LocalEats'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Caffeine secured. Now where were we? 😎⚡️
+    attributes:
+      style: Short & Punchy
+  - extraction_class: caption
+    extraction_text: Me pretending to work outside vs. actually standing here waiting for my latte. 👉☕️
+    attributes:
+      style: Funny/Relatable
+  - extraction_class: hashtags
+    extraction_text: '#MondayMood #AdultingIsHard'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Spotting a familiar face on the block. Said hello to 41-02! 👋
+    attributes:
+      style: Documentation Style
+  - extraction_class: hashtags
+    extraction_text: '#NYCLife #QueensVibes'
+    attributes: *id001
+- text: |
+    Shutters down, lanterns glowing, and a fire escape clinging to the red brick like it's the only thing holding the story together. The block doesn't need to be open to feel alive. 🌆
+
+    *Alt (cooler tone):* 114 Eldridge St. — tags, iron, and old brick doing the night shift.
+
+    #EldridgeSt #LowerEastSide #NYC #Brownstone #FireEscape #UrbanTexture #CityThatNeverSleeps #StreetPhotography #NYCgram #GritAndGrace #ShutteredUp
+  extractions:
+  - extraction_class: caption
+    extraction_text: Shutters down, lanterns glowing, and a fire escape clinging to the red brick like it's the only thing holding the story together. The block doesn't need to be open to feel alive. 🌆
+    attributes:
+      style: none
+  - extraction_class: caption
+    extraction_text: 114 Eldridge St. — tags, iron, and old brick doing the night shift.
+    attributes:
+      style: Alt (cooler tone)
+  - extraction_class: hashtags
+    extraction_text: '#EldridgeSt #LowerEastSide #NYC #Brownstone #FireEscape #UrbanTexture #CityThatNeverSleeps #StreetPhotography #NYCgram #GritAndGrace #ShutteredUp'
+    attributes: *id002
+- text: |
+    Here's a possible Instagram caption:
+
+    "Sunday vibes on the sidewalk. Coffee shop patio, cozy outdoor seating, and a touch of urban charm. #coffeebreak #sidewalkseating #urbanvibes"
+
+    This caption captures the relaxed atmosphere of the scene, highlighting the inviting outdoor seating area and the urban setting. It's short, sweet, and perfect for an Instagram post.
+  extractions:
+  - extraction_class: caption
+    extraction_text: Sunday vibes on the sidewalk. Coffee shop patio, cozy outdoor seating, and a touch of urban charm.
+    attributes:
+      style: none
+  - extraction_class: hashtags
+    extraction_text: '#coffeebreak #sidewalkseating #urbanvibes'
+    attributes: *id001
+- text: |
+    The image depicts a charming street scene, with a three-story brick building as the main attraction. The building's facade is adorned with a black fire escape staircase and several windows, adding to its rustic charm. In front of the building, a small cafe or restaurant is visible, complete with outdoor seating and a sign that reads "Cafe P." The surrounding area is lined with trees and trash cans, creating a cozy and inviting atmosphere.
+
+    To caption this image on Instagram, one could write: "Discovering hidden gems in the city. This charming street scene has it all - a historic building, a quaint cafe, and a touch of nature. Perfect spot to grab a coffee and soak up the urban charm. #citylife #streetsofnewyork #coffeeculture"
+  extractions:
+  - extraction_class: caption
+    extraction_text: Discovering hidden gems in the city. This charming street scene has it all - a historic building, a quaint cafe, and a touch of nature. Perfect spot to grab a coffee and soak up the urban charm.
+    attributes:
+      style: none
+  - extraction_class: hashtags
+    extraction_text: '#citylife #streetsofnewyork #coffeeculture'
+    attributes: *id001
+- text: |
+    A row of storefronts with a tree and a car in front of them. The caption could be: "A quiet street scene with a mix of old and new buildings, featuring a charming tree and a sleek car parked in front."
+  extractions:
+  - extraction_class: caption
+    extraction_text: A quiet street scene with a mix of old and new buildings, featuring a charming tree and a sleek car parked in front.
+    attributes:
+      style: none

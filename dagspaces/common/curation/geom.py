@@ -41,7 +41,7 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 
-DEFAULT_BUILDINGS_PATH = "/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet"
+DEFAULT_BUILDINGS_PATH = "/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet"
 NYC_SP_CRS = "EPSG:2263"      # NY State Plane Long Island (US feet)
 WGS84_CRS = "EPSG:4326"
 DEFAULT_NEAREST_MAX_FT = 200.0

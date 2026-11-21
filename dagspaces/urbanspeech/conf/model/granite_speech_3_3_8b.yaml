@@ -5,7 +5,7 @@
 # audio encoder, LoRA, and KV cache are loaded. Default to TP=2 on the JU
 # partition (pair with launcher slurm_gpu_ju_2x).
 
-model_source: /share/pierson/matt/zoo/models/granite-speech-3.3-8b
+model_source: /share/ju/matt/zoo/models/granite-speech-3.3-8b
 model_family: granite_speech
 speech_lora: true
 

@@ -1,7 +1,7 @@
 # @package _global_
 # Gemma-4-31B-IT: multimodal (image+text → text), 31B dense, instruction-tuned
 model:
-  model_source: /share/pierson/matt/zoo/models/Gemma-4-31B
+  model_source: /share/ju/matt/zoo/models/Gemma-4-31B
   model_family: gemma-4
   thinking_mode: off
   engine_kwargs:

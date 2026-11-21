@@ -11,8 +11,10 @@ Usage::
 from __future__ import annotations
 
 import argparse
-import logging
+import os
 import sys
+
+from dagspaces.common.log_setup import get_stage_logger
 
 from .dohmh.aggregate import aggregate_restaurants as aggregate_dohmh_restaurants
 from .dohmh.cuisines import UnknownCuisineError
@@ -42,12 +44,15 @@ from .subway.validation import SubwayValidationError
 
 
 def _setup_logging(verbose: bool) -> None:
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s %(levelname)-7s %(name)s :: %(message)s",
-        datefmt="%H:%M:%S",
-    )
+    """Point the curation loggers at the shared stage handler.
+
+    The name ``dagspaces.common.curation`` is the ancestor of every
+    sub-module logger here, so one handler covers them all. ``-v`` forces
+    DEBUG through the level env var; without it the env var or INFO wins.
+    """
+    if verbose:
+        os.environ["MLLMSCI_LOG_LEVEL"] = "DEBUG"
+    get_stage_logger("dagspaces.common.curation")
 
 
 def _cmd_scaffolding_permits(args: argparse.Namespace) -> int:
@@ -414,7 +419,7 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--buffer-ft", type=float, default=80.0,
                     help="Buffer distance in feet. Default: 80")
     sp.add_argument("--buildings",
-                    default="/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet",
+                    default="/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet",
                     help="Path to nyc_buildings.parquet")
     sp.add_argument("--refresh", action="store_true",
                     help="Ignore Socrata caches and re-fetch")
@@ -581,7 +586,7 @@ def main(argv: list[str] | None = None) -> int:
     fb.add_argument("--buffer-ft", type=float, default=80.0,
                     help="Buffer distance (ft). Default: 80")
     fb.add_argument("--buildings",
-                    default="/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet",
+                    default="/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet",
                     help="Path to nyc_buildings.parquet")
     fb.add_argument("--refresh", action="store_true",
                     help="Ignore Socrata cache and re-fetch")
@@ -613,7 +618,7 @@ def main(argv: list[str] | None = None) -> int:
     dh.add_argument("--buffer-ft", type=float, default=80.0,
                     help="Buffer distance (ft). Default: 80")
     dh.add_argument("--buildings",
-                    default="/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet",
+                    default="/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet",
                     help="Path to nyc_buildings.parquet")
     dh.add_argument("--refresh", action="store_true",
                     help="Ignore Socrata cache and re-fetch")
@@ -652,7 +657,7 @@ def main(argv: list[str] | None = None) -> int:
     orr.add_argument("--buffer-ft", type=float, default=80.0,
                      help="Buffer distance (ft). Default: 80")
     orr.add_argument("--buildings",
-                     default="/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet",
+                     default="/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet",
                      help="Path to nyc_buildings.parquet")
     orr.add_argument("--refresh", action="store_true",
                      help="Ignore Socrata cache and re-fetch")

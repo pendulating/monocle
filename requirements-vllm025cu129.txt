@@ -6,7 +6,7 @@
 # All other dependencies come from pyproject.toml and resolve freely.
 #
 # The versions come from the proven UAIR environment
-# (/share/pierson/matt/UAIR/.venv-vllm025cu129, frozen 2026-08-12).
+# (/share/ju/matt/normative-simulacra/.venv-vllm025cu129, frozen 2026-08-12).
 #
 # Warning: do not install torch from the default index. The default index
 # gives a cu128 build, which the vLLM 0.25 cu129 wheel cannot load.

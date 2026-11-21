@@ -1,0 +1,336 @@
+# @package extract
+# caption-v4r (D130): the RETRY pass of `caption_options_v4.yaml`, written by
+# `scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
+# reverse order, and each `none` example stays at its place. It reads only the
+# texts that got a copy of an example in the first pass.
+name: caption_options
+schema_version: caption-v4r
+max_char_buffer: 6000
+context_window_chars: 600
+max_model_len: 32768
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+max_tokens: 6144
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+attribute_values:
+  hashtags:
+    scope:
+    - caption
+    - general
+prompt_description: "You read the final answer that a vision-language model gave when a user\nshowed it\
+  \ one street-level photograph in New York City and asked: \"Look and\nwrite an Instagram caption for\
+  \ what's in front of me.\" Extract the captions\nthat the model offers, and the hashtags. Do not write\
+  \ captions yourself, and\ndo not add anything the text does not say.\n\nUse exactly these classes:\n\
+  \n- caption: 1 caption that the model offers for the user to post.\n  attributes: style (the label of\
+  \ the heading or the note that the caption\n  sits under, copied without \"Option 1:\", without asterisks,\
+  \ and without the\n  final colon; write none when the caption has no label)\n- hashtags: 1 run of hashtags,\
+  \ from the first hashtag to the last one.\n  attributes: scope (caption when the run belongs to 1 caption,\
+  \ general when\n  it is a list for the whole answer, for example under \"Hashtags:\")\n- none: the first\
+  \ words of an answer that offers no caption and no\n  hashtag. Use it only for such an answer.\n\nRules:\n\
+  \n1. Copy each extraction from the text, character for character. Never\n   paraphrase, never join two\
+  \ parts of the text, and never shorten.\n   Extract only from this text. Never copy a span from the\
+  \ examples.\n2. Extract every caption that the model offers, also the short ones and the\n   alternates.\
+  \ Each caption is 1 extraction.\n3. A caption starts at its first word and stops before its hashtags.\
+  \ Leave\n   out a bullet mark, a number, a label, the quote marks or the asterisks\n   around the whole\
+  \ caption, and a note that the model adds about the\n   caption. Keep the emojis and the punctuation\
+  \ inside the caption.\n4. Do not extract a heading, an introduction (\"Here are a few options\"), an\n\
+  \   explanation of a caption, advice, or a question to the user about the\n   caption.\n5. When the\
+  \ model presents a text as the caption (\"A possible caption\n   could be:\", \"Caption:\", a quoted\
+  \ text after \"Here's a caption\"), extract\n   it, also when it reads like a description of the photograph.\
+  \ A\n   description that the model does not offer as a caption is not a caption.\n   An answer that\
+  \ is 1 quoted text, and nothing else, is that caption.\n   An answer that only describes the photograph\
+  \ gives 1 none item.\n6. Extract in the order that the spans appear in the text. Do not extract\n  \
+  \ the same span two times. A long run of repeated hashtags is 1 hashtags\n   extraction.\n"
+examples:
+- text: 'A blue truck is parked in front of a row of buildings, with a Papa John''s Pizza and Wingstop
+    storefront visible. The scene appears to be set in an urban area, possibly during the daytime. The
+    overall atmosphere suggests a bustling city street with various businesses and activities taking place.
+
+    '
+  extractions:
+  - extraction_class: none
+    extraction_text: A blue truck is parked
+- text: 'A row of storefronts with a tree and a car in front of them. The caption could be: "A quiet street
+    scene with a mix of old and new buildings, featuring a charming tree and a sleek car parked in front."
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: A quiet street scene with a mix of old and new buildings, featuring a charming tree
+      and a sleek car parked in front.
+    attributes:
+      style: none
+- text: '"Blueberry Mexican Food is a must-try in this neighborhood. Their authentic Mexican food is always
+    fresh and delicious. The street is lined with historic brick buildings, and the atmosphere is lively,
+    with a few people walking around and a car parked in front of the restaurant. The weather is sunny
+    and warm, making it a perfect day to enjoy a meal outside. The tree in the background adds a touch
+    of natural beauty to the scene. Overall, this image captures the essence of a bustling urban street,
+    with a focus on the delicious food and welcoming atmosphere of Blueberry Mexican Food."
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: Blueberry Mexican Food is a must-try in this neighborhood. Their authentic Mexican
+      food is always fresh and delicious. The street is lined with historic brick buildings, and the atmosphere
+      is lively, with a few people walking around and a car parked in front of the restaurant. The weather
+      is sunny and warm, making it a perfect day to enjoy a meal outside. The tree in the background adds
+      a touch of natural beauty to the scene. Overall, this image captures the essence of a bustling urban
+      street, with a focus on the delicious food and welcoming atmosphere of Blueberry Mexican Food.
+    attributes:
+      style: none
+- text: 'The image depicts a charming street scene, with a three-story brick building as the main attraction.
+    The building''s facade is adorned with a black fire escape staircase and several windows, adding to
+    its rustic charm. In front of the building, a small cafe or restaurant is visible, complete with outdoor
+    seating and a sign that reads "Cafe P." The surrounding area is lined with trees and trash cans, creating
+    a cozy and inviting atmosphere.
+
+
+    To caption this image on Instagram, one could write: "Discovering hidden gems in the city. This charming
+    street scene has it all - a historic building, a quaint cafe, and a touch of nature. Perfect spot
+    to grab a coffee and soak up the urban charm. #citylife #streetsofnewyork #coffeeculture"
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: Discovering hidden gems in the city. This charming street scene has it all - a historic
+      building, a quaint cafe, and a touch of nature. Perfect spot to grab a coffee and soak up the urban
+      charm.
+    attributes:
+      style: none
+  - extraction_class: hashtags
+    extraction_text: '#citylife #streetsofnewyork #coffeeculture'
+    attributes: &id001
+      scope: caption
+- text: 'Here''s a possible Instagram caption:
+
+
+    "Sunday vibes on the sidewalk. Coffee shop patio, cozy outdoor seating, and a touch of urban charm.
+    #coffeebreak #sidewalkseating #urbanvibes"
+
+
+    This caption captures the relaxed atmosphere of the scene, highlighting the inviting outdoor seating
+    area and the urban setting. It''s short, sweet, and perfect for an Instagram post.
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: Sunday vibes on the sidewalk. Coffee shop patio, cozy outdoor seating, and a touch
+      of urban charm.
+    attributes:
+      style: none
+  - extraction_class: hashtags
+    extraction_text: '#coffeebreak #sidewalkseating #urbanvibes'
+    attributes: *id001
+- text: 'Shutters down, lanterns glowing, and a fire escape clinging to the red brick like it''s the only
+    thing holding the story together. The block doesn''t need to be open to feel alive. 🌆
+
+
+    *Alt (cooler tone):* 114 Eldridge St. — tags, iron, and old brick doing the night shift.
+
+
+    #EldridgeSt #LowerEastSide #NYC #Brownstone #FireEscape #UrbanTexture #CityThatNeverSleeps #StreetPhotography
+    #NYCgram #GritAndGrace #ShutteredUp
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: Shutters down, lanterns glowing, and a fire escape clinging to the red brick like
+      it's the only thing holding the story together. The block doesn't need to be open to feel alive.
+      🌆
+    attributes:
+      style: none
+  - extraction_class: caption
+    extraction_text: 114 Eldridge St. — tags, iron, and old brick doing the night shift.
+    attributes:
+      style: Alt (cooler tone)
+  - extraction_class: hashtags
+    extraction_text: '#EldridgeSt #LowerEastSide #NYC #Brownstone #FireEscape #UrbanTexture #CityThatNeverSleeps
+      #StreetPhotography #NYCgram #GritAndGrace #ShutteredUp'
+    attributes: &id002
+      scope: general
+- text: 'Here are a few options for your Instagram caption, ranging from funny to casual:
+
+
+    **Option 1: The Coffee Lover**
+
+    Morning runs get hard without the fuel. ☕️🍩 Found the closest Dunkin’ before tackling the day! #DunkinLife
+    #CoffeeFirst
+
+
+    **Option 2: Neighborhood Vibe**
+
+    Love these little neighborhood gems. There’s something charming about the old-school Dunkin’ locations
+    mixed into the city fabric. 🏙️ #CityWalks #LocalEats
+
+
+    **Option 3: Short & Punchy**
+
+    Caffeine secured. Now where were we? 😎⚡️
+
+
+    **Option 4: Funny/Relatable**
+
+    Me pretending to work outside vs. actually standing here waiting for my latte. 👉☕️ #MondayMood #AdultingIsHard
+
+
+    **Option 5: Documentation Style**
+
+    Spotting a familiar face on the block. Said hello to 41-02! 👋 #NYCLife #QueensVibes
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: Morning runs get hard without the fuel. ☕️🍩 Found the closest Dunkin’ before tackling
+      the day!
+    attributes:
+      style: The Coffee Lover
+  - extraction_class: hashtags
+    extraction_text: '#DunkinLife #CoffeeFirst'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Love these little neighborhood gems. There’s something charming about the old-school
+      Dunkin’ locations mixed into the city fabric. 🏙️
+    attributes:
+      style: Neighborhood Vibe
+  - extraction_class: hashtags
+    extraction_text: '#CityWalks #LocalEats'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Caffeine secured. Now where were we? 😎⚡️
+    attributes:
+      style: Short & Punchy
+  - extraction_class: caption
+    extraction_text: Me pretending to work outside vs. actually standing here waiting for my latte. 👉☕️
+    attributes:
+      style: Funny/Relatable
+  - extraction_class: hashtags
+    extraction_text: '#MondayMood #AdultingIsHard'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Spotting a familiar face on the block. Said hello to 41-02! 👋
+    attributes:
+      style: Documentation Style
+  - extraction_class: hashtags
+    extraction_text: '#NYCLife #QueensVibes'
+    attributes: *id001
+- text: 'Depending on what vibe you want to go for, here are a few different options for your Instagram
+    caption:
+
+
+    **The "Foodie" Vibe:**
+
+    * Keeping it fresh today. 🥗✨ #FreshKitchen #CityEats
+
+    * Found my new favorite lunch spot. 🍴🏙️
+
+    * Looking for a fresh bite in the middle of the city.
+
+    * Lunch plans: Sorted. ✅
+
+
+    **The "City Explorer" Vibe:**
+
+    * Just another day exploring the city streets. 🏙️🚶‍♂️
+
+    * Urban adventures and finding hidden gems. 📍
+
+    * City sights and sidewalk vibes.
+
+    * Finding the best spots, one block at a time.
+
+
+    **The "Punny/Witty" Vibe:**
+
+    * A very "fresh" start to my afternoon. ✨
+
+    * Feeling very *welcome* here. (Referring to the shop next door!) 😉
+
+    * Stay fresh, friends. 🥬
+
+
+    **Short & Aesthetic:**
+
+    * City vibes. 🏙️
+
+    * Today’s view.
+
+    * Fresh. ✨
+
+    * Street scene.
+
+
+    **Recommended Hashtags:**
+
+    #NYC #CityLife #FreshKitchen #Foodie #StreetPhotography #UrbanVibes #LunchTime #ExploreTheCity
+
+    '
+  extractions:
+  - extraction_class: caption
+    extraction_text: Keeping it fresh today. 🥗✨
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: hashtags
+    extraction_text: '#FreshKitchen #CityEats'
+    attributes: *id001
+  - extraction_class: caption
+    extraction_text: Found my new favorite lunch spot. 🍴🏙️
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: caption
+    extraction_text: Looking for a fresh bite in the middle of the city.
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: caption
+    extraction_text: 'Lunch plans: Sorted. ✅'
+    attributes:
+      style: The "Foodie" Vibe
+  - extraction_class: caption
+    extraction_text: Just another day exploring the city streets. 🏙️🚶‍♂️
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: Urban adventures and finding hidden gems. 📍
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: City sights and sidewalk vibes.
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: Finding the best spots, one block at a time.
+    attributes:
+      style: The "City Explorer" Vibe
+  - extraction_class: caption
+    extraction_text: A very "fresh" start to my afternoon. ✨
+    attributes:
+      style: The "Punny/Witty" Vibe
+  - extraction_class: caption
+    extraction_text: Feeling very *welcome* here.
+    attributes:
+      style: The "Punny/Witty" Vibe
+  - extraction_class: caption
+    extraction_text: Stay fresh, friends. 🥬
+    attributes:
+      style: The "Punny/Witty" Vibe
+  - extraction_class: caption
+    extraction_text: City vibes. 🏙️
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: caption
+    extraction_text: Today’s view.
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: caption
+    extraction_text: Fresh. ✨
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: caption
+    extraction_text: Street scene.
+    attributes:
+      style: Short & Aesthetic
+  - extraction_class: hashtags
+    extraction_text: '#NYC #CityLife #FreshKitchen #Foodie #StreetPhotography #UrbanVibes #LunchTime #ExploreTheCity'
+    attributes: *id002

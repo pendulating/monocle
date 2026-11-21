@@ -62,10 +62,23 @@ additional_parameters:
   # `blackwell` and `6000maxq` name the RTX PRO 6000 Blackwell (96 GB, sm_120):
   # owens-compute-01, owens-compute-02, shmatikov-compute-02, jjs533-compute-03.
   # They add 24 GPUs. Every GPU on these 4 nodes is the same card, thus the
-  # mixed-node problem below does not apply. torch 2.11.0+cu129 compiles sm_120
-  # (`torch.cuda.get_arch_list()`), thus the card runs.
+  # mixed-node problem below does not apply.
+  #
+  # ┌─ THESE NODES NEED CUDA 12.9. DO NOT DROP IT. ────────────────────────────┐
+  # │ On 2026-08-20 shard 341600_0 died on jjs533-compute-03 with              │
+  # │   "FlashInfer requires GPUs with sm75 or higher"                         │
+  # │ on a card that is sm_120. The true cause: FlashInfer builds Blackwell as │
+  # │ `compute_120f`, the `f` target needs nvcc >= 12.9, and the system nvcc   │
+  # │ is 12.8. The arch set ends up empty and the check reports sm75.          │
+  # │                                                                          │
+  # │ Fixed by `scripts/install_cuda_129_toolkit.sh`, which                     │
+  # │ `scripts/activate_stage_venv.sh` then exports as CUDA_HOME for EVERY     │
+  # │ node. Verified 2026-08-20: sm_120f and sm_86 both build, and the shared  │
+  # │ JIT cache holds 80, 86, 89 and 120f.                                     │
+  # └──────────────────────────────────────────────────────────────────────────┘
+  #
   # Measured 2026-08-19 with scripts/gpu_census.py, over 30 days:
-  #   this pool           24 GPUs   0.1% preempted   median wait  1.7 min
+  #   the blackwell pool  24 GPUs   0.1% preempted   median wait  1.7 min
   #   the older 5 tags   396 GPUs   5.0% preempted   median wait 11.0 min
   #
   # b200, h200, and h100 stay OUT on purpose. They add 34 GPUs, but they
@@ -82,16 +95,43 @@ additional_parameters:
   # nodes that `blackwell|6000maxq` adds above hold 1 card type each and work.
   # 66 clean nodes stay. Check this list again when the cluster changes:
   #   sinfo -p gpu -N -h -o "%N|%f|%G"
-  exclude: "bhattacharjee-compute-02,unicorn-compute-01"
+  #
+  # The 2 nodes below are excluded for a DIFFERENT reason: their driver cannot
+  # load the PTX that CUDA 12.9 emits. The job dies in `init_device` with
+  # `cudaErrorUnsupportedPtxVersion`, or the worker dies with no message.
+  # Measured 2026-08-23 on array 466064, where every other node was clean:
+  #   ma-compute-02       8 of 14 tasks failed (57%)   a6000 x8
+  #   jjs533-compute-03   5 of  9 tasks failed (56%)   6000maxq x4
+  # It is about half, not all, thus some cards of a node work and some do not.
+  # Watch this pair: when the driver is updated, take them out of this list.
+  # `jjs533-compute-03` arrived with the `6000maxq` tag on 2026-08-20.
+  # `klara` is excluded for a THIRD reason, and not a fault: it is reserved for
+  # another project. It carries the `pierson` tag and 8 a6000 cards, thus this
+  # launcher would take it. Excluded 2026-08-23. Take it out of the list when
+  # the other project releases it.
+  # `elor-compute-02` is excluded for the SAME driver reason, found later.
+  # Measured 2026-08-25 on array 631628: 5 of 5 tasks that landed there died in
+  # under 60 seconds, and every other node of that array was clean. The worker
+  # dies in `init_device` with `RuntimeError: CUDA unknown error`. The card is
+  # an RTX 6000 Ada, thus the `6000ada` tag brings the node in. Excluded
+  # 2026-08-25. Take it out of the list when the driver is updated.
+  # `nikola-compute-18` is excluded for the driver reason too. Measured
+  # 2026-09-21 on array 619287: 7 of 7 tasks that landed there died in 55 s,
+  # in `torch.cuda._check_capability` -> `get_device_properties`, on a card
+  # that is an RTX A6000. Take it out of the list when the driver is updated.
+  # `seo-compute-01` is excluded for the same reason. Measured 2026-09-21 at
+  # 15:31 on arrays 618502 and 619297: 9 of 9 tasks that landed there died
+  # in about 47 s in `WorkerProc` initialization.
+  exclude: "bhattacharjee-compute-02,unicorn-compute-01,ma-compute-02,jjs533-compute-03,elor-compute-02,klara,nikola-compute-18,seo-compute-01"
   wckey: ""
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/pierson/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
+  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
   # A node-local mirror of the venv, when the node holds one. Only klara does
   # today, thus this is a no-op on the `gpu` partition and the import comes
   # over NFS. See scripts/sync_venv_to_scratch.sh.
-  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/scripts/activate_stage_venv.sh
+  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/activate_stage_venv.sh
   # `source ~/.bashrc` conda-activates anaconda base, whose old libstdc++.so.6
   # lacks GLIBCXX_3.4.32 and shadows the system one. Force the system library
   # ahead of it, but ONLY when the node really holds it: an LD_PRELOAD that
@@ -109,12 +149,12 @@ setup:
   # fails with EDQUOT). Every cache a job writes must go somewhere else, or the
   # job dies in start-up. `df` on the home mount shows the export and NOT the
   # quota, thus it looks like there is room when there is none.
-  - export VLLM_CACHE_ROOT=${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/.cache/vllm
+  - export VLLM_CACHE_ROOT=${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/.cache/vllm
   # flashinfer builds its cache under FLASHINFER_WORKSPACE_BASE/.cache, and the
   # base defaults to the home directory.
-  - export FLASHINFER_WORKSPACE_BASE=${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}
+  - export FLASHINFER_WORKSPACE_BASE=${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}
   # Catches the libraries that follow the XDG rule.
-  - export XDG_CACHE_HOME=${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/.cache
+  - export XDG_CACHE_HOME=${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/.cache
   # torch and triton write their JIT caches per node. TMPDIR is node-local, thus
   # these stay off NFS and off the home quota.
   - echo "=== GPU sanity (pre-job) ==="
@@ -149,7 +189,7 @@ setup:
   # thus the cleanup keeps the job on the fast node-local path instead of the
   # /tmp fallback. It never touches the venv or the model mirror, and only 1 job
   # for each node holds its lock. See scripts/prepare_scratch.sh.
-  - bash ${oc.env:MLLMSCI_PROJECT_ROOT,/share/pierson/matt/mllmsci}/scripts/prepare_scratch.sh || true
+  - bash ${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/prepare_scratch.sh || true
   - SCRATCH_FREE=$(df --output=avail -k /scratch 2>/dev/null | tail -1 | tr -dc 0-9)
   - if [ -n "$SCRATCH_FREE" ] && [ "$SCRATCH_FREE" -gt 10485760 ]; then export TMPDIR=/scratch/$USER; else export TMPDIR=/tmp/$USER; fi
   - mkdir -p $TMPDIR

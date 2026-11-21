@@ -21,7 +21,6 @@ Artifacts produced:
 from __future__ import annotations
 
 import json
-import logging
 import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -31,7 +30,9 @@ import pandas as pd
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-logger = logging.getLogger(__name__)
+from dagspaces.common.log_setup import get_stage_logger
+
+logger = get_stage_logger(__name__)
 
 TAG = "[raster]"
 
@@ -141,7 +142,7 @@ def _load_and_filter_embeddings(
     meta_cols = [c for c in df.columns if c != "embedding"]
     metadata = df[meta_cols].copy()
 
-    print(f"{TAG} Embedding matrix: {embeddings.shape}", flush=True)
+    logger.info(f"{TAG} Embedding matrix: {embeddings.shape}")
     return coords, embeddings, metadata
 
 

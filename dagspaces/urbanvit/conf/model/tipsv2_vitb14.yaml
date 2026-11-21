@@ -3,7 +3,7 @@
 backbone_kind: tipsv2
 # Path to the TIPSv2 model directory (HF-style). Loader reads whatever format
 # is there — safetensors / pytorch_model.bin / config.json.
-checkpoint_path: /share/pierson/matt/zoo/models/tipsv2-b14
+checkpoint_path: /share/ju/matt/zoo/models/tipsv2-b14
 
 # timm fallback name in case the checkpoint isn't directly HF-loadable
 timm_name: vit_base_patch14_dinov2.lvd142m

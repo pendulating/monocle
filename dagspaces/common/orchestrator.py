@@ -52,61 +52,6 @@ class StageResult:
 
 
 # ---------------------------------------------------------------------------
-# No-op logger
-# ---------------------------------------------------------------------------
-
-class _NoOpLogger:
-    """No-op logger that matches WandbLogger interface when wandb is disabled."""
-
-    def __init__(
-        self,
-        cfg: Any,
-        stage: str,
-        run_id: Optional[str] = None,
-        run_config: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        self.cfg = cfg
-        self.stage = stage
-        self.run_id = run_id
-        self.run_config = run_config or {}
-        try:
-            from dagspaces.common.wandb_config import WandbConfig  # type: ignore
-            self.wb_config = WandbConfig.from_hydra_config(cfg)
-        except Exception:
-            self.wb_config = None
-
-    def log_metrics(
-        self,
-        metrics: Dict[str, Any],
-        step: Optional[int] = None,
-        commit: bool = True,
-    ) -> None:
-        pass
-
-    def log_table(
-        self,
-        df: Any,
-        key: str,
-        prefer_cols: Optional[List[str]] = None,
-        max_rows: Optional[int] = None,
-        panel_group: Optional[str] = None,
-    ) -> None:
-        pass
-
-    def set_summary(self, key: str, value: Any) -> None:
-        pass
-
-    def set_config(self, data: Dict[str, Any], allow_val_change: bool = True) -> None:
-        pass
-
-    def __enter__(self) -> "_NoOpLogger":
-        return self
-
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> bool:
-        return False
-
-
-# ---------------------------------------------------------------------------
 # Config utilities
 # ---------------------------------------------------------------------------
 

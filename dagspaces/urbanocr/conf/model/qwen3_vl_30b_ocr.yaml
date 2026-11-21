@@ -1,7 +1,7 @@
 # Qwen3-VL-30B-A3B-Instruct Model Configuration for OCR
 # Optimized for text spotting in street view imagery
 
-model_source: "/share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct"
+model_source: "/share/ju/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct"
 
 # Batch processing settings
 batch_size: 4  # Conservative for MoE model memory usage

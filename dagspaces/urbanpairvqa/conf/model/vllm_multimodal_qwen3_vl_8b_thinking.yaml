@@ -1,7 +1,7 @@
 # Multimodal model config for pairwise comparison with reasoning.
 # Qwen3-VL-8B-Thinking: fine-tuned for chain-of-thought reasoning.
 
-model_source: /share/pierson/matt/zoo/models/Qwen3-VL-8B-Thinking
+model_source: /share/ju/matt/zoo/models/Qwen3-VL-8B-Thinking
 
 engine_kwargs:
   tensor_parallel_size: 1

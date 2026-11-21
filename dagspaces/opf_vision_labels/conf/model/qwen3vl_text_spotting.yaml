@@ -12,7 +12,7 @@
 
 name: qwen3_5_9b_text_spotting
 backend: vllm
-model_source: /share/pierson/matt/zoo/models/Qwen3.5-9B
+model_source: /share/ju/matt/zoo/models/Qwen3.5-9B
 model_family: qwen3.5
 concurrency: 2
 batch_size: 8

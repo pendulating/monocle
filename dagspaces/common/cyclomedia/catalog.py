@@ -47,7 +47,7 @@ FACE_GLOB = os.path.join(CATALOG_ROOT, "by_dataset", "**", "*.parquet")
 
 # Cached recording-level index. Lives under the project's data dir, not $HOME
 # (which is a tight NFS quota -- see server.env).
-DEFAULT_INDEX_PATH = "/share/pierson/matt/mllmsci/data/cyclomedia/browser/recordings_v1.parquet"
+DEFAULT_INDEX_PATH = "/share/ju/matt/mllmsci/data/cyclomedia/browser/recordings_v1.parquet"
 
 # Metres per degree at NYC's latitude. Good to ~0.1% over the city, which is
 # far tighter than the ~1 m spacing between recordings.

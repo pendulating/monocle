@@ -91,7 +91,7 @@ One-time mirror setup per node:
 ```bash
 bash scripts/sync_venv_to_scratch.sh
 sbatch -p pierson -w klara -c 4 --mem=8G --wrap \
-  'bash /share/pierson/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
+  'bash /share/ju/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
 ```
 
 The server needs about 24 GB of GPU memory in bf16. On smaller GPUs, use
@@ -299,7 +299,7 @@ The viewer scans `outputs/` next to `viewer.py` by default. Point
 `TRASHBOT_VIEWER_DIR` at another directory to scan that one instead:
 
 ```bash
-TRASHBOT_VIEWER_DIR=/share/pierson/matt/mllmsci/tools/trashbot_annotator/outputs/e2e \
+TRASHBOT_VIEWER_DIR=/share/ju/matt/mllmsci/tools/trashbot_annotator/outputs/e2e \
   sbatch scripts/serve_viewer.sub
 ```
 

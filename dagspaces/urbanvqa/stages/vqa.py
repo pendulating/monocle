@@ -11,6 +11,7 @@ import json
 import os
 import re
 import time
+from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -47,13 +48,116 @@ def _resolve_default_prompt(cfg: DictConfig) -> str:
     return _DEFAULT_IMAGE_PROMPT
 
 
+@lru_cache(maxsize=512)
+def _get_compiled_template(template_str: str):
+    """Compile a Jinja2 template. The cache is keyed by the template string."""
+    env = Environment(undefined=StrictUndefined)  # Raise error on undefined variables
+    return env.from_string(template_str)
+
+
 def render_prompt_template(template_str: str, context: Dict[str, Any]) -> str:
     """Render Jinja2 template with variable substitution."""
     if not _JINJA2_AVAILABLE:
         raise ValueError("Jinja2 is not available. Install with: pip install jinja2")
-    env = Environment(undefined=StrictUndefined)
-    template = env.from_string(template_str)
+    template = _get_compiled_template(template_str)
     return template.render(**context)
+
+
+def _prepare_image_content(image: Any, sample_id: Optional[str] = None) -> Dict[str, Any]:
+    """Prepare image content in vLLM-compatible chat format.
+
+    Detect the input format. Accept a PIL image, a local file path, an
+    HTTP URL, or a base64 string.
+
+    Args:
+        image: Image in one of the supported formats.
+        sample_id: Optional sample ID for error messages.
+
+    Returns:
+        Content block dict for a chat message. A PIL image maps to
+        ``{"type": "image", "image": <PIL>}``. A URL or base64 string
+        maps to ``{"type": "image_url", "image_url": {"url": ...}}``.
+
+    Raises:
+        ValueError: If the image is missing or the format is not supported.
+    """
+    if image is None:
+        raise ValueError(f"No image provided for sample {sample_id}")
+
+    if isinstance(image, str):
+        # HTTP(S) URL: pass through in OpenAI image_url form.
+        if image.startswith(("http://", "https://")):
+            return {
+                "type": "image_url",
+                "image_url": {"url": image},
+            }
+        # Full data URI: base64 payload with an explicit type.
+        if image.startswith("data:image/"):
+            return {
+                "type": "image_url",
+                "image_url": {"url": image},
+            }
+        # An existing path wins over the base64 guess, so a bad path
+        # raises a clear file error. A long string that names no file
+        # is base64 data.
+        if len(image) > 100 and not os.path.exists(image):
+            return {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{image}"},
+            }
+        # Local file path: load to PIL.
+        try:
+            from PIL import Image as PILImage
+
+            image = PILImage.open(image).convert("RGB")
+        except Exception as e:
+            raise ValueError(
+                f"Failed to load image from path '{image}' for sample {sample_id}: {e}"
+            ) from e
+
+    # PIL image (or PIL-like object): pass through without a copy.
+    if hasattr(image, "convert") or hasattr(image, "size"):
+        return {"type": "image", "image": image}
+
+    # Torch tensor with pre-computed embeddings: pass through.
+    try:
+        import torch
+
+        if isinstance(image, torch.Tensor):
+            return {"type": "image_embeds", "image_embeds": image}
+    except ImportError:
+        pass
+
+    raise ValueError(
+        f"Unsupported image format {type(image).__name__} for sample {sample_id}"
+    )
+
+
+def _group_by_prompt_optimization(df: pd.DataFrame) -> pd.DataFrame:
+    """Group rows by prompt for efficient batch processing.
+
+    Reorder rows so that rows with the same prompt sit together. Prompt
+    tokenization can then be reused within each group. Apply this before
+    you create a Ray Dataset.
+
+    Args:
+        df: DataFrame with an optional 'prompt' column.
+
+    Returns:
+        DataFrame sorted by prompt groups. Without a 'prompt' column,
+        return the input unchanged.
+    """
+    if "prompt" not in df.columns:
+        return df
+
+    # Add a grouping key
+    df = df.copy()
+    df["_prompt_group"] = df.groupby("prompt").ngroup()
+    # Sort by prompt group so same prompts are batched together
+    df = df.sort_values("_prompt_group").reset_index(drop=True)
+    # Drop the temporary grouping column
+    df = df.drop(columns=["_prompt_group"], errors="ignore")
+    return df
 
 
 # ---------------------------------------------------------------------------

@@ -30,7 +30,7 @@ from .runner import child_env
 
 # The zoo ffmpeg build. The viewer uses the same order:
 # TRASHBOT_FFMPEG override, zoo build, system build.
-ZOO_FFMPEG = Path("/share/pierson/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg")
+ZOO_FFMPEG = Path("/share/ju/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg")
 
 # Column order of the frames manifest parquet.
 FRAMES_COLUMNS: tuple[str, ...] = (

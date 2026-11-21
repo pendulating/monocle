@@ -7,6 +7,10 @@ import os
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
+from dagspaces.common.log_setup import get_stage_logger
+
+logger = get_stage_logger(__name__)
+
 _ORDINAL_LABELS = ("MuchLess", "Less", "Same", "More", "MuchMore")
 _ORDINAL_SCORE = {
     "MuchLess": -2,
@@ -34,10 +38,43 @@ _NOT_SURE_LABEL = "NotSure"
 # Supported user-message content layouts (prompt.image_layout, optional).
 # "images_then_text" is the production default: image A, image B, then the
 # full text prompt. The alternates exist for presentation-robustness probes:
+#   images_then_labels — image A, "Image A." text, image B, "Image B." text,
+#                        prompt. Each anchor FOLLOWS its image, so an image
+#                        opens the message. Google asks for image content
+#                        before text (gemma-4 model card, "Modality order"),
+#                        and gemma-4-12b needs an anchor to bind two images
+#                        (measured 2026-08-13; see the note below). This layout
+#                        gives both.
 #   interleaved_labels — "Image A:" text, image A, "Image B:" text, image B,
 #                        prompt (textual anchors adjacent to each image)
 #   text_first         — prompt, image A, image B
-_IMAGE_LAYOUTS = ("images_then_text", "interleaved_labels", "text_first")
+#   text_first_labels  — prompt, image A, "Image A.", image B, "Image B."
+#                        This is `images_then_labels` with the prompt moved
+#                        from the end to the front, and nothing else. The
+#                        anchors stay, thus the 2 images are NOT adjacent and
+#                        the model still binds them. Use it to ask what the
+#                        POSITION of the prompt does, on an arch where
+#                        `text_first` also breaks the binding.
+#   text_first_interleaved — prompt, "Image A:", image A, "Image B:", image B.
+#                        `interleaved_labels` with the prompt moved to the
+#                        front, and nothing else. The text-first probe of the
+#                        canonical gemma battery, which runs
+#                        `interleaved_labels` (decision of 2026-09-02).
+#
+# What the anchors do, gemma-4-12b, 16 pairs, 2026-08-13:
+#
+# | Layout             | "only one image" in trace | NotSure |
+# |--------------------|---------------------------|---------|
+# | images_then_text   | 15 of 18                  | 83%     |
+# | interleaved_labels | 0 of 18                   | 5.6%    |
+#
+# Two adjacent images with no text between them collapse into one image for
+# this architecture. The pixels arrive — the prompt holds about 696 tokens
+# either way — but the model does not bind them as two images.
+_IMAGE_LAYOUTS = (
+    "images_then_text", "images_then_labels", "interleaved_labels", "text_first",
+    "text_first_labels", "text_first_interleaved",
+)
 
 
 def _canonicalize_label(value: Any, not_sure_label: str = _NOT_SURE_LABEL) -> str:
@@ -305,7 +342,15 @@ def _make_pairwise_preprocess(cfg: DictConfig):
         left = {"type": "image_url", "image_url": {"url": f"file://{left_path}"}}
         right = {"type": "image_url", "image_url": {"url": f"file://{right_path}"}}
         text = {"type": "text", "text": prompt}
-        if image_layout == "interleaved_labels":
+        if image_layout == "images_then_labels":
+            content = [
+                left,
+                {"type": "text", "text": "Image A."},
+                right,
+                {"type": "text", "text": "Image B."},
+                text,
+            ]
+        elif image_layout == "interleaved_labels":
             content = [
                 {"type": "text", "text": "Image A:"},
                 left,
@@ -313,7 +358,29 @@ def _make_pairwise_preprocess(cfg: DictConfig):
                 right,
                 text,
             ]
+        elif image_layout == "text_first_labels":
+            # `images_then_labels` with the prompt moved to the front. The
+            # anchors keep the 2 images apart, thus the arch still binds them.
+            content = [
+                text,
+                left,
+                {"type": "text", "text": "Image A."},
+                right,
+                {"type": "text", "text": "Image B."},
+            ]
+        elif image_layout == "text_first_interleaved":
+            # `interleaved_labels` with the prompt moved to the front. The
+            # anchors keep the 2 images apart, thus the arch still binds them.
+            content = [
+                text,
+                {"type": "text", "text": "Image A:"},
+                left,
+                {"type": "text", "text": "Image B:"},
+                right,
+            ]
         elif image_layout == "text_first":
+            # Warning: the 2 images are ADJACENT here. gemma-4-12b reads them
+            # as 1 image. Use `text_first_labels` on that arch.
             content = [text, left, right]
         else:
             content = [left, right, text]
@@ -388,7 +455,7 @@ def run_pairwise_vqa_stage(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
     OmegaConf.update(local_cfg, "model.engine_kwargs.limit_mm_per_prompt.image", 2, merge=True)
 
     # Prepare lightweight DataFrame: render prompts, set sample_id (no image loading)
-    print(f"[pairwise_vqa] Preparing {len(df)} pairs...", flush=True)
+    logger.info(f"[pairwise_vqa] Preparing {len(df)} pairs...")
     df = df.copy()
     df["sample_id"] = df["pair_id"].astype(str)
     df["prompt"] = df.apply(lambda row: _render_pair_prompt(row.to_dict(), cfg), axis=1)

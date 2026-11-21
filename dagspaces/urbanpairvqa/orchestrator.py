@@ -2,6 +2,8 @@
 
 Imports shared infrastructure from dagspaces.common and adds
 urbanpairvqa-specific stage runner for pairwise comparison VQA.
+The SLURM submission core lives in dagspaces.common.stage_submission;
+the functions below delegate to it and keep the public names stable.
 """
 
 from __future__ import annotations
@@ -11,37 +13,22 @@ import math
 import os
 import time
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
 # -- Common infrastructure imports ------------------------------------------
-from dagspaces.common.config_schema import (
-    PipelineGraphSpec,
-    PipelineNodeSpec,
-    OutputSpec,
-    load_pipeline_graph,
-    resolve_output_root,
-)
+from dagspaces.common import stage_submission
+from dagspaces.common.config_schema import PipelineNodeSpec
 from dagspaces.common.orchestrator import (
-    ArtifactRegistry,
     StageExecutionContext,
     StageResult,
-    _clean_slurm_env,
     _collect_outputs,
-    _create_submitit_executor,
-    _load_launcher_config,
-    _node_inputs,
-    _node_output_paths,
     _print_status,
-    build_run_config,
-    common_parent,
-    prepare_node_config,
 )
 from dagspaces.common.runners.base import StageRunner
 from dagspaces.common.resource_tracker_patch import apply_patch as _apply_resource_tracker_patch
-from dagspaces.common.wandb_logger import WandbLogger
 
 _apply_resource_tracker_patch()
 
@@ -53,11 +40,6 @@ from .samplers.cyclomedia_pairs import (
 from .stages.ic_extract import run_ic_extract_stage
 from .stages.pairwise_vqa import run_pairwise_vqa_stage
 from .stages.trace_extract import run_trace_extract_stage
-
-try:
-    from hydra.core.hydra_config import HydraConfig
-except ImportError:
-    HydraConfig = None
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
 
@@ -132,6 +114,25 @@ def build_pair_table(cfg: DictConfig, manifest_df: pd.DataFrame) -> pd.DataFrame
     raise ValueError(f"pair_sampler.mode must be 'image' or 'unit', got {mode!r}")
 
 
+def _subset_table_matches(side_doc: Dict[str, Any], want: Dict[str, Any],
+                          diff: List[str]) -> bool:
+    """True when a SUBSET table serves a job that asks for fewer pairs.
+
+    `scripts/subset_pair_tables.py` cuts a smaller table out of a larger draw,
+    thus every row is an exact row of the parent. Its sidecar keeps the
+    PARENT fingerprint and adds a `subset` block. Such a table serves a job
+    whose settings equal the parent's in everything but `max_pairs`, and whose
+    `max_pairs` equals the number of canonical pairs the cut kept. Anything
+    else is another draw, and the job must stop.
+    """
+    sub = side_doc.get("subset") or {}
+    if not sub:
+        return False
+    if diff != ["max_pairs"]:
+        return False
+    return int(want.get("max_pairs") or 0) == int(sub.get("canonical_pairs") or -1)
+
+
 def _load_pair_table(cfg: DictConfig, manifest_df: pd.DataFrame) -> pd.DataFrame:
     """Read the prebuilt pair table when there is one, or draw it.
 
@@ -154,18 +155,24 @@ def _load_pair_table(cfg: DictConfig, manifest_df: pd.DataFrame) -> pd.DataFrame
 
     want = pair_fingerprint(cfg, len(manifest_df))
     side = os.path.splitext(pairs_path)[0] + ".json"
+    side_doc: Dict[str, Any] = {}
     if os.path.exists(side):
         try:
             with open(side) as fh:
-                have = json.load(fh).get("fingerprint")
+                side_doc = json.load(fh) or {}
+            have = side_doc.get("fingerprint")
         except Exception:
             have = None
         if have is not None and have != want:
             diff = [k for k in want if have.get(k) != want.get(k)]
-            raise ValueError(
-                f"the prebuilt table {pairs_path} was drawn under other sampler "
-                f"settings. These differ: {diff}. Build it again."
-            )
+            if not _subset_table_matches(side_doc, want, diff):
+                raise ValueError(
+                    f"the prebuilt table {pairs_path} was drawn under other "
+                    f"sampler settings. These differ: {diff}. Build it again."
+                )
+            print(f"[pairwise_runner] {pairs_path} is a subset of a larger "
+                  f"draw: {side_doc['subset'].get('selected_by', '?')}",
+                  flush=True)
     t0 = time.time()
     pairs_df = pd.read_parquet(pairs_path)
     print(f"[pairwise_runner] read {len(pairs_df)} prebuilt pairs in "
@@ -635,63 +642,36 @@ def get_stage_registry() -> Dict[str, StageRunner]:
 
 
 # ---------------------------------------------------------------------------
+# Shared SLURM core settings
+# ---------------------------------------------------------------------------
+
+_STAGE_JOB_SETTINGS = stage_submission.DagspaceSettings(
+    dagspace_name="urbanpairvqa",
+    job_prefix="PAIRVQA",
+    config_dir=_CONFIG_DIR,
+    registry_provider=get_stage_registry,
+    # The stage job must read `server.env`. Without it MLLMSCI_MODEL_REGISTRY
+    # is empty in the job, and `resolve_model_source` cannot find the
+    # node-local model mirror. The weight read then goes to NFS each time.
+    ensure_dotenv_first=True,
+    gpu_preflight=False,
+    status_includes_inputs=False,
+    log_rows_metric=False,
+    full_wandb_summaries=False,
+    registered_runner_message=False,
+    pipeline_style="inline",
+    inline_announce_submit=False,
+    manifest_include_inputs=False,
+)
+
+
+# ---------------------------------------------------------------------------
 # SLURM job entrypoint
 # ---------------------------------------------------------------------------
 
 def execute_stage_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Execute a single stage — designed to be submitted as a SLURM job."""
-    cfg = OmegaConf.create(context_data["cfg"])
-    node_dict = context_data["node"]
-
-    outputs = {}
-    for out_key, out_val in node_dict.get("outputs", {}).items():
-        outputs[out_key] = OutputSpec.from_config(out_key, out_val)
-
-    node = PipelineNodeSpec(
-        key=node_dict["key"], stage=node_dict["stage"],
-        depends_on=node_dict.get("depends_on", []),
-        inputs=node_dict.get("inputs", {}), outputs=outputs,
-        overrides=node_dict.get("overrides", {}),
-        launcher=node_dict.get("launcher"),
-        parallel_group=node_dict.get("parallel_group"),
-        max_attempts=node_dict.get("max_attempts", 1),
-        retry_backoff_s=node_dict.get("retry_backoff_s", 0.0),
-        wandb_suffix=node_dict.get("wandb_suffix"),
-    )
-
-    context = StageExecutionContext(
-        cfg=cfg, node=node,
-        inputs=context_data["inputs"],
-        output_paths=context_data["output_paths"],
-        output_dir=context_data["output_dir"],
-        output_root=context_data["output_root"],
-    )
-
-    registry = get_stage_registry()
-    runner = registry.get(node.stage)
-    if runner is None:
-        raise ValueError(f"No runner for stage '{node.stage}' (node '{node.key}')")
-
-    run_config = build_run_config(
-        cfg, node, context.inputs, context.output_paths,
-        dagspace_name="urbanpairvqa",
-    )
-    wandb_run_id = node.wandb_suffix or node.key
-
-    with WandbLogger(cfg, stage=node.stage, run_id=wandb_run_id, run_config=run_config) as logger:
-        try:
-            context.logger = logger
-            _print_status({"node": node.key, "stage": node.stage, "status": "running"})
-            t0 = time.time()
-            result = runner.run(context)
-            logger.log_metrics({f"{node.stage}/duration_s": time.time() - t0})
-            return {"outputs": result.outputs, "metadata": result.metadata}
-        except Exception as e:
-            try:
-                logger.set_summary(f"{node.stage}/status", "failed")
-            except Exception:
-                pass
-            raise
+    """Run one stage. Submitit calls this function in the SLURM job."""
+    return stage_submission.execute_stage_job(context_data, _STAGE_JOB_SETTINGS)
 
 
 def run_shard_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -724,8 +704,9 @@ def run_shard_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
     }
     try:
         os.makedirs(output_root, exist_ok=True)
-        with open(os.path.join(output_root, "pipeline_manifest.json"), "w") as fh:
-            json.dump(manifest, fh, indent=2)
+        stage_submission.write_json_atomic(
+            os.path.join(output_root, "pipeline_manifest.json"), manifest
+        )
     except Exception as exc:
         print(f"[run_shard_job] WARN: could not write the manifest: {exc}",
               flush=True)
@@ -738,109 +719,6 @@ def run_shard_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
 
 def run_experiment(cfg: DictConfig) -> None:
     """Execute pairwise VQA pipeline."""
-    with WandbLogger(cfg, stage="orchestrator", run_id="monitor",
-                     run_config={"type": "pipeline"}) as logger:
-        try:
-            parent_group = logger.wb_config.group if logger.wb_config else None
-            if parent_group:
-                os.environ["WANDB_GROUP"] = parent_group
-
-            graph_spec = load_pipeline_graph(cfg)
-            output_root = resolve_output_root(graph_spec, cfg)
-            os.makedirs(output_root, exist_ok=True)
-
-            registry = ArtifactRegistry()
-            for source_key, source in graph_spec.sources.items():
-                path = source.path
-                if not os.path.isabs(path):
-                    path = os.path.abspath(os.path.expanduser(path))
-                registry.register_source(source_key, path)
-
-            manifest: Dict[str, Any] = {"output_root": output_root, "nodes": {}}
-            stage_registry = get_stage_registry()
-            ordered_nodes = graph_spec.topological_order()
-            pipeline_start = time.time()
-
-            logger.log_metrics({"orchestrator/total_nodes": len(ordered_nodes)})
-
-            for node_key in ordered_nodes:
-                node = graph_spec.nodes[node_key]
-                runner = stage_registry.get(node.stage)
-                if runner is None:
-                    raise ValueError(f"No runner for stage '{node.stage}' (node '{node.key}')")
-
-                inputs = _node_inputs(node, registry)
-                output_paths = _node_output_paths(node, registry, output_root)
-                output_dir = common_parent(output_paths.values()) or os.path.join(output_root, node.key)
-                os.makedirs(output_dir, exist_ok=True)
-                node_cfg = prepare_node_config(cfg, node, output_dir)
-
-                context = StageExecutionContext(
-                    cfg=node_cfg, node=node, inputs=inputs,
-                    output_paths=output_paths, output_dir=output_dir,
-                    output_root=output_root,
-                )
-                node_start = time.time()
-
-                if node.launcher:
-                    launcher_cfg = _load_launcher_config(cfg, node.launcher, _CONFIG_DIR)
-                    log_folder = os.path.join(output_root, ".slurm_jobs", node.key)
-                    os.makedirs(log_folder, exist_ok=True)
-                    executor = _create_submitit_executor(launcher_cfg, f"PAIRVQA-{node.key}", log_folder)
-
-                    context_data = {
-                        "cfg": OmegaConf.to_container(node_cfg, resolve=True),
-                        "node": {
-                            "key": node.key, "stage": node.stage,
-                            "depends_on": node.depends_on, "inputs": node.inputs,
-                            "outputs": {k: {"path": v.path, "type": v.type, "optional": v.optional}
-                                        for k, v in node.outputs.items()},
-                            "overrides": node.overrides, "launcher": node.launcher,
-                            "parallel_group": node.parallel_group,
-                            "max_attempts": node.max_attempts,
-                            "retry_backoff_s": node.retry_backoff_s,
-                            "wandb_suffix": node.wandb_suffix,
-                        },
-                        "inputs": inputs, "output_paths": output_paths,
-                        "output_dir": output_dir, "output_root": output_root,
-                    }
-                    with _clean_slurm_env():
-                        job = executor.submit(execute_stage_job, context_data)
-                    job_result = job.result()
-                    result = StageResult(outputs=job_result["outputs"], metadata=job_result["metadata"])
-                else:
-                    _print_status({"node": node.key, "stage": node.stage, "status": "running"})
-                    result = runner.run(context)
-
-                registry.register_outputs(node.key, result.outputs)
-                duration = time.time() - node_start
-                manifest["nodes"][node.key] = {
-                    "stage": node.stage, "outputs": result.outputs,
-                    "metadata": result.metadata, "duration_s": duration,
-                }
-                _print_status({"node": node.key, "status": "completed",
-                               "duration_s": round(duration, 3)})
-
-            manifest_path = os.path.join(output_root, "pipeline_manifest.json")
-            try:
-                with open(manifest_path, "w") as fh:
-                    json.dump(manifest, fh, indent=2)
-            except Exception:
-                pass
-
-            total_duration = time.time() - pipeline_start
-            try:
-                logger.set_summary("orchestrator/status", "completed")
-            except Exception:
-                pass
-            logger.log_metrics({
-                "orchestrator/total_duration_s": round(total_duration, 3),
-                "orchestrator/nodes_completed": len(manifest["nodes"]),
-            })
-        except Exception as e:
-            try:
-                logger.set_summary("orchestrator/status", "failed")
-                logger.set_summary("orchestrator/error", str(e))
-            except Exception:
-                pass
-            raise
+    stage_submission.run_pipeline_experiment(
+        cfg, _STAGE_JOB_SETTINGS, execute_fn=execute_stage_job
+    )

@@ -85,7 +85,7 @@ def _derive_seed_candidate(cfg: DictConfig) -> Dict[str, str]:
         }
     
     LOG.info(f"Derived seed candidate: {candidate}")
-    with open("/share/pierson/matt/mllmsci/gepa_debug.log", "a") as f:
+    with open("/share/ju/matt/mllmsci/gepa_debug.log", "a") as f:
         f.write(f"DEBUG: Derived seed candidate: {candidate}\n")
     return candidate
 
@@ -170,7 +170,7 @@ def _run_optimize(cfg: DictConfig, logger: Optional[WandbLogger]) -> None:
     val_frame = materialize_supervised_frame(cfg, "val")
     
     LOG.info("Starting GEPA optimization with %s training rows and %s validation rows", len(train_frame), len(val_frame))
-    with open("/share/pierson/matt/mllmsci/gepa_debug.log", "a") as f:
+    with open("/share/ju/matt/mllmsci/gepa_debug.log", "a") as f:
         f.write(f"DEBUG: Train frame columns: {train_frame.columns.tolist()}\n")
         if not train_frame.empty:
             f.write(f"DEBUG: First train record keys: {list(train_frame.iloc[0].to_dict().keys())}\n")

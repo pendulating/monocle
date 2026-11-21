@@ -4,7 +4,7 @@
 # Usage:
 #   python -m dagspaces.urbanembed.cli pipeline=rerank_cyclomedia \
 #     reranking.query_text="pedestrian infrastructure and sidewalk conditions" \
-#     reranking.embeddings_input_path=/share/pierson/matt/mllmsci/outputs/embed/cyclomedia_20260407_060223
+#     reranking.embeddings_input_path=/share/ju/matt/mllmsci/outputs/embed/cyclomedia_20260407_060223
 
 defaults:
   - _self_
@@ -17,7 +17,7 @@ runtime:
   job_memory_gb: 256
 
 reranking:
-  embeddings_input_path: /share/pierson/matt/mllmsci/outputs/embed/cyclomedia_20260407_060223
+  embeddings_input_path: /share/ju/matt/mllmsci/outputs/embed/cyclomedia_20260407_060223
   query_text: ""
   top_k: 1000
   rerank_batch_size: 10

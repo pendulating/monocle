@@ -108,7 +108,7 @@ DEFAULT_UNIT_HALF_WIDTH_FT = 25.0
 # Fix F: default NYC buildings polygon source for the occlusion check. Keeping
 # this in sync with ``dagspaces.common.curation.geom.DEFAULT_BUILDINGS_PATH``
 # but duplicated here so filter_facing has no import-time dependency on geom.
-DEFAULT_BUILDINGS_PATH = "/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet"
+DEFAULT_BUILDINGS_PATH = "/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet"
 _MAX_SAMPLE_SPACING_M = 10.0
 _MIN_RAY_SAMPLES = 3
 
@@ -524,7 +524,7 @@ def filter_facing(
             without a BIN match pass through.
         buildings_path: Path to ``nyc_buildings.parquet``, used only when
             ``occlusion=True``. Default:
-            ``/share/pierson/matt/mllmsci/data/geo/nyc_buildings.parquet``.
+            ``/share/ju/matt/mllmsci/data/geo/nyc_buildings.parquet``.
     """
     t0 = time.monotonic()
     input_parquet = os.path.abspath(input_parquet)

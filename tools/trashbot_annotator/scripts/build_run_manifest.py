@@ -27,7 +27,7 @@ from pathlib import Path
 
 import pandas as pd
 
-FFPROBE_DEFAULT = "/share/pierson/matt/zoo/ffmpeg-libs/n7.1/bin/ffprobe"
+FFPROBE_DEFAULT = "/share/ju/matt/zoo/ffmpeg-libs/n7.1/bin/ffprobe"
 CHUNK_CORPUS = "/share/ju/robot_norms/embeddings/chunk_corpus.parquet"
 
 

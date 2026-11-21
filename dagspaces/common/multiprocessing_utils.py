@@ -1,11 +1,11 @@
 """Shared utilities for SLURM detection and multiprocessing warnings."""
 
 import os
-import re
 from typing import Optional
 
 from omegaconf import DictConfig
 
+from .host_info import _parse_cpus_on_node
 from .resource_tracker_patch import apply_patch as _apply_resource_tracker_patch
 
 
@@ -67,23 +67,8 @@ def get_suppress_child_warnings(cfg: Optional[DictConfig]) -> bool:
 #  SLURM helpers
 # ---------------------------------------------------------------------------
 
-def _parse_cpus_on_node(val: str) -> int:
-    """Parse SLURM_CPUS_ON_NODE value which can be in various formats."""
-    try:
-        v = val.strip()
-        if "(x" in v and v.endswith(")"):
-            m = re.match(r"^(\d+)\(x(\d+)\)$", v)
-            if m:
-                return max(1, int(m.group(1)) * int(m.group(2)))
-        if "," in v:
-            acc = 0
-            for p in v.split(","):
-                acc += int(p)
-            return max(1, acc)
-        return max(1, int(v))
-    except Exception:
-        return -1
-
+# _parse_cpus_on_node moved to dagspaces.common.host_info. This module
+# imports the canonical copy above.
 
 def _detect_slurm_cpus() -> Optional[int]:
     """Detect SLURM CPU allocation from environment variables."""

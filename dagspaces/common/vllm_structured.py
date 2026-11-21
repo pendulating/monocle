@@ -118,6 +118,16 @@ class VLLMEngine:
         from vllm import LLM
 
         engine_kwargs = vi._build_engine_kwargs(cfg)
+        # Shared memory ON for a tensor-parallel engine. `server.env` and
+        # `get_pcie_nccl_env_vars` set NCCL_SHM_DISABLE=1, which sends every
+        # intra-node all-reduce through the socket path. The UAIR project
+        # measured SHM on as worth about 21% for gemma-4-31b at TP=2 on A6000
+        # (2026-07-12). A 1-GPU engine runs no collective, thus it keeps the
+        # default. A launcher that sets MLLMSCI_NCCL_SHM_DISABLE names its own
+        # value.
+        if int(engine_kwargs.get("tensor_parallel_size", 1) or 1) > 1:
+            os.environ["NCCL_SHM_DISABLE"] = os.environ.get("MLLMSCI_NCCL_SHM_DISABLE", "0")
+            print(f"[{stage_name}] TP>1: NCCL_SHM_DISABLE={os.environ['NCCL_SHM_DISABLE']}", flush=True)
         # Data parallelism belongs to `run_vllm_inference`, which shards a
         # DataFrame across worker processes. This path holds 1 engine, thus the
         # key would reach `LLM()` and raise.
@@ -173,12 +183,23 @@ class VLLMEngine:
         temperature: float = 0.0,
         max_tokens: int = DEFAULT_MAX_TOKENS,
         guided_json: Optional[Dict[str, Any]] = None,
+        repetition_penalty: float = 1.0,
     ) -> List[str]:
-        """Answer every prompt. Give back the content, without the thought."""
+        """Answer every prompt. Give back the content, without the thought.
+
+        `repetition_penalty` above 1.0 makes a token that the answer already
+        holds less likely. Under guided decoding the grammar keeps the JSON
+        valid, thus the penalty acts on the choice between "one more item"
+        and "close the list". Gemma-4-31B on a long qwen trace under schema
+        v3 wrote the same 50 to 77 spans up to 27 times until the cap
+        (2026-09-29, 70% duplicate spans); 1.0 keeps the old behaviour.
+        """
         sp_dict: Dict[str, Any] = {
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        if repetition_penalty and float(repetition_penalty) != 1.0:
+            sp_dict["repetition_penalty"] = float(repetition_penalty)
         if guided_json:
             sp_dict["structured_output"] = {"json": guided_json}
         sampling_params = self._vi._build_sampling_params(sp_dict)
@@ -257,6 +278,7 @@ class VLLMEngine:
                 temperature=spec.temperature,
                 max_tokens=spec.max_tokens,
                 guided_json=guided_json,
+                repetition_penalty=float(getattr(spec, "repetition_penalty", 1.0) or 1.0),
             )
 
         return VLLMLanguageModel(_generate, stage_name=self.stage_name)

@@ -56,7 +56,7 @@ except ImportError:  # pragma: no cover - mirrors urbanvqa fallback shim
 from dagspaces.urbanpairvqa.stages.pairwise_vqa import _canonicalize_label
 
 LOG = logging.getLogger(__name__)
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 
 ORDINAL = ["MuchLess", "Less", "Same", "More", "MuchMore"]
 ORD_IDX = {lab: i for i, lab in enumerate(ORDINAL)}
@@ -231,6 +231,34 @@ def _parse_multimodal_reflection(messages: Any) -> tuple:
     return "\n".join(texts), images
 
 
+def _load_pair_images(
+    rows: Sequence[Mapping[str, Any]],
+    cache: Optional[Dict[str, Any]] = None,
+) -> List[List[Any]]:
+    """Decode the left/right pair images for each row, once per image path.
+
+    ``cache`` maps an image path to its decoded RGB image. Pass one dict per
+    evaluation pass to reuse decodes across rows; with no cache, decodes are
+    shared within this call only. Callers must treat returned images as
+    read-only.
+    """
+    from PIL import Image
+
+    store: Dict[str, Any] = {} if cache is None else cache
+    batch: List[List[Any]] = []
+    for row in rows:
+        pair: List[Any] = []
+        for key in ("presented_left_path", "presented_right_path"):
+            path = str(row[key])
+            img = store.get(path)
+            if img is None:
+                img = Image.open(path).convert("RGB")
+                store[path] = img
+            pair.append(img)
+        batch.append(pair)
+    return batch
+
+
 def _sanitize_axis(text: str) -> str:
     """Reduce a reflector proposal to a usable short attribute phrase.
 
@@ -259,7 +287,7 @@ DEFAULT_RESULT_PARQUET = (
     REPO / "multirun/2026-06-29_URBANPAIRVQA/14-37-17/0/outputs/pairwise/"
     "subway_safety_mvp_20260629_143729.parquet"
 )
-DEFAULT_MODEL_DIR = "/share/pierson/matt/zoo/models/gemma-4-12B-it"
+DEFAULT_MODEL_DIR = "/share/ju/matt/zoo/models/gemma-4-12B-it"
 DEFAULT_SEED_PROMPT_YAML = (
     REPO / "dagspaces/urbanpairvqa/conf/prompt/pairwise_subway_safety_ordinal.yaml"
 )
@@ -386,9 +414,9 @@ class PairwiseTaskEngine:
     # -- task path ------------------------------------------------------------
 
     def classify(self, rows: Sequence[Mapping[str, Any]], system: str,
-                 user_text: str) -> List[str]:
+                 user_text: str,
+                 image_cache: Optional[Dict[str, Any]] = None) -> List[str]:
         """Return one raw answer string per row (two images each)."""
-        from PIL import Image
         from vllm import TokensPrompt
         from dagspaces.common.vllm_inference import _build_sampling_params
 
@@ -400,11 +428,7 @@ class PairwiseTaskEngine:
         })
 
         prompts = []
-        for row in rows:
-            images = [
-                Image.open(str(row["presented_left_path"])).convert("RGB"),
-                Image.open(str(row["presented_right_path"])).convert("RGB"),
-            ]
+        for row, images in zip(rows, _load_pair_images(rows, image_cache)):
             prompts.append(TokensPrompt(
                 prompt_token_ids=list(prompt_ids),
                 multi_modal_data={"image": images},
@@ -415,10 +439,10 @@ class PairwiseTaskEngine:
         return [o.outputs[0].text if o.outputs else "" for o in outputs]
 
     def describe(self, rows: Sequence[Mapping[str, Any]],
-                 style: str = "independent") -> List[str]:
+                 style: str = "independent",
+                 image_cache: Optional[Dict[str, Any]] = None) -> List[str]:
         """Task-neutral two-image captions (one text per row), no guided
         decoding. Used by the caption-mediated reflection variants."""
-        from PIL import Image
         from vllm import TokensPrompt
         from dagspaces.common.vllm_inference import _build_sampling_params
 
@@ -426,11 +450,7 @@ class PairwiseTaskEngine:
             DESCRIBE_SYSTEM, DESCRIBE_STYLES[style])
         sp = _build_sampling_params({"temperature": 0.0, "max_tokens": 200})
         prompts = []
-        for row in rows:
-            images = [
-                Image.open(str(row["presented_left_path"])).convert("RGB"),
-                Image.open(str(row["presented_right_path"])).convert("RGB"),
-            ]
+        for row, images in zip(rows, _load_pair_images(rows, image_cache)):
             prompts.append(TokensPrompt(
                 prompt_token_ids=list(prompt_ids),
                 multi_modal_data={"image": images},
@@ -568,7 +588,11 @@ class PairwiseGEPAAdapter(GEPAAdapter):
             return EvaluationBatch(outputs=[], scores=[], trajectories=[])
 
         system, user_text = self.render_candidate(candidate)
-        raw = self._engine.classify(rows, system, user_text)
+        # One decode per unique image path for this evaluation pass; pairs
+        # share endpoint images, so this halves the PIL decodes.
+        image_cache: Dict[str, Any] = {}
+        raw = self._engine.classify(rows, system, user_text,
+                                    image_cache=image_cache)
 
         scores: List[float] = []
         traces: List[Dict[str, Any]] = []

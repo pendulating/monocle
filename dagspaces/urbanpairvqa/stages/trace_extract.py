@@ -137,6 +137,16 @@ def load_traces(
         raise ValueError(f"{results_path} has no column {id_col!r}")
 
     columns = [id_col, reasoning_col] + [c for c in keep if c in df.columns]
+    # Warning: a judge that reaches its token cap inside the thought block
+    # writes no answer, and the pairwise stage then gives the row the label
+    # `Same`. That label is a fallback, not a judgment. On the qwen3.5-9b
+    # thinking runs of 2026-08-14 it is 0.1% to 5.7% of the traces, and 73% of
+    # the `Same` labels in the subway case. `judge_answered` lets a reader
+    # drop those rows. It is False when the response is empty.
+    answered_col = str(getattr(tcfg, "response_column", "model_response"))
+    if answered_col in df.columns:
+        df["judge_answered"] = df[answered_col].fillna("").astype(str).str.strip() != ""
+        columns.append("judge_answered")
     df = df[columns].copy()
     df[reasoning_col] = df[reasoning_col].fillna("").astype(str)
 
@@ -146,6 +156,9 @@ def load_traces(
 
     stats = {
         "source_rows": int(total),
+        "traces_unanswered": (
+            int((~df["judge_answered"]).sum()) if "judge_answered" in df.columns else None
+        ),
         "traces_kept": int(len(df)),
         "traces_dropped_short": int(total - len(df)),
         "trace_chars_mean": float(lengths.mean()) if total else 0.0,
@@ -234,6 +247,9 @@ def run_trace_extract_stage(
     reasoning_col = str(getattr(tcfg, "reasoning_column", "model_reasoning"))
     id_col = str(getattr(tcfg, "id_column", "pair_id"))
     shard_rows = int(getattr(tcfg, "shard_rows", DEFAULT_SHARD_ROWS) or DEFAULT_SHARD_ROWS)
+    # A column with 1 line of `additional_context` for each text (the F4 x2
+    # round). Empty means no context.
+    context_col = str(getattr(tcfg, "context_column", "") or "")
 
     spec = spec_from_config(getattr(cfg, "extract"))
 
@@ -325,6 +341,7 @@ def run_trace_extract_stage(
                 shard[id_col].astype(str).tolist(),
                 spec,
                 model,
+                contexts=(shard[context_col].fillna("").tolist() if context_col else None),
             )
 
             # Read the id, never the position. `lx.extract` gives no order
@@ -342,7 +359,7 @@ def run_trace_extract_stage(
                 }
                 if source is not None:
                     for col in shard.columns:
-                        if col in (id_col, reasoning_col):
+                        if col in (id_col, reasoning_col, context_col):
                             continue
                         base[col] = source[col]
                 rows.extend(annotated_to_rows(doc, spec, extractor_model, base=base))

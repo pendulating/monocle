@@ -40,8 +40,20 @@
 # which `server.env` already selects. An override loses the node-local mirror,
 # and a cold import over NFS costs about 13 minutes for each process spawn.
 #
-# PAIRS: max_pairs=10000 is a deterministic seed-777 PREFIX of the 100,000-pair
-# canonical draw, thus a trace sits beside the greedy label for the same pair.
+# PAIRS: max_pairs=10000 draws its OWN 10,000 pairs.
+#
+# Warning: this is NOT a prefix of the proxy battery's draw, and a trace does
+# NOT sit beside the greedy label for the same pair. That claim was true when
+# the proxy drew 100,000 pairs. The proxy now draws 1,000,000, and the two
+# draws share almost nothing: measured 2026-08-20, a 200-pair draw of
+# subway_safety overlapped the 1,000,000-pair table in 1 pair of 220, which is
+# chance.
+#
+# Nothing downstream needs the join today: `_ic_link.py` and `_extractions.py`
+# merge a TRACE run against its OWN pairs table, never against a proxy run. To
+# make the join hold, point this sweep at the prebuilt 1,000,000-pair table
+# (`pair_sampler.pairs_path`) and take a slice of it with shard_count, instead
+# of drawing here.
 #
 # ─── Cost (measured 2026-08-13 and 2026-08-14) ───────────────────────────────
 # 11,000 rows took 7.2-10 h on 1 A6000. 7 cases = about 63 GPU-hours. At 4 GPUs
@@ -66,6 +78,33 @@
 # CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
 # correct — a thinking run uses different sampling. `_traces.py` collects them.
 
+# ┌─ UPDATE 2026-08-20 — LAYOUT IS NOW `images_then_labels` ───────────────────┐
+# │ The boxes below still hold: `images_then_text` is broken on this arch.     │
+# │ What changed is WHY, and which fix we use.                                 │
+# │                                                                            │
+# │ Re-tested on 2026-08-20 with `limit_mm_per_prompt` pinned and on vLLM      │
+# │ 0.25.0: `images_then_text` still gives 55 of 70 traces that speak of one   │
+# │ image (NotSure 81.4%). The engine never dropped the image — every vLLM on  │
+# │ disk allows 999 for an unspecified modality. The model reads two ADJACENT  │
+# │ image blocks as one image.                                                 │
+# │                                                                            │
+# │ Thus the rule is adjacency, not order: text must sit BETWEEN the two       │
+# │ images, and text before the first image is optional. Both layouts bind     │
+# │ (0 of 70 one-image traces each):                                           │
+# │   interleaved_labels  "Image A:", image, "Image B:", image, prompt         │
+# │   images_then_labels  image, "Image A.", image, "Image B.", prompt         │
+# │                                                                            │
+# │ `images_then_labels` opens with an image, which is what Google asks for    │
+# │ (gemma-4 card, "Modality order"). Production moved to it on 2026-08-20.    │
+# │                                                                            │
+# │ OPEN: on the greedy path the new layout abstained MORE on the schools      │
+# │ probe — 10 pairs into NotSure, 1 out, McNemar p=0.012, n=70, 1 case. Watch │
+# │ the abstention rate of the first re-run against the registered numbers.    │
+# │                                                                            │
+# │ Warning: a battery must hold ONE layout for every case. The registry gate  │
+# │ rejects a mixed set. A run from before 2026-08-20 is NOT comparable.       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
 sampling_params_vqa:
   # Google's standard sampling for gemma-4-12b: temperature 1.0, top_p 0.95,
   # top_k 64.
@@ -91,8 +130,9 @@ sampling_params_vqa:
   max_tokens: 4096
 
 prompt:
-  # REQUIRED for this arch. See requirement 2 above. Do not remove.
-  image_layout: interleaved_labels
+  # REQUIRED for this arch: text must sit BETWEEN the two images.
+  # See the UPDATE box at the top. Do not remove.
+  image_layout: images_then_labels
 
   structured_output:
     # Match the canonical battery, so a trace explains the same 6-way choice.
@@ -101,12 +141,39 @@ prompt:
 pair_sampler:
   # Deterministic seed-777 prefix of the 100k canonical draw.
   max_pairs: 10000
+  # 8 shards for each case: 11,000 rows / 8 = 1,375 rows, about 65 minutes of
+  # 1 GPU. That sits inside the 45-to-90-minute band the preempt launcher asks
+  # for, and 7 x 8 = 56 jobs run at once on a pool of 420 GPUs.
+  #
+  # Warning: the prebuilt pair tables under multirun/pair_tables_1m are drawn
+  # for max_pairs=1,000,000. The sidecar does not match this sweep, and the
+  # runner REFUSES a table that other settings drew. Launch this sweep with no
+  # `--pairs-dir`: a 10,000-pair draw costs about 2 seconds.
+  shard_count: 8
+
+runtime:
+  # The `gpu` partition takes a node back when its owner wants it, thus a
+  # thinking job MUST resume. Without this the stage writes nothing until the
+  # last row and a preemption throws the whole shard away.
+  #
+  # 512 rows is the unit of loss. A thinking row costs about 3 seconds, thus a
+  # chunk is about 25 minutes. The greedy battery uses 2,048 rows, because a
+  # greedy row costs about 0.2 seconds.
+  resume: true
+  resume_chunk_rows: 512
 
 pipeline:
   graph:
     nodes:
       pairwise:
-        launcher: slurm_gpu_klara_1x   # NOT klara_2x — see requirement 1
+        # Moved off klara_1x on 2026-08-20. The `gpu` partition needs 2 things
+        # that this sweep now has: shards that fit the walltime, and resume.
+        # A whole case is about 8.7 hours of 1 GPU, which no walltime here
+        # holds. See `pair_sampler.shard_count` below.
+        #
+        # Blackwell nodes work again — see blackwell-sm120-flashinfer.md — thus
+        # the pool is 420 GPUs, not the 8 of klara.
+        launcher: slurm_gpu_preempt
 
 hydra:
   mode: MULTIRUN
@@ -119,5 +186,9 @@ hydra:
   sweeper:
     params:
       model: gemma-4-12b/instruct_thinking
+      # The shard AXIS. `pair_sampler.shard_count` alone is not enough:
+      # `submit_shards` reads the number of shards from THIS line, and without
+      # it every case runs shard 0 only — an eighth of the corpus, silently.
+      pair_sampler.shard_index: range(0,8)
       # All 7 cases, in the same order as the proxy sweeps.
       pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

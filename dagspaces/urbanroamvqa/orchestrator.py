@@ -2,45 +2,30 @@
 
 Imports shared infrastructure from dagspaces.common and adds
 urbanroamvqa-specific stage runner for agent-driven urban navigation.
+The SLURM submission core lives in dagspaces.common.stage_submission;
+the functions below delegate to it and keep the public names stable.
 """
 
 from __future__ import annotations
 
 import json
 import os
-import time
-from datetime import datetime
 from typing import Any, Dict, Optional
 
 import pandas as pd
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
 # -- Common infrastructure imports ------------------------------------------
-from dagspaces.common.config_schema import (
-    PipelineGraphSpec,
-    PipelineNodeSpec,
-    OutputSpec,
-    load_pipeline_graph,
-    resolve_output_root,
-)
+from dagspaces.common import stage_submission
+from dagspaces.common.config_schema import PipelineNodeSpec
 from dagspaces.common.orchestrator import (
-    ArtifactRegistry,
     StageExecutionContext,
     StageResult,
-    _clean_slurm_env,
     _collect_outputs,
-    _create_submitit_executor,
-    _load_launcher_config,
-    _node_inputs,
-    _node_output_paths,
     _print_status,
-    build_run_config,
-    common_parent,
-    prepare_node_config,
 )
 from dagspaces.common.runners.base import StageRunner
 from dagspaces.common.resource_tracker_patch import apply_patch as _apply_resource_tracker_patch
-from dagspaces.common.wandb_logger import WandbLogger
 
 _apply_resource_tracker_patch()
 
@@ -49,11 +34,6 @@ from .graph.builder import build_street_graph
 from .graph.street_graph import compute_graph_diagnostics
 from .samplers.seed_sampler import sample_walk_seeds
 from .stages.roaming_vqa import run_roaming_vqa_stage
-
-try:
-    from hydra.core.hydra_config import HydraConfig
-except ImportError:
-    HydraConfig = None
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
 
@@ -255,63 +235,32 @@ def get_stage_registry() -> Dict[str, StageRunner]:
 
 
 # ---------------------------------------------------------------------------
+# Shared SLURM core settings
+# ---------------------------------------------------------------------------
+
+_STAGE_JOB_SETTINGS = stage_submission.DagspaceSettings(
+    dagspace_name="urbanroamvqa",
+    job_prefix="ROAMVQA",
+    config_dir=_CONFIG_DIR,
+    registry_provider=get_stage_registry,
+    gpu_preflight=False,
+    status_includes_inputs=False,
+    log_rows_metric=False,
+    full_wandb_summaries=False,
+    registered_runner_message=False,
+    pipeline_style="inline",
+    inline_announce_submit=False,
+    manifest_include_inputs=False,
+)
+
+
+# ---------------------------------------------------------------------------
 # SLURM job entrypoint
 # ---------------------------------------------------------------------------
 
 def execute_stage_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Execute a single stage — designed to be submitted as a SLURM job."""
-    cfg = OmegaConf.create(context_data["cfg"])
-    node_dict = context_data["node"]
-
-    outputs = {}
-    for out_key, out_val in node_dict.get("outputs", {}).items():
-        outputs[out_key] = OutputSpec.from_config(out_key, out_val)
-
-    node = PipelineNodeSpec(
-        key=node_dict["key"], stage=node_dict["stage"],
-        depends_on=node_dict.get("depends_on", []),
-        inputs=node_dict.get("inputs", {}), outputs=outputs,
-        overrides=node_dict.get("overrides", {}),
-        launcher=node_dict.get("launcher"),
-        parallel_group=node_dict.get("parallel_group"),
-        max_attempts=node_dict.get("max_attempts", 1),
-        retry_backoff_s=node_dict.get("retry_backoff_s", 0.0),
-        wandb_suffix=node_dict.get("wandb_suffix"),
-    )
-
-    context = StageExecutionContext(
-        cfg=cfg, node=node,
-        inputs=context_data["inputs"],
-        output_paths=context_data["output_paths"],
-        output_dir=context_data["output_dir"],
-        output_root=context_data["output_root"],
-    )
-
-    registry = get_stage_registry()
-    runner = registry.get(node.stage)
-    if runner is None:
-        raise ValueError(f"No runner for stage '{node.stage}' (node '{node.key}')")
-
-    run_config = build_run_config(
-        cfg, node, context.inputs, context.output_paths,
-        dagspace_name="urbanroamvqa",
-    )
-    wandb_run_id = node.wandb_suffix or node.key
-
-    with WandbLogger(cfg, stage=node.stage, run_id=wandb_run_id, run_config=run_config) as logger:
-        try:
-            context.logger = logger
-            _print_status({"node": node.key, "stage": node.stage, "status": "running"})
-            t0 = time.time()
-            result = runner.run(context)
-            logger.log_metrics({f"{node.stage}/duration_s": time.time() - t0})
-            return {"outputs": result.outputs, "metadata": result.metadata}
-        except Exception as e:
-            try:
-                logger.set_summary(f"{node.stage}/status", "failed")
-            except Exception:
-                pass
-            raise
+    """Run one stage. Submitit calls this function in the SLURM job."""
+    return stage_submission.execute_stage_job(context_data, _STAGE_JOB_SETTINGS)
 
 
 # ---------------------------------------------------------------------------
@@ -320,109 +269,6 @@ def execute_stage_job(context_data: Dict[str, Any]) -> Dict[str, Any]:
 
 def run_experiment(cfg: DictConfig) -> None:
     """Execute roaming VQA pipeline."""
-    with WandbLogger(cfg, stage="orchestrator", run_id="monitor",
-                     run_config={"type": "pipeline"}) as logger:
-        try:
-            parent_group = logger.wb_config.group if logger.wb_config else None
-            if parent_group:
-                os.environ["WANDB_GROUP"] = parent_group
-
-            graph_spec = load_pipeline_graph(cfg)
-            output_root = resolve_output_root(graph_spec, cfg)
-            os.makedirs(output_root, exist_ok=True)
-
-            registry = ArtifactRegistry()
-            for source_key, source in graph_spec.sources.items():
-                path = source.path
-                if not os.path.isabs(path):
-                    path = os.path.abspath(os.path.expanduser(path))
-                registry.register_source(source_key, path)
-
-            manifest: Dict[str, Any] = {"output_root": output_root, "nodes": {}}
-            stage_registry = get_stage_registry()
-            ordered_nodes = graph_spec.topological_order()
-            pipeline_start = time.time()
-
-            logger.log_metrics({"orchestrator/total_nodes": len(ordered_nodes)})
-
-            for node_key in ordered_nodes:
-                node = graph_spec.nodes[node_key]
-                runner = stage_registry.get(node.stage)
-                if runner is None:
-                    raise ValueError(f"No runner for stage '{node.stage}' (node '{node.key}')")
-
-                inputs = _node_inputs(node, registry)
-                output_paths = _node_output_paths(node, registry, output_root)
-                output_dir = common_parent(output_paths.values()) or os.path.join(output_root, node.key)
-                os.makedirs(output_dir, exist_ok=True)
-                node_cfg = prepare_node_config(cfg, node, output_dir)
-
-                context = StageExecutionContext(
-                    cfg=node_cfg, node=node, inputs=inputs,
-                    output_paths=output_paths, output_dir=output_dir,
-                    output_root=output_root,
-                )
-                node_start = time.time()
-
-                if node.launcher:
-                    launcher_cfg = _load_launcher_config(cfg, node.launcher, _CONFIG_DIR)
-                    log_folder = os.path.join(output_root, ".slurm_jobs", node.key)
-                    os.makedirs(log_folder, exist_ok=True)
-                    executor = _create_submitit_executor(launcher_cfg, f"ROAMVQA-{node.key}", log_folder)
-
-                    context_data = {
-                        "cfg": OmegaConf.to_container(node_cfg, resolve=True),
-                        "node": {
-                            "key": node.key, "stage": node.stage,
-                            "depends_on": node.depends_on, "inputs": node.inputs,
-                            "outputs": {k: {"path": v.path, "type": v.type, "optional": v.optional}
-                                        for k, v in node.outputs.items()},
-                            "overrides": node.overrides, "launcher": node.launcher,
-                            "parallel_group": node.parallel_group,
-                            "max_attempts": node.max_attempts,
-                            "retry_backoff_s": node.retry_backoff_s,
-                            "wandb_suffix": node.wandb_suffix,
-                        },
-                        "inputs": inputs, "output_paths": output_paths,
-                        "output_dir": output_dir, "output_root": output_root,
-                    }
-                    with _clean_slurm_env():
-                        job = executor.submit(execute_stage_job, context_data)
-                    job_result = job.result()
-                    result = StageResult(outputs=job_result["outputs"], metadata=job_result["metadata"])
-                else:
-                    _print_status({"node": node.key, "stage": node.stage, "status": "running"})
-                    result = runner.run(context)
-
-                registry.register_outputs(node.key, result.outputs)
-                duration = time.time() - node_start
-                manifest["nodes"][node.key] = {
-                    "stage": node.stage, "outputs": result.outputs,
-                    "metadata": result.metadata, "duration_s": duration,
-                }
-                _print_status({"node": node.key, "status": "completed",
-                               "duration_s": round(duration, 3)})
-
-            manifest_path = os.path.join(output_root, "pipeline_manifest.json")
-            try:
-                with open(manifest_path, "w") as fh:
-                    json.dump(manifest, fh, indent=2)
-            except Exception:
-                pass
-
-            total_duration = time.time() - pipeline_start
-            try:
-                logger.set_summary("orchestrator/status", "completed")
-            except Exception:
-                pass
-            logger.log_metrics({
-                "orchestrator/total_duration_s": round(total_duration, 3),
-                "orchestrator/nodes_completed": len(manifest["nodes"]),
-            })
-        except Exception as e:
-            try:
-                logger.set_summary("orchestrator/status", "failed")
-                logger.set_summary("orchestrator/error", str(e))
-            except Exception:
-                pass
-            raise
+    stage_submission.run_pipeline_experiment(
+        cfg, _STAGE_JOB_SETTINGS, execute_fn=execute_stage_job
+    )

@@ -9,8 +9,36 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from dagspaces.common.log_setup import get_stage_logger
+
 from .cache import cfg_fingerprint, load_cached_graph, save_cached_graph
 from .street_graph import Neighbor, StreetGraph
+
+logger = get_stage_logger(__name__)
+
+
+# Per-process cache of loaded metadata parquets. Each entry holds
+# (mtime, DataFrame). Callers treat frames from this cache as read-only.
+_METADATA_CACHE: Dict[str, Tuple[float, pd.DataFrame]] = {}
+
+
+def _load_metadata(parquet_path: str) -> pd.DataFrame:
+    """Read a metadata parquet once per process per file version.
+
+    The cache key is the resolved path plus mtime, so a rewritten file loads
+    again. Callers must not mutate the returned frame in place.
+    """
+    resolved = os.path.abspath(parquet_path)
+    try:
+        mtime = os.path.getmtime(resolved)
+    except OSError:
+        mtime = -1.0
+    cached = _METADATA_CACHE.get(resolved)
+    if cached is not None and cached[0] == mtime:
+        return cached[1]
+    df = pd.read_parquet(resolved)
+    _METADATA_CACHE[resolved] = (mtime, df)
+    return df
 
 
 def _haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -202,7 +230,7 @@ def build_street_graph(
     max_radius_m = float(getattr(graph_cfg, "max_radius_m", 50.0))
 
     print(f"[street_graph] Loading metadata from {metadata_parquet}", flush=True)
-    meta_df = pd.read_parquet(metadata_parquet)
+    meta_df = _load_metadata(metadata_parquet)
 
     # Normalize coordinate column names.
     # Handle cases where canonical column exists but is empty (all None)
@@ -250,7 +278,7 @@ def build_street_graph(
     recordings = recordings[coord_mask].reset_index(drop=True)
     n_dropped = n_before - len(recordings)
     if n_dropped > 0:
-        print(f"[street_graph] Dropped {n_dropped} recordings with NaN/inf coordinates", flush=True)
+        logger.warning(f"[street_graph] Dropped {n_dropped} recordings with NaN/inf coordinates")
 
     yaw_column = str(getattr(graph_cfg, "yaw_column", "recorderDirection"))
     yaw_norm = _normalize_yaw_from_recorder_direction(recordings, yaw_column)
@@ -284,8 +312,8 @@ def build_street_graph(
 
     save_cached_graph(precomputed_path, graph, fingerprint, "[street_graph]")
 
-    print(f"[street_graph] Graph built: {len(adjacency)} nodes, "
-          f"avg {np.mean([len(v) for v in adjacency.values()]):.1f} neighbors", flush=True)
+    logger.info(f"[street_graph] Graph built: {len(adjacency)} nodes, "
+                f"avg {np.mean([len(v) for v in adjacency.values()]):.1f} neighbors")
     return graph
 
 
@@ -373,7 +401,7 @@ def build_osm_projected_graph(
 
     # --- Load & normalize recordings ---
     print(f"[osm_graph] Loading metadata from {metadata_parquet}", flush=True)
-    meta_df = pd.read_parquet(metadata_parquet)
+    meta_df = _load_metadata(metadata_parquet)
 
     col_aliases = {"lat": "latitude", "lon": "longitude", "lng": "longitude"}
     for alias, canonical in col_aliases.items():
@@ -653,7 +681,7 @@ def build_h3_graph(
 
     # --- Load & normalize ---
     print(f"[h3_graph] Loading metadata from {metadata_parquet}", flush=True)
-    meta_df = pd.read_parquet(metadata_parquet)
+    meta_df = _load_metadata(metadata_parquet)
 
     # Column normalization
     col_aliases = {"lat": "latitude", "lon": "longitude", "lng": "longitude"}
@@ -824,7 +852,7 @@ def build_intersection_graph(
 
     # --- Load & normalize recordings ---
     print(f"[intersection_graph] Loading metadata from {metadata_parquet}", flush=True)
-    meta_df = pd.read_parquet(metadata_parquet)
+    meta_df = _load_metadata(metadata_parquet)
 
     # Column normalization
     col_aliases = {"lat": "latitude", "lon": "longitude", "lng": "longitude"}
@@ -1114,7 +1142,7 @@ def build_trajectory_graph(
 
     # --- Load & normalize recordings ---
     print(f"{TAG} Loading metadata from {metadata_parquet}", flush=True)
-    meta_df = pd.read_parquet(metadata_parquet)
+    meta_df = _load_metadata(metadata_parquet)
 
     col_aliases = {"lat": "latitude", "lon": "longitude", "lng": "longitude"}
     for alias, canonical in col_aliases.items():

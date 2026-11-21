@@ -19,6 +19,9 @@ extract_last_json(text)
 
 sanitize_for_json(value)
     Recursively convert a value to JSON-serializable builtins.
+
+run_with_retry(fn, ...)
+    Call a function again with exponential backoff after a failure.
 """
 
 from __future__ import annotations
@@ -26,7 +29,10 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any, Dict, Iterable, List, Optional
+import time
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type, TypeVar
+
+T = TypeVar("T")
 
 __all__ = [
     "ensure_dotenv",
@@ -36,6 +42,7 @@ __all__ = [
     "extract_last_json",
     "sanitize_for_json",
     "resolve_thinking_mode",
+    "run_with_retry",
 ]
 
 # Module-level guards so one-time setup work only runs once per process.
@@ -334,3 +341,42 @@ def resolve_thinking_mode(cfg_model: Any, *, default: bool = True) -> bool:
             return resolved
 
     return default
+
+
+def run_with_retry(
+    fn: Callable[[], T],
+    *,
+    attempts: int,
+    backoff_s: float,
+    retryable: Tuple[Type[BaseException], ...] = (Exception,),
+    on_retry: Optional[Callable[[int, BaseException], None]] = None,
+    label: str = "operation",
+) -> T:
+    """Call ``fn`` up to ``attempts`` times with exponential backoff.
+
+    The wait before the next try is ``backoff_s * 2**attempt``, with
+    ``attempt`` counted from zero. The helper re-raises the last exception
+    after the final attempt. An exception whose type is not in ``retryable``
+    propagates at once, with no further try. ``on_retry(attempt, exc)`` runs
+    before each wait; the helper logs a warning when ``on_retry`` is None.
+    """
+    tries = max(1, attempts)
+    last_exc: Optional[BaseException] = None
+    for attempt in range(tries):
+        try:
+            return fn()
+        except retryable as exc:  # type: ignore[misc]
+            last_exc = exc
+            if attempt >= tries - 1:
+                break
+            wait_s = backoff_s * (2 ** attempt)
+            if on_retry is not None:
+                on_retry(attempt, exc)
+            else:
+                logging.getLogger(__name__).warning(
+                    "%s failed on attempt %d/%d (%s: %s); next try in %.1fs",
+                    label, attempt + 1, tries, type(exc).__name__, exc, wait_s,
+                )
+            time.sleep(wait_s)
+    assert last_exc is not None  # a failed retry loop always sets this
+    raise last_exc

@@ -1,0 +1,79 @@
+# @package _global_
+# LAYOUT PROBE, 2 of 2 — the thinking path, gemma-4-12b. THIS IS THE DECIDER.
+#
+# Question: does `images_then_labels` bind both images as well as
+# `interleaved_labels` does? See `layout_probe_gemma12b_proxy.yaml` for the
+# background and for the layout definition.
+#
+# Only a thinking run answers the question. The trace says what the model
+# believes it sees, thus a count of the traces that mention one image measures
+# the binding directly. A label-only run cannot separate a binding failure from
+# an honest abstention.
+#
+# ┌─ THE BASELINE TO BEAT ─────────────────────────────────────────────────────┐
+# │ Measured on 16 pairs with traces, 2026-08-13:                              │
+# │                                                                            │
+# │   layout              "only one image" in the trace   NotSure              │
+# │   images_then_text    15 of 18                        83%                  │
+# │   interleaved_labels   0 of 18                         5.6%                │
+# │                                                                            │
+# │ `images_then_labels` passes only if it lands on the interleaved_labels     │
+# │ row: near-zero traces about one image, and a low NotSure rate.             │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# LAUNCHER: klara_1x, NEVER klara_2x.
+#
+# MODEL: `gemma-4-12b/instruct_thinking` flips thinking on AND wires the
+# `gemma4` reasoning parser. The parser holds the answer enum grammar until the
+# model closes its thought channel. Without it, no reasoning comes out.
+#
+# PAIRS: 64, a deterministic seed-777 prefix — the same 64 pairs the proxy
+# probe uses.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   export HYDRA_SWEEP_DIR=multirun/layout_probe_gemma12b_thinking
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli \
+#       --multirun +sweep=layout_probe_gemma12b_thinking \
+#       prompt.image_layout=images_then_labels,interleaved_labels
+#
+# ─── How to read it ──────────────────────────────────────────────────────────
+# Count the traces (`model_reasoning`) that speak of one image only: "only one
+# image", "a single image", "the second image is missing", "I see one photo".
+# Then compare the NotSure rate of the two arms.
+#
+# Warning: these runs are NOT canonical, and a thinking run uses different
+# sampling. `notebooks/cvpr/_provenance.py` drops them.
+
+sampling_params_vqa:
+  # Google's standard sampling for gemma-4: temperature 1.0, top_p 0.95,
+  # top_k 64 (gemma-4 model card, "Sampling Parameters").
+  #
+  # Warning: thinking mode MUST NOT be greedy. Greedy decoding degenerates into
+  # repetition over a long trace, and the trace is what this probe reads.
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  # The prompt is about 624 tokens and the window is 5,120, thus 4,096 fits.
+  max_tokens: 4096
+
+prompt:
+  # The default arm. The launch command sweeps this key over both layouts.
+  image_layout: interleaved_labels
+
+pair_sampler:
+  max_pairs: 64
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_klara_1x   # NOT klara_2x
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 2
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct_thinking
+      pipeline: pairwise_schools_mvp

@@ -1,0 +1,327 @@
+# @package extract
+# Urban cue schema, version 2 (2026-09-20).
+#
+# Version 2 keeps the 7 classes and the attribute names of version 1. It
+# changes 3 things, after the review of 2026-09-20:
+#
+# 1. Every attribute value is an enum. The guided grammar cannot write a value
+#    outside the list, and it cannot leave a declared attribute out. Version 1
+#    left the values free, and `other` then took 43% to 67% of
+#    `uncertainty.reason` and 44% to 70% of `image_artifact.kind`.
+# 2. A 4th example comes from a qwen3.5-9b trace. The 3 examples of version 1
+#    were all gemma-4-12b traces. A qwen trace deliberates, says "Wait", and
+#    names 2 or 3 candidate labels before it decides. The example teaches that
+#    only the last one is the decision.
+# 3. The buffer holds the longest qwen trace. A qwen trace reaches 35,598
+#    characters, and 5% to 36% of them exceeded the version 1 buffer of 12,000.
+#    A split trace gave each chunk its own "decision".
+#
+# Every `extraction_text` appears in its own `text` word for word. The aligner
+# matches the span against the source, thus a paraphrase can never align.
+# `langextract_backend.validate_examples` also tests each attribute value
+# against the enum.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, a
+# value list, or an example. Never edit a version in place. The version
+# reaches every output row, and 2 versions must never pool.
+#
+# Warning: keep `attribute_values` in step with `VOCABULARY` in
+# `notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
+# that the 2 agree.
+#
+# See `vlm-narratives-docs/langextract-trace-extraction.md`.
+
+name: urban_cues
+schema_version: v2
+
+# 1 trace must become 1 chunk. The qwen3.5-9b thinking runs of 2026-08-14 have
+# a maximum of 35,598 characters. The gemma-4-12b runs have a maximum of
+# 15,698.
+#
+# Warning: the LangExtract default is 1000. At that value a median trace
+# splits into 4 chunks, no chunk holds both images, and every comparison is
+# lost.
+max_char_buffer: 40000
+
+# The context the engine must hold: about 2,700 tokens of instructions and
+# examples, up to about 10,000 tokens of trace, and the answer. The pipeline
+# reads this value into `model.engine_kwargs.max_model_len`.
+max_model_len: 32768
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+
+# Warning: a cap that is too low loses the WHOLE trace, not the tail of it.
+# `repair_truncated_json` then cuts back to the last closed extraction, and
+# the tail is lost. The decision sits in the tail. Under version 1, 9% to 22%
+# of the answers on qwen traces reached 8,192 tokens. A long trace in 1 chunk
+# writes more, thus the cap is higher. Watch `answers_truncated` on each run.
+#
+# The qwen3.5-9b extractor writes up to 280 spans for a 30,000-character
+# trace, and it indents the JSON. At 12,288 tokens, 14 of 120 answers reached
+# the cap on the smoke run of 2026-09-20 (7 of 120 for gemma-4-12b). The
+# engine holds 32,768 tokens; about 2,700 of preamble and 10,000 of trace
+# leave room for 16,384.
+max_tokens: 16384
+use_guided_json: true
+
+# Put a lower bound of 1 on the extraction array. An empty answer is the main
+# silent failure. See version 1 for the measurement.
+#
+# Warning: this bound and rule 4 of the prompt pull in 2 directions on a chunk
+# that holds only the echo of the question. With the buffer above, no chunk
+# is only an echo: every trace is 1 chunk, and every trace names a cue.
+require_extraction: true
+
+# The values the model may write. The grammar enforces them.
+attribute_values:
+  visual_evidence:
+    image: [A, B, both, unclear]
+    valence: [good, bad, neutral]
+    category: [people, cleanliness, upkeep, greenery, light, signage, traffic,
+               construction, commerce, architecture, other]
+  inference:
+    image: [A, B, both, unclear]
+    kind: [safety, quality, upkeep, wealth, class, crime, demographic, other]
+  person_reference:
+    image: [A, B, both, unclear]
+    used_in_judgment: ['yes', 'no']
+  image_artifact:
+    image: [A, B, both, unclear]
+    kind: [blur, angle, occlusion, time_of_day, weather, other]
+  comparison:
+    direction: [A, B, neither]
+    # `dimension` is a free phrase on purpose, and it is absent here.
+    hedged: ['yes', 'no']
+  uncertainty:
+    reason: [looks_equal, cannot_see, out_of_view, other]
+  decision:
+    label: [MuchLess, Less, Same, More, MuchMore, NotSure]
+
+prompt_description: |
+  You read the private reasoning that a vision-language model wrote while it
+  compared two street-level photographs of New York City. Extract what the model
+  says. Do not judge the images yourself, and do not add anything the text does
+  not say.
+
+  Use exactly these classes:
+
+  - visual_evidence: a concrete thing the model says it can see.
+    attributes: image (A, B, both, unclear); valence (good, bad, neutral);
+    category (people, cleanliness, upkeep, greenery, light, signage, traffic,
+    construction, commerce, architecture, other)
+  - inference: a claim the photograph cannot show, which the model draws from
+    what it sees: safety, quality, upkeep, wealth, class, crime, or who lives
+    there.
+    attributes: image (A, B, both, unclear); kind (safety, quality, upkeep,
+    wealth, class, crime, demographic, other)
+  - person_reference: a statement about the people in a photograph.
+    attributes: image (A, B, both, unclear); used_in_judgment (yes, no)
+  - image_artifact: a statement about the photograph itself, not about the
+    place: the angle, the blur, an obstruction, the time of day, the weather.
+    attributes: image (A, B, both, unclear); kind (blur, angle, occlusion,
+    time_of_day, weather, other)
+  - comparison: an explicit statement that sets image A against image B.
+    attributes: direction (A, B, neither: the image that has MORE of the
+    quality named); dimension (a short phrase); hedged (yes, no)
+  - uncertainty: language that hedges, or that says the model cannot decide.
+    attributes: reason (looks_equal, cannot_see, out_of_view, other)
+  - decision: the one sentence that states the final answer.
+    attributes: label (MuchLess, Less, Same, More, MuchMore, NotSure)
+
+  Every attribute value must be one of the values listed. Use `other` or
+  `unclear` when no listed value fits. Never invent a value.
+
+  Rules:
+
+  1. Copy each extraction from the trace, character for character. It must be a
+     span you can point to in the text. Never paraphrase, never join two parts
+     of the text, and never shorten a phrase to its meaning.
+  2. Do not extract the same span two times.
+  3. Extract in the order that the spans appear in the text.
+  4. The opening sentence restates the question the model was asked. Extract
+     nothing from it.
+  5. Never answer with an empty list. Every trace names at least one thing that
+     it sees. Extract what is there, and stop. A repeated thought is 1
+     extraction, not 2.
+  6. Extract exactly 1 decision: the LAST sentence that states the answer. A
+     model often names a label, says "Wait", and then names another. The
+     earlier sentence is a comparison or an uncertainty, not a decision. The
+     decision is usually the final line of the trace, and it often reads
+     "Final decision: Less", "Label: More", "I will go with MuchLess", or
+     "So A is Less safe". A "Therefore, ..." sentence in the middle of the
+     trace is not the decision when the model goes on to reconsider.
+  7. A sentence that lists the possible labels, or that restates the answer
+     format, is not evidence. Extract nothing from it.
+
+examples:
+  # 1. Subway safety, gemma-4-12b. Holds visual evidence for both images, a
+  #    person reference, a comparison, a hedge, and the decision.
+  - text: |
+      The user wants me to compare the safety of two subway station entrances.
+
+      **Image A analysis:**
+      - There are people walking around, some on skateboards.
+      - There's a trash can, a sign, and traffic lights.
+      - The area seems well-lit and has some foot traffic.
+
+      **Image B analysis:**
+      - Shows a subway entrance behind a construction fence.
+      - The sidewalk has some debris or unevenness due to construction.
+
+      **Comparison of safety:**
+      - Image A has more clear visibility of the surroundings.
+      - Is there a significant difference in safety? They both look pretty standard for NYC.
+      - I'll go with "Same".
+    extractions:
+      - extraction_class: person_reference
+        extraction_text: 'people walking around, some on skateboards'
+        attributes: {image: A, used_in_judgment: 'no'}
+      - extraction_class: visual_evidence
+        extraction_text: 'trash can'
+        attributes: {image: A, valence: neutral, category: cleanliness}
+      - extraction_class: visual_evidence
+        extraction_text: 'traffic lights'
+        attributes: {image: A, valence: neutral, category: traffic}
+      - extraction_class: visual_evidence
+        extraction_text: 'well-lit'
+        attributes: {image: A, valence: good, category: light}
+      - extraction_class: visual_evidence
+        extraction_text: 'construction fence'
+        attributes: {image: B, valence: bad, category: construction}
+      - extraction_class: visual_evidence
+        extraction_text: 'debris or unevenness'
+        attributes: {image: B, valence: bad, category: upkeep}
+      - extraction_class: comparison
+        extraction_text: 'Image A has more clear visibility of the surroundings'
+        attributes: {direction: A, dimension: visibility, hedged: 'no'}
+      - extraction_class: uncertainty
+        extraction_text: 'They both look pretty standard for NYC'
+        attributes: {reason: looks_equal}
+      - extraction_class: decision
+        extraction_text: 'I''ll go with "Same"'
+        attributes: {label: Same}
+
+  # 2. Library upkeep, gemma-4-12b. Holds an inference about class, an
+  #    artifact of the camera angle, and a hedge.
+  - text: |
+      The user wants me to compare the maintenance of two New York City public library buildings.
+
+      - **Image A:** Shows a side view of a large, mostly white brick building with a flat roof. The wall looks plain and might have some weathering or dirt, but it's hard to tell for sure.
+      - **Image B:** Shows a classic red brick building with arched windows and decorative masonry. It looks very well-maintained and clean.
+
+      Image B looks like a high-end, prestigious building. Image A looks like a standard, slightly neglected industrial-style building.
+      It's hard to judge maintenance from a side wall.
+      Therefore, Image A is likely "Less" well-maintained than Image B.
+    extractions:
+      - extraction_class: visual_evidence
+        extraction_text: 'weathering or dirt'
+        attributes: {image: A, valence: bad, category: cleanliness}
+      - extraction_class: uncertainty
+        extraction_text: 'it''s hard to tell for sure'
+        attributes: {reason: cannot_see}
+      - extraction_class: visual_evidence
+        extraction_text: 'arched windows and decorative masonry'
+        attributes: {image: B, valence: good, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'high-end, prestigious building'
+        attributes: {image: B, kind: class}
+      - extraction_class: inference
+        extraction_text: 'slightly neglected'
+        attributes: {image: A, kind: upkeep}
+      - extraction_class: image_artifact
+        extraction_text: 'hard to judge maintenance from a side wall'
+        attributes: {image: A, kind: angle}
+      - extraction_class: decision
+        extraction_text: 'Image A is likely "Less" well-maintained than Image B'
+        attributes: {label: Less}
+
+  # 3. Schools, qwen3.5-9b (trace unit_00006634 of the 2026-08-14 run, with
+  #    the list of labels cut). The model names "Less", says "Wait", and then
+  #    decides "MuchLess". Only the last sentence is the decision. The earlier
+  #    one is a comparison. The re-evaluation is an uncertainty.
+  - text: |
+      The user wants me to compare two images of schools and determine which one looks like the "better" school.
+
+      **Image Analysis:**
+      *   **Image A:** Shows a modern-looking, possibly institutional building. It has a flat roof, beige brick or concrete facade with large sections of windows. There are air conditioning units sticking out of windows. It looks like a typical public school in an urban area, perhaps older but functional. There's a white SUV parked in front. A tree is partially obscuring the view.
+      *   **Image B:** Shows a much grander, older brick building. It looks like a historic structure with ornate brickwork, turrets, and Gothic Revival architectural details. It looks like a private school or a very well-funded public school campus. The architecture is significantly more elaborate and high-quality compared to Image A.
+
+      **Comparison:**
+      *   Image A depicts a utilitarian, boxy building that looks like a standard public school. It lacks the architectural flair of Image B.
+      *   Image B depicts a grand, historic-looking brick building that suggests wealth, history, and likely better resources or status. It looks like a prestigious school.
+
+      **Conclusion:**
+      Image B looks like a "better" school in terms of facilities, architecture, and likely prestige/resources compared to the utilitarian building in Image A. Therefore, the school in Image A is *Less* good than the one in Image B.
+
+      Wait, the prompt asks: "Interpret this as 'the school in Image A is a <label> good school than the one in Image B'."
+      So if Image B is better, Image A is *Less* good.
+
+      Let's re-evaluate "MuchLess" vs "Less".
+      Image A is a standard brick building, very functional, somewhat drab.
+      Image B is a grand, expensive-looking brick building.
+      The difference is quite significant in terms of architectural value and perceived prestige. Image B looks like a top-tier institution, while Image A looks like a standard district school.
+      So, Image A is significantly worse. "MuchLess" seems appropriate.
+
+      The gap is noticeable. I will go with "MuchLess".
+    extractions:
+      - extraction_class: visual_evidence
+        extraction_text: 'flat roof'
+        attributes: {image: A, valence: neutral, category: architecture}
+      - extraction_class: visual_evidence
+        extraction_text: 'air conditioning units sticking out of windows'
+        attributes: {image: A, valence: neutral, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'perhaps older but functional'
+        attributes: {image: A, kind: upkeep}
+      - extraction_class: image_artifact
+        extraction_text: 'A tree is partially obscuring the view'
+        attributes: {image: A, kind: occlusion}
+      - extraction_class: visual_evidence
+        extraction_text: 'ornate brickwork, turrets, and Gothic Revival architectural details'
+        attributes: {image: B, valence: good, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'private school or a very well-funded public school campus'
+        attributes: {image: B, kind: wealth}
+      - extraction_class: comparison
+        extraction_text: 'The architecture is significantly more elaborate and high-quality compared to Image A'
+        attributes: {direction: B, dimension: architecture, hedged: 'no'}
+      - extraction_class: visual_evidence
+        extraction_text: 'utilitarian, boxy building'
+        attributes: {image: A, valence: bad, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'suggests wealth, history, and likely better resources or status'
+        attributes: {image: B, kind: wealth}
+      - extraction_class: inference
+        extraction_text: 'prestigious school'
+        attributes: {image: B, kind: class}
+      - extraction_class: comparison
+        extraction_text: 'Therefore, the school in Image A is *Less* good than the one in Image B'
+        attributes: {direction: B, dimension: overall quality, hedged: 'no'}
+      - extraction_class: uncertainty
+        extraction_text: 'Let''s re-evaluate "MuchLess" vs "Less"'
+        attributes: {reason: other}
+      - extraction_class: visual_evidence
+        extraction_text: 'somewhat drab'
+        attributes: {image: A, valence: bad, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'expensive-looking'
+        attributes: {image: B, kind: wealth}
+      - extraction_class: inference
+        extraction_text: 'top-tier institution'
+        attributes: {image: B, kind: class}
+      - extraction_class: decision
+        extraction_text: 'I will go with "MuchLess"'
+        attributes: {label: MuchLess}
+
+  # 4. The negative example. Every trace opens with the question it was asked.
+  #    That echo is not evidence.
+  #
+  #    Warning: the LangExtract example check raises on an example with no
+  #    span. `langextract_backend.validate_examples` runs the check over the
+  #    examples that have a span, and `extract_documents` turns the built-in
+  #    check off.
+  - text: |
+      The user wants me to compare two images of New York City street scenes and choose which one looks better. I need to return one label as JSON.
+    extractions: []

@@ -10,7 +10,6 @@ to vLLM via ``multi_modal_data={"image": images}`` on each prompt.
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 import subprocess
@@ -18,7 +17,10 @@ import sys
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-logger = logging.getLogger(__name__)
+from dagspaces.common.log_setup import get_stage_logger
+from dagspaces.common import image_pack as _image_pack
+
+logger = get_stage_logger(__name__)
 
 import pandas as pd
 from omegaconf import OmegaConf
@@ -302,6 +304,111 @@ def _is_multimodal_model(model_source: str, cfg=None) -> bool:
     return False
 
 
+_PACK_PREFETCH_WORKERS = 8
+
+
+def _image_pack_dir(cfg) -> Optional[str]:
+    """The pack directory from `runtime.image_pack` or `model.image_pack`."""
+    for group in ("runtime", "model"):
+        try:
+            value = getattr(getattr(cfg, group, None), "image_pack", None)
+        except Exception:
+            value = None
+        if value:
+            return str(value)
+    return None
+
+
+def _batch_image_paths(
+    preprocessed_rows: List[Dict[str, Any]], valid_indices: List[int],
+    start: int, end: int,
+) -> List[str]:
+    """The image paths of the messages of rows start..end-1."""
+    paths: List[str] = []
+    for j in range(start, end):
+        for msg in preprocessed_rows[valid_indices[j]].get("messages") or []:
+            content = msg.get("content")
+            if not isinstance(content, list):
+                continue
+            for block in content:
+                if not isinstance(block, dict):
+                    continue
+                if block.get("type") == "image_url":
+                    iu = block.get("image_url")
+                    url = iu.get("url") if isinstance(iu, dict) else iu
+                    if url:
+                        paths.append(str(url))
+                elif block.get("type") == "image" and isinstance(block.get("image"), str):
+                    paths.append(block["image"])
+    return paths
+
+
+class _BatchPrefetcher:
+    """Read and decode the images of the NEXT batch while the GPU runs this one.
+
+    The main thread used to open and decode 512 images for each batch of 256
+    rows before the generate call, about 7 s on a pack and much more on the
+    raw tree. Here 1 background thread does that work for batch k+1 during
+    the generate call of batch k, and `take` hands the PIL images over.
+
+    `decode_workers` threads decode the JPEGs (PIL frees the GIL in the
+    decoder). With a pack the reads are 1 `pread` each, thus 4 threads are
+    safe. Without a pack keep 1 thread: more readers on the raw NFS tree make
+    the server collapse faster (see nfs-load-pairvqa-sweeps.md).
+    """
+
+    def __init__(self, pack: Any, decode_workers: int, stage_name: str):
+        from concurrent.futures import ThreadPoolExecutor
+
+        self._pack = pack
+        self._workers = max(1, int(decode_workers))
+        self._stage = stage_name
+        self._exec = ThreadPoolExecutor(max_workers=1)
+        self._future: Any = None
+        self._key: Any = None
+        self.batches = 0
+        self.wait_seconds = 0.0
+
+    def _load(self, paths: List[str]) -> Dict[str, Any]:
+        from concurrent.futures import ThreadPoolExecutor
+
+        unique = list(dict.fromkeys(_image_pack.strip_file_url(p) for p in paths))
+        if self._pack is not None:
+            self._pack.prefetch(unique, workers=_PACK_PREFETCH_WORKERS)
+        try:
+            with ThreadPoolExecutor(max_workers=self._workers) as pool:
+                images = list(pool.map(_load_pil_from_url, unique))
+        finally:
+            if self._pack is not None:
+                self._pack.drop_cache()
+        return {p: im for p, im in zip(unique, images) if im is not None}
+
+    def submit(self, key: Any, paths: List[str]) -> None:
+        """Start the load of the batch `key`. One batch is in flight at most."""
+        self._key = key
+        self._future = self._exec.submit(self._load, paths)
+
+    def take(self, key: Any) -> Optional[Dict[str, Any]]:
+        """The decoded images of batch `key`, or None when it was not submitted."""
+        if self._future is None or self._key != key:
+            return None
+        future, self._future, self._key = self._future, None, None
+        t0 = time.time()
+        try:
+            result = future.result()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[{self._stage}] WARN: image prefetch of batch {key} failed "
+                  f"({type(exc).__name__}: {exc}); the batch loads its images "
+                  f"in line", flush=True)
+            return None
+        self.wait_seconds += time.time() - t0
+        self.batches += 1
+        return result
+
+    def close(self) -> None:
+        self._exec.shutdown(wait=False)
+
+
 def _load_pil_from_url(url: str) -> Any:
     """Load a PIL image from a ``file://`` / local-path / base64 ``data:`` URL.
 
@@ -322,16 +429,23 @@ def _load_pil_from_url(url: str) -> Any:
         except Exception:
             return None
     if url.startswith(("http://", "https://")):
-        print(f"[vllm_inference] WARNING: skipping remote image URL (not fetched): {url[:80]}")
+        logger.warning(f"[vllm_inference] skipping remote image URL (not fetched): {url[:80]}")
         return None
     path = url[len("file://"):] if url.startswith("file://") else url
     try:
+        # An active image pack gives the same bytes with 1 NFS read and no
+        # directory work. See dagspaces/common/image_pack.py.
+        data = _image_pack.read_image_bytes(path)
+        if data is not None:
+            return Image.open(BytesIO(data)).convert("RGB")
         return Image.open(path).convert("RGB")
     except Exception:
         return None
 
 
-def _extract_images_from_messages(messages: List[Dict[str, Any]]) -> List[Any]:
+def _extract_images_from_messages(
+    messages: List[Dict[str, Any]], decoded: Optional[Dict[str, Any]] = None,
+) -> List[Any]:
     """Extract PIL images from chat message content blocks.
 
     Handles both the inline-PIL form and the lazy ``image_url`` form that the
@@ -346,8 +460,10 @@ def _extract_images_from_messages(messages: List[Dict[str, Any]]) -> List[Any]:
     and the model runs text-only (see ``_is_multimodal_model``).
 
     Returns a list of PIL Image objects found across all messages.
+    ``decoded`` maps a path to a PIL image that a prefetch already holds.
     """
     images = []
+    _load = _decoded_loader(decoded)
     for msg in messages:
         content = msg.get("content")
         if not isinstance(content, list):
@@ -359,19 +475,33 @@ def _extract_images_from_messages(messages: List[Dict[str, Any]]) -> List[Any]:
             if btype == "image":
                 img = block.get("image")
                 if isinstance(img, str):
-                    img = _load_pil_from_url(img)
+                    img = _load(img)
                 if img is not None:
                     images.append(img)
             elif btype == "image_url":
                 iu = block.get("image_url")
                 url = iu.get("url") if isinstance(iu, dict) else iu
-                img = _load_pil_from_url(str(url)) if url else None
+                img = _load(str(url)) if url else None
                 if img is not None:
                     images.append(img)
     return images
 
 
-def _hydrate_messages_for_chat(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _decoded_loader(decoded: Optional[Dict[str, Any]]) -> Callable[[str], Any]:
+    """A loader that takes a prefetched PIL image first, and reads otherwise."""
+    if not decoded:
+        return _load_pil_from_url
+
+    def _load(url: str) -> Any:
+        img = decoded.get(_image_pack.strip_file_url(str(url)))
+        return img if img is not None else _load_pil_from_url(url)
+
+    return _load
+
+
+def _hydrate_messages_for_chat(
+    messages: List[Dict[str, Any]], decoded: Optional[Dict[str, Any]] = None,
+) -> List[Dict[str, Any]]:
     """Return a copy of ``messages`` with ``image_url`` / ``image`` (path) blocks
     replaced by vLLM ``image_pil`` blocks holding loaded PIL images, for
     ``llm.chat()``.
@@ -383,8 +513,10 @@ def _hydrate_messages_for_chat(messages: List[Dict[str, Any]]) -> List[Dict[str,
     ``apply_chat_template → tokenizer.encode → TokensPrompt → generate`` path
     does not do for every chat template. Image blocks that fail to load are
     dropped so the placeholder count stays consistent with the images present.
+    ``decoded`` maps a path to a PIL image that a prefetch already holds.
     """
     out: List[Dict[str, Any]] = []
+    _load = _decoded_loader(decoded)
     for msg in messages:
         content = msg.get("content")
         if not isinstance(content, list):
@@ -399,11 +531,11 @@ def _hydrate_messages_for_chat(messages: List[Dict[str, Any]]) -> List[Dict[str,
             if btype == "image_url":
                 iu = block.get("image_url")
                 url = iu.get("url") if isinstance(iu, dict) else iu
-                img = _load_pil_from_url(str(url)) if url else None
+                img = _load(str(url)) if url else None
                 if img is not None:
                     new_content.append({"type": "image_pil", "image_pil": img})
             elif btype == "image" and isinstance(block.get("image"), str):
-                img = _load_pil_from_url(block["image"])
+                img = _load(block["image"])
                 if img is not None:
                     new_content.append({"type": "image_pil", "image_pil": img})
             elif btype == "image" and hasattr(block.get("image"), "size"):
@@ -960,7 +1092,7 @@ def _run_server_inference(
     # Postprocess
     n_errors = sum(1 for r in results_raw if r and r[4])
     if n_errors:
-        print(f"[{stage_name}] WARNING: {n_errors} request errors — rows marked with __postprocess_error__")
+        logger.warning(f"[{stage_name}] {n_errors} request errors — rows marked with __postprocess_error__")
 
     out_rows: List[Dict[str, Any]] = []
     for entry in results_raw:
@@ -1066,636 +1198,6 @@ def _build_sampling_params(sp_dict: Dict[str, Any]):
 # Data-parallel inference via multiprocessing (vLLM 0.19+ pattern)
 # ---------------------------------------------------------------------------
 
-_DP_WORKER_SCRIPT = r'''
-"""Standalone DP worker — spawned as a fresh subprocess per rank.
-
-Each worker is a completely independent LLM instance with its own
-CUDA_VISIBLE_DEVICES slice.  No vLLM DP coordination (VLLM_DP_* env vars)
-is used — vLLM 0.19 blocks DP for dense (non-MoE) models via ParallelConfig.
-
-Supports multimodal: image file paths are passed alongside prompts and
-loaded lazily in the worker process.
-"""
-import os, pickle, sys, time, traceback
-
-def main():
-    task_path = sys.argv[1]
-    result_path = sys.argv[2]
-
-    with open(task_path, "rb") as f:
-        task = pickle.load(f)
-
-    rank        = task["rank"]
-    dp_size     = task["dp_size"]
-    engine_kwargs = task["engine_kwargs"]
-    prompts     = task["prompts"]
-    image_refs  = task["image_refs"]
-    sp_dict     = task["sp_dict"]
-    stage_name  = task["stage_name"]
-    pcie_env    = task["pcie_env"]
-    runtime_env = task["runtime_env"]
-    is_multimodal  = task["is_multimodal"]
-
-    # Apply env vars BEFORE any CUDA/torch import
-    for k, v in {**pcie_env, **runtime_env}.items():
-        os.environ.setdefault(k, v)
-
-    # Clear any inherited vLLM DP coordination vars — each worker is
-    # fully independent with its own CUDA_VISIBLE_DEVICES slice.
-    for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
-                "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
-        os.environ.pop(var, None)
-
-    print(f"[{stage_name}] DP rank {rank}/{dp_size}: starting "
-          f"(pid={os.getpid()}, CUDA_VISIBLE_DEVICES="
-          f"{os.environ.get('CUDA_VISIBLE_DEVICES', '<unset>')}, "
-          f"prompts={len(prompts)}, multimodal={is_multimodal})", flush=True)
-
-    try:
-        t0 = time.time()
-        from vllm import LLM, SamplingParams
-
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: vLLM imported in "
-              f"{time.time() - t0:.1f}s, creating LLM engine...", flush=True)
-
-        t1 = time.time()
-        llm = LLM(**engine_kwargs)
-        tokenizer = llm.get_tokenizer()
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: LLM created in "
-              f"{time.time() - t1:.1f}s, starting generation...", flush=True)
-
-        # Build SamplingParams
-        sp = dict(sp_dict or {})
-        guided = sp.pop("guided_decoding", None) or sp.pop("structured_output", None)
-        for k in ("early_stopping", "length_penalty", "response_format", "detokenize"):
-            sp.pop(k, None)
-        if guided and isinstance(guided, dict):
-            try:
-                from vllm.sampling_params import StructuredOutputsParams
-                sp["structured_outputs"] = StructuredOutputsParams(**guided)
-            except ImportError:
-                try:
-                    from vllm.sampling_params import GuidedDecodingParams
-                    sp["guided_decoding"] = GuidedDecodingParams(**guided)
-                except ImportError:
-                    pass
-        sampling_params = SamplingParams(**sp)
-
-        t2 = time.time()
-        if is_multimodal:
-            from vllm import TokensPrompt
-            from PIL import Image
-            mm_prompts = []
-            for i, prompt in enumerate(prompts):
-                ref = image_refs[i] if image_refs else None
-                if ref is not None:
-                    token_ids = tokenizer.encode(prompt)
-                    img = Image.open(ref).convert("RGB")
-                    mm_prompts.append(TokensPrompt(
-                        prompt_token_ids=token_ids,
-                        multi_modal_data={"image": img},
-                    ))
-                else:
-                    mm_prompts.append(prompt)
-            outputs = llm.generate(mm_prompts, sampling_params)
-        else:
-            outputs = llm.generate(prompts, sampling_params)
-
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: generation done in "
-              f"{time.time() - t2:.1f}s ({len(outputs)} outputs)", flush=True)
-
-        serialised = []
-        for out in outputs:
-            text = out.outputs[0].text if out.outputs else ""
-            prompt_tokens = len(out.prompt_token_ids) if out.prompt_token_ids else 0
-            completion_tokens = (
-                len(out.outputs[0].token_ids)
-                if out.outputs and out.outputs[0].token_ids else 0
-            )
-            serialised.append({
-                "generated_text": text,
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-            })
-
-        with open(result_path, "wb") as f:
-            pickle.dump({"rank": rank, "outputs": serialised, "error": None}, f)
-
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: wrote {len(serialised)} "
-              f"results, total elapsed {time.time() - t0:.1f}s", flush=True)
-
-    except Exception:
-        tb = traceback.format_exc()
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: FAILED\n{tb}",
-              flush=True, file=sys.stderr)
-        with open(result_path, "wb") as f:
-            pickle.dump({"rank": rank, "outputs": None, "error": tb}, f)
-        sys.exit(1)
-    finally:
-        try:
-            if llm is not None:
-                engine = getattr(llm, "llm_engine", None)
-                core = getattr(engine, "engine_core", None) if engine else None
-                if core is not None and hasattr(core, "shutdown"):
-                    core.shutdown()
-                del llm
-        except Exception:
-            pass
-
-if __name__ == "__main__":
-    main()
-'''
-
-
-_DP_FULL_WORKER_SCRIPT = r'''
-"""Full-pipeline DP worker — preprocess + infer + postprocess in-worker.
-
-Processes rows in fixed-size chunks. For each chunk:
-  1. preprocess_fn is called per row (cheap — builds the message dict)
-  2. images are decoded + resized in parallel CPU threads
-  3. llm.chat() is called once on the chunk
-  4. results are postprocessed and accumulated
-  5. chunk-local objects are dropped before the next iteration
-
-This bounds engine-core memory (no big pre-rendered prompt buffer) and gives
-us streaming progress + ETA every ~``log_every`` rows. Critical for large
-multimodal jobs (e.g. ~120k pairs per worker) where the previous unbounded
-``llm.chat(big_list)`` path spent hours in single-threaded HF processor work
-and OOM-killed the engine core.
-
-Each worker receives raw row dicts and cloudpickled preprocess/postprocess
-callables. Preprocessing happens locally in the worker, co-located with
-the GPU.
-"""
-import os, pickle, sys, time, traceback
-
-def main():
-    task_path = sys.argv[1]
-    result_path = sys.argv[2]
-
-    with open(task_path, "rb") as f:
-        task = pickle.load(f)
-
-    rank        = task["rank"]
-    dp_size     = task["dp_size"]
-    engine_kwargs = task["engine_kwargs"]
-    rows        = task["rows"]
-    stage_name  = task["stage_name"]
-    pcie_env    = task["pcie_env"]
-    runtime_env = task["runtime_env"]
-    model_source = task["model_source"]
-    thinking_enabled = task["thinking_enabled"]
-    chunk_size  = int(task.get("chunk_size", 64) or 64)
-    log_every   = int(task.get("log_every", 1000) or 1000)
-    image_max_pixels = task.get("image_max_pixels")  # Optional[int]
-    image_load_workers = int(task.get("image_load_workers", 16) or 16)
-    flush_every = int(task.get("flush_every", 1000) or 1000)
-    streaming_output_dir = task.get("streaming_output_dir")  # Optional[str]
-    row_offset  = int(task.get("row_offset", 0) or 0)
-
-    # Deserialize preprocess/postprocess via cloudpickle
-    import cloudpickle
-    preprocess_fn = cloudpickle.loads(task["preprocess_bytes"])
-    postprocess_fn = cloudpickle.loads(task["postprocess_bytes"])
-
-    # Apply env vars BEFORE any CUDA/torch import
-    for k, v in {**pcie_env, **runtime_env}.items():
-        os.environ.setdefault(k, v)
-
-    for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
-                "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
-        os.environ.pop(var, None)
-
-    print(f"[{stage_name}] DP rank {rank}/{dp_size}: starting "
-          f"(pid={os.getpid()}, CUDA_VISIBLE_DEVICES="
-          f"{os.environ.get('CUDA_VISIBLE_DEVICES', '<unset>')}, "
-          f"rows={len(rows)}, chunk_size={chunk_size}, "
-          f"flush_every={flush_every}, "
-          f"image_max_pixels={image_max_pixels}, "
-          f"image_load_workers={image_load_workers}, "
-          f"streaming_output_dir={streaming_output_dir})", flush=True)
-
-    if streaming_output_dir:
-        os.makedirs(streaming_output_dir, exist_ok=True)
-
-    llm = None
-    try:
-        t0 = time.time()
-        from vllm import LLM, SamplingParams
-        from PIL import Image
-        from concurrent.futures import ThreadPoolExecutor
-        import re
-        import math
-
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: vLLM imported in "
-              f"{time.time() - t0:.1f}s, creating LLM engine...", flush=True)
-
-        t1 = time.time()
-        # Allow loading local images via file:// URLs in llm.chat() (still
-        # needed when callers pass image_url blocks; we usually rewrite
-        # them to image_pil blocks below).
-        engine_kwargs.setdefault("allowed_local_media_path", "/")
-        llm = LLM(**engine_kwargs)
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: LLM created in "
-              f"{time.time() - t1:.1f}s, processing {len(rows)} rows in "
-              f"chunks of {chunk_size}...", flush=True)
-
-        # ─── Helpers ────────────────────────────────────────────────────
-        def _strip_thinking(text):
-            text = re.sub(r"<think>[\s\S]*?</think>", "", text)
-            text = re.sub(r"<think>[\s\S]*$", "", text)
-            return text.strip()
-
-        def _extract_reasoning(raw_text):
-            reasoning, content = "", raw_text
-            if not thinking_enabled:
-                return reasoning, content
-            if "<think>" in raw_text:
-                m = re.search(r"<think>([\s\S]*?)</think>([\s\S]*)", raw_text)
-                if m:
-                    reasoning = m.group(1).strip()
-                    content = m.group(2).strip()
-                else:
-                    content = _strip_thinking(raw_text)
-            elif "</think>" in raw_text:
-                parts = raw_text.split("</think>", 1)
-                reasoning = parts[0].strip()
-                content = parts[1].strip() if len(parts) > 1 else ""
-            return reasoning, content
-
-        def _resize_to_max_pixels(img, max_pixels):
-            """Downscale a PIL image so width*height <= max_pixels."""
-            if max_pixels is None or max_pixels <= 0:
-                return img
-            w, h = img.size
-            cur = w * h
-            if cur <= max_pixels:
-                return img
-            scale = math.sqrt(max_pixels / cur)
-            new_w = max(1, int(w * scale))
-            new_h = max(1, int(h * scale))
-            return img.resize((new_w, new_h), Image.Resampling.BILINEAR)
-
-        def _load_one_image(path):
-            try:
-                with Image.open(path) as im:
-                    im.load()
-                    img = im.convert("RGB")
-                if image_max_pixels:
-                    img = _resize_to_max_pixels(img, image_max_pixels)
-                return img
-            except Exception as e:
-                return e  # caller treats Exception as a load failure
-
-        # Collect (msg_block, path) tuples that need lazy loading. The
-        # block is the dict we'll mutate in-place to attach the loaded
-        # PIL Image. Supports image_url (file://), image (with str path
-        # or PIL), and image_pil blocks.
-        def _collect_image_blocks(messages):
-            tasks = []  # list of (block_dict, str_path)
-            for msg in messages:
-                content = msg.get("content")
-                if not isinstance(content, list):
-                    continue
-                for block in content:
-                    if not isinstance(block, dict):
-                        continue
-                    btype = block.get("type")
-                    if btype == "image_url":
-                        url = (block.get("image_url") or {}).get("url", "")
-                        path = url.removeprefix("file://") if isinstance(url, str) else ""
-                        if path:
-                            tasks.append((block, path))
-                    elif btype == "image":
-                        val = block.get("image")
-                        if isinstance(val, str):
-                            path = val.removeprefix("file://")
-                            tasks.append((block, path))
-                        # if it's already a PIL.Image, leave it; the
-                        # _convert_image_blocks pass below will rename
-                        # type → image_pil for vLLM.
-                    elif btype == "image_pil":
-                        pass  # already loaded
-            return tasks
-
-        def _convert_image_blocks(messages):
-            """Normalize image blocks to vLLM's image_pil format."""
-            for msg in messages:
-                content = msg.get("content")
-                if not isinstance(content, list):
-                    continue
-                for block in content:
-                    if not isinstance(block, dict):
-                        continue
-                    btype = block.get("type")
-                    if btype == "image" and "image" in block:
-                        val = block["image"]
-                        if hasattr(val, "size"):  # PIL.Image
-                            block["type"] = "image_pil"
-                            block["image_pil"] = block.pop("image")
-            return messages
-
-        thread_pool = ThreadPoolExecutor(max_workers=image_load_workers)
-
-        def _hydrate_chunk_images(chunk_messages):
-            """Decode + resize all image paths for a chunk in parallel."""
-            all_tasks = []  # list of (block, path)
-            for msgs in chunk_messages:
-                all_tasks.extend(_collect_image_blocks(msgs))
-            if not all_tasks:
-                return 0
-            paths = [p for _, p in all_tasks]
-            blocks = [b for b, _ in all_tasks]
-            results = list(thread_pool.map(_load_one_image, paths))
-            n_failed = 0
-            for block, img in zip(blocks, results):
-                if isinstance(img, Exception):
-                    block["__image_load_error__"] = str(img)
-                    n_failed += 1
-                    continue
-                # Replace whatever was here with image_pil
-                block.pop("image_url", None)
-                block.pop("image", None)
-                block["type"] = "image_pil"
-                block["image_pil"] = img
-            return n_failed
-
-        # ─── First pass: build SamplingParams from the first valid row ──
-        # We need a sampling params object before generation. Peek at
-        # the first row to extract sampling_params dict — assumes uniform
-        # sampling per stage, which is the existing convention.
-        # NOTE: per-row sampling_params (e.g. row-level "guided_decoding"
-        # payloads, see urbanvqa preprocess) are honored only on the
-        # single-process path; here the first row's params win.
-        sampling_params = None
-        first_pp_row = None
-        peek_idx = 0
-        while peek_idx < len(rows) and first_pp_row is None:
-            try:
-                first_pp_row = preprocess_fn(rows[peek_idx])
-            except Exception:
-                first_pp_row = None
-            peek_idx += 1
-        if first_pp_row is not None:
-            _first_sp = first_pp_row.get("sampling_params") or {}
-            sp = dict(_first_sp)
-            guided = sp.pop("guided_decoding", None) or sp.pop("structured_output", None)
-            for k in ("early_stopping", "length_penalty", "response_format", "detokenize"):
-                sp.pop(k, None)
-            if guided and isinstance(guided, dict):
-                try:
-                    from vllm.sampling_params import StructuredOutputsParams
-                    sp["structured_outputs"] = StructuredOutputsParams(**guided)
-                except ImportError:
-                    try:
-                        from vllm.sampling_params import GuidedDecodingParams
-                        sp["guided_decoding"] = GuidedDecodingParams(**guided)
-                    except ImportError:
-                        pass
-            sampling_params = SamplingParams(**sp)
-        else:
-            sampling_params = SamplingParams()
-
-        chat_kwargs = {}
-        if thinking_enabled:
-            chat_kwargs["chat_template_kwargs"] = {"enable_thinking": True}
-
-        # ─── Chunked main loop ──────────────────────────────────────────
-        total = len(rows)
-        results = [None] * total  # filled in original order
-        processed = 0
-        last_log_at = 0
-        n_failed_preprocess = 0
-        n_failed_image_load = 0
-
-        # Streaming parquet flushing.  We track the next row index that
-        # has not yet been written to a shard.  Each chunk's results are
-        # always contiguous from chunk_start..chunk_end, so a flush boundary
-        # is reached whenever (processed - flushed_upto) >= flush_every.
-        flushed_upto = 0
-        flush_part_idx = 0
-        try:
-            import pandas as _pd
-        except Exception:
-            _pd = None  # parquet shards become a no-op if pandas missing
-
-        def _flush_shard(end_idx):
-            """Write results[flushed_upto:end_idx] to a parquet shard."""
-            nonlocal flushed_upto, flush_part_idx
-            if not streaming_output_dir or _pd is None:
-                flushed_upto = end_idx
-                return
-            slab = results[flushed_upto:end_idx]
-            slab = [r for r in slab if r is not None]
-            if not slab:
-                flushed_upto = end_idx
-                return
-            shard_name = (
-                f"rank{rank:02d}_part{flush_part_idx:04d}_"
-                f"rows{flushed_upto + row_offset:08d}-"
-                f"{end_idx + row_offset:08d}.parquet"
-            )
-            shard_path = os.path.join(streaming_output_dir, shard_name)
-            try:
-                df_shard = _pd.DataFrame(slab)
-                df_shard.to_parquet(shard_path, index=False, compression="snappy")
-                print(
-                    f"[{stage_name}] DP rank {rank}/{dp_size}: "
-                    f"flushed {len(slab)} rows → {shard_path}",
-                    flush=True,
-                )
-            except Exception as e:
-                print(
-                    f"[{stage_name}] DP rank {rank}/{dp_size}: "
-                    f"streaming flush FAILED ({type(e).__name__}: {e})",
-                    flush=True,
-                )
-            flush_part_idx += 1
-            flushed_upto = end_idx
-
-        for chunk_start in range(0, total, chunk_size):
-            chunk_end = min(chunk_start + chunk_size, total)
-            chunk_rows = rows[chunk_start:chunk_end]
-
-            t_chunk = time.time()
-            # Pre-chunk heartbeat: appears immediately so the user can see
-            # the worker is alive even on the cold-start chunk (where vLLM's
-            # first llm.chat() does extra one-time work).
-            print(
-                f"[{stage_name}] DP rank {rank}/{dp_size}: "
-                f"starting chunk {chunk_start // chunk_size + 1}"
-                f"/{(total + chunk_size - 1) // chunk_size} "
-                f"(rows {chunk_start}–{chunk_end - 1})",
-                flush=True,
-            )
-
-            # Preprocess (build messages for each row)
-            chunk_pp_rows = []         # parallel to chunk_rows
-            chunk_messages = []        # parallel to a subset of valid rows
-            valid_indices_local = []   # indices into chunk_rows
-
-            for ci, row in enumerate(chunk_rows):
-                try:
-                    pp = preprocess_fn(row)
-                except Exception as e:
-                    row["__preprocess_error__"] = str(e)
-                    row["generated_text"] = ""
-                    row["generated_reasoning"] = ""
-                    chunk_pp_rows.append(row)
-                    n_failed_preprocess += 1
-                    continue
-                chunk_pp_rows.append(pp)
-                msgs = pp.get("messages")
-                if not msgs:
-                    pp["generated_text"] = ""
-                    pp["generated_reasoning"] = ""
-                    n_failed_preprocess += 1
-                    continue
-                _convert_image_blocks(msgs)
-                chunk_messages.append(msgs)
-                valid_indices_local.append(ci)
-
-            # Parallel image decode + resize for the chunk
-            t_img = time.time()
-            n_img_fail = _hydrate_chunk_images(chunk_messages)
-            n_failed_image_load += n_img_fail
-            img_secs = time.time() - t_img
-
-            # Drop conversations whose image loads failed (any block in
-            # the conversation got tagged with __image_load_error__)
-            ok_messages = []
-            ok_local_indices = []
-            for ci, msgs in zip(valid_indices_local, chunk_messages):
-                bad = False
-                for m in msgs:
-                    cnt = m.get("content")
-                    if not isinstance(cnt, list):
-                        continue
-                    for blk in cnt:
-                        if isinstance(blk, dict) and "__image_load_error__" in blk:
-                            bad = True
-                            break
-                    if bad:
-                        break
-                if bad:
-                    chunk_pp_rows[ci]["__image_load_error__"] = "image decode failed"
-                    chunk_pp_rows[ci]["generated_text"] = ""
-                    chunk_pp_rows[ci]["generated_reasoning"] = ""
-                else:
-                    ok_messages.append(msgs)
-                    ok_local_indices.append(ci)
-
-            # Generate. tqdm is disabled because vLLM's per-conversation
-            # progress bar floods stderr at multi-line-per-row cadence on
-            # SLURM (no carriage-return collapsing).  Our per-chunk and
-            # per-flush log lines + the pre-chunk "starting chunk N" line
-            # provide enough visibility.
-            t_gen = time.time()
-            if ok_messages:
-                outputs = llm.chat(
-                    ok_messages,
-                    sampling_params=sampling_params,
-                    use_tqdm=False,
-                    **chat_kwargs,
-                )
-            else:
-                outputs = []
-            gen_secs = time.time() - t_gen
-
-            # Postprocess this chunk and place into the results array
-            ok_local_set = set(ok_local_indices)
-            out_iter = iter(outputs)
-            for ci, pp_row in enumerate(chunk_pp_rows):
-                if ci in ok_local_set:
-                    out = next(out_iter)
-                    raw_text = out.outputs[0].text if out.outputs else ""
-                    reasoning, content = _extract_reasoning(raw_text)
-                    pp_row["generated_text"] = content
-                    pp_row["generated_reasoning"] = reasoning
-                    pt = len(out.prompt_token_ids) if out.prompt_token_ids else 0
-                    ct = (len(out.outputs[0].token_ids)
-                          if out.outputs and out.outputs[0].token_ids else 0)
-                    pp_row["usage"] = {
-                        "prompt_tokens": pt,
-                        "completion_tokens": ct,
-                        "total_tokens": pt + ct,
-                    }
-                try:
-                    results[chunk_start + ci] = postprocess_fn(pp_row)
-                except Exception as e:
-                    pp_row["__postprocess_error__"] = str(e)
-                    results[chunk_start + ci] = pp_row
-
-            # Free chunk-local objects so RSS does not grow
-            del chunk_rows, chunk_pp_rows, chunk_messages, ok_messages, outputs
-            processed = chunk_end
-
-            # Streaming progress: log every chunk so users always see
-            # forward motion. log_every is only used as a hint for the
-            # default chunk_size — actual reporting cadence is per-chunk.
-            chunk_secs = time.time() - t_chunk
-            elapsed = time.time() - t1
-            rate = processed / max(elapsed, 1e-6)
-            eta = (total - processed) / max(rate, 1e-6)
-            print(
-                f"[{stage_name}] DP rank {rank}/{dp_size}: "
-                f"{processed}/{total} ({100.0 * processed / total:.1f}%) "
-                f"| chunk {chunk_secs:.1f}s "
-                f"(img {img_secs:.1f}s, gen {gen_secs:.1f}s) "
-                f"| {rate:.2f} rows/s | elapsed {elapsed:.0f}s "
-                f"| ETA {eta:.0f}s",
-                flush=True,
-            )
-            last_log_at = processed
-
-            # Streaming parquet flush whenever we have at least
-            # flush_every newly-completed rows since the last shard.
-            if processed - flushed_upto >= flush_every:
-                _flush_shard(processed)
-
-        thread_pool.shutdown(wait=False)
-
-        # Sanity: every slot should be filled
-        for i, r in enumerate(results):
-            if r is None:
-                results[i] = rows[i]
-
-        # Final flush of any rows that did not cross the flush_every boundary
-        if flushed_upto < total:
-            _flush_shard(total)
-
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: done, "
-              f"{len(results)} results, "
-              f"preprocess_failed={n_failed_preprocess}, "
-              f"image_load_failed={n_failed_image_load}, "
-              f"total elapsed {time.time() - t0:.1f}s", flush=True)
-
-        with open(result_path, "wb") as f:
-            pickle.dump({"rank": rank, "results": results, "error": None}, f)
-        return
-
-    except Exception:
-        tb = traceback.format_exc()
-        print(f"[{stage_name}] DP rank {rank}/{dp_size}: FAILED\n{tb}",
-              flush=True, file=sys.stderr)
-        with open(result_path, "wb") as f:
-            pickle.dump({"rank": rank, "results": None, "error": tb}, f)
-        sys.exit(1)
-    finally:
-        try:
-            if llm is not None:
-                engine = getattr(llm, "llm_engine", None)
-                core = getattr(engine, "engine_core", None) if engine else None
-                if core is not None and hasattr(core, "shutdown"):
-                    core.shutdown()
-                del llm
-        except Exception:
-            pass
-
-if __name__ == "__main__":
-    main()
-'''
-
 
 def _run_data_parallel_full(
     engine_kwargs: Dict[str, Any],
@@ -1713,6 +1215,7 @@ def _run_data_parallel_full(
     image_load_workers: int = 16,
     flush_every: int = 1000,
     streaming_output_dir: Optional[str] = None,
+    image_pack_dir: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """Full-pipeline DP: preprocess + infer + postprocess inside each worker.
 
@@ -1774,12 +1277,14 @@ def _run_data_parallel_full(
     tmpdir = os.environ.get("TMPDIR", "/tmp")
     worker_engine_kwargs = {k: v for k, v in engine_kwargs.items() if k != "data_parallel_size"}
 
-    # Write worker script
-    worker_script = tempfile.NamedTemporaryFile(
-        mode="w", suffix="_dp_full_worker.py", dir=tmpdir, delete=False,
-    )
-    worker_script.write(_DP_FULL_WORKER_SCRIPT)
-    worker_script.close()
+    # Worker launch protocol: run the worker module file directly. This
+    # keeps the old temp-file contract exactly — same interpreter
+    # (sys.executable), same child env, same argv layout (script path,
+    # task pickle, result pickle). The child needs no package
+    # importability because dp_worker_full imports only stdlib names at
+    # load time; heavy imports stay inside its main().
+    from dagspaces.common import dp_worker_full as _dp_worker_full_mod
+    worker_script_path = _dp_worker_full_mod.__file__
 
     # Per-invocation work dir for task/result pickles. MUST be unique: the
     # filenames are keyed only by (stage_name, rank), so concurrent sweep jobs
@@ -1819,6 +1324,7 @@ def _run_data_parallel_full(
             "flush_every": flush_every,
             "streaming_output_dir": streaming_output_dir,
             "row_offset": shard_offsets[rank],
+            "image_pack_dir": image_pack_dir,
         }
 
         task_path = os.path.join(dp_workdir, f"rank{rank}_task.pkl")
@@ -1836,11 +1342,11 @@ def _run_data_parallel_full(
             child_env.pop(var, None)
 
         devices_str = child_env.get("CUDA_VISIBLE_DEVICES", "<unset>")
-        print(f"[{stage_name}] DP rank {rank}: {len(shards[rank])} rows, "
-              f"CUDA_VISIBLE_DEVICES={devices_str}", flush=True)
+        logger.info(f"[{stage_name}] DP rank {rank}: {len(shards[rank])} rows, "
+                    f"CUDA_VISIBLE_DEVICES={devices_str}")
 
         proc = subprocess.Popen(
-            [sys.executable, worker_script.name, task_path, result_path],
+            [sys.executable, worker_script_path, task_path, result_path],
             env=child_env, stdout=sys.stdout, stderr=sys.stderr,
         )
         procs.append(proc)
@@ -1872,8 +1378,8 @@ def _run_data_parallel_full(
         else:
             all_results.extend(result["results"])
 
-    # Cleanup temp files
-    for p in [worker_script.name, *task_files, *result_files]:
+    # Cleanup temp files. The worker module is repo source — never unlink it.
+    for p in [*task_files, *result_files]:
         try:
             os.unlink(p)
         except OSError:
@@ -1886,198 +1392,6 @@ def _run_data_parallel_full(
         )
 
     return all_results
-
-
-def _run_data_parallel(
-    engine_kwargs: Dict[str, Any],
-    dp_size: int,
-    prompts: List[str],
-    sp_dict: Dict[str, Any],
-    stage_name: str,
-    image_refs: Optional[List[Optional[str]]] = None,
-    is_multimodal: bool = False,
-    timeout: int = 86400,
-) -> List[Dict[str, Any]]:
-    """Spawn dp_size subprocess workers for vLLM data-parallel inference.
-
-    Follows vLLM 0.19's DP pattern: each worker is a fresh Python process
-    with ``VLLM_DP_*`` env vars set.  vLLM handles GPU assignment and NCCL
-    coordination internally.
-
-    Multimodal support: ``image_refs`` carries file paths (strings) alongside
-    ``prompts``.  Workers load images lazily via PIL, avoiding serialization
-    of large PIL objects across process boundaries.
-
-    Returns a list of output dicts in the same order as ``prompts``.
-    """
-    import pickle
-    import shutil
-    import tempfile
-
-    if len(prompts) < dp_size:
-        raise RuntimeError(
-            f"[{stage_name}] Too few prompts ({len(prompts)}) for "
-            f"data_parallel_size={dp_size}."
-        )
-
-    tp_size = engine_kwargs.get("tensor_parallel_size", 1)
-    total_gpus_needed = dp_size * tp_size
-    visible = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-    all_devices = [d.strip() for d in visible.split(",") if d.strip()] if visible else []
-    if all_devices and len(all_devices) < total_gpus_needed:
-        raise RuntimeError(
-            f"[{stage_name}] data_parallel_size={dp_size} x "
-            f"tensor_parallel_size={tp_size} = {total_gpus_needed} GPUs required, "
-            f"but only {len(all_devices)} visible: {all_devices}"
-        )
-
-    # Split prompts (and image refs) across DP ranks
-    floor_n = len(prompts) // dp_size
-    remainder = len(prompts) % dp_size
-
-    def shard_range(rank: int) -> tuple:
-        start = rank * floor_n + min(rank, remainder)
-        end = (rank + 1) * floor_n + min(rank + 1, remainder)
-        return start, end
-
-    prompt_shards = []
-    image_ref_shards = []
-    for r in range(dp_size):
-        s, e = shard_range(r)
-        prompt_shards.append(prompts[s:e])
-        image_ref_shards.append(image_refs[s:e] if image_refs else [])
-
-    pcie_env = get_pcie_nccl_env_vars()
-    runtime_env = get_vllm_runtime_env_vars()
-
-    tmpdir = os.environ.get("TMPDIR", "/tmp")
-    task_files = []
-    result_files = []
-    procs: List[subprocess.Popen] = []
-
-    # Write worker script to a temp file
-    worker_script = tempfile.NamedTemporaryFile(
-        mode="w", suffix="_dp_worker.py", dir=tmpdir, delete=False,
-    )
-    worker_script.write(_DP_WORKER_SCRIPT)
-    worker_script.close()
-
-    # Per-invocation work dir for task/result pickles — unique so concurrent
-    # sweep jobs sharing a TMPDIR don't clobber each other's task pickles.
-    dp_workdir = tempfile.mkdtemp(prefix=f"{stage_name}_dp_", dir=tmpdir)
-
-    # Workers are fully independent — no data_parallel_size in kwargs
-    worker_engine_kwargs = {k: v for k, v in engine_kwargs.items()
-                           if k != "data_parallel_size"}
-
-    print(f"[{stage_name}] Launching {dp_size} DP workers "
-          f"(TP={tp_size}, {len(prompts)} total prompts, "
-          f"multimodal={is_multimodal})...", flush=True)
-
-    for rank in range(dp_size):
-        # GPU slice for this rank
-        if all_devices:
-            rank_devices = all_devices[rank * tp_size:(rank + 1) * tp_size]
-        else:
-            rank_devices = []
-
-        task = {
-            "rank": rank,
-            "dp_size": dp_size,
-            "engine_kwargs": worker_engine_kwargs,
-            "prompts": prompt_shards[rank],
-            "image_refs": image_ref_shards[rank],
-            "sp_dict": sp_dict,
-            "stage_name": stage_name,
-            "pcie_env": pcie_env,
-            "runtime_env": runtime_env,
-            "is_multimodal": is_multimodal,
-        }
-
-        task_path = os.path.join(dp_workdir, f"rank{rank}_task.pkl")
-        result_path = os.path.join(dp_workdir, f"rank{rank}_result.pkl")
-        with open(task_path, "wb") as pickle_f:
-            pickle.dump(task, pickle_f)
-        task_files.append(task_path)
-        result_files.append(result_path)
-
-        # Build clean env: assign GPU slice, clear stale DP vars
-        child_env = dict(os.environ)
-        if rank_devices:
-            child_env["CUDA_VISIBLE_DEVICES"] = ",".join(rank_devices)
-        for var in ("VLLM_DP_RANK", "VLLM_DP_RANK_LOCAL", "VLLM_DP_SIZE",
-                     "VLLM_DP_MASTER_IP", "VLLM_DP_MASTER_PORT"):
-            child_env.pop(var, None)
-
-        devices_str = child_env.get("CUDA_VISIBLE_DEVICES", "<unset>")
-        print(f"[{stage_name}] DP rank {rank}: {len(prompt_shards[rank])} prompts, "
-              f"CUDA_VISIBLE_DEVICES={devices_str}", flush=True)
-
-        proc = subprocess.Popen(
-            [sys.executable, worker_script.name, task_path, result_path],
-            env=child_env,
-            stdout=sys.stdout,
-            stderr=sys.stderr,
-        )
-        procs.append(proc)
-
-    # Wait for all workers
-    print(f"[{stage_name}] Waiting for {dp_size} DP workers "
-          f"(timeout={timeout}s)...", flush=True)
-    errors = []
-    for rank, proc in enumerate(procs):
-        try:
-            retcode = proc.wait(timeout=timeout)
-            if retcode != 0:
-                errors.append(
-                    f"DP rank {rank} (pid={proc.pid}) exited with code {retcode}"
-                )
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            errors.append(
-                f"DP rank {rank} (pid={proc.pid}) timed out after {timeout}s, killed"
-            )
-
-    # Collect results
-    rank_results: Dict[int, List[Dict[str, Any]]] = {}
-    for rank in range(dp_size):
-        rpath = result_files[rank]
-        if not os.path.exists(rpath):
-            errors.append(f"DP rank {rank}: no result file at {rpath}")
-            continue
-        with open(rpath, "rb") as pickle_f:
-            result = pickle.load(pickle_f)
-        if result.get("error"):
-            errors.append(f"DP rank {rank} failed:\n{result['error']}")
-        else:
-            rank_results[rank] = result["outputs"]
-
-    # Cleanup temp files
-    for p in [worker_script.name, *task_files, *result_files]:
-        try:
-            os.unlink(p)
-        except OSError:
-            pass
-    shutil.rmtree(dp_workdir, ignore_errors=True)
-
-    if errors:
-        raise RuntimeError(
-            f"[{stage_name}] Data-parallel inference failed:\n"
-            + "\n".join(errors)
-        )
-
-    # Reassemble in original order
-    all_outputs = []
-    for rank in range(dp_size):
-        results = rank_results[rank]
-        if len(results) != len(prompt_shards[rank]):
-            raise RuntimeError(
-                f"[{stage_name}] DP rank {rank} output count mismatch: "
-                f"expected {len(prompt_shards[rank])}, got {len(results)}"
-            )
-        all_outputs.extend(results)
-
-    return all_outputs
 
 
 # ---------------------------------------------------------------------------
@@ -2430,8 +1744,8 @@ def _run_data_parallel_embed(
             child_env.pop(var, None)
 
         devices_str = child_env.get("CUDA_VISIBLE_DEVICES", "<unset>")
-        print(f"[{stage_name}] DP rank {rank}: {len(prompt_shards[rank])} inputs, "
-              f"CUDA_VISIBLE_DEVICES={devices_str}", flush=True)
+        logger.info(f"[{stage_name}] DP rank {rank}: {len(prompt_shards[rank])} inputs, "
+                    f"CUDA_VISIBLE_DEVICES={devices_str}")
 
         proc = subprocess.Popen(
             [sys.executable, worker_script.name, task_path, result_path],
@@ -2917,6 +2231,7 @@ def run_vllm_inference(
             image_load_workers=image_load_workers,
             flush_every=flush_every,
             streaming_output_dir=streaming_output_dir,
+            image_pack_dir=_image_pack_dir(cfg),
         )
         print(f"[{stage_name}] Completed inference, {len(dp_results)} results")
         return pd.DataFrame(dp_results)
@@ -3118,6 +2433,38 @@ def run_vllm_inference(
             # Resume is off unless `model.resume_dir` is set, thus this block
             # changes nothing for a run that does not ask for it.
             _resume_dir, _resume_rows = _resume_settings(cfg, batch_size)
+            # The image pack replaces the file reads of the raw tree. Each
+            # batch prefetches its images with a small thread pool and drops
+            # them after the generate call, thus memory holds 1 batch.
+            _pack = _image_pack.activate(_image_pack_dir(cfg)) if _has_any_images else None
+            if _pack is not None:
+                print(f"[{stage_name}] image pack ON: {_pack.pack_dir} "
+                      f"({len(_pack)} images in the index)", flush=True)
+            # The batches that run, in order, with the cached chunks left out.
+            # The prefetcher loads batch k+1 during the generate call of k.
+            _plan: List[Tuple[int, int]] = []
+            for _cs in range(0, len(prompts), _resume_rows):
+                _ce = min(_cs + _resume_rows, len(prompts))
+                if _resume_dir and os.path.exists(_resume_chunk_path(_resume_dir, _cs, _ce)):
+                    continue
+                for _bs in range(_cs, _ce, batch_size):
+                    _plan.append((_bs, min(_bs + batch_size, _ce)))
+            _next_batch = dict(zip(_plan, _plan[1:]))
+            _prefetch: Optional[_BatchPrefetcher] = None
+            if _has_any_images and _plan:
+                try:
+                    _decode_workers = int(getattr(cfg.model, "image_decode_workers", 0) or 0)
+                except Exception:
+                    _decode_workers = 0
+                if _decode_workers <= 0:
+                    _decode_workers = 4 if _pack is not None else 1
+                _prefetch = _BatchPrefetcher(_pack, _decode_workers, stage_name)
+                _prefetch.submit(_plan[0], _batch_image_paths(
+                    preprocessed_rows, valid_indices, _plan[0][0], _plan[0][1],
+                ))
+                print(f"[{stage_name}] image prefetch ON: 1 batch ahead, "
+                      f"{_decode_workers} decode threads, {len(_plan)} batches to run",
+                      flush=True)
             if _resume_dir:
                 _resume_guard(_resume_dir, prompts, stage_name)
                 print(f"[{stage_name}] resume ON: dir={_resume_dir}, "
@@ -3147,6 +2494,12 @@ def run_vllm_inference(
                         f"rows {start}-{end - 1}",
                     )
                     batch_outputs: List[Any] = []
+                    _decoded = _prefetch.take((start, end)) if _prefetch is not None else None
+                    _nb = _next_batch.get((start, end))
+                    if _prefetch is not None and _nb is not None:
+                        _prefetch.submit(_nb, _batch_image_paths(
+                            preprocessed_rows, valid_indices, _nb[0], _nb[1],
+                        ))
 
                     if _use_chat_for_mm:
                         # gemma-4: mirror the DP path — hydrate images into the
@@ -3155,7 +2508,7 @@ def run_vllm_inference(
                         batch_messages = []
                         for j in range(start, end):
                             msgs_j = preprocessed_rows[valid_indices[j]].get("messages") or []
-                            batch_messages.append(_hydrate_messages_for_chat(msgs_j))
+                            batch_messages.append(_hydrate_messages_for_chat(msgs_j, _decoded))
                         _ctk = dict(getattr(cfg.model, "chat_template_kwargs", {}) or {})
                         _chat_extra = {"chat_template_kwargs": _ctk} if _ctk else {}
                         batch_outputs = list(llm.chat(
@@ -3174,7 +2527,7 @@ def run_vllm_inference(
                         _batch_imgs: List[Any] = []  # keep refs alive until generate() returns
                         for j in range(start, end):
                             msgs_j = preprocessed_rows[valid_indices[j]].get("messages")
-                            imgs = _extract_images_from_messages(msgs_j) if msgs_j else None
+                            imgs = _extract_images_from_messages(msgs_j, _decoded) if msgs_j else None
                             if imgs:
                                 _batch_imgs.extend(imgs)
                                 # Tokenize with image placeholders to get token IDs
@@ -3197,6 +2550,7 @@ def run_vllm_inference(
                     # each row: each one carries its prompt token ids.
                     _chunk_records.extend(_records_from_outputs(batch_outputs))
                     del batch_outputs
+                    _decoded = None
 
                 _write_resume_chunk(
                     _resume_dir, _chunk_start, _chunk_end, _chunk_records, stage_name,
@@ -3212,6 +2566,13 @@ def run_vllm_inference(
                 )
 
             # Postprocess — merge inference outputs back with failed rows
+            if _prefetch is not None:
+                _prefetch.close()
+                print(f"[{stage_name}] image prefetch: {_prefetch.batches} batches, "
+                      f"the GPU waited {_prefetch.wait_seconds:.1f}s in total for images",
+                      flush=True)
+            if _pack is not None:
+                print(f"[{stage_name}] {_image_pack.stats_line()}", flush=True)
             print(f"[{stage_name}] Postprocessing {len(gen_records)} outputs...")
             results: List[Dict[str, Any]] = []
             output_iter = iter(gen_records)

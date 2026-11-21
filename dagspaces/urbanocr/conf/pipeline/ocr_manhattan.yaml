@@ -40,7 +40,7 @@ pipeline:
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
           # Qwen3-VL-30B-A3B on 2 GPUs
-          model.model_source: /share/pierson/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct
+          model.model_source: /share/ju/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct
           model.engine_kwargs.gpu_memory_utilization: 0.90
           model.engine_kwargs.tensor_parallel_size: 2
           model.engine_kwargs.max_model_len: 8192

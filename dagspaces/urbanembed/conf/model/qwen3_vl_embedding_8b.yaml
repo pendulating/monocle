@@ -1,7 +1,7 @@
 # Qwen3-VL-Embedding-8B — multimodal embedding model via vLLM
 # Uses LLM.encode() for dense embeddings (not text generation)
 
-model_source: /share/pierson/matt/zoo/models/Qwen3-VL-Embedding-8B
+model_source: /share/ju/matt/zoo/models/Qwen3-VL-Embedding-8B
 
 engine_kwargs:
   tensor_parallel_size: 1

@@ -1,0 +1,54 @@
+# @package _global_
+# TEXT FIRST AT 100,000 PAIRS, against `interleaved_labels`, gemma-4-12b.
+#
+# The re-run of `million_textfirst_gemma12b` under the decision of 2026-09-02.
+# The arm makes ONE change against the production layout, and production is
+# `interleaved_labels` again. Thus the arm is `text_first_interleaved`:
+#
+#     interleaved_labels      "Image A:", A, "Image B:", B, prompt
+#     text_first_interleaved  prompt, "Image A:", A, "Image B:", B
+#
+# The anchors stay between the 2 images, thus the arch still binds them, and
+# the ONE change is where the prompt sits. The first gemma half of this arm
+# ran `text_first_labels` against a control on another layout, thus it held
+# the prompt position AND the anchor position.
+#
+# Warning: gemma-4-12b does NOT take plain `text_first`. Two adjacent image
+# blocks read as 1 image (55 of 70 traces, NotSure 81.4%, 2026-08-20). Test
+# the first shards for that signature before you merge.
+#
+# The pairs come from `pair_tables_100k_of_1m`, thus the run joins
+# `million_proxy_gemma12b` on `pair_id` at 100%. See
+# `million_nocity_gemma12b_il.yaml` for the reasoning.
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  resume: true
+  resume_chunk_rows: 2048
+
+prompt:
+  # THE POINT OF THIS SWEEP. See the box above.
+  image_layout: text_first_interleaved
+
+pair_sampler:
+  max_pairs: 100000
+  shard_count: 5
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 5 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,5)

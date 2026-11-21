@@ -1,0 +1,84 @@
+# @package _global_
+# FORCED CHOICE AT 1,000,000 PAIRS — rater 1 of 2, qwen3.5-9b, 7 cases.
+#
+# ─── What changes against `million_proxy_qwen9b` ─────────────────────────────
+# ONE thing: the model may not abstain. `allow_not_sure: false` does 2 things
+# in `stages/pairwise_vqa.py`:
+#   * the guided-decoding enum keeps its 5 ordinal labels and does NOT gain
+#     `NotSure`, thus the decoder cannot emit an abstention at all;
+#   * the prompt loses the abstention guidance line.
+# Everything else is the same: the prompt text, the model, the seed, the
+# sampling parameters, and the pair draw.
+#
+# The prompt configs name this exact switch as the one supported ablation:
+#   prompt.structured_output.allow_not_sure=false
+# Thus this sweep is that ablation at the scale of the main battery.
+#
+# ┌─ THE PAIRS ARE THE SAME PAIRS ─────────────────────────────────────────────┐
+# │ `pair_seed` is still 777 and `max_pairs` is still 1,000,000, thus this      │
+# │ sweep judges the SAME 1,000,000 canonical pairs as `million_proxy_qwen9b`. │
+# │ A row here and a row there share a `canonical_pair_id`, thus the 2         │
+# │ batteries join pair by pair.                                               │
+# │                                                                            │
+# │ Warning: neither battery holds the 100,000-pair "looks like" draw as a     │
+# │ prefix. Do not pool any of the 3.                                          │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── What this measures ──────────────────────────────────────────────────────
+# An abstention is not a missing answer. It is a choice the model makes, and
+# it is not evenly spread: qwen3.5-9b abstains on 99.7% of the schools pairs
+# and on 0.2% of the road quality pairs. A forced choice thus answers a
+# question the main battery cannot: what the model picks when we take the
+# abstention away. It does NOT show that the forced label is a better label.
+#
+# ─── Sizing ──────────────────────────────────────────────────────────────────
+# The answer is the same 10 to 15 tokens, thus the rate does not change. The
+# shape follows `million_proxy_qwen9b` exactly.
+#
+# | Quantity            | Value                                               |
+# |---------------------|-----------------------------------------------------|
+# | Rows for each case  | 1,100,000 (1,000,000 pairs + a 10% repeat fraction) |
+# | Shards for each case| 92, thus about 12,000 rows for each shard           |
+# | Jobs                | 644 (7 cases x 92 shards)                           |
+# | Cost                | about 1,155 GPU-hours                               |
+# | Chunk               | 1,024 rows — what a preemption loses                |
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   bash scripts/launch_noabstain_battery.sh --dry-run
+#   bash scripts/launch_noabstain_battery.sh --smoke
+#   bash scripts/launch_noabstain_battery.sh
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  # REQUIRED on the preemptable partition.
+  resume: true
+  resume_chunk_rows: 1024
+
+prompt:
+  structured_output:
+    # THE POINT OF THIS SWEEP. The model may not abstain.
+    allow_not_sure: false
+
+pair_sampler:
+  # The same draw as `million_proxy_qwen9b`, thus the 2 batteries pair up.
+  max_pairs: 1000000
+  shard_count: 92
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 92 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,92)

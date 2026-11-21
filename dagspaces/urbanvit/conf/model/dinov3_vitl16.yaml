@@ -5,7 +5,7 @@
 # kludging. ~304M params, 1024-dim features, 24-layer ViT-L/16 @ 224².
 
 backbone_kind: dinov3_hf
-checkpoint_path: /share/pierson/matt/zoo/models/dinov3-vitl16-pretrain-lvd1689m
+checkpoint_path: /share/ju/matt/zoo/models/dinov3-vitl16-pretrain-lvd1689m
 
 image_size: 224
 feature_dim: 1024

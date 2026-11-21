@@ -1,9 +1,9 @@
 # @package _global_
 # Qwen3.5-9B + SFT + programmatic-only GRPO LoRA adapter via vLLM native LoRA
 model:
-  model_source: /share/pierson/matt/UAIR/multirun/2026-03-26_grpo_training/20-46-52/grpo_programmatic_only/outputs/grpo/checkpoint/_merged_sft
+  model_source: /share/ju/matt/normative-simulacra/multirun/2026-03-26_grpo_training/20-46-52/grpo_programmatic_only/outputs/grpo/checkpoint/_merged_sft
   model_family: qwen3.5
-  lora_path: /share/pierson/matt/UAIR/multirun/2026-03-26_grpo_training/20-46-52/grpo_programmatic_only/outputs/grpo/checkpoint
+  lora_path: /share/ju/matt/normative-simulacra/multirun/2026-03-26_grpo_training/20-46-52/grpo_programmatic_only/outputs/grpo/checkpoint
   chat_template_kwargs:
     enable_thinking: false
   engine_kwargs:

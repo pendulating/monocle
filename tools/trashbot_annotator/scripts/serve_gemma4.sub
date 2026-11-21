@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
 #SBATCH --time=48:00:00
-#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-vllm/%j.out
-#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-vllm/%j.err
+#SBATCH --output=/share/ju/matt/mllmsci/.slurm_jobs/trashbot-vllm/%j.out
+#SBATCH --error=/share/ju/matt/mllmsci/.slurm_jobs/trashbot-vllm/%j.err
 
 # Serve google/gemma-4-12B-it for the TrashBot footage annotator.
 #
@@ -26,7 +26,7 @@
 # Mirror setup, one time per node:
 #   bash scripts/sync_venv_to_scratch.sh
 #   sbatch -p pierson -w klara -c 4 --mem=8G --wrap \
-#     'bash /share/pierson/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
+#     'bash /share/ju/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
 
 set -euo pipefail
 
@@ -35,9 +35,9 @@ date
 echo ""
 
 # ----------------------------- CONFIGURATION ----------------------------- #
-REPO_DIR="/share/pierson/matt/mllmsci"
+REPO_DIR="/share/ju/matt/mllmsci"
 DRIVER_VENV="$REPO_DIR/.venv-mllmsci-vllm025cu129"
-ZOO="${MLLMSCI_MODEL_ZOO:-/share/pierson/matt/zoo/models}"
+ZOO="${MLLMSCI_MODEL_ZOO:-/share/ju/matt/zoo/models}"
 REGISTRY="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
 # MODEL_NAME selects a zoo model by registry name. MODEL_ID overrides it
@@ -81,7 +81,7 @@ else
     source "$DRIVER_VENV/bin/activate"
     PY="$(which python)"
 fi
-export HF_HOME="${HF_HOME:-/share/pierson/matt/.cache/huggingface}"
+export HF_HOME="${HF_HOME:-/share/ju/matt/.cache/huggingface}"
 export TOKENIZERS_PARALLELISM=false
 export WANDB_MODE=disabled
 

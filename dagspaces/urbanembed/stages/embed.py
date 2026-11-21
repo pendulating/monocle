@@ -11,7 +11,6 @@ you still have 500 batches of embeddings on disk.
 
 from __future__ import annotations
 
-import logging
 import os
 import unicodedata
 from typing import Any, Callable, Dict, List, Optional
@@ -22,6 +21,7 @@ import pandas as pd
 from omegaconf import DictConfig
 from PIL import Image
 
+from dagspaces.common.log_setup import get_stage_logger
 from dagspaces.common.vllm_inference import (
     _build_engine_kwargs,
     _flatten_messages_for_template,
@@ -30,7 +30,7 @@ from dagspaces.common.vllm_inference import (
     get_vllm_runtime_env_vars,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_stage_logger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -143,8 +143,7 @@ def run_embed_stage(cfg: DictConfig) -> str:
 
     streaming_io = bool(getattr(getattr(cfg, "runtime", {}), "streaming_io", False))
     total_rows = len(df)
-    print(f"[run_embed_stage] {total_rows} rows to embed (streaming={streaming_io})",
-          flush=True)
+    logger.info(f"[run_embed_stage] {total_rows} rows to embed (streaming={streaming_io})")
 
     # Determine output path
     output_path = str(getattr(cfg.runtime, "output_path", None) or "")
@@ -169,7 +168,7 @@ def run_embed_stage(cfg: DictConfig) -> str:
         "CUDA_VISIBLE_DEVICES": os.environ.get("CUDA_VISIBLE_DEVICES", "<unset>"),
         "SLURM_GPUS_ON_NODE": os.environ.get("SLURM_GPUS_ON_NODE", "<unset>"),
     }
-    print(f"[run_embed_stage] Runtime env: {env_snapshot}", flush=True)
+    logger.info(f"[run_embed_stage] Runtime env: {env_snapshot}")
 
     from vllm import LLM
 

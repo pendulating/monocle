@@ -38,8 +38,8 @@ pipeline:
           verify.top_k: 5
           verify.thresholds: sim=0.70,ent=0.85,contra=0.10
           # Local model paths
-          verify.embed_model_name: /share/pierson/matt/zoo/models/intfloat_e5_base
-          verify.nli_model_name: /share/pierson/matt/zoo/models/mdeberta_v3_base_xnli_multilingual_nli_2mil7
+          verify.embed_model_name: /share/ju/matt/zoo/models/intfloat_e5_base
+          verify.nli_model_name: /share/ju/matt/zoo/models/mdeberta_v3_base_xnli_multilingual_nli_2mil7
           # Optional windowing (uncomment as needed)
           verify.windowing.enabled: true
           verify.windowing.window_size: 3

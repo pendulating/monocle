@@ -18,7 +18,7 @@ defaults:
   - override /hydra/launcher: slurm_monitor
 
 model:
-  model_source: /share/pierson/matt/zoo/models/Qwen3-VL-Embedding-8B
+  model_source: /share/ju/matt/zoo/models/Qwen3-VL-Embedding-8B
 
 raster:
   query_mode: qwen_raw

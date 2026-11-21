@@ -1,0 +1,734 @@
+# @package extract
+# Urban cue schema for the street (angle) case, version 1 (2026-10-26). Claude
+# drafted it on the user's request (D125): "let's write a separate step 2
+# instructions for the street photography case. ... let's align it properly
+# before the smoke test." The user confirmed the border of rule 6 (D126).
+#
+# This is the street variant of `urban_cues_single_v1.yaml`. The street
+# prompt is "Look and tell me a good angle to take a picture from.", thus most
+# of an answer is camera advice, which `single-v1` has no class for. Against
+# `single-v1`:
+#
+# 1. The 5 classes and their attribute values stay the same. The Track C
+#    filter of the descriptor notebook ("inside an inference or a
+#    visual_evidence span") thus means the same thing for the 2 cases.
+# 2. A new class, `photo_advice`, holds the advice and the planned look of
+#    the picture. Without it, the extractor must put advice in the 5 classes
+#    or leave it out, and a short Llama answer that is all advice has nothing
+#    to extract (the cause of the example copies of D121).
+# 3. Rules 6 to 9 set the borders: the place (visual_evidence, inference),
+#    the photograph that the model got (image_artifact), and the picture that
+#    the user will take (photo_advice).
+# 4. The 5 examples are street texts, none from the smoke input. Build them
+#    with `scripts/f4/build_street_cue_examples.py`; its `--check` compares
+#    them with the `target` of the `descriptors-v5` spans.
+#
+# The input is the descriptor input (`f4_street_desc.parquet`, U+2011 is
+# "-"), thus the offsets of this run and of the descriptor run match.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, a
+# value list, or an example. Never edit a version in place.
+#
+# Warning: keep `attribute_values` inside `VOCABULARY` in
+# `notebooks/cvpr/_extractions.py`.
+
+name: urban_cues_street
+schema_version: street-v1
+
+# The longest street text is a qwen3.8-27b trace of 18,183 characters.
+max_char_buffer: 60000
+
+# About 7,000 tokens of instructions and examples, up to about 5,000 tokens
+# of text, and the answer.
+max_model_len: 49152
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+max_tokens: 16384
+use_guided_json: true
+require_extraction: true
+
+attribute_values:
+  visual_evidence:
+    valence: [good, bad, neutral]
+    category: [people, cleanliness, upkeep, greenery, light, signage, traffic,
+               construction, commerce, architecture, color, activity, other]
+  inference:
+    kind: [safety, quality, upkeep, wealth, class, crime, demographic, location, time, brand_knowledge, institution_knowledge, other]
+  person_reference:
+    used_in_judgment: ['yes', 'no']
+  image_artifact:
+    kind: [blur, angle, occlusion, time_of_day, weather, other]
+  uncertainty:
+    reason: [looks_equal, out_of_view, other]
+  photo_advice:
+    kind: [position, framing, equipment, timing, effect, other]
+
+prompt_description: |
+  You read text that a vision-language model wrote about one street-level
+  photograph of a street in New York City. The user asked the model for a
+  good angle to take a picture from. The text is the private reasoning of
+  the model, or its final answer to the user. Extract what the model says.
+  Do not judge the image yourself, and do not add anything the text does not
+  say.
+
+  Use exactly these classes:
+
+  - visual_evidence: a concrete thing of the place that the model says it
+    can see.
+    attributes: valence (good, bad, neutral); category (people, cleanliness,
+    upkeep, greenery, light, signage, traffic, construction, commerce,
+    architecture, color, activity, other)
+  - inference: a claim about the place that the photograph cannot show,
+    which the model draws from what it sees: safety, quality, upkeep, wealth,
+    class, crime, who lives there, where it is, or another claim past the
+    pixels.
+    attributes: kind (safety, quality, upkeep, wealth, class, crime,
+    demographic, location, time, brand_knowledge, institution_knowledge,
+    other)
+  - person_reference: a statement about the people in the photograph.
+    attributes: used_in_judgment (yes, no)
+  - image_artifact: a statement about the photograph that the model got, not
+    about the place: its angle, its framing, the blur, an obstruction, the
+    light, the time of day, the weather, or how flat or cluttered it looks.
+    attributes: kind (blur, angle, occlusion, time_of_day, weather, other)
+  - uncertainty: language that hedges, or that says the model cannot tell.
+    attributes: reason (looks_equal, out_of_view, other)
+  - photo_advice: advice for the picture that the user will take, or what
+    that picture will show or feel.
+    attributes: kind (position: where to stand, how high, where to aim;
+    framing: what to put in the frame and where; equipment: the lens, the
+    settings, a tripod; timing: when to shoot; effect: what the planned
+    picture will show or feel; other)
+
+  Every attribute value must be one of the values listed. Use `other` when no
+  listed value fits. Never invent a value.
+
+  Rules:
+
+  1. Copy each extraction from the text, character for character. It must be
+     a span you can point to in the text. Never paraphrase, never join two
+     parts of the text, and never shorten a phrase to its meaning.
+  2. Do not extract the same span two times. 2 spans never overlap.
+  3. Extract in the order that the spans appear in the text.
+  4. A reasoning trace often opens with the request the model got ("The user
+     wants...", "Analyze the Request"). Extract nothing from that echo. A
+     final answer has no echo.
+  5. Never answer with an empty list. Every text names at least one thing
+     that the model sees or one piece of advice. Extract what is there, and
+     stop. A repeated thought is 1 extraction, not 2.
+  6. Keep 3 subjects apart. The place in the photograph is visual_evidence or
+     inference. The photograph that the model got is image_artifact. The
+     picture that the user will take is photo_advice. What the planned
+     picture will feel or show ("a dramatic feel", "makes the building feel
+     imposing") is photo_advice with kind effect, never inference.
+  7. When advice names a thing of the place for the first time and describes
+     it (a color, a state, a quality, or its place in the frame), extract
+     that thing as visual_evidence, and stop the photo_advice span before it.
+     A thing named with no description stays inside the advice.
+  8. A phrase that says who the people are or what they do is
+     person_reference, inside advice too.
+  9. Extract nothing from headings and the labels of options ("The 'Low
+     Angle' (Dynamic & Powerful)"), from goals, from questions that the
+     model asks itself, and from notes about the plan of its answer. Short
+     words that only join a thing to advice ("You can include") need no
+     extraction.
+
+examples:
+- text: |
+    The user wants a recommendation for a good photo angle based on this image. Let me carefully analyze what's in the scene to give a thoughtful, specific answer rather than a generic one.
+
+    What's in the image: An elevated train viaduct (looks like NYC, the "Resorts World Casino & Hotel" sign suggests Atlantic City or a NYC sign for it—actually the elevated structure with the blue steel girders and the pedestrian walkway on top looks like an NYC elevated line, possibly the 7 line or similar, but the sign is an ad for Resorts World Casino). There's a clear blue sky taking up the top half. Foreground: a sidewalk corner with a traffic signal pole (yellow housing, pedestrian button), a "ONE WAY" sign, a "DO NOT ENTER" sign, an orange-and-white construction barrel, orange traffic cones, a chain-link fence with graffiti on a stone retaining wall, some weeds growing through the sidewalk cracks. The road runs diagonally with shadows from the viaduct structure creating a striped pattern on the asphalt.
+
+    The current framing is a bit flat—the wide angle captures a lot of empty sky and the scene feels scattered. The elements are interesting: the geometry of the elevated structure, the diagonal of the road, the striped shadows, the colorful signage (red casino sign, red DO NOT ENTER, white ONE WAY), the gritty urban texture (graffiti, weeds, barrels).
+  extractions:
+  - extraction_class: visual_evidence
+    extraction_text: An elevated train viaduct
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: inference
+    extraction_text: looks like NYC
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: the "Resorts World Casino & Hotel" sign suggests Atlantic City or a NYC sign for it
+    attributes:
+      kind: location
+  - extraction_class: inference
+    extraction_text: the elevated structure with the blue steel girders and the pedestrian walkway on top looks like an NYC elevated line
+    attributes:
+      kind: location
+  - extraction_class: uncertainty
+    extraction_text: possibly the 7 line or similar
+    attributes:
+      reason: other
+  - extraction_class: visual_evidence
+    extraction_text: the sign is an ad for Resorts World Casino
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: image_artifact
+    extraction_text: a clear blue sky taking up the top half
+    attributes:
+      kind: weather
+  - extraction_class: visual_evidence
+    extraction_text: a sidewalk corner with a traffic signal pole (yellow housing, pedestrian button)
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: visual_evidence
+    extraction_text: a "ONE WAY" sign, a "DO NOT ENTER" sign
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: an orange-and-white construction barrel, orange traffic cones
+    attributes:
+      valence: neutral
+      category: construction
+  - extraction_class: visual_evidence
+    extraction_text: a chain-link fence with graffiti on a stone retaining wall
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: visual_evidence
+    extraction_text: some weeds growing through the sidewalk cracks
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: visual_evidence
+    extraction_text: The road runs diagonally
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: visual_evidence
+    extraction_text: shadows from the viaduct structure creating a striped pattern on the asphalt
+    attributes:
+      valence: neutral
+      category: light
+  - extraction_class: image_artifact
+    extraction_text: The current framing is a bit flat
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: the wide angle captures a lot of empty sky
+    attributes:
+      kind: angle
+  - extraction_class: image_artifact
+    extraction_text: the scene feels scattered
+    attributes:
+      kind: other
+  - extraction_class: visual_evidence
+    extraction_text: the gritty urban texture (graffiti, weeds, barrels)
+    attributes:
+      valence: neutral
+      category: upkeep
+- text: |
+    Here's a thinking process that leads to the suggested photography angles:
+
+    1.  **Analyze the Original Image:**
+        *   **Subject Matter:** A residential-style building (possibly a house or a small institution) partially hidden by trees, a fence, a sidewalk, and parked bicycles/scooters in the foreground.
+        *   **Compositional Issues:**
+            *   *Foreground clutter:* The line of blue scooters/bikes creates a distracting visual barrier.
+            *   *Obscured subject:* The building is largely hidden by a medium-sized tree right in the center.
+            *   *Flat perspective:* The shot is taken straight-on from across the street, making it feel static and a bit "accidental" (like a street-view capture).
+            *   *Lighting/Atmosphere:* Overcast sky, muted colors.
+
+    2.  **Identify the "Hero" of the Scene:**
+        *   What's interesting here? The architecture of the building (especially the arched porch/alcove on the right) and the lush greenery. The people and the bikes are incidental elements.
+
+    3.  **Brainstorm Potential Angles (based on photography principles):**
+
+        *   **Goal 1: Remove Clutter.** How do I get rid of those bikes?
+            *   Move closer (cross the street if safe).
+            *   Change the angle (shoot from a diagonal).
+            *   Change the height (shoot from higher up, or lower down).
+
+        *   **Goal 2: Show the Architecture.** How do I see the building better?
+            *   Move to the right to capture the arched entryway more prominently.
+            *   Move to the left to see the facade.
+            *   Find a gap in the trees.
+
+        *   **Goal 3: Create a "Story" or Composition.** How do I make it look artistic?
+            *   *Framing:* Use the trees to "frame" the building rather than block it.
+            *   *Leading Lines:* Use the sidewalk or the fence to lead the viewer's eye into the image.
+            *   *Depth:* Create distinct foreground, middle ground, and background layers.
+
+    4.  **Develop Specific Recommendations:**
+
+        *   *Option A: The "Architectural Focus" (Clean & Clear)*
+            *   *Action:* Move to the right side of the image. Cross the street (if safe).
+            *   *Angle:* A three-quarter view focusing on that arched entryway.
+            *   *Benefit:* Removes the central tree, removes the bikes, emphasizes the most interesting architectural feature.
+
+        *   *Option B: The "Nature Frame" (Artistic & Moody)*
+            *   *Action:* Stay across the street but move slightly left.
+            *   *Angle:* Shoot *through* the branches of the larger tree on the left.
+            *   *Benefit:* Creates a "peek-a-boo" effect, making the building feel secluded and mysterious.
+
+        *   *Option C: The "Low Angle" (Dynamic & Powerful)*
+            *   *Action:* Get low to the ground (crouch) near the fence.
+            *   *Angle:* Shoot slightly upwards toward the building and the treetops.
+            *   *Benefit:* Makes the architecture feel more imposing and uses the fence as a leading line.
+
+        *   *Option D: The "Human Element" (Candid/Lifestyle)*
+            *   *Action:* Focus on the people sitting by the fence.
+            *   *Angle:* A closer, medium shot of the people, using the building as a blurred background (shallow depth of field).
+            *   *Benefit:* Turns it from a building photo into a street photography piece.
+
+    5.  **Review and Refine:** (Self-Correction)
+        *   *Wait, I should warn the user about safety/privacy.* (Added notes about crossing the street and being respectful of people's space).
+        *   *Ensure the advice is actionable.* Use clear terms like "three-quarter view" or "leading lines."
+  extractions:
+  - extraction_class: visual_evidence
+    extraction_text: A residential-style building
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: uncertainty
+    extraction_text: possibly a house or a small institution
+    attributes:
+      reason: other
+  - extraction_class: image_artifact
+    extraction_text: partially hidden by trees
+    attributes:
+      kind: occlusion
+  - extraction_class: visual_evidence
+    extraction_text: parked bicycles/scooters in the foreground
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: image_artifact
+    extraction_text: The line of blue scooters/bikes creates a distracting visual barrier
+    attributes:
+      kind: occlusion
+  - extraction_class: image_artifact
+    extraction_text: The building is largely hidden by a medium-sized tree right in the center
+    attributes:
+      kind: occlusion
+  - extraction_class: image_artifact
+    extraction_text: The shot is taken straight-on from across the street
+    attributes:
+      kind: angle
+  - extraction_class: image_artifact
+    extraction_text: making it feel static and a bit "accidental" (like a street-view capture)
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: Overcast sky
+    attributes:
+      kind: weather
+  - extraction_class: image_artifact
+    extraction_text: muted colors
+    attributes:
+      kind: other
+  - extraction_class: visual_evidence
+    extraction_text: the arched porch/alcove on the right
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: visual_evidence
+    extraction_text: the lush greenery
+    attributes:
+      valence: good
+      category: greenery
+  - extraction_class: person_reference
+    extraction_text: The people and the bikes are incidental elements
+    attributes:
+      used_in_judgment: 'no'
+  - extraction_class: photo_advice
+    extraction_text: Move closer (cross the street if safe)
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Change the angle (shoot from a diagonal)
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Change the height (shoot from higher up, or lower down)
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Move to the right to capture the arched entryway more prominently
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Move to the left to see the facade
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Find a gap in the trees
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Use the trees to "frame" the building rather than block it
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Use the sidewalk or the fence to lead the viewer's eye into the image
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Create distinct foreground, middle ground, and background layers
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: A three-quarter view focusing on that arched entryway
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Removes the central tree, removes the bikes, emphasizes the most interesting architectural feature
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: Stay across the street but move slightly left
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Shoot *through* the branches of
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the larger tree on the left
+    attributes:
+      valence: neutral
+      category: greenery
+  - extraction_class: photo_advice
+    extraction_text: Creates a "peek-a-boo" effect, making the building feel secluded and mysterious
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: Get low to the ground (crouch) near the fence
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Shoot slightly upwards toward the building and the treetops
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Makes the architecture feel more imposing
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: Focus on
+    attributes:
+      kind: framing
+  - extraction_class: person_reference
+    extraction_text: the people sitting by the fence
+    attributes:
+      used_in_judgment: 'no'
+  - extraction_class: photo_advice
+    extraction_text: A closer, medium shot of the people, using the building as a blurred background (shallow depth of field)
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Turns it from a building photo into a street photography piece
+    attributes:
+      kind: effect
+- text: |
+    The single best move here is to **drop down to street level and line yourself up parallel to the curb, shooting *down* the street** rather than across it. Right now you're a bit too far back and perched above the scene (that rusty green rail in the foreground is the giveaway), so the photo reads as a flat snapshot. If you step to the sidewalk edge and point your camera along the row of parked cars, the maroon SUV becomes a strong foreground anchor, the sidewalk and the little black gate create a leading line that pulls the eye into the distance, and the wall of trees compresses into a nice atmospheric backdrop. The walking pedestrian then lands somewhere near the rule-of-thirds intersection instead of being lost in the middle.
+
+    A few alternates depending on the mood you want:
+
+    - **The quiet residential shot:** stand close to the gray house with the red roof on the left and frame it tight against the trees on the right, cropping out nearly all of that blank overcast sky. The soft, shadowless light is actually perfect for bringing out the leaf texture.
+    - **The candid:** wait for the person to be mid-stride with the tree canopy as a clean background, and shoot from across the street at *their* eye level, not from above. A longer lens (85–135mm) will compress the foliage and isolate them nicely.
+    - **The color pop:** get low beside the maroon SUV so its body fills the lower third and the green wall of trees sits directly behind it—red-on-green is a satisfying contrast under this flat light.
+
+    Quick framing fixes for whichever you pick: keep the sidewalk line on the lower third and **kill most of the sky** (overcast skies are just gray dead space here); **get the rusty rail out of frame** by moving a couple of feet or shifting your height; and **don't slice the white car at the right edge**—either frame it in fully as a counterpoint to the SUV or leave it out.
+
+    In short: get lower, get closer, and shoot *along* the street instead of at it.
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: drop down to street level and line yourself up parallel to the curb, shooting *down* the street
+    attributes:
+      kind: position
+  - extraction_class: image_artifact
+    extraction_text: you're a bit too far back and perched above the scene
+    attributes:
+      kind: angle
+  - extraction_class: visual_evidence
+    extraction_text: that rusty green rail in the foreground
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: image_artifact
+    extraction_text: the photo reads as a flat snapshot
+    attributes:
+      kind: other
+  - extraction_class: photo_advice
+    extraction_text: step to the sidewalk edge and point your camera along the row of parked cars
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the maroon SUV
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: photo_advice
+    extraction_text: becomes a strong foreground anchor
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the little black gate
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: photo_advice
+    extraction_text: create a leading line that pulls the eye into the distance
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the wall of trees
+    attributes:
+      valence: neutral
+      category: greenery
+  - extraction_class: photo_advice
+    extraction_text: compresses into a nice atmospheric backdrop
+    attributes:
+      kind: effect
+  - extraction_class: person_reference
+    extraction_text: The walking pedestrian
+    attributes:
+      used_in_judgment: 'no'
+  - extraction_class: photo_advice
+    extraction_text: lands somewhere near the rule-of-thirds intersection instead of being lost in the middle
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: stand close to
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the gray house with the red roof on the left
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: photo_advice
+    extraction_text: frame it tight against the trees on the right, cropping out nearly all of that blank overcast sky
+    attributes:
+      kind: framing
+  - extraction_class: image_artifact
+    extraction_text: The soft, shadowless light
+    attributes:
+      kind: weather
+  - extraction_class: photo_advice
+    extraction_text: is actually perfect for bringing out the leaf texture
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: wait for the person to be mid-stride with the tree canopy as a clean background
+    attributes:
+      kind: timing
+  - extraction_class: photo_advice
+    extraction_text: shoot from across the street at *their* eye level, not from above
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: A longer lens (85–135mm) will compress the foliage and isolate them nicely
+    attributes:
+      kind: equipment
+  - extraction_class: photo_advice
+    extraction_text: get low beside the maroon SUV so its body fills the lower third and the green wall of trees sits directly behind it
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: red-on-green is a satisfying contrast under this flat light
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: keep the sidewalk line on the lower third
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: kill most of the sky
+    attributes:
+      kind: framing
+  - extraction_class: image_artifact
+    extraction_text: overcast skies are just gray dead space here
+    attributes:
+      kind: weather
+  - extraction_class: photo_advice
+    extraction_text: get the rusty rail out of frame
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: moving a couple of feet or shifting your height
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: don't slice
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the white car at the right edge
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: photo_advice
+    extraction_text: either frame it in fully as a counterpoint to the SUV or leave it out
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: get lower, get closer, and shoot *along* the street instead of at it
+    attributes:
+      kind: position
+- text: |
+    Based on the composition of the scene, here are three distinct angles you could take to get a great shot:
+
+    **1. The "Leading Lines" Perspective (Best for Geometry)**
+    *   **Where to stand:** Step onto the sidewalk across the street from where the photo was taken.
+    *   **What to do:** Align your camera so that the white stripes of the crosswalk lead your eye straight down the center of the image toward the base of the billboard and the street sign ("Tilletsan Av").
+    *   **Why it works:** The parallel lines of the crosswalk create a strong sense of depth and draw attention immediately to the intersection and the tall structure.
+
+    **2. The "Skeletal Skyline" Angle (Best for Atmosphere)**
+    *   **Where to stand:** Stand low to the ground, perhaps near the orange striped cone or the bottom of the utility pole on the left corner.
+    *   **What to do:** Point your camera upward.
+    *   **Why it works:** The billboard frame is a striking, jagged silhouette against the bright blue sky. Shooting from below emphasizes its height and gives the image a dramatic, almost industrial feel.
+
+    **3. The "Depot Life" Angle (Best for Storytelling)**
+    *   **Where to stand:** Move to the right side of the intersection, closer to the line of parked buses and trucks.
+    *   **What to do:** Zoom in slightly to focus on the cluster of vehicles (the black SUV, the white car, and the trailers/buses). You can include the overgrown weeds in the foreground for contrast.
+    *   **Why it works:** It highlights the contrast between the orderly city street in the foreground and the somewhat chaotic, stored-away nature of the vehicle depot behind it.
+
+    **Pro Tip:** If you can wait until "Golden Hour" (shortly after sunrise or before sunset), the long shadows will stretch across the crosswalk, making the geometric pattern even more striking.
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: Step onto the sidewalk across the street from where the photo was taken
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Align your camera so that
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the white stripes of the crosswalk
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: photo_advice
+    extraction_text: lead your eye straight down the center of the image
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the base of the billboard and the street sign ("Tilletsan Av")
+    attributes:
+      valence: neutral
+      category: signage
+  - extraction_class: photo_advice
+    extraction_text: The parallel lines of the crosswalk create a strong sense of depth and draw attention immediately to the intersection and the tall structure
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: Stand low to the ground, perhaps near
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the orange striped cone
+    attributes:
+      valence: neutral
+      category: construction
+  - extraction_class: visual_evidence
+    extraction_text: the utility pole on the left corner
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: photo_advice
+    extraction_text: Point your camera upward
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: The billboard frame is a striking, jagged silhouette against the bright blue sky
+    attributes:
+      valence: good
+      category: signage
+  - extraction_class: photo_advice
+    extraction_text: Shooting from below emphasizes its height and gives the image a dramatic, almost industrial feel
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: Move to the right side of the intersection, closer to
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the line of parked buses and trucks
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: photo_advice
+    extraction_text: Zoom in slightly to focus on
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the cluster of vehicles (the black SUV, the white car, and the trailers/buses)
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: visual_evidence
+    extraction_text: the overgrown weeds in the foreground
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: visual_evidence
+    extraction_text: the orderly city street in the foreground
+    attributes:
+      valence: good
+      category: traffic
+  - extraction_class: inference
+    extraction_text: the somewhat chaotic, stored-away nature of the vehicle depot behind it
+    attributes:
+      kind: other
+  - extraction_class: photo_advice
+    extraction_text: If you can wait until "Golden Hour" (shortly after sunrise or before sunset)
+    attributes:
+      kind: timing
+  - extraction_class: photo_advice
+    extraction_text: the long shadows will stretch across the crosswalk, making the geometric pattern even more striking
+    attributes:
+      kind: effect
+- text: |
+    The best angle to take a picture from would be directly in front of the building, at a slight height to capture the entire facade. This would allow for a clear view of the building's architecture and details, such as the windows, doors, and ornate trim. Additionally, taking the photo from a slight distance would help to capture the building's scale and proportions.
+
+    It's also worth considering taking the photo during the golden hour, when the sun is low in the sky, to add warmth and depth to the image. A wide-angle lens would be ideal for capturing the entire building, and a tripod would help to ensure a sharp image.
+
+    Overall, the key is to find a vantage point that showcases the building's unique features and architecture, while also capturing its scale and proportions.
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: The best angle to take a picture from would be directly in front of the building, at a slight height to capture the entire facade
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: This would allow for a clear view of the building's architecture and details
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the windows, doors, and ornate trim
+    attributes:
+      valence: good
+      category: architecture
+  - extraction_class: photo_advice
+    extraction_text: taking the photo from a slight distance would help to capture the building's scale and proportions
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: taking the photo during the golden hour, when the sun is low in the sky, to add warmth and depth to the image
+    attributes:
+      kind: timing
+  - extraction_class: photo_advice
+    extraction_text: A wide-angle lens would be ideal for capturing the entire building
+    attributes:
+      kind: equipment
+  - extraction_class: photo_advice
+    extraction_text: a tripod would help to ensure a sharp image
+    attributes:
+      kind: equipment
+  - extraction_class: photo_advice
+    extraction_text: find a vantage point that showcases
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the building's unique features and architecture
+    attributes:
+      valence: good
+      category: architecture

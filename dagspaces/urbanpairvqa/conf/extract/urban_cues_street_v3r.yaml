@@ -1,0 +1,555 @@
+# @package extract
+# street-v3r (D130): the RETRY pass of `urban_cues_street_v3.yaml`, written by
+# `scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
+# reverse order, and each `none` example stays at its place. It reads only the
+# texts that got a copy of an example in the first pass.
+name: urban_cues_street
+schema_version: street-v3r
+max_char_buffer: 6000
+context_window_chars: 600
+max_model_len: 32768
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+max_tokens: 6144
+repetition_penalty: 1.0
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+attribute_values:
+  visual_evidence:
+    valence:
+    - good
+    - bad
+    - neutral
+    category:
+    - people
+    - cleanliness
+    - upkeep
+    - greenery
+    - light
+    - signage
+    - traffic
+    - construction
+    - commerce
+    - architecture
+    - color
+    - activity
+    - other
+  inference:
+    kind:
+    - wealth
+    - class
+    - safety
+    - crime
+    - demographic
+    - upkeep
+    - quality
+    - atmosphere
+    - business_type
+    - neighborhood_character
+    - popularity
+    - location
+    - time
+    - brand_knowledge
+    - institution_knowledge
+    - other
+  person_reference:
+    used_in_judgment:
+    - 'yes'
+    - 'no'
+  image_artifact:
+    kind:
+    - blur
+    - angle
+    - occlusion
+    - time_of_day
+    - weather
+    - other
+  uncertainty:
+    reason:
+    - illegible
+    - out_of_view
+    - identity
+    - knowledge
+    - other
+  photo_advice:
+    kind:
+    - position
+    - framing
+    - equipment
+    - timing
+    - effect
+    - other
+prompt_description: "You read text that a vision-language model wrote about one street-level\nphotograph\
+  \ of a street in New York City. The user asked the model for a\ngood angle to take a picture from. A\
+  \ line before the text names the model,\nand tells if the text is its private reasoning or its final\
+  \ answer. The\ntext can be a part of a longer text. Extract what the model says. Do not\njudge the image\
+  \ yourself, and do not add anything the text does not say.\n\nClasses:\n\n- visual_evidence: a thing\
+  \ of the place that the model says it sees, with\n  the words that describe it.\n  attributes: valence\
+  \ (good, bad, neutral); category (people, cleanliness,\n  upkeep, greenery, light, signage, traffic,\
+  \ construction, commerce,\n  architecture, color, activity, other)\n- inference: a claim about the place\
+  \ that the photograph cannot show: who\n  lives there, wealth, class, safety, upkeep, the character\
+  \ of the\n  neighborhood, where it is.\n  attributes: kind (wealth, class, safety, crime, demographic,\
+  \ upkeep,\n  quality, atmosphere, business_type, neighborhood_character, popularity,\n  location, time,\
+  \ brand_knowledge, institution_knowledge, other)\n- person_reference: a statement about the people in\
+  \ the photograph.\n  attributes: used_in_judgment (yes, no)\n- image_artifact: a statement about the\
+  \ photograph that the model got: its\n  angle, its framing, the light, the weather, the blur, what blocks\
+  \ the\n  view, how flat or cluttered it looks.\n  attributes: kind (blur, angle, occlusion, time_of_day,\
+  \ weather, other)\n- uncertainty: language that hedges, or that says the model cannot tell.\n  attributes:\
+  \ reason (illegible, out_of_view, identity, knowledge, other)\n- photo_advice: advice for the picture\
+  \ that the user will take, or what\n  that picture will show or feel.\n  attributes: kind (position,\
+  \ framing, equipment, timing, effect, other)\n- none: the text holds nothing of the classes above. The\
+  \ span is the first\n  words of the text.\n\nRules:\n\n1. Copy each span from the text, character for\
+  \ character. Never\n   paraphrase, and never join two parts of the text.\n2. Extract in text order.\
+  \ Do not extract the same span two times. A\n   repeated thought is 1 extraction.\n3. Keep 3 subjects\
+  \ apart: the place in the photograph (visual_evidence,\n   inference), the photograph that the model\
+  \ got (image_artifact), and the\n   picture that the user will take (photo_advice). What the planned\
+  \ picture\n   will feel or show (\"gives the image a dramatic feel\") is photo_advice\n   with kind\
+  \ effect. A critique word that stays true of a thing of the\n   place when you stand in the street (\"\
+  that rusty green rail\") is\n   visual_evidence. A word that is true only of the frame (\"cluttered\"\
+  ,\n   \"cuts in awkwardly\") is image_artifact.\n4. A photo_advice span is the whole instruction or\
+  \ the whole effect\n   clause: 1 sentence or 1 bullet. When it describes a thing of the place\n   or\
+  \ makes a claim about the place, extract that phrase too, inside the\n   advice span, as visual_evidence\
+  \ or inference. A phrase about people is\n   person_reference, also inside advice.\n5. An inference\
+  \ span is 1 claim of 25 words or fewer.\n6. Notes that describe the image (\"Subject:\", \"Details to\
+  \ notice:\") are\n   evidence. Extract nothing from the echo of the request at the start of\n   a trace,\
+  \ from headings, option labels, goals, or notes about the plan\n   of the answer.\n7. A text with nothing\
+  \ to extract gets 1 none span. Never answer with an\n   empty list.\n"
+examples:
+- text: 'To capture the best angle of this scene, I would recommend taking a photo from the sidewalk in
+    front of the house. This vantage point offers a clear view of the well-manicured front yard, complete
+    with neatly trimmed bushes and trees, as well as the charming brick walkway leading up to the house.
+    The angle also allows for a glimpse of the neighboring houses on either side, adding context to the
+    scene.
+
+
+    By positioning yourself on the sidewalk, you can take advantage of the natural lighting and capture
+    the warm tones of the brick walkway and the lush greenery of the yard. Additionally, this angle provides
+    a sense of depth and perspective, drawing the viewer''s eye towards the house and creating a sense
+    of invitation.
+
+
+    Overall, capturing the scene from this angle will result in a visually appealing and engaging photograph
+    that showcases the beauty of the front yard and the charm of the surrounding neighborhood.
+
+    '
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: I would recommend taking a photo from the sidewalk in front of the house.
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: This vantage point offers a clear view of the well-manicured front yard, complete
+      with neatly trimmed bushes and trees, as well as the charming brick walkway leading up to the house.
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the well-manicured front yard, complete with neatly trimmed bushes and trees
+    attributes:
+      valence: good
+      category: upkeep
+  - extraction_class: visual_evidence
+    extraction_text: the charming brick walkway leading up to the house
+    attributes:
+      valence: good
+      category: architecture
+  - extraction_class: photo_advice
+    extraction_text: The angle also allows for a glimpse of the neighboring houses on either side, adding
+      context to the scene.
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the neighboring houses on either side
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: photo_advice
+    extraction_text: By positioning yourself on the sidewalk, you can take advantage of the natural lighting
+      and capture the warm tones of the brick walkway and the lush greenery of the yard.
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the warm tones of the brick walkway
+    attributes:
+      valence: good
+      category: color
+  - extraction_class: visual_evidence
+    extraction_text: the lush greenery of the yard
+    attributes:
+      valence: good
+      category: greenery
+  - extraction_class: photo_advice
+    extraction_text: Additionally, this angle provides a sense of depth and perspective, drawing the viewer's
+      eye towards the house and creating a sense of invitation.
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: capturing the scene from this angle will result in a visually appealing and engaging
+      photograph that showcases the beauty of the front yard and the charm of the surrounding neighborhood
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the beauty of the front yard
+    attributes:
+      valence: good
+      category: greenery
+  - extraction_class: inference
+    extraction_text: the charm of the surrounding neighborhood
+    attributes:
+      kind: neighborhood_character
+- text: 'The single best move here is to **drop down to street level and line yourself up parallel to
+    the curb, shooting *down* the street** rather than across it. Right now you''re a bit too far back
+    and perched above the scene (that rusty green rail in the foreground is the giveaway), so the photo
+    reads as a flat snapshot. If you step to the sidewalk edge and point your camera along the row of
+    parked cars, the maroon SUV becomes a strong foreground anchor, the sidewalk and the little black
+    gate create a leading line that pulls the eye into the distance, and the wall of trees compresses
+    into a nice atmospheric backdrop. The walking pedestrian then lands somewhere near the rule-of-thirds
+    intersection instead of being lost in the middle.
+
+    '
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: The single best move here is to **drop down to street level and line yourself up
+      parallel to the curb, shooting *down* the street** rather than across it.
+    attributes:
+      kind: position
+  - extraction_class: image_artifact
+    extraction_text: Right now you're a bit too far back and perched above the scene
+    attributes:
+      kind: angle
+  - extraction_class: visual_evidence
+    extraction_text: that rusty green rail in the foreground
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: image_artifact
+    extraction_text: the photo reads as a flat snapshot
+    attributes:
+      kind: other
+  - extraction_class: photo_advice
+    extraction_text: If you step to the sidewalk edge and point your camera along the row of parked cars,
+      the maroon SUV becomes a strong foreground anchor, the sidewalk and the little black gate create
+      a leading line that pulls the eye into the distance, and the wall of trees compresses into a nice
+      atmospheric backdrop.
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the maroon SUV
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: visual_evidence
+    extraction_text: the little black gate
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: visual_evidence
+    extraction_text: the wall of trees
+    attributes:
+      valence: neutral
+      category: greenery
+  - extraction_class: photo_advice
+    extraction_text: The walking pedestrian then lands somewhere near the rule-of-thirds intersection
+      instead of being lost in the middle.
+    attributes:
+      kind: effect
+  - extraction_class: person_reference
+    extraction_text: The walking pedestrian
+    attributes:
+      used_in_judgment: 'no'
+- text: 'The question: "tell me a good angle to take a picture from." So they want a recommendation. I
+    should give concrete, actionable suggestions rather than vague "get closer" type stuff. I should think
+    about what the subject''s intent might be—probably they''re standing where they are and wondering
+    how to improve the shot, or they want to capture the tree/neighborhood vibe.
+
+
+    Let me think about several distinct angles and why each works, then pick a top recommendation. I want
+    to be specific about body position relative to the visible landmarks (the tree, the SUV, the bins,
+    the foreground car).
+
+    '
+  extractions:
+  - extraction_class: none
+    extraction_text: 'The question: "tell me'
+- text: '**2. The "Skeletal Skyline" Angle (Best for Atmosphere)**
+
+    *   **Where to stand:** Stand low to the ground, perhaps near the orange striped cone or the bottom
+    of the utility pole on the left corner.
+
+    *   **What to do:** Point your camera upward.
+
+    *   **Why it works:** The billboard frame is a striking, jagged silhouette against the bright blue
+    sky. Shooting from below emphasizes its height and gives the image a dramatic, almost industrial feel.
+
+
+    **3. The "Depot Life" Angle (Best for Storytelling)**
+
+    *   **Where to stand:** Move to the right side of the intersection, closer to the line of parked buses
+    and trucks.
+
+    *   **What to do:** Zoom in slightly to focus on the cluster of vehicles (the black SUV, the white
+    car, and the trailers/buses). You can include the overgrown weeds in the foreground for contrast.
+
+    *   **Why it works:** It highlights the contrast between the orderly city street in the foreground
+    and the somewhat chaotic, stored-away nature of the vehicle depot behind it.
+
+    '
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: Stand low to the ground, perhaps near the orange striped cone or the bottom of the
+      utility pole on the left corner.
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: the orange striped cone
+    attributes:
+      valence: neutral
+      category: construction
+  - extraction_class: photo_advice
+    extraction_text: Point your camera upward.
+    attributes:
+      kind: position
+  - extraction_class: visual_evidence
+    extraction_text: The billboard frame is a striking, jagged silhouette against the bright blue sky.
+    attributes:
+      valence: good
+      category: signage
+  - extraction_class: photo_advice
+    extraction_text: Shooting from below emphasizes its height and gives the image a dramatic, almost
+      industrial feel.
+    attributes:
+      kind: effect
+  - extraction_class: photo_advice
+    extraction_text: Move to the right side of the intersection, closer to the line of parked buses and
+      trucks.
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: You can include the overgrown weeds in the foreground for contrast.
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the overgrown weeds in the foreground
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: photo_advice
+    extraction_text: It highlights the contrast between the orderly city street in the foreground and
+      the somewhat chaotic, stored-away nature of the vehicle depot behind it.
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the orderly city street in the foreground
+    attributes:
+      valence: good
+      category: traffic
+  - extraction_class: inference
+    extraction_text: the somewhat chaotic, stored-away nature of the vehicle depot behind it
+    attributes:
+      kind: neighborhood_character
+- text: "3.  **Brainstorming Different Angles/Styles:**\n\n    *   **Style A: Architectural/Clean (Showcasing\
+    \ the building's form)**\n        *   *Idea:* Get away from the messy foreground.\n        *   *Angle:*\
+    \ A low angle looking up to make it look taller and more imposing.\n        *   *Angle:* A corner\
+    \ shot to see the depth of the building.\n\n    *   **Style B: Street Photography/Gritty (Capturing\
+    \ the \"vibe\")**\n        *   *Idea:* Lean into the urban, lived-in feel.\n        *   *Angle:* A\
+    \ wide-angle shot from across the street to include the context of the neighborhood.\n        *  \
+    \ *Angle:* Close-ups on textures (the brick, the window AC, the old fence).\n\n    *   **Style C:\
+    \ Artistic/Cinematic (Using framing and light)**\n        *   *Idea:* Use the surrounding elements\
+    \ to frame the building.\n        *   *Angle:* Shoot through the trees or through the fence.\n   \
+    \     *   *Angle:* Go for a \"Dutch tilt\" (slightly slanted) for a more uneasy or dynamic feeling.\n"
+  extractions:
+  - extraction_class: photo_advice
+    extraction_text: Get away from the messy foreground.
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: A low angle looking up to make it look taller and more imposing.
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: A corner shot to see the depth of the building.
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Lean into the urban, lived-in feel.
+    attributes:
+      kind: framing
+  - extraction_class: inference
+    extraction_text: the urban, lived-in feel
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: photo_advice
+    extraction_text: A wide-angle shot from across the street to include the context of the neighborhood.
+    attributes:
+      kind: position
+  - extraction_class: photo_advice
+    extraction_text: Close-ups on textures (the brick, the window AC, the old fence).
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the old fence
+    attributes:
+      valence: neutral
+      category: upkeep
+  - extraction_class: photo_advice
+    extraction_text: Use the surrounding elements to frame the building.
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Shoot through the trees or through the fence.
+    attributes:
+      kind: framing
+  - extraction_class: photo_advice
+    extraction_text: Go for a "Dutch tilt" (slightly slanted) for a more uneasy or dynamic feeling.
+    attributes:
+      kind: effect
+- text: 'The user wants photographic angle suggestions for this scene. Let me look carefully at what''s
+    in the frame and think about what makes a composition work here.
+
+
+    What''s in the image: A large spreading tree dominates the center and upper portion, its canopy filling
+    most of the sky. Behind it are brick houses—residential, looks like a working-class neighborhood.
+    There''s a black SUV (Audi) parked in a driveway on the right, three trash/recycling bins (dark, dark,
+    blue) in front of the tree base. In the foreground bottom-left is the glossy black roof and rear window
+    of another car, very close to the camera. Power lines cross the upper left. There''s dappled sunlight,
+    blue sky peeking through leaves. Stairs and porches on the houses. A small round window on the right
+    brick house.
+
+
+    The current framing is a bit cluttered—the foreground car roof cuts in awkwardly, the bins are mid-frame
+    and a bit distracting, the tree is the star but it''s competing with the cars.
+
+    '
+  extractions:
+  - extraction_class: visual_evidence
+    extraction_text: A large spreading tree dominates the center and upper portion
+    attributes:
+      valence: neutral
+      category: greenery
+  - extraction_class: visual_evidence
+    extraction_text: brick houses
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: inference
+    extraction_text: residential
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: inference
+    extraction_text: looks like a working-class neighborhood
+    attributes:
+      kind: class
+  - extraction_class: visual_evidence
+    extraction_text: a black SUV (Audi) parked in a driveway on the right
+    attributes:
+      valence: neutral
+      category: traffic
+  - extraction_class: visual_evidence
+    extraction_text: three trash/recycling bins (dark, dark, blue) in front of the tree base
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: image_artifact
+    extraction_text: the glossy black roof and rear window of another car, very close to the camera
+    attributes:
+      kind: occlusion
+  - extraction_class: visual_evidence
+    extraction_text: Power lines cross the upper left
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: image_artifact
+    extraction_text: There's dappled sunlight
+    attributes:
+      kind: weather
+  - extraction_class: visual_evidence
+    extraction_text: Stairs and porches on the houses
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: image_artifact
+    extraction_text: The current framing is a bit cluttered
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: the foreground car roof cuts in awkwardly
+    attributes:
+      kind: occlusion
+  - extraction_class: image_artifact
+    extraction_text: the bins are mid-frame and a bit distracting
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: the tree is the star but it's competing with the cars
+    attributes:
+      kind: other
+- text: "Here's a thinking process that leads to the suggested angles:\n\n1.  **Analyze the Original Image:**\n\
+    \    *   **Subject:** A three-story tan/brown brick apartment building.\n    *   **Context:** Urban/residential\
+    \ setting. There's a fence, some messy vegetation, a sidewalk, and some other buildings/trees nearby.\n\
+    \    *   **Composition:** Very flat, straight-on \"documentary\" style. It lacks depth, dynamic angles,\
+    \ or clear focal points. It feels a bit dull.\n    *   **Lighting:** Overcast, flat light. No strong\
+    \ shadows to define texture.\n    *   **Details to notice:**\n        *   Vertical alignment of three\
+    \ windows (one with AC).\n        *   The \"messy\" foreground (fence, weeds, trash).\n        * \
+    \  The neighboring house on the left.\n        *   The trees framing the top left/right.\n       \
+    \ *   The utility lines across the top.\n"
+  extractions:
+  - extraction_class: visual_evidence
+    extraction_text: A three-story tan/brown brick apartment building
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: inference
+    extraction_text: Urban/residential setting
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: visual_evidence
+    extraction_text: some messy vegetation
+    attributes:
+      valence: bad
+      category: greenery
+  - extraction_class: image_artifact
+    extraction_text: Very flat, straight-on "documentary" style
+    attributes:
+      kind: angle
+  - extraction_class: image_artifact
+    extraction_text: It lacks depth, dynamic angles, or clear focal points
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: It feels a bit dull
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: Overcast, flat light
+    attributes:
+      kind: weather
+  - extraction_class: image_artifact
+    extraction_text: No strong shadows to define texture
+    attributes:
+      kind: weather
+  - extraction_class: visual_evidence
+    extraction_text: Vertical alignment of three windows (one with AC)
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: visual_evidence
+    extraction_text: The "messy" foreground (fence, weeds, trash)
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: visual_evidence
+    extraction_text: The neighboring house on the left
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: visual_evidence
+    extraction_text: The trees framing the top left/right
+    attributes:
+      valence: neutral
+      category: greenery
+  - extraction_class: visual_evidence
+    extraction_text: The utility lines across the top
+    attributes:
+      valence: neutral
+      category: other

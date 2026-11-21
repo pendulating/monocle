@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=12:00:00
-#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-embed/%j.out
-#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-embed/%j.err
+#SBATCH --output=/share/ju/matt/mllmsci/.slurm_jobs/trashbot-embed/%j.out
+#SBATCH --error=/share/ju/matt/mllmsci/.slurm_jobs/trashbot-embed/%j.err
 
 # Embed TrashBot event keyframes with Qwen3-VL-Embedding-8B.
 #
@@ -27,10 +27,10 @@ echo "=== TrashBot event keyframe embedding ==="
 date
 echo ""
 
-REPO_DIR="/share/pierson/matt/mllmsci"
+REPO_DIR="/share/ju/matt/mllmsci"
 TOOL_DIR="$REPO_DIR/tools/trashbot_annotator"
 DRIVER_VENV="$REPO_DIR/.venv-mllmsci-vllm025cu129"
-ZOO="${MLLMSCI_MODEL_ZOO:-/share/pierson/matt/zoo/models}"
+ZOO="${MLLMSCI_MODEL_ZOO:-/share/ju/matt/zoo/models}"
 REGISTRY="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
 # The 8B embedding model is the strongest multimodal embedder in the

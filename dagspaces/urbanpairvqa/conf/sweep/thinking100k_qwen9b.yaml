@@ -1,0 +1,65 @@
+# @package _global_
+# THINKING MODE at scale — qwen3.5-9b, all 7 cases, 100,000 pairs for each.
+#
+# The 10x scale-up of `looks_thinking_qwen9b.yaml` (10,000 pairs). Read that
+# file for the thinking-mode contract: the `qwen3` reasoning parser and the
+# sampling that must not be greedy. The companion is
+# `thinking100k_gemma12b.yaml`, whose header explains the pair table and the
+# launch. This file repeats only what differs.
+#
+# ─── Pairs ───────────────────────────────────────────────────────────────────
+# The cut of the 1,000,000-pair table, `multirun/pair_tables_100k_of_1m`.
+# Every image is in the image pack, and every row joins the greedy canonical
+# battery on `pair_id` at 100%. `max_pairs` must equal the canonical pairs
+# the cut kept.
+#
+# ─── Layout ──────────────────────────────────────────────────────────────────
+# The default `images_then_text`, the layout of the qwen proxy runs and of the
+# registered qwen trace runs. Only gemma-4-12b needs a text anchor between the
+# images.
+#
+# ─── Cost ────────────────────────────────────────────────────────────────────
+# qwen pays about 3.5x the prefill of gemma for the same pair and holds a
+# 12,288-token window: 3.3 to 4.6 s for each row (10 to 14 h for 11,000 rows).
+# A case holds about 110,000 rows, thus 100 to 140 GPU-hours, and the 7 cases
+# 700 to 980 GPU-hours. 40 shards of about 2,750 rows take 2.5 to 3.5 h each,
+# inside the 480-minute walltime. A preemption costs 1 chunk of 512 rows.
+#
+# Warning: NOT canonical for the proxy table, and a `register` over this root
+# would replace the 11,000-row trace runs. See the gemma file.
+
+sampling_params_vqa:
+  # Qwen's thinking-mode values. Thinking mode must not be greedy.
+  temperature: 1.0
+  top_p: 0.95
+  # The prompt is about 2,220 tokens, thus 8,192 fits the 12,288 window.
+  max_tokens: 8192
+
+prompt:
+  structured_output:
+    allow_not_sure: true
+
+pair_sampler:
+  max_pairs: 100000
+  shard_count: 40
+
+runtime:
+  resume: true
+  resume_chunk_rows: 512
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 128
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct_thinking
+      # The shard AXIS. `submit_shards` reads the number of shards from here.
+      pair_sampler.shard_index: range(0,40)
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

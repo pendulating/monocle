@@ -32,9 +32,16 @@
 sampling_params_vqa:
   # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0
   # (see conf/config.yaml), but greedy decoding degenerates into repetition over
-  # long reasoning traces. Pinned here to Qwen's thinking-mode recommendation.
+  # long reasoning traces.
+  #
+  # These are Google's standard sampling settings for gemma-4: temperature 1.0,
+  # top_p 0.95, top_k 64 (gemma-4 model card, "Sampling Parameters"). top_k was
+  # absent before 2026-08-20, so a run before that date sampled the thought
+  # channel from the full vocabulary. top_k shapes the THOUGHT text only — the
+  # answer enum stays masked by guided decoding.
   temperature: 1.0
   top_p: 0.95
+  top_k: 64
   max_tokens: 8192
 
 pair_sampler:

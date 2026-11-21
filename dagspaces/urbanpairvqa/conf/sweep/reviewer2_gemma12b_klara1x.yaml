@@ -13,13 +13,13 @@
 # "Failed to apply prompt replacement for mm_items['image'][0]".
 #
 # *** VENV: must launch the driver on .venv-nightly (vLLM 0.23 cu129). ***
-#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+#   export MLLMSCI_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-nightly/bin/activate
 #   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun ...
 #
 # Arms (one invocation each, serial — array_parallelism=1):
 #
 # A0 retest + A1-A4 prompt variants (5 runs):
-#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-nightly/bin/activate
+#   export MLLMSCI_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-nightly/bin/activate
 #   .venv-nightly/bin/python -m dagspaces.urbanpairvqa.cli --multirun \
 #       +sweep=reviewer2_gemma12b_klara1x pipeline=pairwise_subway_safety_mvp \
 #       prompt.structured_output.allow_not_sure=true \

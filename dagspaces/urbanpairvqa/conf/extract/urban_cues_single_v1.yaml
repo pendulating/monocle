@@ -1,0 +1,313 @@
+# @package extract
+# Urban cue schema for 1 image, version 1 (2026-10-24). Claude drafted it
+# (d-0012, D94, d-0013). The user reviewed and edited it, and confirmed it on
+# 2026-10-24 (d-0015, d-0016).
+#
+# This is the single-image variant of `urban_cues_v2.yaml`, for the F4 traces
+# (`data/f4_traces/f4_traces_1k.parquet`). An F4 prompt shows 1 photograph of
+# a restaurant facade, not 2. Thus, against version 2:
+#
+# 1. The `image` attribute (A, B, both, unclear) is gone from every class.
+# 2. The `comparison` class is gone.
+# 3. The `decision` class is gone. Its only attribute is a label of the
+#    pairwise scale, and an F4 answer is free text with no label.
+# 4. Rule 7 of version 2 (a list of labels is not evidence) is gone, because
+#    the F4 prompts give no labels.
+# 5. The text can be a reasoning trace or a final answer (D95). Rule 4 tells
+#    the model that only a reasoning trace opens with the echo.
+# 6. The 4 examples come from F4: 2 reasoning traces, 1 final answer, and 1
+#    negative example (the echo).
+# 7. The user changed the enums on review (2026-10-24, d-0015):
+#    - visual_evidence.category adds `color` and `activity`.
+#    - inference.kind adds `location`, `time`, `brand_knowledge`, and
+#      `institution_knowledge`.
+#    - uncertainty.reason drops `cannot_see`.
+#
+# Every `extraction_text` appears in its own `text` word for word. The aligner
+# matches the span against the source, thus a paraphrase can never align.
+# `langextract_backend.validate_examples` also tests each attribute value
+# against the enum.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, a
+# value list, or an example. Never edit a version in place. The version
+# reaches every output row, and 2 versions must never pool.
+#
+# Warning: keep `attribute_values` inside `VOCABULARY` in
+# `notebooks/cvpr/_extractions.py`. That table is the union of every version,
+# and the normaliser turns a value that it lacks into `other`.
+
+name: urban_cues_single
+schema_version: single-v1
+
+# 1 trace must become 1 chunk. The longest F4 text is a qwen3.5-9b restaurant
+# trace of 55,231 characters (the reruns at 16,384 tokens, D91). The 99th
+# percentile of that run is 47,455. All other runs stay under 22,000.
+max_char_buffer: 60000
+
+# About 3,000 tokens of instructions and examples, up to about 15,000 tokens
+# of trace, and the answer.
+max_model_len: 49152
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+
+# The version 2 cap. See the warning there: a cap that is too low loses the
+# whole answer, not its tail.
+max_tokens: 16384
+use_guided_json: true
+require_extraction: true
+
+# The values the model may write. The grammar enforces them.
+attribute_values:
+  visual_evidence:
+    valence: [good, bad, neutral]
+    category: [people, cleanliness, upkeep, greenery, light, signage, traffic,
+               construction, commerce, architecture, color, activity, other]
+  inference:
+    kind: [safety, quality, upkeep, wealth, class, crime, demographic, location, time, brand_knowledge, institution_knowledge, other]
+  person_reference:
+    used_in_judgment: ['yes', 'no']
+  image_artifact:
+    kind: [blur, angle, occlusion, time_of_day, weather, other]
+  uncertainty:
+    reason: [looks_equal, out_of_view, other]
+
+prompt_description: |
+  You read text that a vision-language model wrote about one street-level
+  photograph of a restaurant in New York City. The text is the private
+  reasoning of the model, or its final answer to the user. Extract what the
+  model says. Do not judge the image yourself, and do not add anything the
+  text does not say.
+
+  Use exactly these classes:
+
+  - visual_evidence: a concrete thing the model says it can see.
+    attributes: valence (good, bad, neutral); category (people, cleanliness,
+    upkeep, greenery, light, signage, traffic, construction, commerce,
+    architecture, color, activity, other)
+  - inference: a claim the photograph cannot show, which the model draws from
+    what it sees: safety, quality, upkeep, wealth, class, crime, who lives
+    there, or another claim past the pixels.
+    attributes: kind (safety, quality, upkeep, wealth, class, crime,
+    demographic, location, time, brand_knowledge, institution_knowledge,
+    other)
+  - person_reference: a statement about the people in the photograph.
+    attributes: used_in_judgment (yes, no)
+  - image_artifact: a statement about the photograph itself, not about the
+    place: the angle, the blur, an obstruction, the time of day, the weather.
+    attributes: kind (blur, angle, occlusion, time_of_day, weather, other)
+  - uncertainty: language that hedges, or that says the model cannot tell.
+    attributes: reason (looks_equal, out_of_view, other)
+
+  Every attribute value must be one of the values listed. Use `other` when no
+  listed value fits. Never invent a value.
+
+  Rules:
+
+  1. Copy each extraction from the text, character for character. It must be
+     a span you can point to in the text. Never paraphrase, never join two
+     parts of the text, and never shorten a phrase to its meaning.
+  2. Do not extract the same span two times.
+  3. Extract in the order that the spans appear in the text.
+  4. A reasoning trace often opens with the request the model got ("The user
+     wants...", "Analyze the Request"). Extract nothing from that echo. A
+     final answer has no echo.
+  5. Never answer with an empty list. Every text names at least one thing
+     that the model sees. Extract what is there, and stop. A repeated thought
+     is 1 extraction, not 2.
+
+examples:
+  # 1. Restaurant prompt, gemma-4-31b reasoning (F4 image_idx 470, HOMEMADE
+  #    TAQUERIA). Holds signage, inferences past the pixels (cuisine,
+  #    borough), an artifact of the frame, and hedges. The later steps repeat
+  #    the early ones and give nothing new.
+  - text: |
+      Here's a thinking process that leads to the desired answer:
+
+      1.  **Analyze the Request:**
+          *   Goal: Tell the user "more about this restaurant."
+          *   Input: An image showing a street scene with several businesses.
+
+      2.  **Examine the Image:**
+          *   I see several storefronts.
+          *   One is "ARIANA WIRELESS" (a phone store).
+          *   One is "UNITY CAR SERVICE" (a taxi/car service).
+          *   One is a restaurant: The sign says "HOMEMADE" and "Tacos" (vertical sign). Below "HOMEMADE" it says "Specialty" (though slightly cut off). The awning is orange.
+          *   There's an address visible above the wireless store: "87-64 PARSONS BLVD".
+          *   There's a phone number on the orange awning: "718-880-2515".
+          *   The restaurant is located next to Ariana Wireless.
+
+      3.  **Identify the Specific "Restaurant":**
+          *   Based on the visual cues, the restaurant is the one with the orange awning and the vertical "TACOS" sign.
+
+      4.  **Extract Information from the Image (What can I *see*?):**
+          *   **Name ( partial/inferred):** The main sign says "HOMEMADE" with a subtitle "Specialty". A vertical sign says "TACOS".
+          *   **Cuisine:** Tacos/Mexican (implied by the "TACOS" sign).
+          *   **Location:** Near 87-64 Parsons Blvd (based on the neighbor's address). Parsons Blvd is a well-known street in Queens, NY.
+          *   **Phone Number:** 718-880-2515.
+          *   **Visuals:** Orange awning, some food items visible in a window/display area on the left.
+
+      5.  **Synthesize the Findings (Drafting the response):**
+          *   *Initial thought:* It's a taco place called Homemade Specialty on Parsons Blvd.
+          *   *Refining based on image details:* I should be specific about what I see.
+          *   *Adding context:* The phone number and the general area (Queens, NY, based on the "718" area code and Parsons Blvd).
+
+      6.  **Final Polish (matching the user's request for "more about this restaurant"):**
+          *   State clearly which business is the restaurant.
+          *   List the details found: Name (Homemade), key food item (Tacos), location (Parsons Blvd), and contact info.
+          *   Note the limitations (I can't see a full menu or reviews from just the image).
+
+      7.  **Final Output Generation:** (This matches the provided good response).
+    extractions:
+      - extraction_class: visual_evidence
+        extraction_text: '"ARIANA WIRELESS" (a phone store)'
+        attributes: {valence: neutral, category: commerce}
+      - extraction_class: visual_evidence
+        extraction_text: '"UNITY CAR SERVICE" (a taxi/car service)'
+        attributes: {valence: neutral, category: commerce}
+      - extraction_class: visual_evidence
+        extraction_text: 'The sign says "HOMEMADE" and "Tacos" (vertical sign)'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: image_artifact
+        extraction_text: 'slightly cut off'
+        attributes: {kind: other}
+      - extraction_class: visual_evidence
+        extraction_text: 'The awning is orange'
+        attributes: {valence: neutral, category: commerce}
+      - extraction_class: visual_evidence
+        extraction_text: 'an address visible above the wireless store: "87-64 PARSONS BLVD"'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: visual_evidence
+        extraction_text: 'a phone number on the orange awning: "718-880-2515"'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: uncertainty
+        extraction_text: 'Name ( partial/inferred)'
+        attributes: {reason: other}
+      - extraction_class: inference
+        extraction_text: 'Tacos/Mexican (implied by the "TACOS" sign)'
+        attributes: {kind: other}
+      - extraction_class: inference
+        extraction_text: 'Parsons Blvd is a well-known street in Queens, NY'
+        attributes: {kind: location}
+      - extraction_class: visual_evidence
+        extraction_text: 'some food items visible in a window/display area on the left'
+        attributes: {valence: neutral, category: commerce}
+      - extraction_class: uncertainty
+        extraction_text: 'I can''t see a full menu or reviews from just the image'
+        attributes: {reason: other}
+
+  # 2. Caption prompt, qwen3.8-27b reasoning (F4 image_idx 785, ALLISSGEOVA).
+  #    Holds a person reference, judgments of upkeep, a location inferred from
+  #    an address, and hedges about that location.
+  - text: |
+      The user wants an Instagram caption for this street scene. Let me look carefully at what's actually in the frame so the caption feels grounded, not generic.
+
+      What do I see? A row of small storefronts under a clear blue sky. Signs: "Stylus N-Cuts," a teal "ALLISGEOVA" awning with a phone number, "Sonia's Unisex Salon" in purple with a pink script logo, and a red "ISLAND CLOCK" restaurant/bar sign with a little palm tree logo and a Jamaican flag. There's a blacked-out shutter on the Island Clock. Cars parked in front—a gray crossover and a silver SUV with someone in a red hoodie driving. A tangle of power lines crisscrosses the sky against the blue. A utility pole leaning in.
+
+      The vibe: everyday, unglamorous, local, the kind of block where the salon is next to the eatery and the power lines are a feature not a bug. There's something nostalgic and authentic about it—corner shops, hand-painted-ish signage, a flag flying, a car rolling by. It's a "local gems / neighborhood energy" type of photo.
+
+      Now, what makes a good Instagram caption here? Options I'm weighing:
+
+      1. Generic "beautiful day" caption — too lazy, doesn't reflect the specific grit and charm.
+      2. Overly poetic/pretentious — would clash with the slightly run-down realism.
+      3. Warm, observational, a little wry, celebrating the unglamorous local strip — this matches the image best. It honors the specific details (salon next to the island spot, the wires, the blue sky, the cars passing).
+
+      I want to capture the "third place" feeling, the in-between moments, the way a neighborhood reveals itself in its signage. Maybe a touch of humor about the tangled power lines reading like abstract art or a "web" of connections. I'll keep it not too long, with a line or two that's quotable, then a few hashtags that are actually relevant (not a wall of random tags).
+
+      Let me make sure I don't fabricate a location I can't see. The signs mention "711 Beach 20th St" and "711-A Beach 20 St" — that's Beach 20th Street, which is in Far Rockaway, Queens, NY (the 716/718 area codes... the phone numbers start with 347 and 718, both NYC). So I can safely nod to "Far Rockaway / the Rock" or keep it to "the block" without overcommitting. Actually the address reads "711 Beach 20th St" — that's plausibly Far Rockaway. I'll keep the location light to avoid being wrong; I can mention "the Rock" softly or just keep it generic-neighborhood. Better to keep it about the feeling and let the signs speak. I'll add a subtle nod without overclaiming.
+
+      Tone: warm, a little poetic, grounded, one wry line. End with a question or a small invitation to engage (classic IG move but I'll keep it natural). Hashtags: a handful, specific-ish.
+
+      Let me draft and trim. I'll avoid clichés like "blessed" or "living my best life." I'll mention the salon + island spot juxtaposition and the wires.
+
+      Final caption structure: a hook line, a couple of evocative lines referencing details, a wry closer, then hashtags on their own line.
+    extractions:
+      - extraction_class: image_artifact
+        extraction_text: 'a clear blue sky'
+        attributes: {kind: weather}
+      - extraction_class: visual_evidence
+        extraction_text: 'a teal "ALLISGEOVA" awning with a phone number'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: visual_evidence
+        extraction_text: '"Sonia''s Unisex Salon" in purple with a pink script logo'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: visual_evidence
+        extraction_text: 'a red "ISLAND CLOCK" restaurant/bar sign with a little palm tree logo and a Jamaican flag'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: visual_evidence
+        extraction_text: 'a blacked-out shutter on the Island Clock'
+        attributes: {valence: neutral, category: commerce}
+      - extraction_class: visual_evidence
+        extraction_text: 'Cars parked in front'
+        attributes: {valence: neutral, category: traffic}
+      - extraction_class: person_reference
+        extraction_text: 'someone in a red hoodie driving'
+        attributes: {used_in_judgment: 'no'}
+      - extraction_class: visual_evidence
+        extraction_text: 'A tangle of power lines crisscrosses the sky'
+        attributes: {valence: neutral, category: other}
+      - extraction_class: visual_evidence
+        extraction_text: 'A utility pole leaning in'
+        attributes: {valence: neutral, category: other}
+      - extraction_class: inference
+        extraction_text: 'everyday, unglamorous, local'
+        attributes: {kind: other}
+      - extraction_class: visual_evidence
+        extraction_text: 'hand-painted-ish signage'
+        attributes: {valence: neutral, category: signage}
+      - extraction_class: inference
+        extraction_text: 'the slightly run-down realism'
+        attributes: {kind: upkeep}
+      - extraction_class: inference
+        extraction_text: 'that''s Beach 20th Street, which is in Far Rockaway, Queens, NY'
+        attributes: {kind: location}
+      - extraction_class: uncertainty
+        extraction_text: 'that''s plausibly Far Rockaway'
+        attributes: {reason: other}
+      - extraction_class: uncertainty
+        extraction_text: 'I''ll keep the location light to avoid being wrong'
+        attributes: {reason: other}
+
+  # 3. Restaurant prompt, llama-3.2-90b final answer (F4 image_idx 481,
+  #    DOMINO'S). A final answer has no echo, and the first sentence already
+  #    holds evidence.
+  - text: |
+      The restaurant in the image is a Domino's Pizza location. It is situated on the ground floor of a multi-story building, with its entrance and storefront visible in the image. The building appears to be a residential or mixed-use structure, with several windows and balconies above the restaurant. The overall atmosphere suggests a bustling urban area, with a blue car parked in front of the building and a few bicycles leaning against a nearby tree.
+    extractions:
+      - extraction_class: visual_evidence
+        extraction_text: 'a Domino''s Pizza location'
+        attributes: {valence: neutral, category: commerce}
+      - extraction_class: visual_evidence
+        extraction_text: 'the ground floor of a multi-story building'
+        attributes: {valence: neutral, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'The building appears to be a residential or mixed-use structure'
+        attributes: {kind: other}
+      - extraction_class: visual_evidence
+        extraction_text: 'several windows and balconies above the restaurant'
+        attributes: {valence: neutral, category: architecture}
+      - extraction_class: inference
+        extraction_text: 'a bustling urban area'
+        attributes: {kind: other}
+      - extraction_class: visual_evidence
+        extraction_text: 'a blue car parked in front of the building'
+        attributes: {valence: neutral, category: traffic}
+      - extraction_class: visual_evidence
+        extraction_text: 'a few bicycles leaning against a nearby tree'
+        attributes: {valence: neutral, category: traffic}
+
+  # 4. The negative example: the echo that opens a gemma-4-31b restaurant
+  #    trace (the start of example 1). That echo is not evidence.
+  #
+  #    Warning: the LangExtract example check raises on an example with no
+  #    span. `langextract_backend.validate_examples` runs the check over the
+  #    examples that have a span, and `extract_documents` turns the built-in
+  #    check off.
+  - text: |
+      Here's a thinking process that leads to the desired answer:
+
+      1.  **Analyze the Request:**
+          *   Goal: Tell the user "more about this restaurant."
+          *   Input: An image showing a street scene with several businesses.
+    extractions: []

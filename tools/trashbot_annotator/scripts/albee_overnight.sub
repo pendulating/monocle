@@ -4,8 +4,8 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=64G
 #SBATCH --time=24:00:00
-#SBATCH --output=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-albee/%j.out
-#SBATCH --error=/share/pierson/matt/mllmsci/.slurm_jobs/trashbot-albee/%j.err
+#SBATCH --output=/share/ju/matt/mllmsci/.slurm_jobs/trashbot-albee/%j.out
+#SBATCH --error=/share/ju/matt/mllmsci/.slurm_jobs/trashbot-albee/%j.err
 
 # Process all Albee Square footage through the four channels.
 #
@@ -33,14 +33,14 @@
 
 set -uo pipefail
 
-REPO_DIR="/share/pierson/matt/mllmsci"
+REPO_DIR="/share/ju/matt/mllmsci"
 TOOL_DIR="$REPO_DIR/tools/trashbot_annotator"
 CLI="$TOOL_DIR/.venv/bin/trashbot-annotate"
 OUT="${OUT:-$TOOL_DIR/outputs/albee_v2}"
 SERVER_URL="${SERVER_URL:-http://klara:8001}"
 N_SHARDS="${N_SHARDS:-4}"
-FFMPEG="/share/pierson/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg"
-export LD_LIBRARY_PATH="/share/pierson/matt/zoo/ffmpeg-libs/n7.1/lib:${LD_LIBRARY_PATH:-}"
+FFMPEG="/share/ju/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg"
+export LD_LIBRARY_PATH="/share/ju/matt/zoo/ffmpeg-libs/n7.1/lib:${LD_LIBRARY_PATH:-}"
 
 # Warning: do not write to /tmp. This cluster gives /tmp 15 GB for all
 # users, and one earlier run filled it. Both the per-call config file and

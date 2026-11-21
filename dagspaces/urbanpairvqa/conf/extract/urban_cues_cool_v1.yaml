@@ -1,0 +1,540 @@
+# Copy of urban_cues_street_subj_v1 for the read prompt, by scripts/f10/build_cool_schemas.py.
+# @package extract
+# Urban cue schema for the street case, the subjective prompt (F9, D139 and
+# D140), version 1 (2026-10-30). Accepted by D142; the F9 x2 round uses it.
+#
+# The F9 prompt asks for a judgment: "Would this street make a good spot
+# for taking a photo?". The F4 prompt asked for an angle. This schema is
+# `street-v3` plus 1 class, `verdict`, that holds the answer of the model.
+# Every other class, attribute and value list is the text of `street-v3`,
+# thus the `visual_evidence` valence of the F9 answers stays comparable with
+# the F4 answers on the same images (runbook F9, step 6; F8.1 method B).
+#
+# Against `street-v3`:
+#
+# a. The class `verdict` with the attribute `label` (yes, no, mixed,
+#    graded, not_applicable; D142 added `graded`). A span is the sentence
+#    or the clause in which the model answers the question. A trace can
+#    hold several (the drafts of the answer). The things that the model
+#    sees inside a verdict sentence are nested `visual_evidence` or
+#    `inference` spans, as a `photo_advice` span holds them in `street-v3`.
+#    The verdict of 1 text is a rule of the analysis, not of the extractor
+#    (`f9-extraction-design.md`, section 2.3): the label of the last span;
+#    `mixed` when that span is `yes` or `no` and the text also holds the
+#    other one; `not_applicable` only when no other label is there; `none`
+#    when the text has no verdict span.
+# b. The description names the F9 prompt. The 3 subjects of `street-v3`
+#    hold: the F9 answers still give photo advice ("Tips to make it a GREAT
+#    spot").
+# c. 7 new examples from the F9 answers, 1 for each input shape: a trace
+#    start (no verdict), a plan-only chunk (`none`), a trace end (a `yes`
+#    and a `no` for 2 uses, then 2 `graded` drafts), a pros-and-cons answer
+#    (`mixed`), a `yes` with a pro and a con, a `no` with advice, and a
+#    short Llama `no`. Built by `scripts/f9/build_subj_cue_examples.py` (to
+#    write; the draft came from a scratchpad builder with the span rules of
+#    `build_street_cue_examples.py --version v3`). U+2011 is "-" in the
+#    example texts, as in the x2 inputs.
+#
+# Example texts (model|case|image_idx|field). The smoke set of the arm must
+# not hold these doc_ids:
+#   qwen3.5-9b|street_subj|9968|reasoning
+#   gemma-4-12b|street_subj|7545|reasoning
+#   qwen3.8-27b|street_subj|7895|reasoning
+#   gemma-4-12b|street_subj|7895|response
+#   qwen3.5-9b|street_subj|7545|response
+#   qwen3.8-27b|street_subj|3719|response
+#   llama-3.2-90b|street_subj|7545|response
+#
+# The 3 subjects, shared with `descriptors-v6`:
+#
+# | Subject | Cue class | Descriptor target |
+# |---------|-----------|-------------------|
+# | the place in the photograph | visual_evidence, inference | place |
+# | the photograph that the model got | image_artifact | current_photo |
+# | the picture that the user will take | photo_advice | planned_photo |
+#
+# D126 and D127 hold: an effect of the planned picture is `photo_advice`; a
+# critique word that stays true of a thing of the place is `visual_evidence`.
+#
+# The settings are those of `street-v3` (D130). The input is
+# `data/f4_traces/extract_input/f4_street_subj_x2.parquet`.
+#
+# Warning: raise `schema_version` when you change a class, an attribute, a
+# value list, or an example. Never edit a version in place.
+#
+# Warning: keep `attribute_values` inside `VOCABULARY` in
+# `notebooks/cvpr/_extractions.py`. The class `verdict` is new there.
+
+name: urban_cues_street
+schema_version: cool-cues-v1
+
+# Chunks of 6,000 characters. A chunk sees the last 600 characters of the
+# chunk before it as context. 233 of the 40,000 F9 street traces are longer
+# than 6,000 characters.
+max_char_buffer: 6000
+context_window_chars: 600
+
+# About 6,500 tokens of instructions and examples, up to about 1,700 tokens
+# of chunk, and the answer.
+max_model_len: 32768
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+# A decode loop stops at this cap and loses 1 chunk only.
+max_tokens: 6144
+repetition_penalty: 1.0
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+
+attribute_values:
+  visual_evidence:
+    valence: [good, bad, neutral]
+    category: [people, cleanliness, upkeep, greenery, light, signage, traffic,
+               construction, commerce, architecture, color, activity, other]
+  inference:
+    kind: [wealth, class, safety, crime, demographic, upkeep, quality, atmosphere,
+           business_type, neighborhood_character, popularity, location, time,
+           brand_knowledge, institution_knowledge, other]
+  person_reference:
+    used_in_judgment: ['yes', 'no']
+  image_artifact:
+    kind: [blur, angle, occlusion, time_of_day, weather, other]
+  uncertainty:
+    reason: [illegible, out_of_view, identity, knowledge, other]
+  photo_advice:
+    kind: [position, framing, equipment, timing, effect, other]
+  verdict:
+    label: ['yes', 'no', mixed, graded, not_applicable]
+
+prompt_description: |
+  You read text that a vision-language model wrote about one street-level
+  photograph of a street in New York City. The user asked the model "Is this
+  place cool?". A line before the text
+  names the model, and tells if the text is its private reasoning or its
+  final answer. The text can be a part of a longer text. Extract what the
+  model says. Do not judge the image yourself, and do not add anything the
+  text does not say.
+
+  Classes:
+
+  - visual_evidence: a thing of the place that the model says it sees, with
+    the words that describe it.
+    attributes: valence (good, bad, neutral); category (people, cleanliness,
+    upkeep, greenery, light, signage, traffic, construction, commerce,
+    architecture, color, activity, other)
+  - inference: a claim about the place that the photograph cannot show: who
+    lives there, wealth, class, safety, upkeep, the character of the
+    neighborhood, where it is.
+    attributes: kind (wealth, class, safety, crime, demographic, upkeep,
+    quality, atmosphere, business_type, neighborhood_character, popularity,
+    location, time, brand_knowledge, institution_knowledge, other)
+  - person_reference: a statement about the people in the photograph.
+    attributes: used_in_judgment (yes, no)
+  - image_artifact: a statement about the photograph that the model got: its
+    angle, its framing, the light, the weather, the blur, what blocks the
+    view, how flat or cluttered it looks.
+    attributes: kind (blur, angle, occlusion, time_of_day, weather, other)
+  - uncertainty: language that hedges, or that says the model cannot tell.
+    attributes: reason (illegible, out_of_view, identity, knowledge, other)
+  - photo_advice: advice for the picture that the user will take, or what
+    that picture will show or feel.
+    attributes: kind (position, framing, equipment, timing, effect, other)
+  - verdict: the sentence or the clause in which the model answers the
+    question.
+    attributes: label (yes: cool; no: not cool; mixed: the
+    answer depends on the kind of person, or the model gives points for and
+    against and takes no side; graded: one middle judgment with no yes and
+    no no: "a decent spot", "okay", "meh", "fine but unremarkable";
+    not_applicable: the model says it cannot judge the place from this
+    photograph, or sees no street)
+    An answer for one style of photo only ("For a casual snapshot, sure") is
+    a verdict span with that label. A draft of the answer in a trace is a
+    verdict span.
+  - none: the text holds nothing of the classes above. The span is the first
+    words of the text.
+
+  Rules:
+
+  1. Copy each span from the text, character for character. Never
+     paraphrase, and never join two parts of the text.
+  2. Extract in text order. Do not extract the same span two times. A
+     repeated thought is 1 extraction.
+  3. Keep 3 subjects apart: the place in the photograph (visual_evidence,
+     inference), the photograph that the model got (image_artifact), and the
+     picture that the user will take (photo_advice). What the planned picture
+     will feel or show ("gives the image a dramatic feel") is photo_advice
+     with kind effect. A critique word that stays true of a thing of the
+     place when you stand in the street ("that rusty green rail") is
+     visual_evidence. A word that is true only of the frame ("cluttered",
+     "cuts in awkwardly") is image_artifact.
+  4. A photo_advice span is the whole instruction or the whole effect
+     clause: 1 sentence or 1 bullet. When it describes a thing of the place
+     or makes a claim about the place, extract that phrase too, inside the
+     advice span, as visual_evidence or inference. A phrase about people is
+     person_reference, also inside advice.
+  5. An inference span is 1 claim of 25 words or fewer.
+  6. Notes that describe the image ("Subject:", "Details to notice:") are
+     evidence. Extract nothing from the echo of the request at the start of
+     a trace, from headings, option labels, goals, or notes about the plan
+     of the answer.
+  7. A text with nothing to extract gets 1 none span. Never answer with an
+     empty list.
+  8. Extract every verdict statement, in the order of the text. A verdict
+     span is 1 sentence or 1 clause. A thing of the place inside a verdict
+     sentence is also a visual_evidence or inference span, inside the
+     verdict span. A pro or a con that only describes the place ("The brick
+     facade provides repetitive geometric patterns") is visual_evidence, not
+     a verdict and not photo_advice. A middle rating of the place ("It's an
+     okay, unremarkable spot") is a verdict with label graded; an answer
+     that depends on the kind of person is mixed.
+  9. The echo of the question is not a verdict. A "yes" or "no" about
+     another thing ("Does this answer the question? Yes") is not a verdict.
+
+examples:
+- text: |
+    The user is asking for an opinion on whether the provided street scene is suitable for photography. I need to evaluate the visual elements of the image and provide a balanced answer.
+
+    **1. Analyze the Visual Elements:**
+    *   **Subject Matter:** It's an urban street scene, likely in Brooklyn or New York City (brownstones, fire escapes, "One Way" signs).
+    *   **Composition:**
+        *   There's a strong diagonal line created by the building on the right.
+        *   The pole with signs creates a vertical element.
+        *   The sidewalk leads the eye into the distance.
+    *   **Lighting:** It's a sunny day with dappled sunlight filtering through the trees. This can be beautiful but also creates harsh shadows.
+    *   **Details/Texture:**
+        *   Brownstone architecture (brickwork, fire escapes, windows with bars).
+        *   Street furniture: mailboxes (USPS), pedestrian crossing signal, yellow utility boxes, traffic signs.
+        *   People walking (add life, though faces are blurred).
+        *   Trees providing green contrast against the brown building and blue sky.
+    *   **Clutter vs. Order:**
+        *   Pros: Architectural details, interesting textures.
+        *   Cons: The foreground is a bit cluttered with mailboxes, cones, and utility boxes. The people are moving (motion blur). The "No Stalking" sign is odd but adds character/context.
+  extractions:
+  - extraction_class: inference
+    extraction_text: likely in Brooklyn or New York City (brownstones, fire escapes, "One Way" signs)
+    attributes:
+      kind: location
+  - extraction_class: image_artifact
+    extraction_text: There's a strong diagonal line created by the building on the right
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: The pole with signs creates a vertical element
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: It's a sunny day with dappled sunlight filtering through the trees
+    attributes:
+      kind: weather
+  - extraction_class: image_artifact
+    extraction_text: creates harsh shadows
+    attributes:
+      kind: weather
+  - extraction_class: visual_evidence
+    extraction_text: Brownstone architecture (brickwork, fire escapes, windows with bars)
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: visual_evidence
+    extraction_text: 'Street furniture: mailboxes (USPS), pedestrian crossing signal, yellow utility boxes, traffic signs'
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: person_reference
+    extraction_text: People walking (add life, though faces are blurred)
+    attributes:
+      used_in_judgment: 'no'
+  - extraction_class: image_artifact
+    extraction_text: faces are blurred
+    attributes:
+      kind: blur
+  - extraction_class: visual_evidence
+    extraction_text: Trees providing green contrast against the brown building and blue sky
+    attributes:
+      valence: good
+      category: greenery
+  - extraction_class: image_artifact
+    extraction_text: The foreground is a bit cluttered with mailboxes, cones, and utility boxes
+    attributes:
+      kind: other
+  - extraction_class: image_artifact
+    extraction_text: The people are moving (motion blur)
+    attributes:
+      kind: blur
+  - extraction_class: visual_evidence
+    extraction_text: The "No Stalking" sign is odd but adds character/context
+    attributes:
+      valence: neutral
+      category: signage
+- text: |
+    2.  **Identify the Goal:**
+        *   The user wants to know if this specific location is visually appealing or suitable for photography, particularly for car photography (implied by the context of the image).
+  extractions:
+  - extraction_class: none
+    extraction_text: 2.  **Identify the Goal
+- text: |
+    So the answer is nuanced. For a casual snapshot or a documentary "I was here" photo, sure, it's fine. But as a deliberately chosen "good photo spot" in the sense of a scenic or striking location, it's not particularly special. It's an unglamorous urban/institutional corner. The lighting is harsh and the composition is a bit cluttered with the pole and the random signs.
+
+    I should give a balanced answer: it has some elements (the tree, the building's geometry, clear sky) but it's overall a pretty ordinary, low-visual-interest scene, and the harsh light and the central pole work against it. I'd say it's a "meh" spot—not bad, but not great, and not something you'd seek out specifically for photography.
+
+    I want to be honest and not just yes or no. The question is somewhat subjective, so I should explain my reasoning and let the user decide based on what they want.
+
+    Let me think about format. A short paragraph or two, conversational. No need for headers or lists. Keep it natural. Maybe a couple of bullet points for the pros/cons? That could be helpful but might feel too structured for such a simple question. I'll go with a flowing answer, maybe a brief list of what works and what doesn't to be clear. Actually a compact answer with a tiny bit of structure is fine. I'll keep it to one or two paragraphs, prose, with the verdict clear.
+
+    Let me make sure I reference specific things in the image so the answer is grounded: the tree, the blue sky, the pole, the auditorium sign, the harsh shadows, the beige building, the hedge.
+
+    Final verdict: It's an okay, unremarkable spot—decent for a casual or architectural detail shot, but not a standout photographic location. I'll phrase it helpfully.
+  extractions:
+  - extraction_class: verdict
+    extraction_text: For a casual snapshot or a documentary "I was here" photo, sure, it's fine.
+    attributes:
+      label: 'yes'
+  - extraction_class: verdict
+    extraction_text: as a deliberately chosen "good photo spot" in the sense of a scenic or striking location, it's not particularly special
+    attributes:
+      label: 'no'
+  - extraction_class: inference
+    extraction_text: It's an unglamorous urban/institutional corner.
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: image_artifact
+    extraction_text: The lighting is harsh
+    attributes:
+      kind: weather
+  - extraction_class: image_artifact
+    extraction_text: the composition is a bit cluttered with the pole and the random signs
+    attributes:
+      kind: other
+  - extraction_class: visual_evidence
+    extraction_text: the tree, the building's geometry, clear sky
+    attributes:
+      valence: good
+      category: other
+  - extraction_class: inference
+    extraction_text: it's overall a pretty ordinary, low-visual-interest scene
+    attributes:
+      kind: atmosphere
+  - extraction_class: image_artifact
+    extraction_text: the harsh light and the central pole work against it
+    attributes:
+      kind: other
+  - extraction_class: verdict
+    extraction_text: I'd say it's a "meh" spot—not bad, but not great, and not something you'd seek out specifically for photography.
+    attributes:
+      label: graded
+  - extraction_class: verdict
+    extraction_text: 'Final verdict: It''s an okay, unremarkable spot—decent for a casual or architectural detail shot, but not a standout photographic location.'
+    attributes:
+      label: graded
+- text: |
+    Whether this is a good spot for a photo depends entirely on the style of photography you are interested in. Here are some visual elements to consider:
+
+    **Reasons it might be a good spot:**
+    *   **Texture and Pattern:** The brick facade of the building provides repetitive geometric patterns and varied textures that are often appealing in architectural photography.
+    *   **Contrast:** The large, leafy tree in the foreground provides a strong organic contrast against the straight lines and hard surfaces of the man-made building.
+    *   **Lighting and Shadows:** Because it is a bright day, the tree casts complex, dappled shadows across the sidewalk and the lower wall. These shadows can add a lot of visual depth and interest to a shot.
+    *   **Urban Atmosphere:** For someone interested in "street photography" or capturing "everyday life," this scene represents a quiet, authentic city moment.
+
+    **Reasons it might be less appealing:**
+    *   **Mundane Subject Matter:** To many photographers, this is a very standard city street. It lacks a distinct landmark, vibrant colors, or a dramatic focal point.
+    *   **Visual Clutter:** Depending on how you frame the shot, the small signs on the pole, the asphalt markings on the road, and the dark utility area on the right could be seen as distracting elements.
+
+    In summary, it is an excellent spot for capturing **urban textures and interesting light/shadow play**, but it may be less appealing if you are looking for **scenic landmarks or high-drama scenery.**
+  extractions:
+  - extraction_class: verdict
+    extraction_text: Whether this is a good spot for a photo depends entirely on the style of photography you are interested in.
+    attributes:
+      label: mixed
+  - extraction_class: visual_evidence
+    extraction_text: The brick facade of the building provides repetitive geometric patterns and varied textures
+    attributes:
+      valence: good
+      category: architecture
+  - extraction_class: visual_evidence
+    extraction_text: The large, leafy tree in the foreground provides a strong organic contrast against the straight lines and hard surfaces of the man-made building
+    attributes:
+      valence: good
+      category: greenery
+  - extraction_class: image_artifact
+    extraction_text: Because it is a bright day, the tree casts complex, dappled shadows across the sidewalk and the lower wall
+    attributes:
+      kind: weather
+  - extraction_class: photo_advice
+    extraction_text: These shadows can add a lot of visual depth and interest to a shot.
+    attributes:
+      kind: effect
+  - extraction_class: inference
+    extraction_text: this scene represents a quiet, authentic city moment
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: inference
+    extraction_text: this is a very standard city street
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: visual_evidence
+    extraction_text: It lacks a distinct landmark, vibrant colors, or a dramatic focal point
+    attributes:
+      valence: bad
+      category: other
+  - extraction_class: photo_advice
+    extraction_text: Depending on how you frame the shot, the small signs on the pole, the asphalt markings on the road, and the dark utility area on the right could be seen as distracting elements.
+    attributes:
+      kind: framing
+  - extraction_class: visual_evidence
+    extraction_text: the small signs on the pole, the asphalt markings on the road, and the dark utility area on the right
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: verdict
+    extraction_text: In summary, it is an excellent spot for capturing **urban textures and interesting light/shadow play**, but it may be less appealing if you are looking for **scenic landmarks or high-drama scenery.**
+    attributes:
+      label: mixed
+- text: |
+    Yes, this street would likely make a **good spot for automotive or street photography**, provided you know what kind of photos you want to take. Here is a breakdown of why:
+
+    **The Pros (Why it works):**
+    *   **Great Subject Matter (Cars):** There are several eye-catching vehicles here. You have a bright yellow lifted Jeep, a metallic blue sports car (possibly an M3/M4), a sleek silver coupe in the foreground (likely an M4), and a pink compact car. For car enthusiasts, this is gold.
+    *   **Dramatic Sky:** The clouds are interesting—they are heavy and grey in some places but breaking up to show blue sky. This provides a moody, textured backdrop that isn't just a flat white sheet.
+    *   **Interesting Signage & Architecture:** The building has distinct branding ("Crown Auto Speed Lab") and mixed architectural styles (brick, modern signage). It gives the photo a sense of place and tells a story about the neighborhood (a hub for car modifications).
+    *   **Action:** It doesn't feel like a sterile parking lot; it feels like a working garage or a meetup spot.
+
+    **The Cons (What could trip you up):**
+    *   **Clutter:** The parking lot is a bit crowded. If you try to photograph the blue car or the Jeep, there are fences, other cars, and poles around them that might distract from the main subject.
+  extractions:
+  - extraction_class: verdict
+    extraction_text: Yes, this street would likely make a **good spot for automotive or street photography**, provided you know what kind of photos you want to take.
+    attributes:
+      label: 'yes'
+  - extraction_class: visual_evidence
+    extraction_text: You have a bright yellow lifted Jeep, a metallic blue sports car (possibly an M3/M4), a sleek silver coupe in the foreground (likely an M4), and a pink compact car
+    attributes:
+      valence: good
+      category: traffic
+  - extraction_class: uncertainty
+    extraction_text: possibly an M3/M4
+    attributes:
+      reason: identity
+  - extraction_class: image_artifact
+    extraction_text: The clouds are interesting—they are heavy and grey in some places but breaking up to show blue sky
+    attributes:
+      kind: weather
+  - extraction_class: photo_advice
+    extraction_text: This provides a moody, textured backdrop that isn't just a flat white sheet.
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: The building has distinct branding ("Crown Auto Speed Lab")
+    attributes:
+      valence: good
+      category: signage
+  - extraction_class: visual_evidence
+    extraction_text: mixed architectural styles (brick, modern signage)
+    attributes:
+      valence: neutral
+      category: architecture
+  - extraction_class: inference
+    extraction_text: a hub for car modifications
+    attributes:
+      kind: neighborhood_character
+  - extraction_class: inference
+    extraction_text: it feels like a working garage or a meetup spot
+    attributes:
+      kind: atmosphere
+  - extraction_class: visual_evidence
+    extraction_text: The parking lot is a bit crowded
+    attributes:
+      valence: bad
+      category: traffic
+  - extraction_class: photo_advice
+    extraction_text: there are fences, other cars, and poles around them that might distract from the main subject
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: fences, other cars, and poles
+    attributes:
+      valence: neutral
+      category: other
+- text: |
+    Honestly, not a standout spot for most purposes. The main subject—the row of single-car garages—is pretty utilitarian and weathered, there's nothing visually distinctive to anchor a shot, and the harsh midday sun is flattening everything and throwing those ugly dark shadow bands straight across the garage doors. The power lines slicing across the upper third of the frame are the real problem, too: they're hard to crop out without losing the sky, and they add a lot of visual clutter. The camera angle in this particular shot is also a touch tilted, so you'd have to be careful to level it.
+
+    The one thing working in its favor is that sky—blue with those soft streaks of cirrus cloud is genuinely nice—and the foreground driveway slabs do give you some diagonal lines to lead the eye. So if you were going to shoot here, I'd frame it as a minimalist/texture study: level the horizon, drop the camera low so the sky fills the top half, crop the power lines out of frame as much as you can, and lean into the repeating rhythm of the garage-door panels against that clean sky. For a typical "pretty street" photo, though, you'd do better to look for a spot with more character—some interesting architecture, softer light, or fewer overhead wires.
+  extractions:
+  - extraction_class: verdict
+    extraction_text: Honestly, not a standout spot for most purposes.
+    attributes:
+      label: 'no'
+  - extraction_class: visual_evidence
+    extraction_text: The main subject—the row of single-car garages—is pretty utilitarian and weathered
+    attributes:
+      valence: bad
+      category: upkeep
+  - extraction_class: visual_evidence
+    extraction_text: there's nothing visually distinctive to anchor a shot
+    attributes:
+      valence: bad
+      category: other
+  - extraction_class: image_artifact
+    extraction_text: the harsh midday sun is flattening everything and throwing those ugly dark shadow bands straight across the garage doors
+    attributes:
+      kind: weather
+  - extraction_class: visual_evidence
+    extraction_text: The power lines slicing across the upper third of the frame are the real problem
+    attributes:
+      valence: bad
+      category: other
+  - extraction_class: image_artifact
+    extraction_text: The camera angle in this particular shot is also a touch tilted
+    attributes:
+      kind: angle
+  - extraction_class: image_artifact
+    extraction_text: that sky—blue with those soft streaks of cirrus cloud is genuinely nice
+    attributes:
+      kind: weather
+  - extraction_class: photo_advice
+    extraction_text: the foreground driveway slabs do give you some diagonal lines to lead the eye
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the foreground driveway slabs
+    attributes:
+      valence: neutral
+      category: other
+  - extraction_class: photo_advice
+    extraction_text: 'I''d frame it as a minimalist/texture study: level the horizon, drop the camera low so the sky fills the top half, crop the power lines out of frame as much as you can, and lean into the repeating rhythm of the garage-door panels against that clean sky.'
+    attributes:
+      kind: framing
+  - extraction_class: verdict
+    extraction_text: For a typical "pretty street" photo, though, you'd do better to look for a spot with more character—some interesting architecture, softer light, or fewer overhead wires.
+    attributes:
+      label: 'no'
+- text: |
+    The street in the image is not a good spot for taking a photo. The street is cluttered with cars and other objects, which would make it difficult to get a clear shot. Additionally, the street appears to be a busy area with a lot of activity, which could distract from the subject of the photo. Furthermore, the lighting on the street may not be ideal for photography, as it appears to be overcast and cloudy. Overall, it would be better to find a different location for taking a photo.
+  extractions:
+  - extraction_class: verdict
+    extraction_text: The street in the image is not a good spot for taking a photo.
+    attributes:
+      label: 'no'
+  - extraction_class: visual_evidence
+    extraction_text: The street is cluttered with cars and other objects
+    attributes:
+      valence: bad
+      category: traffic
+  - extraction_class: photo_advice
+    extraction_text: which would make it difficult to get a clear shot
+    attributes:
+      kind: effect
+  - extraction_class: visual_evidence
+    extraction_text: the street appears to be a busy area with a lot of activity
+    attributes:
+      valence: neutral
+      category: activity
+  - extraction_class: image_artifact
+    extraction_text: it appears to be overcast and cloudy
+    attributes:
+      kind: weather
+  - extraction_class: photo_advice
+    extraction_text: it would be better to find a different location for taking a photo
+    attributes:
+      kind: other

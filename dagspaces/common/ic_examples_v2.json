@@ -1,7 +1,7 @@
 {
  "schema_name": "ic_ingredients",
  "schema_version": "v2",
- "source_parquet": "/share/pierson/matt/mllmsci/multirun/2026-08-13_URBANPAIRVQA/01-37-12/0/outputs/pairwise/subway_safety_mvp_20260813_013722.parquet",
+ "source_parquet": "/share/ju/matt/mllmsci/multirun/2026-08-13_URBANPAIRVQA/01-37-12/0/outputs/pairwise/subway_safety_mvp_20260813_013722.parquet",
  "examples": [
   {
    "pair_id": "unit_00004632",

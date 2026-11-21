@@ -83,7 +83,7 @@ def _get_query_embedding(
 
     emb_model = str(
         getattr(cfg.reranking, "embedding_model_source", None)
-        or "/share/pierson/matt/zoo/models/Qwen3-VL-Embedding-8B"
+        or "/share/ju/matt/zoo/models/Qwen3-VL-Embedding-8B"
     )
     print(f"[rerank] Computing query embedding inline with {emb_model}", flush=True)
 

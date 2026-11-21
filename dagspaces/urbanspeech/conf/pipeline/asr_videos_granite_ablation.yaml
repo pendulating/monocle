@@ -62,7 +62,7 @@ pipeline:
           runtime.streaming_io: ${runtime.streaming_io}
           asr.chunk_seconds: ${asr.chunk_seconds}
           asr.batch_size: ${asr.batch_size}
-          model.model_source: /share/pierson/matt/zoo/models/granite-speech-3.3-8b
+          model.model_source: /share/ju/matt/zoo/models/granite-speech-3.3-8b
           model.engine_kwargs.tensor_parallel_size: 2
         launcher: slurm_gpu_ju_2x
         wandb_suffix: asr_granite_8b

@@ -38,13 +38,11 @@ import os
 import platform
 import shutil
 import socket
-import subprocess
 import sys
 import threading
 import traceback
 from dataclasses import dataclass, field
 from datetime import datetime
-from functools import lru_cache
 from typing import Any, Dict, FrozenSet, List, Optional, Set
 
 
@@ -136,6 +134,25 @@ _apply_wandb_settings_defaults()
 
 # Import wandb after environment is configured
 import wandb as wandb_module  # noqa: E402
+
+# Host detection and compute metadata live in sibling modules. Re-export the
+# names here so existing imports from this module keep their behavior.
+from .compute_metadata import (  # noqa: E402,F401
+    _derive_checkpoint_name,
+    collect_compute_metadata,
+)
+from .host_info import (  # noqa: E402,F401
+    _collect_gpu_details,
+    _detect_cgroup_mem_limit_bytes,
+    _detect_gpu_type,
+    _detect_memory_gb,
+    _detect_num_cpus,
+    _detect_num_gpus,
+    _detect_slurm_job_mem_bytes,
+    _parse_cpus_on_node,
+    _query_nvidia_smi_inventory,
+    _read_int_file,
+)
 
 
 
@@ -377,342 +394,6 @@ def _get_group_from_config(cfg) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# GPU / compute detection (nvidia-smi only — never imports torch)
-# ---------------------------------------------------------------------------
-
-@lru_cache(maxsize=1)
-def _query_nvidia_smi_inventory() -> List[Dict[str, Any]]:
-    """Query GPU inventory via nvidia-smi without touching torch.cuda.
-
-    Best practice for pre-fork multiprocessing is to avoid initialising CUDA
-    in the parent process.  Scheduler env vars and nvidia-smi provide the
-    same inventory data without poisoning a later fork-based worker launch.
-
-    Tries two nvidia-smi field sets: one with compute_cap (not available on
-    all driver versions) and one without, falling back gracefully.
-    """
-    field_sets = [
-        ["index", "uuid", "name", "memory.total", "compute_cap"],
-        ["index", "uuid", "name", "memory.total"],
-    ]
-    try:
-        proc = None
-        fields: List[str] = []
-        for candidate_fields in field_sets:
-            proc = subprocess.run(
-                [
-                    "nvidia-smi",
-                    f"--query-gpu={','.join(candidate_fields)}",
-                    "--format=csv,noheader,nounits",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=5,
-                check=False,
-            )
-            if proc.returncode == 0:
-                fields = candidate_fields
-                break
-        if proc is None or proc.returncode != 0:
-            return []
-
-        gpus: List[Dict[str, Any]] = []
-        for line in proc.stdout.splitlines():
-            parts = [p.strip() for p in line.split(",")]
-            if len(parts) != len(fields):
-                continue
-            gpu_info: Dict[str, Any] = {
-                "index": int(parts[0]),
-                "uuid": parts[1],
-                "name": parts[2],
-            }
-            try:
-                gpu_info["total_memory_gb"] = round(float(parts[3]) / 1024.0, 2)
-            except Exception:
-                pass
-            if len(parts) > 4 and parts[4]:
-                gpu_info["compute_capability"] = parts[4]
-                try:
-                    major_s, minor_s = parts[4].split(".", 1)
-                    gpu_info["major"] = int(major_s)
-                    gpu_info["minor"] = int(minor_s)
-                except Exception:
-                    pass
-            gpus.append(gpu_info)
-        return gpus
-    except Exception:
-        return []
-
-
-def _collect_gpu_details() -> List[Dict[str, Any]]:
-    """Return a copy of the cached GPU inventory."""
-    return _query_nvidia_smi_inventory().copy()
-
-
-def _detect_num_gpus() -> int:
-    """Detect the number of GPUs allocated to this job.
-
-    Priority order:
-    1. CUDA_VISIBLE_DEVICES environment variable (set by launcher)
-    2. SLURM_GPUS_PER_NODE or SLURM_GPUS_ON_NODE
-    3. nvidia-smi inventory (does not initialize CUDA in-process)
-    4. Return 0 if no GPUs detected
-    """
-    # Priority 1: CUDA_VISIBLE_DEVICES (most reliable for actual allocation)
-    try:
-        cuda_visible = os.environ.get("CUDA_VISIBLE_DEVICES")
-        if cuda_visible and cuda_visible.strip():
-            # Parse comma-separated GPU indices (e.g., "0,1,2,3" -> 4 GPUs)
-            gpu_indices = [x.strip() for x in cuda_visible.split(",") if x.strip()]
-            if gpu_indices:
-                return len(gpu_indices)
-    except Exception:
-        pass
-
-    # Priority 2: SLURM environment variables
-    try:
-        slurm_gpus = os.environ.get("SLURM_GPUS_PER_NODE") or os.environ.get(
-            "SLURM_GPUS_ON_NODE"
-        )
-        if slurm_gpus:
-            # Can be a number like "4" or format like "gpu:4"
-            try:
-                if ":" in slurm_gpus:
-                    return int(slurm_gpus.split(":")[-1])
-                return int(slurm_gpus)
-            except Exception:
-                pass
-    except Exception:
-        pass
-
-    # Priority 3: GPU inventory from nvidia-smi
-    gpu_details = _collect_gpu_details()
-    if gpu_details:
-        return len(gpu_details)
-
-    return 0
-
-
-def _detect_gpu_type() -> Optional[str]:
-    """Detect the GPU type/model name via nvidia-smi (no torch import).
-
-    Returns a normalised GPU type string (e.g. 'NVIDIA RTX A6000').
-    """
-    gpu_details = _collect_gpu_details()
-    if gpu_details:
-        gpu_name = gpu_details[0].get("name")
-        if gpu_name:
-            return str(gpu_name)
-    return None
-
-
-# ---------------------------------------------------------------------------
-# CPU / memory detection
-# ---------------------------------------------------------------------------
-
-def _parse_cpus_on_node(val: str) -> int:
-    """Parse SLURM_CPUS_ON_NODE format (e.g., '32', '16(x2)', '2,2')."""
-    if not isinstance(val, str):
-        return -1
-    try:
-        v = val.strip()
-        if "(x" in v and v.endswith(")"):
-            import re as _re
-
-            m = _re.match(r"^(\d+)\(x(\d+)\)$", v)
-            if m:
-                a = int(m.group(1))
-                b = int(m.group(2))
-                return max(1, a * b)
-        if "," in v:
-            parts = [p for p in v.split(",") if p.strip()]
-            acc = 0
-            for p in parts:
-                try:
-                    acc += int(p)
-                except Exception:
-                    return -1
-            return max(1, acc)
-        return max(1, int(v))
-    except Exception:
-        return -1
-
-
-def _detect_num_cpus() -> Optional[int]:
-    """Detect the number of CPUs allocated to this job.
-
-    Priority order:
-    1. SLURM_CPUS_PER_TASK or SLURM_CPUS_ON_NODE (job allocation)
-    2. os.cpu_count() (system total)
-    """
-    try:
-        cpt = os.environ.get("SLURM_CPUS_PER_TASK")
-        if cpt is not None and str(cpt).strip() != "":
-            return int(cpt)
-
-        con = os.environ.get("SLURM_CPUS_ON_NODE")
-        if con is not None and str(con).strip() != "":
-            cpus = _parse_cpus_on_node(con)
-            if cpus > 0:
-                return cpus
-    except Exception:
-        pass
-
-    try:
-        return os.cpu_count()
-    except Exception:
-        pass
-
-    return None
-
-
-def _read_int_file(path: str) -> int:
-    """Read an integer from a file, handling 'max' keyword."""
-    try:
-        with open(path, "r") as f:
-            s = f.read().strip()
-        if s.lower() == "max":
-            return -1
-        return int(s)
-    except Exception:
-        return -1
-
-
-def _detect_cgroup_mem_limit_bytes() -> int:
-    """Return cgroup memory limit in bytes when available; otherwise -1.
-
-    Supports cgroup v2 (memory.max) and v1 (memory.limit_in_bytes).
-    """
-    v2 = "/sys/fs/cgroup/memory.max"
-    lim = _read_int_file(v2)
-    if lim > 0:
-        try:
-            if lim > (1 << 56):
-                return -1
-        except Exception:
-            pass
-        return lim
-
-    v1 = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
-    lim = _read_int_file(v1)
-    if lim > 0:
-        try:
-            if lim > (1 << 56):
-                return -1
-        except Exception:
-            pass
-        return lim
-
-    return -1
-
-
-def _detect_slurm_job_mem_bytes() -> int:
-    """Infer SLURM job memory allocation in bytes from env vars.
-
-    Prefers SLURM_MEM_PER_NODE; otherwise uses SLURM_MEM_PER_CPU *
-    SLURM_CPUS_ON_NODE.  Values are MB according to SLURM docs.
-    """
-    try:
-        mem_per_node_mb = os.environ.get("SLURM_MEM_PER_NODE")
-        if mem_per_node_mb:
-            mb = int(mem_per_node_mb)
-            if mb > 0:
-                return mb * 1024 * 1024
-    except Exception:
-        pass
-
-    try:
-        mem_per_cpu_mb = os.environ.get("SLURM_MEM_PER_CPU")
-        cpus_on_node = os.environ.get("SLURM_CPUS_ON_NODE")
-        if mem_per_cpu_mb and cpus_on_node:
-            mb = int(mem_per_cpu_mb)
-            cpus = _parse_cpus_on_node(cpus_on_node)
-            if mb > 0 and cpus > 0:
-                return mb * cpus * 1024 * 1024
-    except Exception:
-        pass
-
-    return -1
-
-
-def _detect_memory_gb() -> Optional[float]:
-    """Detect available memory in GB.
-
-    Priority order:
-    1. cgroup memory limit (container/SLURM cgroup)
-    2. SLURM env-based memory inference
-    3. System total memory (psutil/os.sysconf)
-    """
-    cg = _detect_cgroup_mem_limit_bytes()
-    if cg > 0:
-        return cg / (1024 ** 3)
-
-    sj = _detect_slurm_job_mem_bytes()
-    if sj > 0:
-        return sj / (1024 ** 3)
-
-    try:
-        import psutil  # type: ignore
-
-        tot = int(getattr(psutil.virtual_memory(), "total", 0))
-        if tot > 0:
-            return tot / (1024 ** 3)
-    except Exception:
-        pass
-
-    try:
-        tot = int(os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES"))
-        if tot > 0:
-            return tot / (1024 ** 3)
-    except Exception:
-        pass
-
-    return None
-
-
-# ---------------------------------------------------------------------------
-# Compute metadata collection
-# ---------------------------------------------------------------------------
-
-#: Runtime config keys that all dagspaces always extract.
-_BASE_RUNTIME_KEYS: List[str] = [
-    "debug",
-    "sample_n",
-    "job_memory_gb",
-    "rows_per_block",
-]
-
-#: GPU sanitizer env-var suffixes (appended to the dagspace prefix).
-_SANITIZER_SUFFIXES = (
-    "SANITIZED_DROPPED_GPUS",
-    "GPU_SANITIZE_ORIGINAL",
-    "GPU_SANITIZE_REASON",
-    "GPU_SANITIZE_TS",
-    "TENSOR_PARALLEL_SIZE",
-)
-
-
-def _derive_checkpoint_name(lora_path: str, model_source: str) -> str:
-    """Derive a human-readable checkpoint name from lora_path and model_source.
-
-    Combines the base model name with a meaningful path segment from the LoRA
-    path, skipping generic directory names like "checkpoint", "outputs", "sft".
-    """
-    base_name = os.path.basename(model_source) if model_source else "unknown"
-    _generic = {"checkpoint", "outputs", "sft", "checkpoints", "output", "model",
-                "models", "grpo", "lora"}
-    parts = lora_path.rstrip("/").split("/")
-    suffix = None
-    for part in reversed(parts):
-        if part and part.lower() not in _generic and not part.startswith("."):
-            suffix = part
-            break
-    if suffix:
-        return f"{base_name}+{suffix}"
-    return base_name
-
-
 def build_wandb_tags(
     cfg,
     *,
@@ -822,249 +503,6 @@ def build_wandb_tags(
         pass
 
     return tags
-
-
-def collect_compute_metadata(
-    cfg=None,
-    *,
-    env_var_prefix: str = "",
-    extra_runtime_keys: Optional[List[str]] = None,
-) -> Dict[str, Any]:
-    """Collect comprehensive compute metadata for wandb logging.
-
-    Captures system configuration including CPU count and architecture, GPU
-    count/type/memory, RAM allocation, SLURM job parameters, Python
-    environment, and model configuration.
-
-    Args:
-        cfg: Optional Hydra config to extract model/runtime parameters.
-        env_var_prefix: Dagspace prefix for GPU sanitizer env vars (e.g.
-            "MLLMSCI" reads MLLMSCI_GPU_SANITIZE_ORIGINAL etc.).  Empty string
-            skips sanitizer var collection.
-        extra_runtime_keys: Additional runtime config keys to log beyond the
-            base set.
-
-    Returns:
-        Dictionary with compute metadata suitable for wandb.config.
-    """
-    metadata: Dict[str, Any] = {}
-
-    # System info
-    try:
-        metadata["system"] = {
-            "platform": platform.platform(),
-            "python_version": platform.python_version(),
-            "hostname": socket.gethostname(),
-            "user": getpass.getuser(),
-        }
-    except Exception:
-        pass
-
-    # CPU info
-    num_cpus = _detect_num_cpus()
-    if num_cpus is not None:
-        metadata["compute.cpu_count"] = num_cpus
-
-    try:
-        metadata["compute.cpu_architecture"] = platform.machine()
-    except Exception:
-        pass
-
-    # GPU info
-    num_gpus = _detect_num_gpus()
-    metadata["compute.gpu_count"] = num_gpus
-
-    if num_gpus > 0:
-        gpu_type = _detect_gpu_type()
-        if gpu_type:
-            metadata["compute.gpu_type"] = gpu_type
-
-        gpu_details = _collect_gpu_details()
-        if gpu_details:
-            metadata["compute.gpus"] = gpu_details
-
-    # CUDA device mapping
-    cuda_visible = os.environ.get("CUDA_VISIBLE_DEVICES")
-    if cuda_visible:
-        metadata["compute.cuda_visible_devices"] = [
-            d.strip() for d in cuda_visible.split(",") if d.strip()
-        ]
-
-    # GPU sanitizer metadata (dagspace-specific env var prefix)
-    if env_var_prefix:
-        pfx = env_var_prefix.rstrip("_") + "_"
-        dropped = os.environ.get(f"{pfx}SANITIZED_DROPPED_GPUS")
-        original = os.environ.get(f"{pfx}GPU_SANITIZE_ORIGINAL")
-        reason = os.environ.get(f"{pfx}GPU_SANITIZE_REASON")
-        ts = os.environ.get(f"{pfx}GPU_SANITIZE_TS")
-        tp_raw = os.environ.get(f"{pfx}TENSOR_PARALLEL_SIZE")
-
-        sanitize_meta: Dict[str, Any] = {}
-        if original:
-            sanitize_meta["original"] = [
-                d.strip() for d in original.split(",") if d.strip()
-            ]
-        if dropped:
-            sanitize_meta["dropped"] = [
-                d.strip() for d in dropped.split(",") if d.strip()
-            ]
-        if reason:
-            sanitize_meta["reason"] = reason
-        if ts:
-            try:
-                sanitize_meta["timestamp"] = int(ts)
-            except Exception:
-                sanitize_meta["timestamp"] = ts
-        if tp_raw:
-            try:
-                sanitize_meta["tensor_parallel_size"] = int(tp_raw)
-            except Exception:
-                sanitize_meta["tensor_parallel_size"] = tp_raw
-        if sanitize_meta:
-            metadata["compute.gpu_sanitize"] = sanitize_meta
-
-    # Memory info
-    mem_gb = _detect_memory_gb()
-    if mem_gb is not None:
-        metadata["compute.memory_gb"] = round(mem_gb, 2)
-
-    # SLURM job info
-    slurm_info: Dict[str, Any] = {}
-    for key in [
-        "SLURM_JOB_ID",
-        "SLURM_JOB_NAME",
-        "SLURM_NODELIST",
-        "SLURM_JOB_NUM_NODES",
-        "SLURM_CPUS_PER_TASK",
-        "SLURM_CPUS_ON_NODE",
-        "SLURM_MEM_PER_NODE",
-        "SLURM_MEM_PER_CPU",
-        "SLURM_GPUS_PER_NODE",
-        "SLURM_TASKS_PER_NODE",
-        "SLURM_PARTITION",
-        "SLURM_SUBMIT_DIR",
-        "SUBMITIT_JOB_ID",
-    ]:
-        val = os.environ.get(key)
-        if val:
-            slurm_info[key.lower()] = val
-
-    if slurm_info:
-        metadata["slurm"] = slurm_info
-
-    # Model and runtime config
-    if cfg is not None:
-        try:
-            model_cfg = getattr(cfg, "model", None)
-            if model_cfg:
-                model_info: Dict[str, Any] = {}
-
-                model_source = getattr(model_cfg, "model_source", None)
-                if model_source:
-                    model_info["model_source"] = str(model_source)
-
-                engine_kwargs = getattr(model_cfg, "engine_kwargs", None)
-                if engine_kwargs:
-                    ek: Dict[str, Any] = {}
-                    for key in [
-                        "max_model_len",
-                        "max_num_seqs",
-                        "max_num_batched_tokens",
-                        "gpu_memory_utilization",
-                        "tensor_parallel_size",
-                        "enable_chunked_prefill",
-                        "enable_prefix_caching",
-                        "dtype",
-                        "kv_cache_dtype",
-                    ]:
-                        try:
-                            val = getattr(engine_kwargs, key, None)
-                            if val is not None:
-                                ek[key] = val
-                        except Exception:
-                            pass
-                    if ek:
-                        model_info["engine_kwargs"] = ek
-
-                batch_size = getattr(model_cfg, "batch_size", None)
-                if batch_size is not None:
-                    model_info["batch_size"] = int(batch_size)
-
-                concurrency = getattr(model_cfg, "concurrency", None)
-                if concurrency is not None:
-                    model_info["concurrency"] = int(concurrency)
-
-                # --- Fields for cross-model comparison ---
-                model_family = getattr(model_cfg, "model_family", None)
-                if model_family:
-                    model_info["model_family"] = str(model_family)
-
-                lora_path = getattr(model_cfg, "lora_path", None)
-                is_finetuned_flag = getattr(model_cfg, "is_finetuned", False)
-                if lora_path:
-                    model_info["lora_path"] = str(lora_path)
-                    model_info["is_finetuned"] = True
-                elif is_finetuned_flag:
-                    model_info["is_finetuned"] = True
-                else:
-                    model_info["is_finetuned"] = False
-
-                chat_template_kwargs = getattr(model_cfg, "chat_template_kwargs", None)
-                if chat_template_kwargs:
-                    try:
-                        ctk = {}
-                        for key in ("enable_thinking",):
-                            val = getattr(chat_template_kwargs, key, None)
-                            if val is not None:
-                                ctk[key] = val
-                        if ctk:
-                            model_info["chat_template_kwargs"] = ctk
-                    except Exception:
-                        pass
-
-                # Single-book training metadata
-                single_book = getattr(model_cfg, "single_book", False)
-                model_info["single_book"] = bool(single_book)
-                book_id = getattr(model_cfg, "book_id", None)
-                if book_id:
-                    model_info["book_id"] = str(book_id)
-
-                # Derive checkpoint_name for human-readable identification
-                checkpoint_name = getattr(model_cfg, "checkpoint_name", None)
-                if checkpoint_name:
-                    model_info["checkpoint_name"] = str(checkpoint_name)
-                elif lora_path:
-                    model_info["checkpoint_name"] = _derive_checkpoint_name(
-                        str(lora_path), str(model_source) if model_source else ""
-                    )
-                elif model_source:
-                    model_info["checkpoint_name"] = os.path.basename(str(model_source))
-
-                if model_info:
-                    metadata["model"] = model_info
-        except Exception:
-            pass
-
-        try:
-            runtime_cfg = getattr(cfg, "runtime", None)
-            if runtime_cfg:
-                runtime_info: Dict[str, Any] = {}
-                all_runtime_keys = _BASE_RUNTIME_KEYS + (
-                    extra_runtime_keys or []
-                )
-                for key in all_runtime_keys:
-                    try:
-                        val = getattr(runtime_cfg, key, None)
-                        if val is not None:
-                            runtime_info[key] = val
-                    except Exception:
-                        pass
-                if runtime_info:
-                    metadata["runtime"] = runtime_info
-        except Exception:
-            pass
-
-    return metadata
 
 
 # ---------------------------------------------------------------------------
@@ -1511,6 +949,41 @@ class WandbLogger:
             print(
                 f"[wandb] Warning: Failed to log metrics: {e}", file=sys.stderr
             )
+
+    def log_grouped_metrics(
+        self,
+        group: str,
+        metrics: Optional[Dict[str, Any]],
+        step: Optional[int] = None,
+        commit: bool = True,
+    ) -> None:
+        """Log a metric group under one "{group}/" key prefix.
+
+        Wandb groups panels by the "/" prefix in a metric key. Each key
+        becomes "{group}/{name}" before the call routes to log_metrics.
+
+        Args:
+            group: Group name for the key prefix (e.g. "train").
+            metrics: Map of metric name to value. None or an empty map is a
+                no-op.
+            step: Optional step number.
+            commit: Whether to increment the step counter.
+        """
+        if not metrics:
+            return
+
+        try:
+            prefixed = {
+                f"{group}/{key}": value for key, value in dict(metrics).items()
+            }
+        except Exception as e:
+            print(
+                f"[wandb] Warning: Failed to group metrics '{group}': {e}",
+                file=sys.stderr,
+            )
+            return
+
+        self.log_metrics(prefixed, step=step, commit=commit)
 
     def log_table(
         self,

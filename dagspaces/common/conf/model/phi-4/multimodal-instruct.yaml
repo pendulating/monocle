@@ -1,6 +1,6 @@
 # @package _global_
 model:
-  model_source: /share/pierson/matt/zoo/models/Phi-4-multimodal-instruct
+  model_source: /share/ju/matt/zoo/models/Phi-4-multimodal-instruct
   model_family: phi-4
   engine_kwargs:
     # Phi-4-MM expands a single 1024x1024 image to ~2,625 tokens via HD tiling,

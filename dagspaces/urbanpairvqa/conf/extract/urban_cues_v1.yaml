@@ -27,6 +27,11 @@ schema_version: v1
 # into 4 chunks, no chunk holds both images, and every comparison is lost.
 max_char_buffer: 12000
 
+# The context the engine holds. The pipeline reads this into
+# `model.engine_kwargs.max_model_len`. It is an engine setting, not a part of
+# the schema, thus it does not raise the version.
+max_model_len: 16384
+
 batch_length: 512
 extraction_passes: 1
 temperature: 0.0

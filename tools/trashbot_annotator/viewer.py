@@ -57,7 +57,7 @@ def _(Path, hashlib, mo, os, shutil, subprocess, tempfile):
     DEFAULT_DIR = Path(__file__).resolve().parent / "outputs"
     JSONL_DIR = Path(os.environ.get("TRASHBOT_VIEWER_DIR") or DEFAULT_DIR)
 
-    ZOO_FFMPEG = Path("/share/pierson/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg")
+    ZOO_FFMPEG = Path("/share/ju/matt/zoo/ffmpeg-libs/n7.1/bin/ffmpeg")
     CLIP_CACHE_DIR = Path(tempfile.gettempdir()) / "trashbot_viewer_clips"
     MAX_CLIP_BYTES = 6_000_000
     CAPTURE_TOKENS = (

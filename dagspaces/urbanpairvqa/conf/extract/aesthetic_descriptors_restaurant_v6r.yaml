@@ -1,0 +1,558 @@
+# @package extract
+# descriptors-v6-restaurantr (D130): the RETRY pass of `aesthetic_descriptors_restaurant_v6.yaml`, written by
+# `scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
+# reverse order, and each `none` example stays at its place. It reads only the
+# texts that got a copy of an example in the first pass.
+name: aesthetic_descriptors
+schema_version: descriptors-v6-restaurantr
+max_char_buffer: 6000
+context_window_chars: 600
+max_model_len: 32768
+max_tokens: 6144
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+repetition_penalty: 1.0
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+attribute_values:
+  descriptor:
+    vibe:
+    - 'yes'
+    - 'no'
+    aspect:
+    - appearance
+    - atmosphere
+    - social_register
+    - business_type
+    - figurative
+    - evaluation
+    - size
+    - composition
+    - other
+    negated:
+    - 'yes'
+    - 'no'
+    target:
+    - place
+    - current_photo
+    - planned_photo
+prompt_description: "You read a part of a text that a vision-language model wrote about 1\nstreet-level\
+  \ photograph of a place in New York City. The user asked the\nmodel about a restaurant (\"Look and tell\
+  \ me more about this restaurant.\")\nor asked for a camera angle (\"Look and tell me a good angle to\
+  \ take a\npicture from.\"). The text is the private reasoning of the model or its\nfinal answer. A line\
+  \ before the examples tells you which. Extract the\ndescriptors: the words and short phrases with which\
+  \ the text characterizes\nthe place, the photograph that the model got, or the picture that the user\n\
+  will take. Do not judge the image yourself.\n\nUse exactly these 2 classes:\n\n- descriptor: 1 descriptor.\n\
+  \  attributes:\n  - head: the descriptor in plain form, in lower case and in the singular.\n    Leave\
+  \ out an article, an intensifier (\"very\", \"a bit\"), a hedge, and\n    the frame noun (see slot).\
+  \ Keep a noun that names a kind of business\n    or venue (\"local eatery\", \"takeout spot\"). Never\
+  \ put a synonym in\n    place of a word.\n  - vibe: yes when the descriptor names the mood or the feel\
+  \ (cozy,\n    gritty, moody), or when the text frames it as a vibe, a feel, an\n    atmosphere, a mood,\
+  \ or a sense. Else no.\n  - slot: the frame noun that follows the descriptor or heads its list\n   \
+  \ (\"atmosphere\" in \"inviting atmosphere\", \"sense\" in \"sense of depth\",\n    \"vibe\" under a\
+  \ \"Vibe:\" heading), in lower case and in the singular.\n    Write none when there is no frame noun.\n\
+  \  - aspect: 1 of these values:\n    appearance (how it looks: weathered, ornate, sleek);\n    atmosphere\
+  \ (how it feels: cozy, gritty, moody, intimate);\n    social_register (whom it is for, its class, its\
+  \ standing: upscale,\n    working-class, family-run, immigrant);\n    business_type (the kind of business\
+  \ or cuisine: pizza place, carry-out);\n    figurative (a metaphor or an image: hidden gem);\n    evaluation\
+  \ (generic praise or judgment: beautiful, interesting, great,\n    unique, visually appealing, striking);\n\
+  \    size (a size word that characterizes the place: small, tiny, tall,\n    narrow);\n    composition\
+  \ (a quality of a frame: balanced, cluttered, flat, blurry,\n    low-resolution, sense of depth);\n\
+  \    other.\n  - negated: yes when the text says that the thing is not so (\"Not\n    high-end\", \"\
+  rather than a sit-down dining room\"), else no.\n  - target: 1 of these values:\n    place: the place,\
+  \ the street, or a thing in it. A word stays place\n    when it is true of the thing in the street too\
+  \ (\"the worn canopy\",\n    \"messy power lines\").\n    current_photo: the photograph that the model\
+  \ got, true only of the\n    frame (\"the image is dim\", \"cluttered\", \"the current shot is flat\"\
+  ).\n    planned_photo: the picture that the user will take, or what it will\n    feel or show (\"make\
+  \ it more striking\", \"it feels more intimate\", \"a\n    moody look\").\n\n- none: the marker of a\
+  \ part with no descriptor. It has no attributes.\n  Its span is the first 3 to 6 words of the part.\
+  \ Give it only when the\n  part holds no descriptor at all. Never give it with a descriptor.\n\nEvery\
+  \ value of vibe, aspect, negated, and target must be 1 of the values\nlisted. Never invent a value.\n\
+  \nRules:\n\n1. Copy each span from the text, character for character. Keep quote\n   marks and plurals\
+  \ as written. Never paraphrase or join 2 parts. Never\n   copy a span from the examples.\n2. The span\
+  \ is the shortest phrase that holds the descriptor. Include a\n   frame noun that follows it directly\
+  \ (\"cozy atmosphere\"). A span can\n   sit inside a longer span.\n3. Extract each quality as 1 extraction:\
+  \ \"cozy and intimate\" gives 2.\n   Keep a fixed compound as 1 (low-key, family-run, lived-in).\n4.\
+  \ A color, a material, the light, the weather, a count, an object, a\n   part of a building, a sign,\
+  \ a name, a place name, and a menu item are\n   not descriptors. The size of a thing in the place (\"\
+  large windows\") is\n   not a descriptor either. In a phrase about a building, a street, or a\n   neighborhood,\
+  \ extract only the descriptor: \"an older, brown brick\n   building\" gives \"older\".\n5. Praise is\
+  \ a descriptor: extract it with aspect evaluation. A camera\n   instruction or technique is not a descriptor:\
+  \ the angle, the position,\n   the lens, the time of day, leading lines, the rule of thirds, framing.\n\
+  6. A reasoning trace often opens with the request (\"User's Question\",\n   \"The user wants\"). Extract\
+  \ nothing from that echo. A line that\n   describes the image (\"Image:\", \"Subject:\") is not an echo.\n\
+  7. Extract a hedged descriptor too (\"seems like a neighborhood spot\").\n8. Extract a descriptor the\
+  \ first time that this part uses it. Skip a\n   later use with the same head.\n9. Extract in the order\
+  \ of the text. A short answer that is mostly advice\n   can still hold descriptors; read every sentence.\n"
+examples:
+- text: 'The restaurant, Venchi, is a charming spot with a warm and inviting atmosphere. The white tables
+    and chairs, along with the brown awnings, create a cozy and intimate setting. The storefront is filled
+    with an assortment of colorful items, adding a pop of color and visual interest to the space. The
+    two people sitting at the table in front of the store add a sense of warmth and hospitality to the
+    scene. Overall, Venchi appears to be a welcoming and inviting place to dine and relax.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: charming spot
+    attributes:
+      head: charming spot
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: warm
+    attributes:
+      head: warm
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: inviting atmosphere
+    attributes:
+      head: inviting
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: cozy
+    attributes:
+      head: cozy
+      vibe: 'yes'
+      slot: setting
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: intimate setting
+    attributes:
+      head: intimate
+      vibe: 'yes'
+      slot: setting
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: visual interest
+    attributes:
+      head: visual interest
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: sense of warmth
+    attributes:
+      head: warmth
+      vibe: 'yes'
+      slot: sense
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: hospitality
+    attributes:
+      head: hospitality
+      vibe: 'yes'
+      slot: sense
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: welcoming
+    attributes:
+      head: welcoming
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+- text: 'The overall vibe is a working-class neighborhood strip: a brick storefront on the left, a stone
+    building with a shuttered, graffiti-tagged shop on the right, a blue wheeled bin by the support column,
+    and a worn, tattered canopy overhead where the photo is taken from. That setting, plus the "delivery"
+    note and the takeout-style window signs, suggests this is the classic small, likely family-run Chinese
+    spot that focuses on carry-out and phone delivery — the kind of place you''d expect to serve the standard
+    menu (egg rolls, fried rice, lo mein, chow mein, and the like) rather than a sit-down dining room.
+
+
+    One honest caveat: the image is dim and a bit low-res, so I can''t confirm the exact street name,
+    the full phone number, or whether the place is *currently* open or operating — the "OPEN" neon and
+    "A" grade are what''s shown in the photo, not a live status. If you want, tell me the street and I
+    can try to fill in more specifics.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: working-class
+    attributes:
+      head: working-class
+      vibe: 'yes'
+      slot: vibe
+      aspect: social_register
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: shuttered
+    attributes:
+      head: shuttered
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: graffiti-tagged
+    attributes:
+      head: graffiti-tagged
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: worn
+    attributes:
+      head: worn
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: tattered
+    attributes:
+      head: tattered
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: classic
+    attributes:
+      head: classic
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: small
+    attributes:
+      head: small
+      vibe: 'no'
+      slot: none
+      aspect: size
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: family-run
+    attributes:
+      head: family-run
+      vibe: 'no'
+      slot: none
+      aspect: social_register
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: Chinese spot
+    attributes:
+      head: chinese spot
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: sit-down
+    attributes:
+      head: sit-down
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'yes'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: dim
+    attributes:
+      head: dim
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: low-res
+    attributes:
+      head: low-res
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+- text: "4.  **Formulate a Strategy for the Response:**\n    *   *Acknowledge the multiple options:* Point\
+    \ out that there are several businesses in the photo.\n    *   *List the visible businesses:* Name\
+    \ them clearly to help the user identify which one they want to know about.\n    *   *Provide general\
+    \ information based on the signs:* Briefly describe what each likely is based on their names.\n  \
+    \  *   *Ask for clarification:* Request which specific restaurant the user wants details on.\n"
+  extractions:
+  - extraction_class: none
+    extraction_text: 4.  **Formulate a Strategy
+- text: '*   **Windows:** The large front windows are brightly lit and feature a distinctive blue-toned
+    backdrop with artistic figures. This creates a theatrical, high-end, and somewhat mysterious atmosphere
+    before you even enter.
+
+    *   **Curb Appeal:** The use of large, uniform planters with manicured greenery and consistent branding
+    gives the establishment a polished and sophisticated look.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: distinctive
+    attributes:
+      head: distinctive
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: artistic
+    attributes:
+      head: artistic
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: theatrical
+    attributes:
+      head: theatrical
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: high-end
+    attributes:
+      head: high-end
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: social_register
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: mysterious atmosphere
+    attributes:
+      head: mysterious
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: manicured
+    attributes:
+      head: manicured
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: polished
+    attributes:
+      head: polished
+      vibe: 'no'
+      slot: look
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: sophisticated look
+    attributes:
+      head: sophisticated
+      vibe: 'no'
+      slot: look
+      aspect: appearance
+      negated: 'no'
+      target: place
+- text: '**3. Contextualize based on visual cues:**
+
+    *   **Architecture:** It''s an older, brown brick building, typical of New York City or major urban
+    centers in the mid-20th century. The flat roof line and the air conditioning units suggest a functional,
+    working-class establishment.
+
+    *   **Location Clues:** The sign "China Garden" and the style of the building scream "New York City
+    Chinatown" or an immigrant neighborhood outside of it. The street looks like a residential/commercial
+    mixed area with trees lining the sidewalk.
+
+    *   **Condition:** The building looks established but perhaps a bit dated compared to modern glass
+    fronts. The brick is weathered.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: older
+    attributes:
+      head: older
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: functional
+    attributes:
+      head: functional
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: working-class
+    attributes:
+      head: working-class
+      vibe: 'no'
+      slot: none
+      aspect: social_register
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: immigrant
+    attributes:
+      head: immigrant
+      vibe: 'no'
+      slot: none
+      aspect: social_register
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: established
+    attributes:
+      head: established
+      vibe: 'no'
+      slot: none
+      aspect: social_register
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: a bit dated
+    attributes:
+      head: dated
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: weathered
+    attributes:
+      head: weathered
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+- text: "Here's a thinking process that leads to the suggested response:\n\n1.  **Analyze the Request:**\n\
+    \    *   **Image:** A low-resolution photo of a small strip mall or plaza.\n    *   **User's Question:**\
+    \ \"Look and tell me more about this restaurant.\"\n    *   **Problem:** There isn't just *one* restaurant.\
+    \ There is a row of multiple businesses.\n\n2.  **Scan the Image for Business Names (Left to Right):**\n\
+    \    *   **Far Left:** \"DOUQUIN\" (Partially cut off, looks like a pizza place or similar food joint).\n\
+    \    *   **Next:** A \"Domino's\" Pizza sign.\n    *   **Next:** \"The Best Food Center\" (Looks like\
+    \ a deli/grocery/cafe).\n    *   **Next:** \"GRILL & CHILL\" (Looks like a local eatery or pub).\n\
+    \    *   **Far Right:** \"S.O.S. [Something] MARKET\" (Sign is blurry but clearly a market).\n"
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: low-resolution
+    attributes:
+      head: low-resolution
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: small
+    attributes:
+      head: small
+      vibe: 'no'
+      slot: none
+      aspect: size
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: pizza place
+    attributes:
+      head: pizza place
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: food joint
+    attributes:
+      head: food joint
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: deli/grocery/cafe
+    attributes:
+      head: deli/grocery/cafe
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: local eatery
+    attributes:
+      head: local eatery
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: pub
+    attributes:
+      head: pub
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: blurry
+    attributes:
+      head: blurry
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: market
+    attributes:
+      head: market
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+      target: place

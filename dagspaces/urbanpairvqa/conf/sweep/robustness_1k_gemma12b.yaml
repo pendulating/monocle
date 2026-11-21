@@ -1,0 +1,54 @@
+# @package _global_
+# ROBUSTNESS BATTERY AT 1,000 PAIRS — rater gemma-4-12b, subway safety.
+#
+# Re-run of the July 2026 reviewer-2 perturbation battery on the CANONICAL
+# setup: the minimal prompt, greedy decoding, the rater's production layout,
+# and 1,000 canonical pairs CUT out of the 1,000,000-pair table
+# (multirun/pair_tables_1k_of_1m, from scripts/subset_pair_tables.py). Every
+# row is a row of the registered canonical run, thus the 2 join on pair_id
+# at 100%. Plan: vlm-narratives-docs/robustness-battery-rerun-plan.md.
+#
+# One file holds one rater. The arms come in as --set overrides from
+# scripts/launch_robustness_battery.sh, one submit for each arm. The .hydra
+# record of a shard holds only the base overrides, thus read the arm from
+# .hydra/config.yaml (prompt text, layout, temperature), or from the run dir
+# that the launch script names after the arm.
+#
+# Tier B (25,000 pairs) uses the same file with
+#   --set pair_sampler.max_pairs=25000 --shards 2 --pairs-dir multirun/pair_tables_25k_of_1m
+#
+# Do not set runtime.sample_n; it breaks the pair table match.
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  resume: true
+  resume_chunk_rows: 2048
+  # The image pack keeps the NFS load off /share/ju. Same bytes, same results.
+  image_pack: /share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack
+
+prompt:
+  # The canonical gemma-4-12b layout (decision of 2026-09-02). Text must sit
+  # BETWEEN the two images on this arch, or it reads them as one image.
+  image_layout: interleaved_labels
+
+pair_sampler:
+  max_pairs: 1000
+  shard_count: 1
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 1
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      pipeline: pairwise_subway_safety_mvp
+      pair_sampler.shard_index: range(0,1)

@@ -86,10 +86,17 @@ def read_grid(sweep: str) -> Tuple[str, List[str], List[int]]:
 # ---------------------------------------------------------------------------
 
 def pairs_path_for(pairs_dir: Optional[str], case: str) -> Optional[str]:
-    """The prebuilt table of a case, when a dir was given."""
+    """The prebuilt table of a case, when a dir was given.
+
+    A variant pipeline carries a suffix after `_mvp`, such as
+    `pairwise_schools_mvp_nocity`. The pair table does NOT depend on the
+    prompt: it comes from the data and the sampler alone. Thus a variant reads
+    the SAME table as its base case, which is also what makes the 2 batteries
+    join pair for pair. Drop everything from `_mvp` onward.
+    """
     if not pairs_dir:
         return None
-    short = case.replace("pairwise_", "").replace("_mvp", "")
+    short = re.sub(r"_mvp(_.*)?$", "", case.replace("pairwise_", ""))
     return os.path.join(pairs_dir, f"{short}_pairs.parquet")
 
 
@@ -115,6 +122,34 @@ def compose_cfg(sweep: str, model: str, case: str, shard: int,
         cfg = compose(config_name="config", overrides=overrides,
                       return_hydra_config=False)
     return cfg
+
+
+def write_hydra_record(cfg: DictConfig, out_root: str, sweep: str, model: str,
+                       case: str, shard: int) -> None:
+    """Write the `.hydra` pair that a normal Hydra run directory holds.
+
+    This module composes each config in its own process and never asks Hydra
+    for a run directory, thus a shard used to hold no `.hydra`. The canonical
+    registry reads the pipeline, the model, the question, and the image layout
+    from there, so a run with no record cannot be registered without a merge
+    step that composes the config again. Write it once, here.
+    """
+    try:
+        os.makedirs(out_root, exist_ok=True)
+        hydra_dir = os.path.join(out_root, ".hydra")
+        os.makedirs(hydra_dir, exist_ok=True)
+        OmegaConf.save(cfg, os.path.join(hydra_dir, "config.yaml"))
+        import yaml
+        with open(os.path.join(hydra_dir, "overrides.yaml"), "w") as fh:
+            yaml.safe_dump([f"+sweep={sweep}", f"model={model}",
+                            f"pipeline={case}",
+                            f"pair_sampler.shard_index={shard}"], fh)
+    except Exception as exc:  # noqa: BLE001
+        # A record that we cannot write must NEVER stop the submission. This
+        # is provenance, not data: the merge step composes the config again
+        # when the record is absent. Say so, and carry on.
+        print(f"[submit] warning : no .hydra record for {case} shard {shard} "
+              f"({type(exc).__name__}: {exc})")
 
 
 def build_payload(cfg: DictConfig) -> Dict[str, Any]:
@@ -262,6 +297,8 @@ def submit(sweep: str, base_dir: str, *, launcher: str, parallel: int,
             if only_missing and outputs_complete(payload):
                 skipped[short] += 1
                 continue
+            if not dry_run:
+                write_hydra_record(cfg, out_root, sweep, model, case, shard)
             payloads.append((short, shard, payload))
 
     if only_missing:

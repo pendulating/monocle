@@ -27,6 +27,8 @@ from typing import Optional
 import polars as pl
 import requests
 
+from dagspaces.common.stage_utils import run_with_retry
+
 __all__ = ["fetch_socrata", "FetchResult", "SocrataError"]
 
 log = logging.getLogger(__name__)
@@ -60,33 +62,37 @@ def _request_with_retry(
 
     4xx responses (except 429) are surfaced immediately without retry — a 400
     bad request won't become valid by waiting."""
-    last_exc: Optional[Exception] = None
-    for attempt in range(max_retries + 1):
-        try:
-            r = requests.get(url, params=params, timeout=timeout)
-            if 400 <= r.status_code < 500 and r.status_code != 429:
-                raise SocrataError(
-                    f"socrata: {r.status_code} from {url} (body: {r.text[:300]}); "
-                    "not retrying a client error"
-                )
-            if r.status_code in (429, 500, 502, 503, 504):
-                raise requests.HTTPError(f"{r.status_code} transient", response=r)
-            r.raise_for_status()
-            return r.json()
-        except SocrataError:
-            raise
-        except (requests.RequestException, ValueError) as exc:
-            last_exc = exc
-            if attempt >= max_retries:
-                break
-            sleep_s = backoff_s * (2 ** attempt)
-            log.warning(
+
+    def _once() -> list[dict]:
+        r = requests.get(url, params=params, timeout=timeout)
+        if 400 <= r.status_code < 500 and r.status_code != 429:
+            raise SocrataError(
+                f"socrata: {r.status_code} from {url} (body: {r.text[:300]}); "
+                "not retrying a client error"
+            )
+        if r.status_code in (429, 500, 502, 503, 504):
+            raise requests.HTTPError(f"{r.status_code} transient", response=r)
+        r.raise_for_status()
+        return r.json()
+
+    try:
+        return run_with_retry(
+            _once,
+            attempts=max_retries + 1,
+            backoff_s=backoff_s,
+            retryable=(requests.RequestException, ValueError),
+            on_retry=lambda attempt, exc: log.warning(
                 "socrata: %s on attempt %d/%d (offset=%s), sleeping %.1fs",
                 type(exc).__name__, attempt + 1, max_retries + 1,
-                params.get("$offset"), sleep_s,
-            )
-            time.sleep(sleep_s)
-    raise SocrataError(f"socrata: giving up after {max_retries + 1} attempts: {last_exc}")
+                params.get("$offset"), backoff_s * (2 ** attempt),
+            ),
+        )
+    except SocrataError:
+        raise
+    except (requests.RequestException, ValueError) as exc:
+        raise SocrataError(
+            f"socrata: giving up after {max_retries + 1} attempts: {exc}"
+        ) from exc
 
 
 def fetch_socrata(

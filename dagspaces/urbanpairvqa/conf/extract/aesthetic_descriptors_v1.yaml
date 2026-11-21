@@ -1,0 +1,742 @@
+# @package extract
+# Aesthetic descriptor schema, version 1 (2026-10-25). Claude drafted it for
+# the descriptor analysis (D109 to D112). The user has not reviewed the text
+# yet (2026-10-25).
+#
+# Purpose: the cue run (`urban_cues_single_v1`) puts about half of the
+# inference spans in `kind: other`. That attribute is too coarse. This schema
+# isolates the words that carry the aesthetic judgment:
+#
+# - Track C: the signature vocabulary of each model (the `head` values, inside
+#   the inference and visual_evidence spans of the cue run).
+# - Track V: the vibe words (`vibe: yes`), over the full texts, traces
+#   included.
+#
+# 1 class, `descriptor`: a word or short phrase with which the text
+# characterizes the place or the scene. Attributes:
+#
+# | Attribute | Kind | Use |
+# |-----------|------|-----|
+# | `head` | free | the plain form that the analysis counts |
+# | `vibe` | yes, no | Track V |
+# | `slot` | free | the frame noun ("vibe", "feel", "atmosphere"), or none |
+# | `aspect` | enum | a coarse filter only |
+# | `negated` | yes, no | "isn't flashy" |
+#
+# There is no fixed list of frame nouns (D112). The extractor decides from
+# the text what is a frame noun, and writes it in `slot`. The rule text gives
+# examples, not a list.
+#
+# Input: the 19,956 F4 texts of the cue run (`f4_restaurant.parquet`,
+# `f4_caption.parquet`): the reasoning traces and the final answers of 6
+# models, 2 cases, 1,000 images.
+#
+# A text can hold no descriptor (an echo, a plain list of facts), thus
+# `require_extraction` is false, and the 1st example is a negative example
+# (the caption-v3 lesson: the last example must not be the empty one).
+#
+# Every `extraction_text` appears in its own `text` word for word.
+# `scripts/f4/build_descriptor_examples.py` builds each span as a slice of
+# its text and prints the examples block. Change an example there.
+#
+# Warning: raise `schema_version` when you change the class, an attribute, a
+# value list, a rule, or an example. Never edit a version in place.
+
+name: aesthetic_descriptors
+schema_version: descriptors-v1
+
+# The settings of `urban_cues_single_v1`: the same input, thus the same
+# longest text (55,231 characters), and the same torch.compile cache.
+max_char_buffer: 60000
+max_model_len: 49152
+
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+max_tokens: 16384
+use_guided_json: true
+require_extraction: false
+
+# `head` and `slot` are free strings on purpose (D112).
+attribute_values:
+  descriptor:
+    vibe: ['yes', 'no']
+    aspect: [appearance, atmosphere, social_register, business_type, figurative, other]
+    negated: ['yes', 'no']
+
+prompt_description: |
+  You read text that a vision-language model wrote about one street-level
+  photograph of a place in New York City, mostly a restaurant or a shop. The
+  user asked the model about the restaurant, or asked for an Instagram
+  caption. The text is the private reasoning of the model, or its final
+  answer. Extract the descriptors: the words and short phrases with which the
+  text characterizes the place or the scene. Do not judge the image yourself,
+  and do not add anything the text does not say.
+
+  A descriptor tells how the place looks (rustic, stylish, weathered), how it
+  feels (cozy, gritty, laid-back), whom it is for or what standing it has
+  (local, upscale, neighborhood spot), what kind of place it is (gastropub,
+  casual bistro, comfort food), or it is a figurative line about it (hidden
+  gem, old brick doing the night shift).
+
+  Use exactly this class:
+
+  - descriptor: 1 descriptor.
+    attributes:
+    - head: the descriptor in plain form. Write it in lower case and in the
+      singular. Leave out an article, an intensifier ("very", "slightly",
+      "little"), a hedge, and the frame noun (see slot). Keep a noun that
+      names a kind of place or a thing ("casual eatery", "neighborhood spot",
+      "creative cocktail"). Split the words of a hashtag ("#GritAndGrace"
+      gives "grit and grace"). Never put a synonym in place of a word.
+    - vibe: yes when the descriptor names the mood, the feel, or the energy
+      of the place (cozy, buzzing, laid-back, gritty). Also yes when the text
+      frames the descriptor as a vibe, a feel, an atmosphere, a mood, or a
+      sense. no when the descriptor only tells how the place looks, what kind
+      of place it is, or what quality its food has.
+    - slot: the frame noun that the text attaches the descriptor to, in
+      lower case and in the singular, or none. A frame noun names a kind of
+      impression, not a kind of place or a thing. For example: "vibe" in
+      "local vibe", "feel" in "bar feel", "sense" in "a sense of secrecy",
+      "dining experience" in "unique dining experience", or a heading such as
+      "Atmosphere:" over a list of words. These are examples, not a list.
+      Decide from the text. A noun that names a kind of place (spot, eatery,
+      bistro, gem) is part of the head, not a slot.
+    - aspect: appearance (how it looks), atmosphere (how it feels),
+      social_register (whom it is for, its class, its standing),
+      business_type (the kind of business, its cuisine, what it serves),
+      figurative (a metaphor, an image, a line of poetry), other.
+    - negated: yes when the text says that the place is not so ("isn't a
+      flashy restaurant", "no fancy facade"), else no.
+
+  Every attribute value of vibe, aspect, and negated must be one of the
+  values listed. Never invent a value.
+
+  Rules:
+
+  1. Copy each extraction from the text, character for character. Never
+     paraphrase, never join two parts of the text, and never shorten.
+     Extract only from this text. Never copy a span from the examples.
+  2. The span is the shortest phrase that holds the descriptor. When a frame
+     noun follows the descriptor directly, include it ("cozy atmosphere",
+     "local vibe"). For a figurative line, take the phrase that holds the
+     image, not the full sentence.
+  3. Extract each quality as 1 extraction: "cozy, intimate" gives 2. Keep a
+     fixed compound as 1 (low-key, old-school, lived-in, tongue-in-cheek).
+  4. A plain observation is not a descriptor: a color, a material, the
+     light, a count, a size, an object, a part of a building (fire escape,
+     brownstone, awning), a sign, a name, an address, a place name, a menu
+     item. When the text gives a visual detail as evidence ("warm lighting
+     suggests a cozy atmosphere"), extract the quality, not the detail.
+  5. Extract only words about the place or the scene. Skip words about the
+     photograph, about a caption and its style ("Short & Sweet", "punny",
+     "cooler tone"), about the user and the feelings of the user, and about
+     the task or the plan of the model ("I shouldn't call it the best"). A
+     reasoning trace often opens with the request the model got ("The user
+     wants...", "Analyze the Request"). Extract nothing from that echo.
+  6. Extract a hedged descriptor too ("seems like a neighborhood spot", "may
+     have a playful vibe").
+  7. Extract a descriptor the first time that the text uses it. Skip a later
+     use with the same head, also when it comes back as a hashtag.
+  8. Copy a hashtag whole, with the "#". A hashtag that names a place, the
+     photograph, or a plain object gives no extraction.
+  9. Extract in the order that the spans appear in the text. A text with no
+     descriptor gives no extraction.
+
+examples:
+- text: |
+    Here's a thinking process that leads to the suggested response:
+
+    1.  **Analyze the Request:**
+        *   **Task:** "Look and tell me more about this restaurant."
+        *   **Input:** An image of a city street corner featuring several buildings.
+
+    2.  **Image Analysis (Scanning for the restaurant):**
+        *   *Building 1 (Left):* Red/brick upper, green ground floor. Sign says "RY" (partially cut off).
+  extractions: []
+- text: |
+    Here's a thinking process that leads to the suggested response:
+
+    1.  **Analyze the User Request:**
+        *   **Image:** A street-level photo of a building. The ground floor is a blue-painted restaurant called "THE MAYFLY" (Cocktails & Kitchen). There's a street sign saying "E Houston St".
+        *   **Question:** "Look and tell me more about this restaurant."
+
+    2.  **Initial Image Analysis (What can I see?):**
+        *   **Name:** The Mayfly (Cocktails & Kitchen).
+        *   **Location (from sign):** E Houston St (East Houston Street).
+        *   **Visual style:** Ground floor of a classic New York City-style tenement/brownstone building with fire escapes. Blue storefront.
+        *   **Vibe:** Seems like a neighborhood spot, likely focused on drinks and food given the "Cocktails & Kitchen" tagline.
+
+    3.  **Search & Information Retrieval (Internal Knowledge & Simulated Web Search):**
+        *   *Search Query:* "The Mayfly restaurant E Houston St New York"
+        *   *Key Findings (based on known data about this specific place):*
+            *   **Full Name:** The Mayfly.
+            *   **Location:** East Houston Street, Lower East Side (LES), Manhattan, NYC.
+            *   **Concept:** It's often described as a "neighborhood bar and restaurant" or a "gastropub."
+            *   **Cuisine/Focus:** Modern American, creative cocktails, a mix of small plates and larger entrees.
+            *   **Atmosphere:** Cozy, neighborhood-centric, blends a bar feel with a dining experience.
+
+    4.  **Synthesize and Structure the Response:**
+        *   *Start with the basics:* Identify the restaurant and its location clearly.
+        *   *Describe the offerings:* Mention the "Cocktails & Kitchen" aspect—what they actually serve.
+        *   *Describe the vibe/setting:* Use both the visual evidence from the photo (blue storefront, LES neighborhood) and general knowledge.
+        *   *Provide context:* Mention the neighborhood (Lower East Side) as it's a key part of the identity of such places.
+
+    5.  **Refine the Language (Self-Correction/Review):**
+        *   *Avoid over-claiming:* I shouldn't say it's the "best" or "worst" (subjective). Stick to descriptive facts.
+        *   *Connect back to the image:* Explicitly mention the clues found in the picture (the street sign and the sign on the building).
+
+    6.  **Final Output Generation:** (This matches the provided good response.)
+        *   Identify: The Mayfly.
+        *   Location: Lower East Side, Manhattan (E Houston St).
+        *   Concept: Gastropub/Neighborhood spot.
+        *   Offerings: Creative cocktails, modern American food.
+        *   Atmosphere: Cozy, local vibe.
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: classic New York City-style
+    attributes:
+      head: classic new york city-style
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: neighborhood spot
+    attributes:
+      head: neighborhood spot
+      vibe: 'yes'
+      slot: vibe
+      aspect: social_register
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: neighborhood bar and restaurant
+    attributes:
+      head: neighborhood bar and restaurant
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: gastropub
+    attributes:
+      head: gastropub
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Modern American
+    attributes:
+      head: modern american
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: creative cocktails
+    attributes:
+      head: creative cocktail
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Cozy
+    attributes:
+      head: cozy
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: neighborhood-centric
+    attributes:
+      head: neighborhood-centric
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: social_register
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: bar feel
+    attributes:
+      head: bar
+      vibe: 'yes'
+      slot: feel
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: local vibe
+    attributes:
+      head: local
+      vibe: 'yes'
+      slot: vibe
+      aspect: social_register
+      negated: 'no'
+- text: |
+    I looked carefully, and I don't actually see a restaurant in this photo — so I don't want to guess at a name, cuisine, or menu that isn't there. The only business I can read with confidence is on the right: a barbershop. The sign says **"STAR CUT"** with a barbershop‑pole logo and the word **"BARBER"** underneath, and the awning above the windows lists the phone number **718‑316‑6612** (a 718 area code, which is New York City).
+
+    The storefronts to the left are mostly hidden behind the big tree. The nearest one has brick entry columns and a red **"ATM"** sign in the window, and the darker building on the far left has a small white sign on its awning that's too blurry for me to read. None of these show obvious food‑service cues (no menu board, no dining seating, no restaurant name that I can make out).
+
+    So if you're thinking of a specific restaurant here, it's likely the partially obscured one on the left — could you tell me what its sign says, or which side of the tree you mean? Then I can give you useful details instead of inventing them. What I *can* tell you right now is just that this is a strip‑mall‑style commercial block (barbershop plus at least one other small business, one with an ATM) on a city street, with cars parked along the curb and a tree in the median strip.
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: barbershop
+    attributes:
+      head: barbershop
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: strip‑mall‑style commercial block
+    attributes:
+      head: strip-mall-style commercial block
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+- text: |
+    Since I can't see your exact mood, here are a few different types of Instagram captions depending on the "vibe" you want to go for:
+
+    **Option 1: Cozy & Aesthetic (The "Main Character" vibe)**
+    *   Found my new favorite corner. ☕️✨
+    *   Slow mornings in the city. 🏙️🌿
+    *   Just me and my coffee in this hidden gem.
+    *   Urban oasis found. ☕️🌳
+
+    **Option 2: Short & Sweet (For when the photo speaks for itself)**
+    *   Caffeine fix. ☕️
+    *   Neighborhood gems. ✨
+    *   Sidewalk cafe vibes. 🏙️
+    *   Current mood. 🥐☕️
+
+    **Option 3: Playful & Punny**
+    *   Espresso yourself. ☕️😉
+    *   A latte love for this neighborhood.
+    *   Taking a "brew" break. ☕️🚶‍♂️
+    *   Fueling up for the city hustle. ⚡️🏙️
+
+    **Option 4: The "Explorer" (Good if you want to share a discovery)**
+    *   Stumbled upon this little slice of heaven today. 💎
+    *   If you need me, I’ll be right here for the foreseeable future. ☕️📖
+    *   Always say yes to a sidewalk coffee date. ☀️
+
+    **Recommended Hashtags:**
+    #citylife #coffeeshop #neighborhoodgem #cafelife #urbanvibe #coffeetime #streetphotography #brunchvibes #hiddenbeauty #cityscenery
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: Cozy
+    attributes:
+      head: cozy
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Aesthetic
+    attributes:
+      head: aesthetic
+      vibe: 'yes'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '"Main Character" vibe'
+    attributes:
+      head: main character
+      vibe: 'yes'
+      slot: vibe
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Slow mornings
+    attributes:
+      head: slow morning
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: hidden gem
+    attributes:
+      head: hidden gem
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Urban oasis
+    attributes:
+      head: urban oasis
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Neighborhood gems
+    attributes:
+      head: neighborhood gem
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: Sidewalk cafe vibes
+    attributes:
+      head: sidewalk cafe
+      vibe: 'yes'
+      slot: vibe
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: city hustle
+    attributes:
+      head: city hustle
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: little slice of heaven
+    attributes:
+      head: slice of heaven
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#citylife'
+    attributes:
+      head: city life
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#coffeeshop'
+    attributes:
+      head: coffee shop
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#cafelife'
+    attributes:
+      head: cafe life
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#urbanvibe'
+    attributes:
+      head: urban
+      vibe: 'yes'
+      slot: vibe
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#brunchvibes'
+    attributes:
+      head: brunch
+      vibe: 'yes'
+      slot: vibe
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#hiddenbeauty'
+    attributes:
+      head: hidden beauty
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+- text: |
+    Shutters down, lanterns glowing, and a fire escape clinging to the red brick like it's the only thing holding the story together. The block doesn't need to be open to feel alive. 🌆
+
+    *Alt (cooler tone):* 114 Eldridge St. — tags, iron, and old brick doing the night shift.
+
+    #EldridgeSt #LowerEastSide #NYC #Brownstone #FireEscape #UrbanTexture #CityThatNeverSleeps #StreetPhotography #NYCgram #GritAndGrace #ShutteredUp
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: the only thing holding the story together
+    attributes:
+      head: the only thing holding the story together
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: feel alive
+    attributes:
+      head: alive
+      vibe: 'yes'
+      slot: feel
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: old brick doing the night shift
+    attributes:
+      head: old brick doing the night shift
+      vibe: 'no'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#UrbanTexture'
+    attributes:
+      head: urban texture
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#CityThatNeverSleeps'
+    attributes:
+      head: city that never sleeps
+      vibe: 'yes'
+      slot: none
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '#GritAndGrace'
+    attributes:
+      head: grit and grace
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+- text: |
+    Based on the image provided, here is some information about the restaurant:
+
+    **Name and Branding**
+    The restaurant is called **Squeren**. The name is displayed in a stylized, slightly rustic font on the front window.
+
+    **Location and Atmosphere**
+    *   **Setting:** It is located in a classic urban neighborhood, characterized by the multi-story brick building with prominent black iron fire escapes. This architecture is very common in neighborhoods like the East Village in Manhattan, New York City.
+    *   **Vibe:** The storefront features large, black-framed windows and warm interior lighting, suggesting a cozy, intimate, and "hidden gem" atmosphere. It looks like a neighborhood tavern or a casual bistro where people go for small plates and drinks.
+
+    **Exterior Details**
+    *   **Storefront:** The restaurant occupies the ground floor of a weathered brick building. To the left of the main entrance is a smaller doorway with the number "105" above it.
+    *   **Street Scene:** There is a trash and recycling area visible to the left of the restaurant entrance. In the immediate foreground, a bright orange Jeep Wrangler is parked, providing a sharp color contrast to the muted tones of the building.
+
+    **Overall Impression**
+    Squeren appears to be a low-key, stylish neighborhood spot. It isn't a flashy, large-scale restaurant; instead, it seems designed for a relaxed dining or drinking experience in a historic city setting.
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: slightly rustic
+    attributes:
+      head: rustic
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: classic urban neighborhood
+    attributes:
+      head: classic urban neighborhood
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: cozy
+    attributes:
+      head: cozy
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: intimate
+    attributes:
+      head: intimate
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: '"hidden gem" atmosphere'
+    attributes:
+      head: hidden gem
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: figurative
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: neighborhood tavern
+    attributes:
+      head: neighborhood tavern
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: casual bistro
+    attributes:
+      head: casual bistro
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: weathered
+    attributes:
+      head: weathered
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: low-key
+    attributes:
+      head: low-key
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: stylish
+    attributes:
+      head: stylish
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: neighborhood spot
+    attributes:
+      head: neighborhood spot
+      vibe: 'no'
+      slot: none
+      aspect: social_register
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: flashy
+    attributes:
+      head: flashy
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'yes'
+  - extraction_class: descriptor
+    extraction_text: large-scale restaurant
+    attributes:
+      head: large-scale restaurant
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'yes'
+  - extraction_class: descriptor
+    extraction_text: relaxed dining or drinking experience
+    attributes:
+      head: relaxed
+      vibe: 'yes'
+      slot: dining or drinking experience
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: historic city setting
+    attributes:
+      head: historic
+      vibe: 'no'
+      slot: city setting
+      aspect: appearance
+      negated: 'no'
+- text: |
+    The restaurant in the image is called "nobody tell me" and is located at 949 Columbus Avenue, New York, NY 10025. The restaurant is a small, casual eatery with a cozy atmosphere. It has a few tables outside and a small bar area inside. The menu appears to be focused on comfort food and drinks, with options such as burgers, sandwiches, salads, and cocktails.
+
+    The restaurant's name, "nobody tell me," suggests that it may have a playful or tongue-in-cheek vibe. The use of lowercase letters and the phrase "nobody tell me" implies a sense of secrecy or exclusivity, which could appeal to customers looking for a unique dining experience.
+
+    Overall, "nobody tell me" appears to be a charming and intimate restaurant that offers a range of delicious food and drink options in a cozy setting.
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: casual eatery
+    attributes:
+      head: casual eatery
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: cozy atmosphere
+    attributes:
+      head: cozy
+      vibe: 'yes'
+      slot: atmosphere
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: comfort food
+    attributes:
+      head: comfort food
+      vibe: 'no'
+      slot: none
+      aspect: business_type
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: playful
+    attributes:
+      head: playful
+      vibe: 'yes'
+      slot: vibe
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: tongue-in-cheek vibe
+    attributes:
+      head: tongue-in-cheek
+      vibe: 'yes'
+      slot: vibe
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: secrecy
+    attributes:
+      head: secrecy
+      vibe: 'yes'
+      slot: sense
+      aspect: social_register
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: exclusivity
+    attributes:
+      head: exclusivity
+      vibe: 'yes'
+      slot: sense
+      aspect: social_register
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: unique dining experience
+    attributes:
+      head: unique
+      vibe: 'no'
+      slot: dining experience
+      aspect: other
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: charming
+    attributes:
+      head: charming
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: intimate
+    attributes:
+      head: intimate
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+  - extraction_class: descriptor
+    extraction_text: delicious food
+    attributes:
+      head: delicious food
+      vibe: 'no'
+      slot: none
+      aspect: other
+      negated: 'no'

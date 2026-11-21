@@ -1,14 +1,25 @@
 {
+  "include": [
+    "dagspaces",
+    "scripts",
+    "tests",
+    "monocle",
+    "tools",
+    "utils",
+    "notebooks",
+    "viz"
+  ],
   "exclude": [
-    "data/**",
-    "outputs/**",
-    "logs/**",
-    "logs/**",
-    "multirun/**",
-    "wandb/**",
-    "log/**",
-    "logs/**",
-    "global_subset/**",
-    "global_subset/**",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "**/third_party",
+    "**/build",
+    "**/dist",
+    "**/outputs",
+    "data",
+    "**/logs",
+    "**/multirun",
+    "**/wandb"
   ]
 }

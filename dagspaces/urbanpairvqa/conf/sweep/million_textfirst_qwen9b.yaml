@@ -1,0 +1,80 @@
+# @package _global_
+# TEXT FIRST AT 100,000 PAIRS — rater 1 of 2, qwen3.5-9b, 7 cases.
+#
+# ─── What changes against `million_proxy_qwen9b` ─────────────────────────────
+# ONE thing: the prompt text comes BEFORE the images.
+#
+#     production  `images_then_text`   image A, image B, prompt
+#     this sweep  `text_first`         prompt, image A, image B
+#
+# The prompt bytes, the label set, the abstention, the model, the seed and the
+# pair draw do not change. Only the block order changes.
+#
+# ─── Why ─────────────────────────────────────────────────────────────────────
+# The prompt text can steer the attention that the images get, but only when
+# the prompt comes first. An image block that a question precedes is read
+# under that question; an image block that a question follows is not. This
+# sweep measures what that does to the judgment.
+#
+# Warning: this layout BREAKS the modality order that the gemma-4 card asks
+# for. That is the point of the arm. Read `million_textfirst_gemma12b.yaml`
+# for what the same idea costs on the other arch.
+#
+# ┌─ THE CONTROL IS `million_proxy_qwen9b` ────────────────────────────────────┐
+# │ `max_pairs` is 100,000 and `pair_seed` is 777. The draw at that seed is    │
+# │ NESTED: the 100,000-pair draw is a subset of the 1,000,000-pair draw, on   │
+# │ all 7 cases (measured 2026-08-26). Thus this sweep judges pairs the        │
+# │ registered battery already judged.                                        │
+# │                                                                            │
+# │ Warning: join on `pair_id`, not on `canonical_pair_id`. `pair_id` carries  │
+# │ the presentation order, and about 8% of the shared pairs come up in the    │
+# │ opposite A/B order. A join on `canonical_pair_id` compares a pair with its │
+# │ own mirror image and reads the order effect as a layout effect.            │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── Sizing ──────────────────────────────────────────────────────────────────
+# | Quantity            | Value                                               |
+# |---------------------|-----------------------------------------------------|
+# | Rows for each case  | 110,000 (100,000 pairs + a 10% repeat fraction)     |
+# | Shards for each case| 10, thus about 11,000 rows for each shard           |
+# | Jobs                | 70 (7 cases x 10 shards)                            |
+# | Chunk               | 1,024 rows — what a preemption loses                |
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   bash scripts/launch_textfirst_battery.sh --dry-run
+#   bash scripts/launch_textfirst_battery.sh
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  # REQUIRED on the preemptable partition.
+  resume: true
+  resume_chunk_rows: 1024
+
+prompt:
+  # THE POINT OF THIS SWEEP. The prompt comes before the 2 images.
+  image_layout: text_first
+
+pair_sampler:
+  # The same draw as the registered battery, thus the 2 join pair for pair.
+  max_pairs: 100000
+  shard_count: 10
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: qwen3.5-9b/instruct
+      # The CANONICAL pipelines. Only the layout moves, thus no new prompt.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 10 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,10)

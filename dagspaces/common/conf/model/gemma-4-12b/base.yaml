@@ -3,7 +3,7 @@
 # Configured identically to gemma-4-e4b (same gemma-4 family) so cross-size
 # comparisons aren't confounded by config drift — only the weights and TP differ.
 model:
-  model_source: /share/pierson/matt/zoo/models/gemma-4-12B
+  model_source: /share/ju/matt/zoo/models/gemma-4-12B
   model_family: gemma-4
   # Single source of truth for SFT / GRPO / eval. See wiki/thinking-modes.md.
   # Gemma-4 is reasoning-capable — set to "off" for structured-extraction tasks.

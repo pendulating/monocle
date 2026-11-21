@@ -23,7 +23,7 @@ PATCH_DIR="$THIRD/patches"
 LOG_DIR="$THIRD/logs"
 VERSIONS_ENV="$THIRD/versions.env"
 
-ZOO_FFMPEG="${TBA_ZOO_FFMPEG:-/share/pierson/matt/zoo/ffmpeg-libs/n7.1}"
+ZOO_FFMPEG="${TBA_ZOO_FFMPEG:-/share/ju/matt/zoo/ffmpeg-libs/n7.1}"
 FFMPEG_VER="7.1"
 OPENCV_VER="4.10.0"
 VP_REPO="https://github.com/sherlockchou86/VideoPipe.git"

@@ -1,0 +1,61 @@
+# @package _global_
+# NO ABSTENTION AT 1,000,000 PAIRS, `interleaved_labels`, gemma-4-12b, 7 cases.
+#
+# The re-run of `million_noabstain_gemma12b` under the decision of 2026-09-02:
+# the canonical gemma layout is `interleaved_labels`. The first gemma half of
+# this arm ran `images_then_labels` (rule of 2026-08-20) and thus held the
+# layout as well as the forced answer. See
+# `vlm-narratives-docs/prompt-ablations.md`.
+#
+# ─── What changes against `million_proxy_gemma12b` ───────────────────────────
+# ONE thing: the decoder cannot emit `NotSure`. Same layout, same prompt, same
+# pairs. Read `million_noabstain_qwen9b.yaml` for the reasoning.
+#
+# ─── The pairs ───────────────────────────────────────────────────────────────
+# `pair_seed` 777 and `max_pairs` 1,000,000, thus this sweep reads the SAME
+# `pair_tables_1m` tables as the canonical battery, and every row joins the
+# canonical run on `pair_id`.
+#
+# ─── Sizing ──────────────────────────────────────────────────────────────────
+# 1,100,000 rows for each case, 46 shards (about 24,000 rows each), 322 jobs.
+# A gemma shard needs 2 to 5 hours on the mixed cards of the gpu partition;
+# the wall is 480 minutes and it is terminal, thus resubmit the missing shards
+# with `--only-missing` when the array ends.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   bash scripts/launch_noabstain_battery.sh --rater gemma --gemma-sweep million_noabstain_gemma12b_il
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  resume: true
+  resume_chunk_rows: 2048
+
+prompt:
+  # The canonical gemma layout (decision of 2026-09-02).
+  image_layout: interleaved_labels
+  structured_output:
+    # THE POINT OF THIS SWEEP. The model may not abstain.
+    allow_not_sure: false
+
+pair_sampler:
+  max_pairs: 1000000
+  shard_count: 46
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp
+      # 46 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,46)

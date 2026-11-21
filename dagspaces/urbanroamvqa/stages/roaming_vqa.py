@@ -19,6 +19,7 @@ from PIL import Image
 from ..graph.street_graph import FACE_BEARING_DEG, HORIZONTAL_FACES, StreetGraph
 from ..graph.builder import build_street_graph
 from ..samplers.seed_sampler import sample_walk_seeds
+from dagspaces.common.stage_utils import run_with_retry
 from dagspaces.urbanvqa.stages.vqa import run_vqa_stage
 
 
@@ -89,6 +90,26 @@ def _stitch_faces(
 
 
 # --- Walk state ---
+
+# Compiled Jinja2 templates keyed by the raw template string. Compilation is
+# costly, so each distinct template compiles once per process.
+_JINJA_TEMPLATE_CACHE: Dict[str, Any] = {}
+
+
+def _get_jinja_template(template_str: str) -> Any:
+    """Return the compiled Jinja2 template for *template_str*.
+
+    The helper compiles each distinct template once per process and reuses
+    it. Rendering semantics match ``jinja2.Template(template_str)``.
+    """
+    tmpl = _JINJA_TEMPLATE_CACHE.get(template_str)
+    if tmpl is None:
+        import jinja2
+
+        tmpl = jinja2.Template(template_str)
+        _JINJA_TEMPLATE_CACHE[template_str] = tmpl
+    return tmpl
+
 
 @dataclass
 class WalkStep:
@@ -532,9 +553,7 @@ class RoamingStepper:
                 history_text = "Recent history:\n" + "\n".join(history_lines)
 
         try:
-            import jinja2
-
-            tmpl = jinja2.Template(user_template)
+            tmpl = _get_jinja_template(user_template)
             rendered = tmpl.render(
                 step_n=walk.step_n,
                 directions=direction_text,
@@ -624,38 +643,40 @@ def _run_vqa_with_retry(
     advance_from_answers can deactivate the affected walks gracefully
     instead of crashing the entire experiment.
     """
-    last_exc: Optional[Exception] = None
-    for attempt in range(1 + max_retries):
-        try:
-            answers = run_vqa_stage(batch_df, local_cfg)
-            if hasattr(answers, "to_pandas"):
-                answers = answers.to_pandas()
-            # Rejoin walk_id from sample_id
-            if "walk_id" not in answers.columns and "sample_id" in answers.columns:
-                answers["walk_id"] = answers["sample_id"].apply(
-                    lambda x: str(x).rsplit("_step", 1)[0]
-                )
-            return answers
-        except Exception as exc:
-            last_exc = exc
-            if attempt < max_retries:
-                wait = backoff_s * (2 ** attempt)
-                print(
-                    f"[roaming_vqa] Inference failed (attempt {attempt + 1}/{1 + max_retries}): "
-                    f"{type(exc).__name__}: {exc}. Retrying in {wait:.0f}s...",
-                    flush=True,
-                )
-                time.sleep(wait)
-            else:
-                print(
-                    f"[roaming_vqa] Inference failed after {1 + max_retries} attempts: "
-                    f"{type(exc).__name__}: {exc}. "
-                    f"Returning empty answers — affected walks will be deactivated.",
-                    flush=True,
-                )
 
-    # Return empty answers so walks get deactivated with "no_answer"
-    return pd.DataFrame(columns=["sample_id", "walk_id", "answer"])
+    def _once() -> pd.DataFrame:
+        answers = run_vqa_stage(batch_df, local_cfg)
+        if hasattr(answers, "to_pandas"):
+            answers = answers.to_pandas()
+        # Rejoin walk_id from sample_id
+        if "walk_id" not in answers.columns and "sample_id" in answers.columns:
+            answers["walk_id"] = answers["sample_id"].apply(
+                lambda x: str(x).rsplit("_step", 1)[0]
+            )
+        return answers
+
+    total_attempts = 1 + max_retries
+    try:
+        return run_with_retry(
+            _once,
+            attempts=total_attempts,
+            backoff_s=backoff_s,
+            label="roaming_vqa inference",
+            on_retry=lambda attempt, exc: print(
+                f"[roaming_vqa] Inference failed (attempt {attempt + 1}/{total_attempts}): "
+                f"{type(exc).__name__}: {exc}. Retrying in {backoff_s * (2 ** attempt):.0f}s...",
+                flush=True,
+            ),
+        )
+    except Exception as exc:
+        print(
+            f"[roaming_vqa] Inference failed after {total_attempts} attempts: "
+            f"{type(exc).__name__}: {exc}. "
+            f"Returning empty answers — affected walks will be deactivated.",
+            flush=True,
+        )
+        # Return empty answers so walks get deactivated with "no_answer"
+        return pd.DataFrame(columns=["sample_id", "walk_id", "answer"])
 
 
 # --- Main entry point ---

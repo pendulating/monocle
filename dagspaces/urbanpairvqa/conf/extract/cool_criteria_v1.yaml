@@ -1,0 +1,330 @@
+# @package extract
+# Written by scripts/f10/build_cool_schemas.py. Do not edit by hand.
+# Example texts:
+#   gemma-4-31b|cool_open|1268.2|response
+#   gemma-4-31b|cool_word|8171.2|reasoning
+#   qwen3.5-9b|cool_word|3721.0|reasoning
+#   qwen3.5-9b|cool_word|5752.2|reasoning
+name: cool_criteria
+schema_version: cool-criteria-v1
+max_char_buffer: 6000
+context_window_chars: 600
+max_model_len: 32768
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+max_tokens: 6144
+repetition_penalty: 1.0
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+attribute_values:
+  criterion:
+    value:
+    - beauty
+    - order
+    - heritage
+    - modernity
+    - edge
+    - character
+    - vitality
+    - community
+    - status
+    - utility
+    - nature
+    - comfort
+    - other
+    stance:
+    - for
+    - against
+    - conditional
+    holder:
+    - model
+    - general
+    - persona
+  decision_note:
+    kind:
+    - subjective
+    - no_taste
+    - forced_choice
+    - safe_default
+    - population_norm
+    - other
+prompt_description: "You read text that a vision-language model wrote about one street-level\nphotograph in New York City.\
+  \ The user asked the model \"Is this place cool?\". A line before\nthe text names the model, and tells if the text is its\
+  \ private reasoning or its final\nanswer. The text can be a part of a longer text. Extract how the model decides. Do not\n\
+  judge the image yourself, and do not add anything the text does not say.\n\nClasses:\n\n- criterion: 1 standard, quality\
+  \ or reason that the text uses to say why the place is or\n  is not cool. The span is the shortest clause that holds the\
+  \ standard.\n  attributes:\n  value: the kind of standard. beauty (pretty, pleasing to the eye, attractive); order\n  (clean,\
+  \ neat, polished, well kept, or the lack of it); heritage (historic, classic,\n  old, traditional); modernity (new, modern,\
+  \ sleek); edge (gritty, industrial, raw,\n  underground, urban grit); character (unique, quirky, charm, soul, authentic,\
+  \ hidden\n  gem, or generic and lacking character); vitality (life, activity, things to do, or\n  boring and nothing going\
+  \ on); community (neighborhood life, residents, local feel);\n  status (upscale, trendy, hip, fashionable, wealth); utility\
+  \ (functional, ordinary,\n  plain, utilitarian); nature (green, trees, sky, open air); comfort (safe, peaceful,\n  quiet,\
+  \ pleasant to be in); other.\n  stance: for (it makes the place cool), against (it makes the place not cool),\n  conditional\
+  \ (cool for some people or under a condition).\n  holder: model (the text says it as its own view), general (people in general,\
+  \ usually,\n  typical views), persona (a kind of person: \"if you like\", \"to an engineer\").\n  evidence: the thing in\
+  \ the photograph that the standard rests on, copied from the text,\n  in at most 8 words. Write \"\" when the text names\
+  \ no such thing near the span.\n- decision_note: a statement on how to reach the answer, and not about the place.\n  attributes:\
+  \ kind. subjective (\"cool\" is subjective); no_taste (the model has no personal\n  taste or feelings); forced_choice (the\
+  \ model must pick 1 answer); safe_default (the\n  model takes an answer because it is safer, usual or expected); population_norm\
+  \ (the\n  model appeals to what most people or AI guidelines say); other.\n- none: the text holds nothing of the classes\
+  \ above. The span is the first words of the\n  text.\n\nRules:\n\n1. Copy each span from the text, character for character.\
+  \ Never paraphrase, and never join\n   two parts of the text.\n2. Extract in text order. A repeated thought is 1 extraction.\n\
+  3. A plain description of the image with no standard (\"There's a parked silver car.\") is\n   not a criterion. A word that\
+  \ judges the thing (\"a bland concrete wall\") is a criterion.\n4. Extract nothing from the echo of the request, from headings,\
+  \ or from notes about the\n   plan of the answer.\n5. The temperature meaning of \"cool\" is not a criterion: use value\
+  \ other only when the\n   text uses temperature to answer the question.\n6. A text with nothing to extract gets 1 none span.\
+  \ Never answer with an empty list.\n"
+examples:
+- text: "Whether this place is \"cool\" depends entirely on your personal taste, as \"cool\" is subjective! \n\nHere are two\
+    \ different ways to look at it:\n\n**It might be \"cool\" if you like:**\n* **Industrial/Urban Aesthetics:** If you enjoy\
+    \ a \"gritty\" city vibe, the combination of chain-link fences, weathered concrete, and large, plain warehouse buildings\
+    \ can feel very edgy and modern.\n* **Hidden Gems:** This looks like the kind of industrial district where you often find\
+    \ underground art galleries, creative studios, or trendy \"hole-in-the-wall\" businesses. The \"POSE\" sign on the building\
+    \ adds to that sense of a modern, creative space hidden in a utilitarian area.\n* **Urban Exploration:** It has a strong\
+    \ \"backstage\" feel to the city.\n\n**It might NOT be \"cool\" if you prefer:**\n* **Traditional Beauty:** If you like\
+    \ lush greenery, ornate architecture, or polished, clean environments, this will likely seem bland or bleak.\n* **High\
+    \ Activity:** At a glance, it's essentially a parking lot and a loading zone, which some might find boring or purely functional.\n\
+    \n**In short:** If you're into the \"industrial-chic\" or urban exploration vibe, it's probably pretty cool. If you prefer\
+    \ a park or a polished downtown street, it probably isn't!"
+  extractions:
+  - extraction_class: decision_note
+    extraction_text: '"cool" is subjective'
+    attributes:
+      kind: subjective
+  - extraction_class: criterion
+    extraction_text: a "gritty" city vibe
+    attributes:
+      value: edge
+      stance: conditional
+      holder: persona
+      evidence: chain-link fences, weathered concrete
+  - extraction_class: criterion
+    extraction_text: can feel very edgy and modern
+    attributes:
+      value: edge
+      stance: conditional
+      holder: persona
+      evidence: large, plain warehouse buildings
+  - extraction_class: criterion
+    extraction_text: '**Hidden Gems:**'
+    attributes:
+      value: character
+      stance: conditional
+      holder: persona
+      evidence: The "POSE" sign on the building
+  - extraction_class: criterion
+    extraction_text: lush greenery
+    attributes:
+      value: nature
+      stance: conditional
+      holder: persona
+      evidence: ''
+  - extraction_class: criterion
+    extraction_text: ornate architecture
+    attributes:
+      value: heritage
+      stance: conditional
+      holder: persona
+      evidence: ''
+  - extraction_class: criterion
+    extraction_text: polished, clean environments
+    attributes:
+      value: order
+      stance: conditional
+      holder: persona
+      evidence: ''
+  - extraction_class: criterion
+    extraction_text: some might find boring or purely functional
+    attributes:
+      value: utility
+      stance: against
+      holder: general
+      evidence: a parking lot and a loading zone
+- text: "1.  **Analyze the user's request:** The user has provided an image of a concrete and steel structure (likely part\
+    \ of a bridge or overpass) and asked a subjective question: \"Is this place cool?\". They explicitly requested a one-word\
+    \ answer: \"yes\" or \"no\".\n\n2.  **Examine the image:**\n    *   Top: Clear blue sky.\n    *   Upper middle: A concrete\
+    \ barrier or wall, light grey/beige.\n    *   Middle: A large green steel beam.\n    *   Below the beam: More steel structural\
+    \ elements, shadowed.\n    *   Bottom middle: A black metal fence/railing.\n    *   Bottom: A concrete wall or base.\n\
+    \    *   Overall impression: It's an industrial, utilitarian structure. It's not an obviously \"cool\" place in terms\
+    \ of aesthetics, nature, or activity. It's a bridge underpass or side.\n\n3.  **Evaluate \"coolness\":**\n    *   \"Cool\"\
+    \ is highly subjective. To an engineer, the structural design might be cool. To a street artist, it might be a cool canvas.\
+    \ To most people, it's just a boring piece of infrastructure.\n    *   There is no objective \"yes\" or \"no\" answer.\n\
+    \    *   However, the user is forcing a binary choice.\n\n4.  **Consider AI guidelines:**\n    *   Avoid taking stances\
+    \ on subjective matters if possible.\n    *   However, for simple, low-stakes questions like this, a direct answer is\
+    \ often what the user wants.\n    *   Is it \"cool\"? Generally, no. It's a concrete wall and a green beam. It's bland.\n\
+    \n5.  **Determine the final answer:**\n    *   The image shows an unremarkable piece of infrastructure.\n    *   The most\
+    \ honest, generic response to \"Is this [boring concrete structure] cool?\" is \"no\".\n    *   The user requested a one-word\
+    \ answer.\n\n6.  **Final check:**\n    *   Question: \"Is this place cool?\"\n    *   Constraint: \"Answer with one word:\
+    \ yes or no.\"\n    *   Answer: \"no\" (based on general aesthetic preferences for \"cool\" places)."
+  extractions:
+  - extraction_class: criterion
+    extraction_text: It's an industrial, utilitarian structure
+    attributes:
+      value: utility
+      stance: against
+      holder: model
+      evidence: A large green steel beam
+  - extraction_class: decision_note
+    extraction_text: '"Cool" is highly subjective'
+    attributes:
+      kind: subjective
+  - extraction_class: criterion
+    extraction_text: To an engineer, the structural design might be cool
+    attributes:
+      value: other
+      stance: conditional
+      holder: persona
+      evidence: structural design
+  - extraction_class: criterion
+    extraction_text: To most people, it's just a boring piece of infrastructure
+    attributes:
+      value: vitality
+      stance: against
+      holder: general
+      evidence: ''
+  - extraction_class: decision_note
+    extraction_text: the user is forcing a binary choice
+    attributes:
+      kind: forced_choice
+  - extraction_class: decision_note
+    extraction_text: Avoid taking stances on subjective matters if possible
+    attributes:
+      kind: population_norm
+  - extraction_class: criterion
+    extraction_text: It's bland
+    attributes:
+      value: beauty
+      stance: against
+      holder: model
+      evidence: a concrete wall and a green beam
+- text: "The user is asking for a subjective opinion (\"Is this place cool?\") but constrained to a one-word answer (\"yes\"\
+    \ or \"no\").\n\n1.  **Analyze the image:**\n    *   It shows a large construction site or cleared land in the foreground.\n\
+    \    *   There's a concrete barrier at the very bottom, suggesting the photo was taken from an elevated position (overpass).\n\
+    \    *   In the mid-ground, there are buildings: a white multi-story building, some brick buildings, and a tan brick building\
+    \ with an orange roof on the right.\n    *   The sky is blue with wispy clouds.\n    *   There's a truck visible on the\
+    \ right.\n    *   The overall vibe is urban development, somewhat industrial or raw, but potentially promising for new\
+    \ construction.\n\n2.  **Determine \"coolness\":**\n    *   \"Cool\" is subjective.\n    *   Some might find the vast\
+    \ open space under a blue sky appealing (peaceful, potential).\n    *   Others might find it ugly (dirt piles, construction\
+    \ zone).\n    *   However, generally, clear blue skies and urban views are often considered pleasant or \"cool.\"\n  \
+    \  *   Since I have to choose yes or no, and \"yes\" is the standard affirmative for things that aren't obviously terrible\
+    \ or dangerous, \"yes\" is the safer bet for a general query like this. The bright sky and cityscape usually get positive\
+    \ feedback.\n\n3.  **Formulate the output:**\n    *   Constraint: One word: yes or no.\n    *   Selection: yes.\n\n4.\
+    \  **Final check:** Does \"yes\" answer the prompt directly? Yes. Is it capitalized correctly? Yes."
+  extractions:
+  - extraction_class: criterion
+    extraction_text: somewhat industrial or raw, but potentially promising for new construction
+    attributes:
+      value: edge
+      stance: conditional
+      holder: model
+      evidence: urban development
+  - extraction_class: decision_note
+    extraction_text: '"Cool" is subjective'
+    attributes:
+      kind: subjective
+  - extraction_class: criterion
+    extraction_text: the vast open space under a blue sky appealing (peaceful, potential)
+    attributes:
+      value: nature
+      stance: for
+      holder: general
+      evidence: vast open space under a blue sky
+  - extraction_class: criterion
+    extraction_text: Others might find it ugly (dirt piles, construction zone)
+    attributes:
+      value: beauty
+      stance: against
+      holder: general
+      evidence: dirt piles, construction zone
+  - extraction_class: decision_note
+    extraction_text: '"yes" is the standard affirmative for things that aren''t obviously terrible or dangerous'
+    attributes:
+      kind: safe_default
+  - extraction_class: decision_note
+    extraction_text: '"yes" is the safer bet'
+    attributes:
+      kind: safe_default
+- text: "The user is asking for a subjective opinion (\"Is this place cool?\") based on an image of a residential street.\
+    \ They want a one-word answer: \"yes\" or \"no\".\n\n1.  **Analyze the image:**\n    *   It shows a quiet, somewhat urban\
+    \ residential neighborhood.\n    *   There's a mix of brick and sided houses.\n    *   The sky is overcast/grey.\n   \
+    \ *   There's a parked silver car.\n    *   The street looks a bit worn (cracks in sidewalk).\n    *   It feels like a\
+    \ typical city neighborhood (maybe Jersey City, Brooklyn, or NYC given the architecture).\n    *   \"Cool\" is subjective.\
+    \ Some might find the gritty urban texture cool. Others might just see a boring street.\n    *   However, usually, when\
+    \ people ask AI to judge \"coolness\" of a generic street scene, they are often looking for something visually interesting\
+    \ or atmospheric. This scene has a moody, slightly urban vibe. But objectively, it's not a \"cool party\" or a \"cool\
+    \ landscape.\"\n    *   Wait, the prompt asks for a simple \"yes\" or \"no\". I need to make a binary choice.\n    * \
+    \  Is there anything inherently \"uncool\" about it? No. It's just a normal street.\n    *   Is there anything \"cool\"\
+    ? The large tree framing the shot, the red building in the back, the texture of the brick.\n    *   If I have to choose,\
+    \ \"yes\" feels safer because it's a valid, pleasant-looking neighborhood, whereas \"no\" implies it's ugly or unpleasant.\
+    \ It has a certain charm. Or, perhaps \"yes\" because it captures a relatable, mundane moment that some artists find cool\
+    \ (lo-fi aesthetic).\n    *   Actually, let's look at the prompt again. \"Answer with one word: yes or no.\" It's a trick\
+    \ question essentially because \"cool\" is subjective. But usually, if something isn't objectively terrible, the answer\
+    \ leans towards positive or neutral-positive.\n    *   Let's consider the \"vibe\". It's a bit bleak/overcast. But it's\
+    \ also peaceful.\n    *   Let's try to interpret \"cool\" as \"attractive\" or \"interesting\". It's an interesting photo\
+    \ composition.\n    *   Let's try to interpret \"cool\" as \"trendy\". Not really.\n    *   Let's go with \"yes\" simply\
+    \ because it's a decent photo of a neighborhood, and \"no\" feels too harsh for a slice-of-life shot. Alternatively, maybe\
+    \ the user is testing my ability to handle subjectivity. But I must pick one.\n    *   Let's look at the specific features.\
+    \ The brick building on the right is classic. The house on the left has a nice porch area. The tree adds life. It looks\
+    \ like a lived-in, authentic neighborhood. Authenticity can be cool.\n    *   Decision: Yes. It has a gritty, urban charm\
+    \ that many people find appealing.\n\n    *Self-correction:* Maybe the user wants me to say \"no\" because it's just a\
+    \ regular street? No, that seems unhelpful. Most users prefer a positive confirmation unless it's disastrous.\n    *Let's\
+    \ reconsider.* Is it \"cool\"? Like, 20 degrees cooler than expected? No, that's a physics question. Like, attractive?\n\
+    \    *Actually, looking closely at the alley/backyard area... there are trash bags and clutter. It's not perfectly pristine.\
+    \ But neighborhoods have character.\n    *Let's stick with \"yes\". It's a plausible answer.\n\n    *Wait, is this a trick?*\
+    \ \"Is this place cool?\" could refer to temperature? No, the trees have green leaves, but maybe early autumn? The sky\
+    \ is grey. It doesn't look freezing. But \"cool\" usually means \"fashionable/attractive\" in casual speech.\n    *If\
+    \ I answer \"yes\", I'm validating the aesthetic. If I answer \"no\", I'm rejecting it.\n    *Let's look at the metadata\
+    \ or context if available... none.\n    *I will go with **yes**. It feels like a nice, established neighborhood.\n\n \
+    \   *Alternative thought:* What if the answer is supposed to be about the temperature? The leaves are greenish-yellow.\
+    \ It might be late summer/early fall. It doesn't look particularly cold. So \"no\" for temperature? No, \"cool\" is rarely\
+    \ used that way in this context without \"temperature specified\".\n\n    *Final decision:* Yes. The phrase \"this place\
+    \ is cool\" usually refers to the vibe/aesthetic. The image has a distinct, lo-fi, urban architectural beauty.\n\n   \
+    \ *Wait, let's look at the generated caption or similar data.* Often these datasets label things neutrally. But I have\
+    \ to answer \"yes\" or \"no\".\n    *Let's assume the standard interpretation: \"Is this aesthetically pleasing/intriguing?\"\
+    \n    *Yes, it has a nice composition with the tree branch framing the view.\n\n    *Let's try to find a reason for \"\
+    no\".* It's messy. There's construction/dirt on the sidewalk. It's not a \"high-end\" cool place. It's a working-class\
+    \ neighborhood. Working class neighborhoods have soul, which is cool.\n    *So, Yes.\n\n    *One more check:* Is it possible\
+    \ the answer is \"no\" because it's just a random street? If I say \"no\", it sounds dismissive. If I say \"yes\", it\
+    \ sounds appreciative. Being appreciative is usually the better AI persona.\n\n    *Let's go with Yes.*"
+  extractions:
+  - extraction_class: criterion
+    extraction_text: Some might find the gritty urban texture cool
+    attributes:
+      value: edge
+      stance: conditional
+      holder: general
+      evidence: cracks in sidewalk
+  - extraction_class: criterion
+    extraction_text: Others might just see a boring street
+    attributes:
+      value: vitality
+      stance: against
+      holder: general
+      evidence: ''
+  - extraction_class: criterion
+    extraction_text: This scene has a moody, slightly urban vibe
+    attributes:
+      value: edge
+      stance: for
+      holder: model
+      evidence: ''
+  - extraction_class: decision_note
+    extraction_text: I need to make a binary choice
+    attributes:
+      kind: forced_choice
+  - extraction_class: criterion
+    extraction_text: The large tree framing the shot
+    attributes:
+      value: nature
+      stance: for
+      holder: model
+      evidence: The large tree
+  - extraction_class: criterion
+    extraction_text: the texture of the brick
+    attributes:
+      value: heritage
+      stance: for
+      holder: model
+      evidence: the brick

@@ -1,7 +1,7 @@
 # @package _global_
 # Gemma-4-E4B: multimodal (text/image/audio → text), 4.5B effective params (~8B total)
 model:
-  model_source: /share/pierson/matt/zoo/models/Gemma-4-E2B-it
+  model_source: /share/ju/matt/zoo/models/Gemma-4-E2B-it
   model_family: gemma-4
   # Single source of truth for SFT / GRPO / eval. See wiki/thinking-modes.md.
   # Gemma-4 is reasoning-capable — set to "off" for structured-extraction tasks.
@@ -14,5 +14,19 @@ model:
     max_num_seqs: 16
     tensor_parallel_size: 1
     trust_remote_code: true
+    # Pairwise VQA sends TWO images in one prompt. This line states that
+    # contract; it does NOT unlock anything.
+    #
+    # Measured 2026-08-20: vLLM 0.19.0, 0.23.1 and 0.25.0 all give an
+    # unspecified modality a limit of 999 ("Unspecified modality is set to 999
+    # by default", vllm/config/multimodal.py). Thus this pin LOWERS the
+    # allowance from 999 to 2. Raise it before you send a third image with
+    # these shared configs.
+    #
+    # Warning: the qwen3.5-9b/instruct.yaml comment says a missing cap makes
+    # vLLM drop the second image. No version on this disk behaves that way.
+    # Whatever dropped that image, do not trust the 1-image explanation.
+    limit_mm_per_prompt:
+      image: 2
   batch_size: 0
   concurrency: 1

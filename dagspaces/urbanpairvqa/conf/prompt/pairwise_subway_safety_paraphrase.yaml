@@ -1,0 +1,47 @@
+# ─── Robustness battery arm: paraphrase ─────────────────────────────────────────
+# Case:     Subway safety. Base file: pairwise_subway_safety_ordinal.yaml
+# Change:   a full reword of the user text, same meaning, same labels
+# Everything else is the canonical minimal contract. The structured_output
+# block is a byte copy of the base file, so guided decoding does not change.
+# Plan:     vlm-narratives-docs/robustness-battery-rerun-plan.md (phase 2)
+
+system: null
+
+user_template: |
+  The first image is Image A and the second image is Image B.
+  Each one shows the entrance of a subway station in New York City.
+  Which of the two entrances looks like the safer one?
+
+  Answer with exactly one of these labels:
+  - MuchLess
+  - Less
+  - Same
+  - More
+  - MuchMore
+
+  Read the label as "the entrance in Image A looks <label> safe than the
+  entrance in Image B". Pick "Same" when the two look about equally safe.
+
+structured_output:
+  enabled: true
+  # Abstention label, ON for every case in the consolidated battery: the stage
+  # appends `not_sure_label` to the answer enum below AND adds a guidance line
+  # to the prompt. Abstentions score as NaN (excluded from the ordinal scale),
+  # NOT as "Same". Turn off only for an explicit ablation:
+  #   prompt.structured_output.allow_not_sure=false
+  allow_not_sure: true
+  not_sure_label: NotSure
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum: ["MuchLess", "Less", "Same", "More", "MuchMore"]
+      confidence:
+        type: number
+    required: ["answer"]
+    # false → guided decoding forbids extra keys. With `true`, the model emits
+    # a free-form "reasoning" field (~180 tokens of inline chain-of-thought)
+    # even when thinking is off, which negates the throughput of a non-thinking
+    # run. Strict output = just {answer (+confidence)} ≈ 10-15 tokens.
+    additionalProperties: false

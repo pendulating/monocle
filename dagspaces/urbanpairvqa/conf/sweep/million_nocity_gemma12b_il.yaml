@@ -1,0 +1,63 @@
+# @package _global_
+# NO-CITY AT 100,000 PAIRS, `interleaved_labels`, gemma-4-12b, 7 cases.
+#
+# The re-run of `million_nocity_gemma12b` under the decision of 2026-09-02:
+# the canonical gemma layout is `interleaved_labels`, which the whole
+# 1,000,000-pair canonical battery ran. The first gemma half of this arm ran
+# `images_then_labels` and thus held the layout as well as the place name.
+# See `vlm-narratives-docs/prompt-ablations.md`.
+#
+# ─── What changes against `million_proxy_gemma12b` ───────────────────────────
+# ONE thing: every case reads its `*_nocity` prompt. Same layout, same
+# abstention, same decoder. Read `million_nocity_qwen9b.yaml` for the prompt.
+#
+# ┌─ THE PAIRS ARE THE ROWS OF THE 1,000,000-PAIR TABLE ───────────────────────┐
+# │ A fresh 100,000-pair draw shares the canonical pairs of the 1,000,000-pair │
+# │ draw but flips the A/B order on about 8% of them. This sweep reads         │
+# │ `pair_tables_100k_of_1m`, which `scripts/subset_pair_tables.py` cut out of │
+# │ the 1,000,000-pair table: every row is a row of that table, thus the run   │
+# │ joins `million_proxy_gemma12b` on `pair_id` at 100%. The canonical pairs   │
+# │ are the same 100,000 pairs the first nocity run and the qwen half judged.  │
+# │                                                                            │
+# │ `max_pairs` stays 100,000: the runner accepts a subset table whose parent  │
+# │ settings match in everything else. See `_subset_table_matches`.           │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ─── Sizing ──────────────────────────────────────────────────────────────────
+# 110,025 rows for each case, 5 shards, 35 jobs, 2,048-row resume chunks.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   bash scripts/launch_ablation_rerun_gemma.sh --dry-run
+#   bash scripts/launch_ablation_rerun_gemma.sh
+
+sampling_params_vqa:
+  max_tokens: 128
+
+runtime:
+  resume: true
+  resume_chunk_rows: 2048
+
+prompt:
+  # The canonical gemma layout (decision of 2026-09-02).
+  image_layout: interleaved_labels
+
+pair_sampler:
+  max_pairs: 100000
+  shard_count: 5
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    array_parallelism: 32
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct
+      pipeline: pairwise_subway_safety_mvp_nocity,pairwise_libraries_mvp_nocity,pairwise_schools_mvp_nocity,pairwise_road_quality_mvp_nocity,pairwise_parks_plazas_mvp_nocity,pairwise_restaurants_mvp_nocity,pairwise_street_photography_mvp_nocity
+      # 5 shards for each case. This MUST match `pair_sampler.shard_count`.
+      pair_sampler.shard_index: range(0,5)

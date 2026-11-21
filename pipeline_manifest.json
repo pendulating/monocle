@@ -1,10 +1,10 @@
 {
-  "output_root": "/share/pierson/matt/mllmsci",
+  "output_root": "/share/ju/matt/mllmsci",
   "nodes": {
     "pairwise": {
       "stage": "pairwise_vqa",
       "outputs": {
-        "results": "/share/pierson/matt/mllmsci/outputs/pairwise/wealth_tester_25600_20260409_183134.parquet"
+        "results": "/share/ju/matt/mllmsci/outputs/pairwise/wealth_tester_25600_20260409_183134.parquet"
       },
       "metadata": {
         "rows": 282,

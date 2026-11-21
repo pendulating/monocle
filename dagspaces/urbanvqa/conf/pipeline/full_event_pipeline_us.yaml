@@ -105,8 +105,8 @@ pipeline:
           verify.method: combo
           verify.top_k: 5
           verify.thresholds: "sim=0.55,ent=0.85,contra=0.05"
-          verify.embed_model_name: /share/pierson/matt/zoo/models/intfloat_e5_base
-          verify.nli_model_name: /share/pierson/matt/zoo/models/mdeberta_v3_base_xnli_multilingual_nli_2mil7
+          verify.embed_model_name: /share/ju/matt/zoo/models/intfloat_e5_base
+          verify.nli_model_name: /share/ju/matt/zoo/models/mdeberta_v3_base_xnli_multilingual_nli_2mil7
           verify.windowing.enabled: null
           verify.windowing.window_size: 5
           verify.windowing.stride: 2

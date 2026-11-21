@@ -1,0 +1,19 @@
+# @package _global_
+# MATCHED-CONTROL variant of `pairwise_subway_safety_mvp`.
+#
+# It inherits the whole case and overrides NOTHING. The suffix is the arm
+# marker: the registry reads `_matched` and files the run as the `matched`
+# arm, beside the canonical cell and not in it.
+#
+# Why this file exists: the canonical gemma-4-12b battery ran the
+# `interleaved_labels` layout at 1,000,000 pairs. The `nocity` and
+# `textfirst` arms ran the label-anchored layouts at 100,000 pairs. Thus a
+# gemma delta of either arm held the named change AND the layout, and the
+# 1,000,000-pair control shared only 91.7% of the arm's `pair_id` rows.
+# This arm runs the canonical prompt on `images_then_labels` over the SAME
+# 100,000-pair table, thus it joins both arms pair for pair.
+#
+# See `sweep/million_matched_gemma12b.yaml` and
+# `vlm-narratives-docs/prompt-ablations.md`.
+defaults:
+  - pairwise_subway_safety_mvp

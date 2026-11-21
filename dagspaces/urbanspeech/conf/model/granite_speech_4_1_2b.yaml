@@ -24,7 +24,7 @@
 # use distinct architectures (granite_speech_plus / granite_speech_nar) that
 # vLLM 0.19 does NOT support — they are intentionally not wired up here.
 
-model_source: /share/pierson/matt/zoo/models/granite-speech-4.1-2b
+model_source: /share/ju/matt/zoo/models/granite-speech-4.1-2b
 model_family: granite_speech
 speech_lora: false
 

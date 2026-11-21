@@ -839,7 +839,7 @@ class GEPAVQAAdapter(GEPAAdapter):
             merged[self._reference_column] = merged[self._reference_column].fillna("")
             return merged
 
-        with open("/share/pierson/matt/mllmsci/gepa_debug.log", "a") as f:
+        with open("/share/ju/matt/mllmsci/gepa_debug.log", "a") as f:
             f.write(f"DEBUG: Merge failed. batch_df columns: {batch_df.columns.tolist()}\n")
             f.write(f"DEBUG: Merge failed. results columns: {results.columns.tolist()}\n")
             f.write(f"DEBUG: Candidate columns for merge: {candidate_columns}\n")

@@ -23,7 +23,7 @@ if [ -z "${FFMPEG_ROOT:-}" ]; then
     if [ -f "$_TBA_THIRD/ffmpeg/install/lib/pkgconfig/libavcodec.pc" ]; then
         FFMPEG_ROOT="$_TBA_THIRD/ffmpeg/install"
     else
-        FFMPEG_ROOT="/share/pierson/matt/zoo/ffmpeg-libs/n7.1"
+        FFMPEG_ROOT="/share/ju/matt/zoo/ffmpeg-libs/n7.1"
     fi
     export FFMPEG_ROOT
 fi

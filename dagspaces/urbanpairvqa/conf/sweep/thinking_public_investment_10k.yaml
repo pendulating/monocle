@@ -58,6 +58,33 @@
 #   [stage_venv] ... scratch mirror ...
 # "no matching scratch mirror" means the job runs from NFS.
 
+# ┌─ UPDATE 2026-08-20 — LAYOUT IS NOW `images_then_labels` ───────────────────┐
+# │ The boxes below still hold: `images_then_text` is broken on this arch.     │
+# │ What changed is WHY, and which fix we use.                                 │
+# │                                                                            │
+# │ Re-tested on 2026-08-20 with `limit_mm_per_prompt` pinned and on vLLM      │
+# │ 0.25.0: `images_then_text` still gives 55 of 70 traces that speak of one   │
+# │ image (NotSure 81.4%). The engine never dropped the image — every vLLM on  │
+# │ disk allows 999 for an unspecified modality. The model reads two ADJACENT  │
+# │ image blocks as one image.                                                 │
+# │                                                                            │
+# │ Thus the rule is adjacency, not order: text must sit BETWEEN the two       │
+# │ images, and text before the first image is optional. Both layouts bind     │
+# │ (0 of 70 one-image traces each):                                           │
+# │   interleaved_labels  "Image A:", image, "Image B:", image, prompt         │
+# │   images_then_labels  image, "Image A.", image, "Image B.", prompt         │
+# │                                                                            │
+# │ `images_then_labels` opens with an image, which is what Google asks for    │
+# │ (gemma-4 card, "Modality order"). Production moved to it on 2026-08-20.    │
+# │                                                                            │
+# │ OPEN: on the greedy path the new layout abstained MORE on the schools      │
+# │ probe — 10 pairs into NotSure, 1 out, McNemar p=0.012, n=70, 1 case. Watch │
+# │ the abstention rate of the first re-run against the registered numbers.    │
+# │                                                                            │
+# │ Warning: a battery must hold ONE layout for every case. The registry gate  │
+# │ rejects a mixed set. A run from before 2026-08-20 is NOT comparable.       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
 sampling_params_vqa:
   # Google's standard sampling for gemma-4-12b: temperature 1.0, top_p 0.95,
   # top_k 64.
@@ -108,7 +135,7 @@ prompt:
   # │ The label-only battery cannot show this. A blind run there looks like an │
   # │ honest high abstention rate. Only the trace names the cause.             │
   # └──────────────────────────────────────────────────────────────────────────┘
-  image_layout: interleaved_labels
+  image_layout: images_then_labels
 
   structured_output:
     # Match the canonical battery, so a trace explains the same 6-way choice.

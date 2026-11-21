@@ -25,10 +25,10 @@
 # standard encoder path / stable `.venv`, so this needs none of the gemma-4-12b
 # nightly-venv + DP gating.
 #
-# ⚠️ `/share/pierson/matt/mllmsci/.venv` is GUTTED (empty site-packages, no
+# ⚠️ `/share/ju/matt/mllmsci/.venv` is GUTTED (empty site-packages, no
 # bin/), so the launcher's default `source .../.venv/bin/activate` fails and
 # every job dies at setup. Point at the intact stable env until it is rebuilt:
-#   export MLLMSCI_VENV_ACTIVATE=/share/pierson/matt/mllmsci/.venv-3.12/bin/activate
+#   export MLLMSCI_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activate
 #
 # Usage — run once per case (subway = unit mode, road quality = image mode):
 #   export HYDRA_SWEEP_DIR=multirun/persona_subway

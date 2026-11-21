@@ -77,7 +77,7 @@ if ray is not None:
             if self._initialized:
                 return
             
-            project_root = "/share/pierson/matt/mllmsci"
+            project_root = "/share/ju/matt/mllmsci"
             cambrian_venv = os.path.join(project_root, ".venv-cambrian")
             python_exe = os.path.join(cambrian_venv, "bin/python")
             cambrian_src = os.path.join(project_root, "sub/cambrian")
@@ -431,7 +431,7 @@ def run_sidecar_loop():
     from PIL import Image
     
     # We must ensure Cambrian source is in path inside the subprocess
-    project_root = "/share/pierson/matt/mllmsci"
+    project_root = "/share/ju/matt/mllmsci"
     cambrian_path = os.path.join(project_root, "sub/cambrian")
     if cambrian_path not in sys.path:
         sys.path.insert(0, cambrian_path)

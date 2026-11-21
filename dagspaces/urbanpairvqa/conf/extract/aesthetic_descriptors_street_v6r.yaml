@@ -1,0 +1,537 @@
+# @package extract
+# descriptors-v6-streetr (D130): the RETRY pass of `aesthetic_descriptors_street_v6.yaml`, written by
+# `scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
+# reverse order, and each `none` example stays at its place. It reads only the
+# texts that got a copy of an example in the first pass.
+name: aesthetic_descriptors
+schema_version: descriptors-v6-streetr
+max_char_buffer: 6000
+context_window_chars: 600
+max_model_len: 32768
+max_tokens: 6144
+batch_length: 512
+extraction_passes: 1
+temperature: 0.0
+repetition_penalty: 1.0
+use_guided_json: true
+require_extraction: true
+rescue_substrings: true
+attribute_values:
+  descriptor:
+    vibe:
+    - 'yes'
+    - 'no'
+    aspect:
+    - appearance
+    - atmosphere
+    - social_register
+    - business_type
+    - figurative
+    - evaluation
+    - size
+    - composition
+    - other
+    negated:
+    - 'yes'
+    - 'no'
+    target:
+    - place
+    - current_photo
+    - planned_photo
+prompt_description: "You read a part of a text that a vision-language model wrote about 1\nstreet-level\
+  \ photograph of a place in New York City. The user asked the\nmodel about a restaurant (\"Look and tell\
+  \ me more about this restaurant.\")\nor asked for a camera angle (\"Look and tell me a good angle to\
+  \ take a\npicture from.\"). The text is the private reasoning of the model or its\nfinal answer. A line\
+  \ before the examples tells you which. Extract the\ndescriptors: the words and short phrases with which\
+  \ the text characterizes\nthe place, the photograph that the model got, or the picture that the user\n\
+  will take. Do not judge the image yourself.\n\nUse exactly these 2 classes:\n\n- descriptor: 1 descriptor.\n\
+  \  attributes:\n  - head: the descriptor in plain form, in lower case and in the singular.\n    Leave\
+  \ out an article, an intensifier (\"very\", \"a bit\"), a hedge, and\n    the frame noun (see slot).\
+  \ Keep a noun that names a kind of business\n    or venue (\"local eatery\", \"takeout spot\"). Never\
+  \ put a synonym in\n    place of a word.\n  - vibe: yes when the descriptor names the mood or the feel\
+  \ (cozy,\n    gritty, moody), or when the text frames it as a vibe, a feel, an\n    atmosphere, a mood,\
+  \ or a sense. Else no.\n  - slot: the frame noun that follows the descriptor or heads its list\n   \
+  \ (\"atmosphere\" in \"inviting atmosphere\", \"sense\" in \"sense of depth\",\n    \"vibe\" under a\
+  \ \"Vibe:\" heading), in lower case and in the singular.\n    Write none when there is no frame noun.\n\
+  \  - aspect: 1 of these values:\n    appearance (how it looks: weathered, ornate, sleek);\n    atmosphere\
+  \ (how it feels: cozy, gritty, moody, intimate);\n    social_register (whom it is for, its class, its\
+  \ standing: upscale,\n    working-class, family-run, immigrant);\n    business_type (the kind of business\
+  \ or cuisine: pizza place, carry-out);\n    figurative (a metaphor or an image: hidden gem);\n    evaluation\
+  \ (generic praise or judgment: beautiful, interesting, great,\n    unique, visually appealing, striking);\n\
+  \    size (a size word that characterizes the place: small, tiny, tall,\n    narrow);\n    composition\
+  \ (a quality of a frame: balanced, cluttered, flat, blurry,\n    low-resolution, sense of depth);\n\
+  \    other.\n  - negated: yes when the text says that the thing is not so (\"Not\n    high-end\", \"\
+  rather than a sit-down dining room\"), else no.\n  - target: 1 of these values:\n    place: the place,\
+  \ the street, or a thing in it. A word stays place\n    when it is true of the thing in the street too\
+  \ (\"the worn canopy\",\n    \"messy power lines\").\n    current_photo: the photograph that the model\
+  \ got, true only of the\n    frame (\"the image is dim\", \"cluttered\", \"the current shot is flat\"\
+  ).\n    planned_photo: the picture that the user will take, or what it will\n    feel or show (\"make\
+  \ it more striking\", \"it feels more intimate\", \"a\n    moody look\").\n\n- none: the marker of a\
+  \ part with no descriptor. It has no attributes.\n  Its span is the first 3 to 6 words of the part.\
+  \ Give it only when the\n  part holds no descriptor at all. Never give it with a descriptor.\n\nEvery\
+  \ value of vibe, aspect, negated, and target must be 1 of the values\nlisted. Never invent a value.\n\
+  \nRules:\n\n1. Copy each span from the text, character for character. Keep quote\n   marks and plurals\
+  \ as written. Never paraphrase or join 2 parts. Never\n   copy a span from the examples.\n2. The span\
+  \ is the shortest phrase that holds the descriptor. Include a\n   frame noun that follows it directly\
+  \ (\"cozy atmosphere\"). A span can\n   sit inside a longer span.\n3. Extract each quality as 1 extraction:\
+  \ \"cozy and intimate\" gives 2.\n   Keep a fixed compound as 1 (low-key, family-run, lived-in).\n4.\
+  \ A color, a material, the light, the weather, a count, an object, a\n   part of a building, a sign,\
+  \ a name, a place name, and a menu item are\n   not descriptors. The size of a thing in the place (\"\
+  large windows\") is\n   not a descriptor either. In a phrase about a building, a street, or a\n   neighborhood,\
+  \ extract only the descriptor: \"an older, brown brick\n   building\" gives \"older\".\n5. Praise is\
+  \ a descriptor: extract it with aspect evaluation. A camera\n   instruction or technique is not a descriptor:\
+  \ the angle, the position,\n   the lens, the time of day, leading lines, the rule of thirds, framing.\n\
+  6. A reasoning trace often opens with the request (\"User's Question\",\n   \"The user wants\"). Extract\
+  \ nothing from that echo. A line that\n   describes the image (\"Image:\", \"Subject:\") is not an echo.\n\
+  7. Extract a hedged descriptor too (\"seems like a neighborhood spot\").\n8. Extract a descriptor the\
+  \ first time that this part uses it. Skip a\n   later use with the same head.\n9. Extract in the order\
+  \ of the text. A short answer that is mostly advice\n   can still hold descriptors; read every sentence.\n"
+examples:
+- text: 'The alleyway between the two buildings is a great spot to take a picture from. The contrast between
+    the two buildings and the alleyway creates a visually appealing composition. The tree branches hanging
+    over the alleyway add a sense of depth and texture to the image. The shadows cast by the tree create
+    a sense of mystery and intrigue, adding to the overall aesthetic of the image. Additionally, the alleyway
+    provides a unique perspective on the buildings, highlighting their architectural details and the way
+    they interact with each other. Overall, capturing the alleyway from this angle would result in a striking
+    and memorable photograph.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: great spot
+    attributes:
+      head: great spot
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: visually appealing composition
+    attributes:
+      head: visually appealing
+      vibe: 'no'
+      slot: composition
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: sense of depth
+    attributes:
+      head: depth
+      vibe: 'no'
+      slot: sense
+      aspect: composition
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: sense of mystery
+    attributes:
+      head: mystery
+      vibe: 'yes'
+      slot: sense
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: intrigue
+    attributes:
+      head: intrigue
+      vibe: 'yes'
+      slot: sense
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: unique perspective
+    attributes:
+      head: unique
+      vibe: 'no'
+      slot: perspective
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: striking
+    attributes:
+      head: striking
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: memorable
+    attributes:
+      head: memorable
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+- text: 'Based on the image provided, there are a few ways you could take this photo to make it more striking.
+    The current angle has some nice elements, but it is a bit cluttered with power lines, a street sign,
+    and a car.
+
+
+    Here are three recommendations for better angles:
+
+
+    **1. The "Natural Framing" Angle (Recommended)**
+
+    *   **Where to stand:** Move significantly to the **left**, behind the large leafy tree/bushes.
+
+    *   **How to shoot:** Have your subject peek out from behind the tree branches.
+
+    *   **Why it works:** This uses the nature as a "frame." It naturally hides the messy overhead power
+    lines (which are very distracting in the original photo) and focuses the eye immediately on the brickwork
+    and the window of the house. It feels more intimate and secret.
+
+
+    **2. The "Leading Line" Angle**
+
+    *   **Where to stand:** Stand near the bottom of the metal staircase railing, further back on the
+    sidewalk than you are currently.
+
+    *   **How to shoot:** Angle your camera so the diagonal lines of the railing and the stairs lead your
+    eye directly up to the front entrance or the large central chimney.
+
+    *   **Why it works:** The stairs act as a "leading line," creating a strong sense of depth and inviting
+    the viewer to imagine walking up the path.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: striking
+    attributes:
+      head: striking
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: nice
+    attributes:
+      head: nice
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: cluttered
+    attributes:
+      head: cluttered
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: leafy
+    attributes:
+      head: leafy
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: messy
+    attributes:
+      head: messy
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: distracting
+    attributes:
+      head: distracting
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: intimate
+    attributes:
+      head: intimate
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: secret
+    attributes:
+      head: secret
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: sense of depth
+    attributes:
+      head: depth
+      vibe: 'no'
+      slot: sense
+      aspect: composition
+      negated: 'no'
+      target: planned_photo
+- text: 'Keep it practical and not too long. Use a little structure (short bold labels) but not an overwhelming
+    list. No need for headers everywhere. Maybe a tight bullet list of 3 angles plus a couple of pro tips.
+    Tone: like a friend who''s good at photos.
+
+    '
+  extractions:
+  - extraction_class: none
+    extraction_text: Keep it practical and not
+- text: '### 3. The "Low-Angle Street" Shot (Best for a cinematic/dynamic look)
+
+    The current eye-level shot is a bit flat. Changing your height can make the scene feel more interesting.
+
+    *   **How to do it:** Crouch down low, near the fence or the blue car. Aim your camera slightly upward
+    toward the building.
+
+    *   **Why it works:** A low angle makes the architecture look more imposing and grand. It also allows
+    the lines of the sidewalk and the parked cars to act as "leading lines," drawing the viewer''s eye
+    deeper into the photo toward the building.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: cinematic
+    attributes:
+      head: cinematic
+      vibe: 'yes'
+      slot: look
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: dynamic
+    attributes:
+      head: dynamic
+      vibe: 'yes'
+      slot: look
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: flat
+    attributes:
+      head: flat
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: interesting
+    attributes:
+      head: interesting
+      vibe: 'no'
+      slot: none
+      aspect: evaluation
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: imposing
+    attributes:
+      head: imposing
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: grand
+    attributes:
+      head: grand
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: planned_photo
+- text: '2. The hydrant as a foreground anchor with the door behind it. Right now the hydrant is centered
+    but the door is off to the left, so they don''t relate. A good angle: move so the hydrant/bollards
+    sit in one third (left or right) and the door aligns behind/above it, creating depth via the leading
+    line of the curb. The curb line is a strong diagonal in the current frame—if you shoot along it (so
+    the curb runs from bottom corner toward the building), it becomes a leading line pulling the eye to
+    the door. That''s a classic and works well here because the plaza is empty and clean.
+
+
+    3. Low dramatic angle from ground level near the curb, looking up. The building is tall; a low angle
+    exaggerates height and makes the brick pattern and the receding windows dramatic. But careful: the
+    current tilt is unintentional; a *committed* low angle with intentional perspective and maybe a wide
+    lens, with the hydrant silhouetted at the bottom, could look bold. Pair with the tree on the right
+    as a framing element. This is the "moody/abstract" option.
+
+    '
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: empty
+    attributes:
+      head: empty
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: clean
+    attributes:
+      head: clean
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: dramatic
+    attributes:
+      head: dramatic
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: tall
+    attributes:
+      head: tall
+      vibe: 'no'
+      slot: none
+      aspect: size
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: unintentional
+    attributes:
+      head: unintentional
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: bold
+    attributes:
+      head: bold
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: moody
+    attributes:
+      head: moody
+      vibe: 'yes'
+      slot: none
+      aspect: atmosphere
+      negated: 'no'
+      target: planned_photo
+  - extraction_class: descriptor
+    extraction_text: abstract
+    attributes:
+      head: abstract
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: planned_photo
+- text: "Here's a thinking process that leads to the suggested photo angles:\n\n1.  **Analyze the Original\
+    \ Image:**\n    *   **Subject:** A car parked in front of a historic-looking stone gate/wall with\
+    \ ornate ironwork. There are large, lush green trees in the background and to the side.\n    *   **Composition:**\
+    \ The car is in the foreground, cutting off the bottom of the frame. The gate and trees form the midground/background.\
+    \ The perspective is relatively flat (eye-level from inside/near a car).\n    *   **Lighting:** Bright\
+    \ daylight, likely afternoon based on the shadows. Lots of \"dappled\" light from the trees.\n   \
+    \ *   **Elements of Interest:**\n        *   The car (sleek, modern).\n        *   The stone pillars\
+    \ and iron gate (historic, textured).\n        *   The lush trees (organic, deep green).\n"
+  extractions:
+  - extraction_class: descriptor
+    extraction_text: historic-looking
+    attributes:
+      head: historic-looking
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: ornate
+    attributes:
+      head: ornate
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: lush
+    attributes:
+      head: lush
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: flat
+    attributes:
+      head: flat
+      vibe: 'no'
+      slot: none
+      aspect: composition
+      negated: 'no'
+      target: current_photo
+  - extraction_class: descriptor
+    extraction_text: sleek
+    attributes:
+      head: sleek
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: modern
+    attributes:
+      head: modern
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: historic
+    attributes:
+      head: historic
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: textured
+    attributes:
+      head: textured
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
+  - extraction_class: descriptor
+    extraction_text: organic
+    attributes:
+      head: organic
+      vibe: 'no'
+      slot: none
+      aspect: appearance
+      negated: 'no'
+      target: place
