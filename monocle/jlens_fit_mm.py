@@ -8,6 +8,12 @@ context), with:
   * SOURCE positions restricted to the image-patch token positions, and
   * TARGET (cotangent-injection) positions from the first patch onward.
 
+`--sources text_after` moves the SOURCE to the text positions after the last
+patch (the question and the generation prompt), and `--context-kind cases`
+puts the single-image case prompt there instead of the neutral caption. That
+is fit C of vlm-narratives-docs/lens-refusal-probe-plan.md: the lens whose
+estimand is the question-token read. The target span does not change.
+
 That makes J_l literally the patch -> verbalization transport, fitted
 on-distribution:
 
@@ -38,6 +44,8 @@ Usage (klara, .venv-nightly + LD_PRELOAD -- see monocle/monocle.sub):
 from __future__ import annotations
 
 import argparse
+import contextlib
+import datetime as _datetime
 import json
 import logging
 import math
@@ -48,7 +56,7 @@ from pathlib import Path
 
 import torch
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -59,6 +67,10 @@ DEFAULT_OUT_DIR = str(REPO / "outputs/_monocle/jlens/mm")
 # Sources must all be < target (default final layer, 47). start_graph_at=min
 # bounds the retained autograd graph, so nothing below layer 6 is retained.
 DEFAULT_SOURCE_LAYERS = [6, 12, 18, 24, 30, 36, 42, 46]
+
+#: `jacobian` averages the raw gradient. `lrp` averages a relevance
+#: coefficient instead, which makes an R-lens. See monocle/rlens_rules.py.
+RULE_CHOICES = ("jacobian", "lrp")
 
 #: Deterministic neutral describe-contexts. The context for image i (by GLOBAL
 #: index, before sharding) is DESCRIBE_CONTEXTS[i % 5], so shard slicing never
@@ -73,9 +85,42 @@ DESCRIBE_CONTEXTS = [
     "What is shown in this picture?",
 ]
 
+#: Where the SOURCE positions sit. `patches` is the original estimand.
+#: `text_after` is every position after the last patch, minus the final one,
+#: which has no target and would put a zero row into the mean.
+SOURCE_KINDS = ("patches", "text_after")
+
+#: What text follows the image. `describe` rotates the 5 neutral captions.
+#: `cases` rotates the 7 single-image case prompts of `monocle.single_steer`,
+#: by GLOBAL image index, thus every case gets the same share in every shard.
+CONTEXT_KINDS = ("describe", "cases")
+
+
+def context_for(global_idx: int, kind: str) -> str:
+    """The text after the image for image `global_idx`, under `kind`."""
+    if kind == "describe":
+        return DESCRIBE_CONTEXTS[global_idx % len(DESCRIBE_CONTEXTS)]
+    from monocle import single_steer as ss
+    cases = list(ss.CASE_WORDS)
+    return ss.user_text(cases[global_idx % len(cases)])
+
+
+def raw_prefix(args) -> str:
+    """The forced prefix of a raw case prompt: the base census frame ends
+    the question with `Answer:` (`probe_frame.render_raw`)."""
+    if args.template == "raw" and args.context_kind == "cases":
+        from monocle import probe_frame as pf
+        return pf.FORCE_PREFIX
+    return ""
+
 
 def log(msg: str) -> None:
     print(f"[jlens-fit-mm] {msg}", flush=True)
+
+
+def fit_date() -> str:
+    """Today, as an ISO date. It goes into the lens meta."""
+    return _datetime.date.today().isoformat()
 
 
 def _load_activation_recorder():
@@ -108,27 +153,30 @@ def _load_jacobian_lens():
 # A) Pure core: dependency-injectable, CPU-testable
 # ---------------------------------------------------------------------------
 def _is_replicable(value: object) -> bool:
-    """Whether a value should be replicated along the batch axis.
+    """Whether a value must be replicated along the batch axis.
 
-    Only floating and integer tensors are replicated; bool tensors and
-    non-tensor values (e.g. a ``use_cache=False`` flag) pass through unchanged.
+    Every tensor with 1 dimension or more is replicated, a bool tensor
+    included. A bool attention mask must follow the batch: a batch-1 mask
+    beside batch-8 inputs is a shape error, or worse, a silent broadcast.
+
+    A non-tensor value (such as a ``use_cache=False`` flag) and a 0-dim tensor
+    have no batch axis, so they pass through unchanged.
     """
-    if not torch.is_tensor(value):
-        return False
-    return value.is_floating_point() or (
-        not value.is_floating_point() and value.dtype != torch.bool
-    )
+    return torch.is_tensor(value) and value.dim() >= 1
 
 
 def _replicate_inputs(
     inputs: dict, dim_batch: int, *, use_repeat: bool
 ) -> dict:
-    """Replicate every floating/int tensor in ``inputs`` along dim 0 to
-    ``dim_batch``.
+    """Replicate every tensor in ``inputs`` along dim 0 to ``dim_batch``.
+
+    A bool tensor is replicated too. An attention mask is bool, and it must
+    have the same batch size as the inputs beside it.
 
     Prefers ``expand`` (a zero-copy view); ``use_repeat=True`` materialises a
     contiguous copy instead, for the fallback when a model forward rejects the
-    non-contiguous expanded tensors. Non-tensor / bool values pass through.
+    non-contiguous expanded tensors. A non-tensor value and a 0-dim tensor pass
+    through.
     """
     out: dict = {}
     for key, value in inputs.items():
@@ -195,8 +243,8 @@ def jacobian_for_inputs(
         lens_model: Duck-typed; needs ``.layers`` (indexable nn.Modules),
             ``.n_layers``, ``.d_model``.
         inputs: Dict of tensors with batch dim 1 (plus optional non-tensor
-            passthroughs). Every floating/int tensor is replicated to
-            ``dim_batch`` along dim 0.
+            passthroughs). Every tensor with 1 dimension or more is replicated
+            to ``dim_batch`` along dim 0, a bool mask included.
         source_positions: 1-D LongTensor of sequence positions to average the
             Jacobian over (the patch block).
         target_mask: 1-D BoolTensor ``[seq_len]`` marking cotangent-injection
@@ -292,6 +340,24 @@ def jacobian_for_inputs(
 # ---------------------------------------------------------------------------
 # B) Gemma-specific wrappers
 # ---------------------------------------------------------------------------
+TEMPLATE_KINDS = ("chat", "raw")
+
+
+def build_raw_inputs(proc, image, context: str, *, device: str = "cuda:0",
+                     force_prefix: str = "") -> dict:
+    """The completion frame of a pretrained checkpoint, which has no chat
+    template. No explicit `<bos>`: the processor adds one. A case prompt
+    ends with the census force prefix, a describe caption does not."""
+    text = "<|image|>\n" + context + force_prefix
+    last: Exception | None = None
+    for kw in ({"images": [[image]]}, {"images": [image]}):
+        try:
+            return proc(text=[text], return_tensors="pt", **kw).to(device)
+        except Exception as exc:  # noqa: BLE001
+            last = exc
+    raise RuntimeError(f"processor rejected both image nestings: {last}")
+
+
 def build_mm_inputs(
     proc,
     tmpl: str,
@@ -300,28 +366,53 @@ def build_mm_inputs(
     *,
     image_token_id: int,
     device: str = "cuda:0",
+    sources: str = "patches",
+    template: str = "chat",
+    force_prefix: str = "",
 ) -> tuple[dict, torch.Tensor, torch.Tensor]:
-    """Build multimodal chat inputs for one image + describe-context.
+    """Build multimodal chat inputs for one image + context.
 
     Uses the production prompt path (extract.build_inputs, no system message).
-    SOURCE positions are the image-patch token positions; the TARGET mask
-    covers every position from the first patch onward, excluding the final
-    sequence position (mirroring the reference fitter's next-token exclusion --
-    the last position has no next-token target).
+    Under ``template="raw"`` the prompt is the completion frame of a
+    PRETRAINED checkpoint instead, as `probe_frame.render_raw` builds it:
+    the image token, a newline and the context. A case context also gets
+    the forced prefix `Answer:`, so the answer position matches the base
+    census frame.
+    SOURCE positions are the image-patch token positions, or under
+    ``sources="text_after"`` every position after the last patch minus the
+    final one. The TARGET mask covers every position from the first patch
+    onward, excluding the final sequence position (mirroring the reference
+    fitter's next-token exclusion -- the last position has no next-token
+    target).
 
     Returns ``(inputs, source_positions, target_mask)``.
     """
     from monocle import extract
 
+    if sources not in SOURCE_KINDS:
+        raise ValueError(f"sources must be one of {SOURCE_KINDS}, not {sources!r}")
+    if template not in TEMPLATE_KINDS:
+        raise ValueError(f"template must be one of {TEMPLATE_KINDS}, not {template!r}")
     image = extract.open_image(image_path)
-    inputs = extract.build_inputs(
-        proc, tmpl, image, user_text=context, device=device)
-    source_positions = extract.image_token_positions(inputs, image_token_id)
+    if template == "raw":
+        inputs = build_raw_inputs(proc, image, context, device=device,
+                                  force_prefix=force_prefix)
+    else:
+        inputs = extract.build_inputs(
+            proc, tmpl, image, user_text=context, device=device)
+    patch_positions = extract.image_token_positions(inputs, image_token_id)
 
     seq_len = int(inputs["input_ids"].shape[1])
-    first_patch = int(source_positions[0])
+    first_patch = int(patch_positions[0])
     target_mask = torch.arange(seq_len) >= first_patch
     target_mask[seq_len - 1] = False  # exclude the final position (no target)
+    if sources == "patches":
+        source_positions = patch_positions
+    else:
+        last_patch = int(patch_positions[-1])
+        source_positions = torch.arange(last_patch + 1, seq_len - 1)
+        if source_positions.numel() == 0:
+            raise ValueError("no text position after the last patch")
 
     # Match the verified readout path: no KV cache under the grad forward.
     inputs = dict(inputs)
@@ -329,8 +420,19 @@ def build_mm_inputs(
     return inputs, source_positions, target_mask
 
 
-def load_lens_model(model_dir: str):
+def rule_context(hf_model, rules: str):
+    """The LRP rules for an R fit, and nothing at all for a J fit."""
+    if rules == "lrp":
+        from monocle import rlens_rules as rr
+        return rr.lrp_rules(hf_model)
+    return contextlib.nullcontext()
+
+
+def load_lens_model(model_dir: str, *, eager: bool = False):
     """Load gemma-4 via the verified monocle recipe and wrap for jlens.
+
+    `eager` is needed for an R fit only. SDPA hides the softmax inside a
+    fused kernel, and the softmax rule cannot reach it there.
 
     force_bos=False is LOAD-BEARING (wiki gotcha (b)): the chat template emits
     its own <bos>, and the default True would double-BOS the shared processor
@@ -344,9 +446,12 @@ def load_lens_model(model_dir: str):
         sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
         import jlens
 
-    from monocle import extract
-
-    proc, model, tmpl = extract.load_model(model_dir)
+    if eager:
+        from monocle import attn_route as ar
+        proc, model, tmpl = ar.load_eager(model_dir, "cuda:0")
+    else:
+        from monocle import extract
+        proc, model, tmpl = extract.load_model(model_dir)
     lens_model = jlens.from_hf(model, proc.tokenizer, force_bos=False)
     image_token_id = int(model.config.image_token_id)
     return proc, model, tmpl, lens_model, image_token_id
@@ -371,7 +476,13 @@ def load_images(path: str) -> list[dict]:
 
 
 def cmd_smoke(args: argparse.Namespace) -> int:
-    """Calibrate dim_batch: time one image at each setting, report peak mem."""
+    """Calibrate dim_batch: time one image at each setting, report peak mem.
+
+    The smoke uses the layer set `cmd_fit` will use: every block below the
+    target under `--all-layers`, else `args.source_layers`. The retained graph
+    roots at min(source_layers), so a different layer set gives a different
+    memory peak, and the calibration would not hold.
+    """
     entries = load_images(args.images)
     if not entries:
         log("no images to smoke on")
@@ -379,22 +490,32 @@ def cmd_smoke(args: argparse.Namespace) -> int:
     entry = entries[0]
 
     proc, model, tmpl, lens_model, image_token_id = load_lens_model(
-        args.model_dir)
+        args.model_dir, eager=args.rules == "lrp")
+    want = (list(range(lens_model.n_layers - 1)) if args.all_layers
+            else args.source_layers)
+    source_layers, target_layer = _resolve_layers(
+        want, None, lens_model.n_layers)
     inputs, source_positions, target_mask = build_mm_inputs(
-        proc, tmpl, entry["path"], DESCRIBE_CONTEXTS[0],
-        image_token_id=image_token_id)
+        proc, tmpl, entry["path"], context_for(0, args.context_kind),
+        image_token_id=image_token_id, sources=args.sources,
+        template=args.template, force_prefix=raw_prefix(args))
     seq_len = int(inputs["input_ids"].shape[1])
     log(f"smoke image={entry.get('recording_id', entry['path'])} "
+        f"sources={args.sources} context={args.context_kind} "
         f"seq_len={seq_len} n_source={int(source_positions.numel())} "
         f"n_target={int(target_mask.sum())}")
+    log(f"  {len(source_layers)} source blocks (min {source_layers[0]}), "
+        f"target {target_layer}")
 
     for dim_batch in (4, 8, 12, 16):
         torch.cuda.reset_peak_memory_stats()
         t0 = time.time()
         try:
-            jacobian_for_inputs(
-                model, lens_model, inputs, source_positions, target_mask,
-                source_layers=DEFAULT_SOURCE_LAYERS, dim_batch=dim_batch)
+            with rule_context(model, args.rules):
+                jacobian_for_inputs(
+                    model, lens_model, inputs, source_positions, target_mask,
+                    source_layers=source_layers, target_layer=target_layer,
+                    dim_batch=dim_batch)
         except torch.cuda.OutOfMemoryError:
             log(f"dim_batch={dim_batch}: OOM")
             torch.cuda.empty_cache()
@@ -419,13 +540,19 @@ def cmd_fit(args: argparse.Namespace) -> int:
     # each item's global index so the context mix is unskewed.
     indexed = list(enumerate(entries))[shard_i::shard_n]
     log(f"shard {shard_i}/{shard_n}: {len(indexed)} of {len(entries)} images, "
-        f"dim_batch={args.dim_batch}, sources={DEFAULT_SOURCE_LAYERS}")
+        f"dim_batch={args.dim_batch}, rules={args.rules}, "
+        f"sources={args.sources}, context={args.context_kind}")
 
     proc, model, tmpl, lens_model, image_token_id = load_lens_model(
-        args.model_dir)
+        args.model_dir, eager=args.rules == "lrp")
     d_model = lens_model.d_model
+    # The accumulator holds 1 d x d matrix for each block, and it lives in CPU
+    # memory. Thus the block count costs RAM and disk, and almost no GPU.
+    want = (list(range(lens_model.n_layers - 1)) if args.all_layers
+            else args.source_layers)
     source_layers, target_layer = _resolve_layers(
-        DEFAULT_SOURCE_LAYERS, None, lens_model.n_layers)
+        want, None, lens_model.n_layers)
+    log(f"  {len(source_layers)} source blocks, target {target_layer}")
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -438,6 +565,9 @@ def cmd_fit(args: argparse.Namespace) -> int:
             ("source_layers", source_layers),
             ("target_layer", target_layer),
             ("mode", "multimodal"),
+            ("sources", args.sources),
+            ("context_kind", args.context_kind),
+            ("template", args.template),
         ):
             if key in state and state[key] != expected:
                 raise ValueError(
@@ -465,6 +595,9 @@ def cmd_fit(args: argparse.Namespace) -> int:
                 "source_layers": source_layers,
                 "target_layer": target_layer,
                 "mode": "multimodal",
+                "sources": args.sources,
+                "context_kind": args.context_kind,
+                "template": args.template,
             },
             tmp,
         )
@@ -474,13 +607,14 @@ def cmd_fit(args: argparse.Namespace) -> int:
     for local_idx, (global_idx, entry) in enumerate(indexed):
         if local_idx < next_idx:
             continue
-        context = DESCRIBE_CONTEXTS[global_idx % len(DESCRIBE_CONTEXTS)]
+        context = context_for(global_idx, args.context_kind)
         image_id = entry.get("recording_id") or Path(entry["path"]).name
 
         try:
             inputs, source_positions, target_mask = build_mm_inputs(
                 proc, tmpl, entry["path"], context,
-                image_token_id=image_token_id)
+                image_token_id=image_token_id, sources=args.sources,
+                template=args.template, force_prefix=raw_prefix(args))
         except Exception as exc:  # noqa: BLE001 -- unreadable image / build fail
             log(f"  skipping image {local_idx} ({image_id}): {exc}")
             n_skipped += 1
@@ -491,10 +625,11 @@ def cmd_fit(args: argparse.Namespace) -> int:
         n_source = int(source_positions.numel())
         n_target = int(target_mask.sum())
         t0 = time.time()
-        per_image_J = jacobian_for_inputs(
-            model, lens_model, inputs, source_positions, target_mask,
-            source_layers=source_layers, target_layer=target_layer,
-            dim_batch=args.dim_batch)
+        with rule_context(model, args.rules):
+            per_image_J = jacobian_for_inputs(
+                model, lens_model, inputs, source_positions, target_mask,
+                source_layers=source_layers, target_layer=target_layer,
+                dim_batch=args.dim_batch)
 
         # Convergence diagnostic: relative shift of the running mean, max over
         # source layers (falls ~1/n once settled).
@@ -528,7 +663,28 @@ def cmd_fit(args: argparse.Namespace) -> int:
     lens = JacobianLens(
         jacobians=jacobian_mean, n_prompts=n_done, d_model=d_model)
     out = out_dir / f"shard{shard_i}of{shard_n}.pt"
-    lens.save(str(out))
+    # fp32, not the fp16 default: a shard is an input to the merge, and the
+    # fp16 error does not cancel in the weighted mean. The R0 check measured a
+    # 4e-4 residual that came from the fp16 shard saves alone.
+    lens.meta.update({
+        "rules": args.rules,
+        "images": str(args.images),
+        "n_images_requested": int(args.n_images),
+        "shard": args.shard,
+        "source_layers": [int(l) for l in source_layers],
+        "dim_batch": int(args.dim_batch),
+        "model_dir": str(args.model_dir),
+        # The source is the patch block or the text after it, and the
+        # target is the span from the first patch onward.
+        "estimator": ("mm_patch_source" if args.sources == "patches"
+                      else "mm_text_after_source"),
+        "sources": args.sources,
+        "target_kind": "span",
+        "prompt_kind": args.context_kind,
+        "template": args.template,
+        "fit_date": fit_date(),
+    })
+    lens.save(str(out), dtype=torch.float32)
     log(f"saved {out} ({lens!r}); {n_done} fitted, {n_skipped} skipped")
     return 0
 
@@ -541,6 +697,23 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--n-images", type=int, default=128,
                     help="Images from the list to fit over (before sharding).")
     ap.add_argument("--dim-batch", type=int, default=8)
+    ap.add_argument("--source-layers", nargs="+", type=int,
+                    default=DEFAULT_SOURCE_LAYERS,
+                    help="the blocks to fit a lens for")
+    ap.add_argument("--all-layers", action="store_true",
+                    help="fit every block below the target, not the 8 default")
+    ap.add_argument("--rules", default="jacobian", choices=RULE_CHOICES,
+                    help=("`lrp` fits an R-lens: the same estimator with "
+                          "relevance rules in the backward pass. It forces "
+                          "an eager load and its own output directory."))
+    ap.add_argument("--sources", default="patches", choices=SOURCE_KINDS,
+                    help="where the source positions sit; text_after is fit C")
+    ap.add_argument("--context-kind", default="describe", choices=CONTEXT_KINDS,
+                    help="the text after the image: neutral captions, or the "
+                         "7 single-image case prompts in rotation")
+    ap.add_argument("--template", default="chat", choices=TEMPLATE_KINDS,
+                    help="chat = the model's chat template; raw = the "
+                         "completion frame of a pretrained checkpoint")
     ap.add_argument("--images", default=DEFAULT_IMAGES,
                     help="JSON list of {path, recording_id, dataset, face}.")
     ap.add_argument("--model-dir", default=MODEL_DIR_DEFAULT)
@@ -550,6 +723,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+    # An R fit must never overwrite a J shard, so it gets its own directory.
+    if args.rules == "lrp" and args.out_dir == DEFAULT_OUT_DIR:
+        args.out_dir = str(Path(DEFAULT_OUT_DIR) / "lrp")
+        log(f"rules=lrp, so the output goes to {args.out_dir}")
     if args.smoke:
         return cmd_smoke(args)
     return cmd_fit(args)

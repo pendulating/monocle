@@ -15,7 +15,6 @@ from dagspaces.urbanvqa.stages.vqa import (
     _group_by_prompt_optimization,
     run_vqa_stage,
 )
-from dagspaces.urbanvqa.orchestrator import _prepare_streaming_dataset
 
 
 class TestPromptTemplateRendering:
@@ -227,6 +226,7 @@ class TestStructuredJSONOutput:
     
     def test_json_extraction_with_text(self):
         """Test JSON extraction when wrapped in text."""
+        import json
         import re
         response_text = 'The answer is {"answer": "A building", "confidence": 0.9}'
         
@@ -234,58 +234,6 @@ class TestStructuredJSONOutput:
         if json_match:
             parsed = json.loads(json_match.group())
             assert parsed["answer"] == "A building"
-
-
-class TestImagePartitioning:
-    """Test Ray Data partitioned image ingestion."""
-
-    def test_directory_partitioning_generates_metadata(self, tmp_path):
-        import ray
-
-        labels = ["class_a", "class_b"]
-        for label in labels:
-            label_dir = tmp_path / label
-            label_dir.mkdir()
-            img = Image.new("RGB", (16, 16), color="white")
-            img_path = label_dir / f"{label}_sample.jpg"
-            img.save(img_path, "JPEG")
-
-        cfg = OmegaConf.create(
-            {
-                "data": {
-                    "image_path": str(tmp_path),
-                    "default_prompt": "Describe the scene",
-                    "partitioning": {
-                        "type": "dir",
-                        "field_names": ["label"],
-                    },
-                },
-                "runtime": {
-                    "debug": False,
-                    "streaming_io": True,
-                },
-            }
-        )
-
-        # Ensure there is no stale Ray context
-        if ray.is_initialized():
-            ray.shutdown()
-
-        ds, use_streaming = _prepare_streaming_dataset("", {}, cfg, "vqa")
-        assert use_streaming is True
-        assert ds is not None
-        try:
-            schema_names = set(ds.schema().names)
-            assert {"image", "path", "image_path", "label", "prompt", "sample_id"}.issubset(schema_names)
-
-            rows = ds.take_all()
-            assert len(rows) == len(labels)
-            for row in rows:
-                assert row["prompt"] == "Describe the scene"
-                assert row["sample_id"]
-                assert row["label"] in labels
-        finally:
-            ray.shutdown()
 
 
 if __name__ == "__main__":

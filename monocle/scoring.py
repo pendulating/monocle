@@ -49,6 +49,19 @@ def display_form(token: str) -> str:
     return token.replace("▁", " ").strip()
 
 
+def text_of(tokenizer: Any) -> Any:
+    """Give the function from a vocabulary token to its display form.
+
+    A byte-level tokenizer (Qwen) stores a space as `Ġ` and other scripts as
+    byte characters: `Ġsedan`, `è·¯çģ¯` for 路灯. These need the tokenizer. A
+    sentencepiece tokenizer (Gemma) keeps `display_form`.
+    """
+    join = getattr(tokenizer, "convert_tokens_to_string", None)
+    if join is None or join(["\u0120a"]).strip() != "a":
+        return display_form
+    return lambda token: join([token]).strip()
+
+
 def build_token_mask(tokenizer: Any, vocab_size: int) -> torch.Tensor:
     """Boolean [vocab] mask of tokens allowed in word clouds.
 
@@ -59,12 +72,13 @@ def build_token_mask(tokenizer: Any, vocab_size: int) -> torch.Tensor:
     mask = torch.zeros(vocab_size, dtype=torch.bool)
     special = set(tokenizer.all_special_ids)
     tokens = tokenizer.convert_ids_to_tokens(list(range(vocab_size)))
+    text = text_of(tokenizer)
     for i, tok in enumerate(tokens):
         if i in special or tok is None:
             continue
         if tok.startswith("<") and tok.endswith(">"):
             continue
-        disp = display_form(tok)
+        disp = text(tok)
         if len(disp) < 2:
             continue
         if not any(unicodedata.category(c).startswith("L") for c in disp):
@@ -112,6 +126,7 @@ def score_patches(
     p_cpu_rows = torch.gather(p, 1, top.indices).cpu()
     p_global = p.mean(dim=0).cpu()
 
+    text = text_of(tokenizer)
     rows: list[dict] = []
     for patch_idx in range(p.shape[0]):
         seen: set[str] = set()
@@ -121,7 +136,7 @@ def score_patches(
             if s == float("-inf"):
                 break
             tid = int(top_ids[patch_idx, j])
-            disp = display_form(tokenizer.convert_ids_to_tokens(tid))
+            disp = text(tokenizer.convert_ids_to_tokens(tid))
             key = disp.lower()
             if key in seen:
                 continue

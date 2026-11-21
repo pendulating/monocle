@@ -6,7 +6,7 @@ imports in the plain `.venv` that lacks jlens. These tests exercise the pure
 geometry, label-collapse, metric, and checkpoint logic on tiny tensors and
 fake tokenizers.
 
-Run: /share/pierson/matt/mllmsci/.venv/bin/python -m pytest \
+Run: /share/ju/matt/mllmsci/.venv/bin/python -m pytest \
         tests/test_safety_workspace.py -v
 """
 from __future__ import annotations
@@ -19,7 +19,7 @@ import pytest
 from omegaconf import OmegaConf
 import torch
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -246,6 +246,146 @@ class TestMetrics:
 
 
 # ---------------------------------------------------------------------------
+# P4: the second yardstick — the arm's OWN final answer.
+# ---------------------------------------------------------------------------
+class TestSelfAgreement:
+    """`self_agree` compares a lens row against the SAME arm's final answer.
+
+    The run builds it from `final_answer_classes(final_logits, class_ids)`,
+    which is lens-independent. These tests reproduce that arithmetic on fake
+    logits rows.
+    """
+
+    CLASS_IDS = {"Much*": 0, "Less": 1, "Same": 2, "More": 3}
+    LABEL_FIRST = {"MuchLess": 0, "Less": 1, "Same": 2, "More": 3, "MuchMore": 0}
+
+    # Row 0 = the label position, row 1 = the last position.
+    FINAL = torch.tensor([
+        [0.0, 0.0, 0.0, 6.0, 0.0, 0.0],   # More
+        [0.0, 5.0, 0.0, 0.0, 0.0, 0.0],   # Less
+    ])
+
+    def test_reads_one_class_per_position(self):
+        assert sw.final_answer_classes(self.FINAL, self.CLASS_IDS) == \
+            ["More", "Less"]
+
+    def test_agrees_when_the_lens_row_matches(self):
+        own = sw.final_answer_classes(self.FINAL, self.CLASS_IDS)
+        lens_row = torch.tensor([0.0, 0.0, 0.0, 3.0, 0.0, 0.0])  # More
+        m = sw.position_metrics(
+            lens_row, prod_label="Same", class_ids=self.CLASS_IDS,
+            label_first=self.LABEL_FIRST)
+        # The production label is Same, so the FIRST yardstick says no.
+        assert m["argmax_correct"] is False
+        # The arm's own answer is More, so the SECOND yardstick says yes.
+        assert bool(m["argmax_class"] == own[0]) is True
+
+    def test_disagrees_when_the_lens_row_differs(self):
+        own = sw.final_answer_classes(self.FINAL, self.CLASS_IDS)
+        lens_row = torch.tensor([0.0, 0.0, 4.0, 0.0, 0.0, 0.0])  # Same
+        m = sw.position_metrics(
+            lens_row, prod_label="Same", class_ids=self.CLASS_IDS,
+            label_first=self.LABEL_FIRST)
+        assert m["argmax_correct"] is True
+        assert bool(m["argmax_class"] == own[0]) is False
+
+    def test_the_final_row_agrees_with_itself(self):
+        """At L47 the lens row IS the final row, so self_agree must be True."""
+        own = sw.final_answer_classes(self.FINAL, self.CLASS_IDS)
+        for j in range(2):
+            m = sw.position_metrics(
+                self.FINAL[j], prod_label="Same", class_ids=self.CLASS_IDS,
+                label_first=self.LABEL_FIRST)
+            assert bool(m["argmax_class"] == own[j]) is True
+
+    def test_summary_reports_the_mean(self, tmp_path):
+        df = pd.DataFrame([
+            {"cond": "neutral", "lens": "mm", "layer": 42, "pos": "label",
+             "p_prod_label": 0.1, "rank_prod_label": 3, "argmax_class": "More",
+             "argmax_correct": False, "prod_label": "Same",
+             "final_class": "More", "self_agree": True,
+             "safety_mass": 0.0, "brightness_mass": 0.0},
+            {"cond": "neutral", "lens": "mm", "layer": 42, "pos": "label",
+             "p_prod_label": 0.2, "rank_prod_label": 1, "argmax_class": "Less",
+             "argmax_correct": False, "prod_label": "Same",
+             "final_class": "More", "self_agree": False,
+             "safety_mass": 0.0, "brightness_mass": 0.0},
+        ])
+        s = sw.summarize_part_a(df, {}, tmp_path)
+        assert s["by_group"][0]["self_agreement"] == pytest.approx(0.5)
+        assert s["by_group"][0]["argmax_agreement"] == 0.0
+
+    def test_summary_tolerates_an_old_parquet(self, tmp_path):
+        """A frame written before P4 has no `self_agree` column."""
+        df = pd.DataFrame([
+            {"cond": "prod", "lens": "mm", "layer": 42, "pos": "label",
+             "p_prod_label": 0.1, "rank_prod_label": 3, "argmax_class": "Same",
+             "argmax_correct": True, "prod_label": "Same",
+             "safety_mass": 0.0, "brightness_mass": 0.0}])
+        s = sw.summarize_part_a(df, {}, tmp_path)
+        assert s["by_group"][0]["self_agreement"] is None
+
+
+# ---------------------------------------------------------------------------
+# C4: per-lens fitted-layer intersection (mixed lens sets).
+# ---------------------------------------------------------------------------
+class TestLensLayerSets:
+    EIGHT = [6, 12, 18, 24, 30, 36, 42, 46]
+    ALL47 = list(range(47))
+
+    def test_equal_sets_keep_every_layer(self):
+        use, missing = sw.lens_layer_sets(
+            self.EIGHT, {"a": self.EIGHT, "b": self.EIGHT})
+        assert use == {"a": self.EIGHT, "b": self.EIGHT}
+        assert missing == {"a": [], "b": []}
+
+    def test_mixed_sets_intersect_per_lens(self):
+        """The 47-layer lens may join the 8-layer lenses."""
+        use, missing = sw.lens_layer_sets(
+            [6, 20, 42], {"eight": self.EIGHT, "all47": self.ALL47})
+        assert use["eight"] == [6, 42]      # 20 is not fitted there
+        assert use["all47"] == [6, 20, 42]
+        assert missing["eight"] == [20]
+        assert missing["all47"] == []
+
+    def test_an_empty_lens_is_reported_not_raised(self):
+        """The helper stays pure; `main` logs and raises on an empty set."""
+        use, missing = sw.lens_layer_sets([1, 2], {"eight": self.EIGHT})
+        assert use["eight"] == []
+        assert missing["eight"] == [1, 2]
+
+    def test_the_result_is_sorted_and_deduplicated(self):
+        use, _ = sw.lens_layer_sets([42, 6, 6, 42], {"eight": self.EIGHT})
+        assert use["eight"] == [6, 42]
+
+    def test_the_union_drives_the_recording(self):
+        """`run_part_a` records the union, so every lens finds its layers."""
+        use, _ = sw.lens_layer_sets(
+            [6, 20, 42], {"eight": self.EIGHT, "all47": self.ALL47})
+        union = sorted({l for v in use.values() for l in v})
+        assert union == [6, 20, 42]
+        for layers in use.values():
+            assert set(layers) <= set(union)
+
+
+# ---------------------------------------------------------------------------
+# lens_name — two lenses in one run must never share a name.
+# ---------------------------------------------------------------------------
+class TestLensName:
+    def test_the_default_three(self):
+        assert sw.lens_name(sw.LENS_WIKITEXT) == "wikitext"
+        assert sw.lens_name(sw.LENS_URBAN) == "urban"
+        assert sw.lens_name(sw.LENS_MM) == "mm"
+
+    def test_the_47_layer_lens_gets_its_own_name(self):
+        assert sw.lens_name(sw.LENS_MM_ALL47) == "mm_all47"
+
+    def test_the_four_names_are_distinct(self):
+        paths = [sw.LENS_WIKITEXT, sw.LENS_URBAN, sw.LENS_MM, sw.LENS_MM_ALL47]
+        assert len({sw.lens_name(p) for p in paths}) == 4
+
+
+# ---------------------------------------------------------------------------
 # vocab-mass id resolution (exact display-form matching)
 # ---------------------------------------------------------------------------
 class TestVocabMassIds:
@@ -265,6 +405,28 @@ class TestVocabMassIds:
     def test_empty_when_absent(self):
         tok = VocabTokenizer(["▁cat", "▁dog"])
         assert sw.vocab_mass_ids(tok, ["safe"]) == []
+
+    def test_counts_come_back_per_word(self):
+        tok = VocabTokenizer(["▁safe", "safe", "▁safety", "▁dog"])
+        ids, counts = sw.vocab_mass_ids_with_counts(tok, ["safe", "safety"])
+        assert ids == [0, 1, 2]
+        assert counts == {"safe": 2, "safety": 1}
+
+    def test_a_word_with_no_id_warns(self, capsys):
+        """C10: a 0-id word must never pass in silence."""
+        tok = VocabTokenizer(["▁safe", "▁dog"])
+        ids, counts = sw.vocab_mass_ids_with_counts(
+            tok, ["safe", "sketchy"], "safety")
+        assert ids == [0] and counts["sketchy"] == 0
+        out = capsys.readouterr().out
+        assert "WARNING" in out and "sketchy" in out
+        assert "safe=1" in out and "sketchy=0" in out
+
+    def test_the_id_map_is_pure(self, capsys):
+        tok = VocabTokenizer(["▁safe", "▁dog"])
+        assert sw.vocab_mass_id_map(tok, ["safe", "cow"]) == \
+            {"safe": [0], "cow": []}
+        assert capsys.readouterr().out == ""
 
 
 # ---------------------------------------------------------------------------
@@ -297,6 +459,46 @@ class TestCheckpoint:
         path = tmp_path / "answer_depth.parquet"
         sw.write_long_frame(self._rows(["a"]), path)
         assert list(tmp_path.glob("*.tmp*")) == []
+
+
+# ---------------------------------------------------------------------------
+# C9 + P7: part (b) validates its map layers and stamps its maps.
+# ---------------------------------------------------------------------------
+class TestPartBGuards:
+    """The map-layer check runs before any GPU work, so it is CPU-testable."""
+
+    def _call(self, tmp_path, layers, map_layers):
+        return sw.run_part_b(
+            proc=None, model=None, tmpl=None, lens_model=None, mm_lens=None,
+            rows=[], class_ids={"Same": 1}, safety_ids=None,
+            brightness_ids=None, layers=layers, map_layers=map_layers,
+            out_dir=tmp_path, device="cpu", map_cache={}, n_map_pairs=0,
+            smoke=False)
+
+    def test_a_map_layer_the_lens_lacks_raises(self, tmp_path):
+        with pytest.raises(ValueError, match="map layers"):
+            self._call(tmp_path, [24, 36, 42], [24, 99])
+
+    def test_the_message_names_the_missing_layers(self, tmp_path):
+        with pytest.raises(ValueError, match=r"\[7, 99\]"):
+            self._call(tmp_path, [24, 36], [24, 7, 99])
+
+    def test_the_final_layer_is_not_a_map_layer(self, tmp_path):
+        """L47 is the model's own head, and part (b) never records it."""
+        with pytest.raises(ValueError, match="map layers"):
+            self._call(tmp_path, [24, 36, sw.FINAL_LAYER], [sw.FINAL_LAYER])
+
+    def test_the_readme_names_the_causal_tool(self, tmp_path):
+        maps = tmp_path / "maps"
+        maps.mkdir()
+        sw._write_disposition_readme(maps)
+        text = (maps / "README_DISPOSITION.txt").read_text()
+        assert "NOT CAUSAL" in text
+        assert "causal-lens-retrospective.md" in text
+        assert "monocle/causal_maps.py" in text
+
+    def test_the_title_stamp(self):
+        assert sw.DISPOSITION_TAG == " [disposition]"
 
 
 # ---------------------------------------------------------------------------

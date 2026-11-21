@@ -7,7 +7,9 @@ published. These tests are the gate.
 The three mismatches this file locks down (each one broke the pre-2026-08-11
 `safety_workspace.py` build):
 
-  1. image_layout must be `interleaved_labels`, so gemma-4-12b binds image B.
+  1. image_layout must be `images_then_labels`: text between the two
+     images (so the arch does not read them as one), and an image first
+     (the modality order the gemma-4 card asks for).
   2. `system: null` must send NO system turn.
   3. The abstention label must reach both the answer enum and the user text.
 
@@ -20,13 +22,13 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from monocle import canonical  # noqa: E402
 
-MODEL_DIR = Path("/share/pierson/matt/zoo/models/gemma-4-12B-it")
+MODEL_DIR = Path("/share/ju/matt/zoo/models/gemma-4-12B-it")
 
 ROW = {
     "pair_id": "unit_00000042",
@@ -66,10 +68,19 @@ def test_rejects_unknown_case_and_kind():
 
 @needs_registry
 @pytest.mark.parametrize("case", canonical.CASES)
-def test_every_case_records_interleaved_labels(case):
-    """Mismatch 1. The registry gate demands this layout for gemma-4-12b."""
+def test_every_case_records_the_required_layout(case):
+    """Mismatch 1. The gate demands `images_then_labels`.
+
+    The layout must put text BETWEEN the two images, because the arch reads two
+    adjacent image blocks as one image. It must ALSO open the message with an
+    image, which is the modality order the gemma-4 card asks for.
+    `interleaved_labels` keeps the first rule and breaks the second.
+
+    A failure here means the registry holds a run from before 2026-08-20. That
+    is not a bug in this test: re-run the case and register it again.
+    """
     cfg = canonical.prompt_cfg(case, "proxy")
-    assert cfg.prompt.image_layout == "interleaved_labels"
+    assert cfg.prompt.image_layout == canonical.REQUIRED_LAYOUT
 
 
 @needs_registry
@@ -268,10 +279,10 @@ def test_every_condition_keeps_the_canonical_frame():
     """No system turn, interleaved layout, abstention guidance — in all arms."""
     for name, cfg in canonical.build_conditions("subway_safety").items():
         assert canonical.system_text(cfg) is None, name
-        assert cfg.prompt.image_layout == "interleaved_labels", name
+        assert cfg.prompt.image_layout == canonical.REQUIRED_LAYOUT, name
         blocks = canonical.build_messages(ROW, cfg)[0]["content"]
         assert [b["type"] for b in blocks] == [
-            "text", "image", "text", "image", "text"], name
+            "image", "text", "image", "text", "text"], name
         text = canonical.user_text("p0", cfg)
         assert '"NotSure"' in text, name
         assert text.endswith(

@@ -39,14 +39,14 @@ class StubEngine:
         self.n_task_calls = 0
         self._answers = answers
 
-    def classify(self, rows, system, user_text):
+    def classify(self, rows, system, user_text, image_cache=None):
         self.classify_calls.append({"system": system, "user_text": user_text,
                                     "n": len(rows)})
         self.n_task_calls += len(rows)
         answers = self._answers or ["More"] * len(rows)
         return list(answers)[: len(rows)]
 
-    def describe(self, rows, style="independent"):
+    def describe(self, rows, style="independent", image_cache=None):
         self.describe_calls.append({"style": style, "n": len(rows)})
         return [f"caption-{i}" for i in range(len(rows))]
 

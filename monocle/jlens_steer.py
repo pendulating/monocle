@@ -32,8 +32,17 @@ Pipeline
 3. Injection. A forward hook on ``lens_model.layers[l]`` ADDS
    ``alpha * scale_l * v_l`` at the answer position (default) or at every
    image-token position of both images (``--positions patches``). ``scale_l``
-   is the median ``||h_l||`` at the answer position over the calibration pairs,
-   so ``alpha`` is in units of a typical residual norm. Exactly one hook at a
+   comes from ``--scale``: ``centered`` (the default) is the median CENTERED
+   residual norm ``||h_l - mean(h_l)||`` over the calibration residuals, so
+   ``alpha`` is a dose in units of the informative pair signal; ``raw`` is the
+   median raw norm, which reproduces the 2026-08-23 recorded grid. The raw
+   norm on Gemma is about 150x the pair signal, so a raw-scaled injection
+   collapses the model for signal and control alike.
+   The pull-back itself has 2 forms (``--pullback``): ``transpose`` is
+   ``J_l^T @ d`` (the J-lens-vector form; it concentrates on the massive-
+   activation channels), and ``pinv`` is ``pinv(J_l) @ d``, the minimum-norm
+   pre-image with ``J_l @ v ~ d``. The run records the relative reconstruction
+   error ``||J_l v - d|| / ||d||`` of both forms at each layer. Exactly one hook at a
    time, always removed in a ``finally``.
 4. Experiment. Over eval pairs DISJOINT from calibration (calibration = head,
    eval = the next block), under the NEUTRAL prompt, sweep ``layers x alphas``
@@ -69,7 +78,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -124,6 +133,54 @@ def pull_back_raw(jacobian: torch.Tensor, d: torch.Tensor) -> torch.Tensor:
     would be the WRONG orientation and fails :func:`orientation_residual`.
     """
     return jacobian.transpose(-1, -2).to(d.dtype) @ d
+
+
+def scale_from_samples(h: torch.Tensor, mode: str) -> float:
+    """One injection scale from residual samples ``h`` of shape [n, d_model].
+
+    ``raw``: the median norm ``||h||``. ``centered``: the median norm of
+    ``h - mean(h)``, where the mean runs over the n samples. The centered
+    norm removes the shared massive-activation component, so it measures the
+    informative pair signal and not the carrier.
+    """
+    if h.dim() != 2:
+        raise ValueError(f"expected [n, d_model] samples, got {tuple(h.shape)}")
+    if mode == "raw":
+        return float(h.norm(dim=-1).median())
+    if mode == "centered":
+        centered = h - h.mean(dim=0, keepdim=True)
+        return float(centered.norm(dim=-1).median())
+    raise ValueError(f"unknown scale mode {mode!r}")
+
+
+def pull_back_pinv(jacobian: torch.Tensor, d: torch.Tensor) -> torch.Tensor:
+    """Minimum-norm pre-image of ``d``: ``v = pinv(J_l) @ d``.
+
+    Where the transpose pull-back gives the J-lens-vector direction, the
+    pseudoinverse gives the least-squares solution of ``J_l @ v = d``. When
+    ``d`` lies in the row space of ``J_l``, ``transport(v)`` reconstructs
+    ``d``; the transpose form does not have that property.
+    """
+    pinv = torch.linalg.pinv(jacobian.float())
+    return pinv @ d.float()
+
+
+def reconstruction_error(
+    jacobian: torch.Tensor, v: torch.Tensor, d: torch.Tensor,
+) -> float:
+    """Relative error ``||c* J v - d|| / ||d||`` at the best scalar ``c*``.
+
+    The injection scales ``v`` by an alpha, so only the direction of ``v``
+    matters. The best scalar is ``c* = <Jv, d> / ||Jv||^2``; the residual at
+    ``c*`` compares the 2 pull-back forms on equal footing.
+    """
+    Jv = jacobian.float() @ v.float()
+    denom = float(Jv.dot(Jv))
+    if denom <= 0:
+        return 1.0
+    c = float(Jv.dot(d.float())) / denom
+    resid = c * Jv - d.float()
+    return float(resid.norm() / (d.float().norm() + 1e-12))
 
 
 def orientation_residual(
@@ -342,7 +399,7 @@ def load_conditions(case: str = CASE_DEFAULT, kind: str = KIND_DEFAULT):
     """{cond: prompt cfg} for PROD (direction) and NEUTRAL (causal test).
 
     Delegates to `canonical.build_conditions`, so both arms carry the
-    registered run's frame — no system turn, interleaved_labels, abstention
+    registered run's frame — no system turn, images_then_labels, abstention
     guidance — and differ ONLY in the question. The old build took prod from a
     conf YAML with a persona and neutral from the GEPA generic seed with a
     different persona, so its contrast moved two things at once.
@@ -391,7 +448,8 @@ def compute_direction_and_scales(
     device: str = "cuda:0",
     positions_mode: str = "answer",
     image_token_id: Optional[int] = None,
-) -> tuple[torch.Tensor, dict[int, float]]:
+    scale_mode: str = "centered",
+) -> tuple[torch.Tensor, dict[int, float], dict[int, dict[str, float]]]:
     """Final-basis steering direction ``d`` (unit) + per-layer ``scale_l``.
 
     One PROD forward per calibration pair. At the answer position (seq -1):
@@ -399,15 +457,19 @@ def compute_direction_and_scales(
         ``lens_model.unembed`` (final norm + lm_head + softcap); unit-normalise
         and average, then renormalise.
 
-    ``scale_l`` is the median CENTERED residual norm ``||h_l - mean(h_l)||``
-    over the calibration residuals at the positions that will be injected
-    (``positions_mode``: "answer" = seq -1, "patches" = all image-token
-    positions). The raw norm is the WRONG scale on Gemma: the massive-
-    activation component (~250) is ~150x the pair-specific signal (~1.7 —
-    see the activation-probe geometry), so raw-scaled injections obliterate
-    the computation for signal and control alike (measured: a random control
-    at alpha=2 rewrote the label distribution wholesale). Centered norms make
-    alpha the dose in units of the *informative* signal.
+    ``scale_l`` follows ``scale_mode`` over the calibration residuals at the
+    positions that will be injected (``positions_mode``: "answer" = seq -1,
+    "patches" = all image-token positions). ``centered`` is the median norm
+    of ``h_l - mean(h_l)``; ``raw`` is the median plain norm. The raw norm is
+    the WRONG scale on Gemma: the massive-activation component (~250) is
+    ~150x the pair-specific signal (~1.7 — see the activation-probe
+    geometry), so raw-scaled injections obliterate the computation for signal
+    and control alike (measured: a random control at alpha=2 rewrote the
+    label distribution wholesale). ``raw`` stays available to reproduce the
+    recorded 2026-08-23 grid.
+
+    Returns ``(d, scales, scale_report)``. ``scales`` holds the chosen mode;
+    ``scale_report[layer]`` holds BOTH norms, so the ratio is on the record.
     """
     if positions_mode == "patches" and image_token_id is None:
         raise ValueError("positions_mode='patches' requires image_token_id")
@@ -450,20 +512,45 @@ def compute_direction_and_scales(
     assert d_sum is not None
     d = (d_sum / (d_sum.norm() + 1e-12)).float().cpu()
     scales: dict[int, float] = {}
+    scale_report: dict[int, dict[str, float]] = {}
     for l in layers:
         h = torch.cat(resid_samples[l], dim=0)          # [n_samples, d_model]
-        centered = h - h.mean(dim=0, keepdim=True)
-        scales[l] = float(centered.norm(dim=-1).median())
-    return d, scales
+        scale_report[l] = {
+            "raw": scale_from_samples(h, "raw"),
+            "centered": scale_from_samples(h, "centered"),
+        }
+        scales[l] = scale_report[l][scale_mode]
+    return d, scales, scale_report
 
 
 def build_layer_vectors(
     lens, d_signal: torch.Tensor, d_control: torch.Tensor, layers: list[int],
+    pullback: str = "transpose",
+    report: Optional[dict] = None,
 ) -> dict[str, dict[int, torch.Tensor]]:
-    """Unit pull-back vectors ``v_l`` per direction per layer, and verify the
-    transport orientation invariant on each."""
+    """Unit pull-back vectors ``v_l`` per direction per layer.
+
+    ``pullback`` selects the form: ``transpose`` gives ``J_l^T @ d`` and
+    ``pinv`` gives ``pinv(J_l) @ d``. The signal and the control direction go
+    through the SAME form, so the contrast never mixes 2 constructions.
+
+    The transport-orientation invariant is checked in both modes — it is a
+    property of the lens, not of the pull-back. In ``pinv`` mode the function
+    also checks that the pinv form reconstructs ``d`` at least as well as the
+    transpose form (its defining property).
+
+    When ``report`` is a dict, the function fills
+    ``report[direction][layer] = {"err_transpose": ..., "err_pinv": ...}``
+    with the relative reconstruction errors (pinv errors only in pinv mode —
+    the pinv of a 3840^2 matrix is not free).
+    """
+    if pullback not in ("transpose", "pinv"):
+        raise ValueError(f"unknown pullback {pullback!r}")
     out: dict[str, dict[int, torch.Tensor]] = {"signal": {}, "control": {}}
+    pinv_cache: dict[int, torch.Tensor] = {}
     for name, d in (("signal", d_signal), ("control", d_control)):
+        if report is not None:
+            report.setdefault(name, {})
         for l in layers:
             J = lens.jacobians[l].float()
             resid = orientation_residual(lens, J, d, l)
@@ -471,7 +558,22 @@ def build_layer_vectors(
                 raise RuntimeError(
                     f"orientation invariant failed at layer {l} "
                     f"({name}): rel err {resid:.2e}")
-            v_raw = pull_back_raw(J, d)
+            v_t = pull_back_raw(J, d)
+            errs = {"err_transpose": reconstruction_error(J, v_t, d)}
+            if pullback == "pinv":
+                if l not in pinv_cache:
+                    pinv_cache[l] = torch.linalg.pinv(J)
+                v_raw = pinv_cache[l] @ d.float()
+                errs["err_pinv"] = reconstruction_error(J, v_raw, d)
+                if errs["err_pinv"] > errs["err_transpose"] + 1e-6:
+                    raise RuntimeError(
+                        f"pinv pull-back reconstructs worse than transpose at "
+                        f"layer {l} ({name}): {errs['err_pinv']:.3e} > "
+                        f"{errs['err_transpose']:.3e}")
+            else:
+                v_raw = v_t
+            if report is not None:
+                report[name][l] = errs
             out[name][l] = (v_raw / (v_raw.norm() + 1e-12)).float()
     return out
 
@@ -558,6 +660,7 @@ def run_experiment(args: argparse.Namespace) -> int:
     summary_path = out_dir / "steer_summary.json"
 
     log(f"layers={layers} alphas={alphas} positions={args.positions} "
+        f"scale={args.scale} pullback={args.pullback} "
         f"n_calib={args.n_calib} n_pairs={args.n_pairs} smoke={args.smoke}")
 
     conditions = load_conditions(args.case, args.kind)
@@ -588,21 +691,30 @@ def run_experiment(args: argparse.Namespace) -> int:
 
     # ---- calibration: direction + scales -----------------------------------
     t0 = time.time()
-    d_signal, scales = compute_direction_and_scales(
+    d_signal, scales, scale_report = compute_direction_and_scales(
         model, lens_model, build, calib_rows, prod_cfg,
         layers, tok_more, tok_less, device,
-        positions_mode=args.positions, image_token_id=image_token_id)
+        positions_mode=args.positions, image_token_id=image_token_id,
+        scale_mode=args.scale)
     if not torch.isfinite(d_signal).all():
         raise RuntimeError("non-finite steering direction")
     gen = torch.Generator().manual_seed(SEED)
     d_control = torch.randn(lens.d_model, generator=gen)
     d_control = d_control / d_control.norm()
-    log(f"direction ||d||={float(d_signal.norm()):.3f} | scales="
-        + " ".join(f"L{l}={scales[l]:.1f}" for l in layers)
+    log(f"direction ||d||={float(d_signal.norm()):.3f} | scale={args.scale} | "
+        + " ".join(
+            f"L{l}: raw={scale_report[l]['raw']:.1f} "
+            f"centered={scale_report[l]['centered']:.2f}" for l in layers)
         + f" | calib {time.time() - t0:.0f}s")
 
-    vecs = build_layer_vectors(lens, d_signal, d_control, layers)
-    log("pull-back orientation invariant passed for all layers/directions")
+    pb_report: dict = {}
+    vecs = build_layer_vectors(
+        lens, d_signal, d_control, layers,
+        pullback=args.pullback, report=pb_report)
+    log(f"pull-back={args.pullback}; orientation invariant passed; "
+        "reconstruction errors: "
+        + " ".join(
+            f"L{l}={pb_report['signal'][l]}" for l in layers))
 
     # move injection vectors to device once
     dev_vecs = {name: {l: vecs[name][l].to(device) for l in layers}
@@ -648,6 +760,7 @@ def run_experiment(args: argparse.Namespace) -> int:
                         "pair_id": row["pair_id"], "prod_label": prod_label,
                         "direction": direction, "layer": int(layer),
                         "alpha": float(alpha), "scale_l": scales[layer],
+                        "scale_mode": args.scale, "pullback": args.pullback,
                         "positions": args.positions, **m})
         processed += 1
         if processed % 20 == 0:
@@ -664,8 +777,14 @@ def run_experiment(args: argparse.Namespace) -> int:
 
     summary = {
         "layers": layers, "alphas": alphas, "positions": args.positions,
+        "scale_mode": args.scale, "pullback": args.pullback,
         "n_calib": args.n_calib, "n_eval": len(eval_rows),
-        "scales": scales, "label_first_tokens": class_ids,
+        "scales": scales,
+        "scale_report": {str(l): scale_report[l] for l in layers},
+        "pullback_errors": {
+            name: {str(l): errs for l, errs in per.items()}
+            for name, per in pb_report.items()},
+        "label_first_tokens": class_ids,
         "lens": args.lens, "case": args.case, "kind": args.kind,
         "registry": str(canonical.registry_dir(args.case, args.kind)),
         "per_cell": summarize(df),
@@ -685,7 +804,8 @@ def run_smoke(args: argparse.Namespace) -> int:
     device = "cuda:0"
     layers = parse_int_list(args.layers)[:1]
     alphas = [-4.0, 0.0, 4.0]
-    log(f"SMOKE: layer={layers} alphas={alphas} positions={args.positions}")
+    log(f"SMOKE: layer={layers} alphas={alphas} positions={args.positions} "
+        f"scale={args.scale} pullback={args.pullback}")
 
     conditions = load_conditions(args.case, args.kind)
     prod_cfg, neutral_cfg = conditions["prod"], conditions["neutral"]
@@ -704,12 +824,14 @@ def run_smoke(args: argparse.Namespace) -> int:
     calib_rows, eval_rows = split_calibration_eval(rows, 2, 4)
     build = make_build_inputs(proc, tmpl, device)
 
-    d_signal, scales = compute_direction_and_scales(
+    d_signal, scales, scale_report = compute_direction_and_scales(
         model, lens_model, build, calib_rows, prod_cfg,
         layers, tok_more, tok_less, device,
-        positions_mode=args.positions, image_token_id=image_token_id)
+        positions_mode=args.positions, image_token_id=image_token_id,
+        scale_mode=args.scale)
     assert torch.isfinite(d_signal).all(), "direction is non-finite"
-    log(f"ASSERT direction finite OK | centered scales={scales}")
+    log(f"ASSERT direction finite OK | scale={args.scale} scales={scales} "
+        f"| report={scale_report}")
 
     gen = torch.Generator().manual_seed(SEED)
     d_control = torch.randn(lens.d_model, generator=gen)
@@ -719,7 +841,11 @@ def run_smoke(args: argparse.Namespace) -> int:
     assert resid < 1e-3, f"orientation invariant failed: {resid:.2e}"
     log(f"ASSERT transport-orientation invariant OK (rel err {resid:.2e})")
 
-    vecs = build_layer_vectors(lens, d_signal, d_control, layers)
+    pb_report: dict = {}
+    vecs = build_layer_vectors(
+        lens, d_signal, d_control, layers,
+        pullback=args.pullback, report=pb_report)
+    log(f"pull-back={args.pullback} reconstruction errors: {pb_report}")
     v = vecs["signal"][layer].to(device)
 
     # hook-removal check: clean forward A, one hooked forward, clean forward B.
@@ -781,6 +907,16 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--layers", default=DEFAULT_LAYERS)
     ap.add_argument("--alphas", default=DEFAULT_ALPHAS)
     ap.add_argument("--positions", choices=["answer", "patches"], default="answer")
+    ap.add_argument("--scale", choices=["raw", "centered"], default="centered",
+                    help=("Injection scale. `centered` (default) is the "
+                          "median centered residual norm — the pair signal. "
+                          "`raw` is the median plain norm; it reproduces the "
+                          "2026-08-23 recorded grid and collapses the model."))
+    ap.add_argument("--pullback", choices=["transpose", "pinv"],
+                    default="transpose",
+                    help=("Pull-back form. `transpose` = J^T d (the J-lens "
+                          "vector). `pinv` = pinv(J) d, the minimum-norm "
+                          "pre-image with transport(v) ~ d."))
     return ap
 
 

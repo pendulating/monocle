@@ -14,7 +14,7 @@ import pandas as pd
 import pytest
 import torch
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -388,3 +388,32 @@ class TestPositional:
     def test_correlation_rejects_mismatched_grids(self):
         with pytest.raises(ValueError, match="shape mismatch"):
             pa.map_correlation(np.zeros(256), np.zeros(64))
+
+
+class TestAggregatorMask:
+    def values(self):
+        import numpy as np
+        return np.array([1.0, -2.0, 3.0, -9.0])
+
+    def test_masks_the_final_patch_on_l46(self):
+        out = pa.mask_aggregator(self.values(), 46)
+        assert out.tolist() == [1.0, -2.0, 3.0, 0.0]
+
+    def test_keeps_it_on_the_window_layers(self):
+        """L40-L45 the aggregator agrees with the rest; masking loses signal."""
+        for layer in (40, 41, 42, 43, 44, 45):
+            out = pa.mask_aggregator(self.values(), layer)
+            assert out.tolist() == self.values().tolist()
+
+    def test_does_not_mutate_the_caller(self):
+        v = self.values()
+        pa.mask_aggregator(v, 46)
+        assert v[-1] == -9.0
+
+    def test_handles_an_empty_map(self):
+        import numpy as np
+        assert pa.mask_aggregator(np.array([]), 46).size == 0
+
+    def test_peak_layer_is_in_the_window_and_not_masked(self):
+        assert pa.PEAK_LAYER == 43
+        assert pa.PEAK_LAYER not in pa.AGGREGATOR_MASK_LAYERS

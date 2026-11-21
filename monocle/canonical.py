@@ -15,15 +15,15 @@ things that each break the lens read:
 
 | Mismatch | Old monocle build | Canonical battery |
 |---|---|---|
-| Image layout | ``images_then_text`` | ``interleaved_labels`` |
+| Image layout | ``images_then_text`` | ``images_then_labels`` (see ``REQUIRED_LAYOUT``) |
 | System turn | a persona string | ``system: null`` — no system turn |
 | Abstention | 5 labels, no NotSure | NotSure in the enum + a guidance line |
 
 The layout mismatch is the worst of the three. The registry gate demands
-``interleaved_labels`` for gemma-4-12b because that architecture does not bind
-image B without the text anchor. A lens read under ``images_then_text``
-measures a different forward pass, so every per-patch map over image B would
-be wrong.
+``images_then_labels`` for gemma-4-12b because that architecture does not bind
+image B without the text anchor between the two images. A lens read under
+``images_then_text`` measures a different forward pass, so every per-patch map
+over image B would be wrong.
 
 Source of truth
 ---------------
@@ -56,7 +56,7 @@ from typing import Any, Optional
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -78,6 +78,12 @@ CASES = (
 )
 
 KINDS = ("proxy", "trace")
+
+#: The prompt arm a lens read must use. The registry now holds ablation arms
+#: beside the canonical one (`noabstain`, `nocity`), and they answer a
+#: different prompt. A lens read compares against the production prompt, thus
+#: it takes the canonical arm and nothing else.
+ARM = "canonical"
 
 #: The teacher-forced JSON prefix, and the DEFAULT. The last sequence position
 #: then literally emits the label token, which is the position the lens reads.
@@ -110,6 +116,17 @@ ORDINAL = ("MuchLess", "Less", "Same", "More", "MuchMore")
 
 NOT_SURE = "NotSure"
 
+#: The ONLY layout a lens read may use, from 2026-08-20:
+#: image A, "Image A.", image B, "Image B.", prompt. It keeps text BETWEEN the
+#: two images (the arch reads adjacent images as one) AND opens the message
+#: with an image (the gemma-4 card asks for that order).
+#:
+#: `interleaved_labels` is REJECTED. It was production until 2026-08-20, thus
+#: every run registered before that date warns here and needs a re-run.
+#:
+#: Warning: the lens reads whatever the RUN recorded. It does not pick.
+REQUIRED_LAYOUT = "images_then_labels"
+
 
 def log(m: str) -> None:
     print(f"[canonical] {m}", flush=True)
@@ -118,11 +135,15 @@ def log(m: str) -> None:
 # ---------------------------------------------------------------------------
 # Registry access
 # ---------------------------------------------------------------------------
-def registry_dir(case: str, kind: str = "proxy", model: str = MODEL) -> Path:
+def registry_dir(case: str, kind: str = "proxy", model: str = MODEL,
+                 arm: str = ARM) -> Path:
     """Path to one registered run's link directory.
 
     Raises ValueError on an unknown case or kind, and FileNotFoundError when
     the run is not registered.
+
+    `arm` defaults to `canonical`. A lens read must not take an ablation arm:
+    the prompt differs, thus the recorded config drives a different render.
     """
     if case not in CASES:
         raise ValueError(f"unknown case {case!r}; expected one of {list(CASES)}")
@@ -132,7 +153,7 @@ def registry_dir(case: str, kind: str = "proxy", model: str = MODEL) -> Path:
         raise ValueError(
             f"model {model!r} is not lensable — monocle binds Gemma4Unified and "
             f"the fitted lenses are {MODEL}. Fit a lens for {model!r} first.")
-    d = REGISTRY / kind / f"{case}__{model}"
+    d = REGISTRY / kind / arm / f"{case}__{model}"
     if not d.is_dir():
         raise FileNotFoundError(
             f"{d} is not registered; run "
@@ -172,10 +193,10 @@ def prompt_cfg(case: str, kind: str = "proxy") -> DictConfig:
         "model": full.get("model", {}),
     })
     layout = str(node.prompt.get("image_layout", "") or "")
-    if layout != "interleaved_labels":
+    if layout != REQUIRED_LAYOUT:
         log(f"WARNING {case}/{kind}: recorded image_layout={layout!r}, not "
-            f"interleaved_labels — gemma-4-12b does not bind image B without "
-            f"the text anchor")
+            f"{REQUIRED_LAYOUT!r} — this run predates the layout of "
+            f"2026-08-20 and the lens read is not comparable")
     return node
 
 
@@ -411,7 +432,7 @@ def build_conditions(
 
     Every arm is the canonical config with ONLY ``prompt.user_template``
     changed. The system turn stays absent, the layout stays
-    ``interleaved_labels``, and the abstention guidance still appends. Thus a
+    ``images_then_labels``, and the abstention guidance still appends. Thus a
     prod-vs-neutral difference measures the question, and nothing else.
 
     Warning: the pre-2026-08-11 build did not do this. Its neutral arm carried

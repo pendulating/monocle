@@ -6,7 +6,7 @@ ignition, the never-ignited NaN path, the PIL renderer, the corpus summary, and
 the eval-image sampler's exclusion logic (over a mocked tmp parquet).
 
 Run:
-    /share/pierson/matt/mllmsci/.venv/bin/python -m pytest tests/test_emergence.py -v
+    /share/ju/matt/mllmsci/.venv/bin/python -m pytest tests/test_emergence.py -v
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ import pytest
 import torch
 from PIL import Image
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 

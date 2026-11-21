@@ -23,7 +23,7 @@ import pytest
 import torch
 from torch import nn
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -109,6 +109,55 @@ class TestPullBackOrientation:
         vecs = js.build_layer_vectors(lens, d_sig, d_ctl, [7])
         for name in ("signal", "control"):
             assert torch.allclose(vecs[name][7].norm(), torch.tensor(1.0), atol=1e-5)
+
+    def test_pinv_pull_back_reconstructs_full_rank(self):
+        # For a full-rank J the pinv pre-image must satisfy J @ v == d.
+        torch.manual_seed(3)
+        J = torch.randn(16, 16) + 4.0 * torch.eye(16)   # well-conditioned
+        d = torch.randn(16)
+        v = js.pull_back_pinv(J, d)
+        assert torch.allclose(J @ v, d, atol=1e-4)
+        assert js.reconstruction_error(J, v, d) < 1e-5
+
+    def test_pinv_beats_transpose_on_skewed_jacobian(self):
+        # A strongly non-orthogonal J: the transpose direction does NOT
+        # reconstruct d, the pinv direction does.
+        torch.manual_seed(4)
+        base = torch.randn(12, 12)
+        skew = base @ torch.diag(torch.logspace(0, 2, 12)) @ base.T
+        d = torch.randn(12)
+        err_t = js.reconstruction_error(skew, js.pull_back_raw(skew, d), d)
+        err_p = js.reconstruction_error(skew, js.pull_back_pinv(skew, d), d)
+        assert err_p < 1e-4
+        assert err_p <= err_t + 1e-6
+
+    def test_build_layer_vectors_pinv_mode_and_report(self):
+        lens, J = self._lens(d=8, seed=5)
+        d_sig = torch.randn(8)
+        d_sig = d_sig / d_sig.norm()
+        d_ctl = torch.randn(8)
+        d_ctl = d_ctl / d_ctl.norm()
+        report: dict = {}
+        vecs = js.build_layer_vectors(
+            lens, d_sig, d_ctl, [7], pullback="pinv", report=report)
+        # both directions go through the SAME pull-back form and come back unit
+        for name in ("signal", "control"):
+            assert torch.allclose(
+                vecs[name][7].norm(), torch.tensor(1.0), atol=1e-5)
+            errs = report[name][7]
+            assert errs["err_pinv"] <= errs["err_transpose"] + 1e-6
+            assert errs["err_pinv"] < 1e-4
+        # the pinv direction differs from the transpose direction
+        v_t = js.pull_back_raw(lens.jacobians[7], d_sig)
+        v_t = v_t / v_t.norm()
+        assert not torch.allclose(vecs["signal"][7], v_t, atol=1e-3)
+
+    def test_build_layer_vectors_rejects_unknown_pullback(self):
+        lens, _ = self._lens()
+        d = torch.randn(5)
+        d = d / d.norm()
+        with pytest.raises(ValueError):
+            js.build_layer_vectors(lens, d, d, [7], pullback="inverse")
 
     def test_build_layer_vectors_rejects_bad_lens(self):
         # A lens whose transport is J @ h but jacobians reports J.T would break
@@ -330,6 +379,35 @@ class TestPositions:
         pos = js.all_image_token_positions({"input_ids": ids}, image_token_id=7)
         assert pos == [1, 2, 4, 5]
         assert js.contiguous_runs(pos) == [(1, 2), (4, 5)]
+
+
+# ---------------------------------------------------------------------------
+# 4b. Injection scales: raw vs centered
+# ---------------------------------------------------------------------------
+class TestScales:
+    def test_centered_removes_shared_carrier(self):
+        # samples = huge shared vector + small per-sample signal. The raw
+        # median reads the carrier; the centered median reads the signal.
+        torch.manual_seed(6)
+        carrier = torch.zeros(64)
+        carrier[0] = 250.0
+        signal = 1.5 * torch.randn(32, 64)
+        h = carrier.unsqueeze(0) + signal
+        raw = js.scale_from_samples(h, "raw")
+        centered = js.scale_from_samples(h, "centered")
+        assert raw > 200.0
+        assert centered < 30.0
+        assert raw / centered > 10.0
+
+    def test_raw_is_median_norm(self):
+        h = torch.tensor([[3.0, 4.0], [6.0, 8.0], [0.3, 0.4]])
+        assert js.scale_from_samples(h, "raw") == pytest.approx(5.0)
+
+    def test_rejects_bad_mode_and_shape(self):
+        with pytest.raises(ValueError):
+            js.scale_from_samples(torch.randn(4, 8), "typical")
+        with pytest.raises(ValueError):
+            js.scale_from_samples(torch.randn(8), "raw")
 
 
 # ---------------------------------------------------------------------------

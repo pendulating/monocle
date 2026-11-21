@@ -31,7 +31,7 @@ from pathlib import Path
 
 import torch
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 sys.path.insert(0, str(REPO))
 
 from monocle import MODEL_DIR_DEFAULT  # noqa: E402

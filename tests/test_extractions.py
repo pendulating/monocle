@@ -323,3 +323,148 @@ class TestDistinctive:
         out = X.distinctive(only, "schools", min_count=1)
         assert not out.empty
         assert "count" in out.columns
+
+
+class TestLastDecision:
+    def _frame(self):
+        rows = [
+            # 3 decisions in 1 qwen trace, and the text order is the answer.
+            _row("schools", "q1", "decision", 'Image A is *Less* good', {"label": "Less"}),
+            _row("schools", "q1", "decision", 'I will go with "MuchLess"', {"label": "MuchLess"}),
+            _row("schools", "q1", "visual_evidence", "flat roof",
+                 {"image": "A", "valence": "neutral", "category": "architecture"}),
+            # The same pair_id in another case is another trace.
+            _row("subway_safety", "q1", "decision", 'I\'ll go with "Same"', {"label": "Same"}),
+        ]
+        df = pd.DataFrame(rows)
+        df["char_start"] = [1200.0, 2400.0, 100.0, 900.0]
+        df["extraction_index"] = [5, 9, 1, 3]
+        return df
+
+    def test_the_last_decision_in_the_text_wins(self):
+        out = X.keep_last_decision(self._frame())
+        kept = out[(out.case == "schools") & (out.extraction_class == "decision")]
+        assert kept.extraction_text.tolist() == ['I will go with "MuchLess"']
+
+    def test_other_classes_and_other_traces_stay(self):
+        out = X.keep_last_decision(self._frame())
+        assert (out.extraction_class == "visual_evidence").sum() == 1
+        assert (out.case == "subway_safety").sum() == 1
+
+    def test_a_null_offset_loses_to_a_grounded_one(self):
+        df = self._frame()
+        df.loc[1, "char_start"] = None
+        out = X.keep_last_decision(df)
+        kept = out[(out.case == "schools") & (out.extraction_class == "decision")]
+        assert kept.extraction_text.tolist() == ["Image A is *Less* good"]
+
+
+class TestArms:
+    def _long(self):
+        rows = []
+        for extractor, unc, ve in (("qwen3.5-9b", 13.5, 14.7), ("gemma-4-12b", 2.3, 13.7)):
+            for row, rate in (("uncertainty", unc), ("visual_evidence", ve)):
+                rows.append({"arm": f"gemma_by_{extractor}", "judge": "gemma-4-12b",
+                             "extractor": extractor, "schema_version": "v1",
+                             "row": row, "case": "subway_safety", "rate": rate})
+        return pd.DataFrame(rows)
+
+    def test_a_rate_that_holds_is_stable(self):
+        table = X.rate_stability(self._long())
+        by_row = table.set_index("row")
+        assert bool(by_row.loc["visual_evidence", "stable"])
+        assert not bool(by_row.loc["uncertainty", "stable"])
+        assert by_row.loc["uncertainty", "ratio"] > 5
+
+    def test_the_summary_names_the_verdict(self):
+        summary = X.stability_summary(X.rate_stability(self._long()))
+        verdict = summary.set_index("row").verdict
+        assert verdict["visual_evidence"] == "holds"
+        assert verdict["uncertainty"] == "extractor"
+
+    def test_one_extractor_alone_gives_no_row(self):
+        long = self._long()
+        long = long[long.extractor == "qwen3.5-9b"]
+        assert X.rate_stability(long).empty
+
+    def test_every_arm_names_a_root(self):
+        for name, spec in X.ARMS.items():
+            assert spec["root"].startswith("data/trace_extractions"), name
+            assert spec["schema_version"] in X.SCHEMA_VERSIONS
+
+
+class TestJudgeAnswered:
+    def test_an_unanswered_trace_leaves_the_frame(self, tmp_path, monkeypatch):
+        rows = [
+            _row("subway_safety", "p1", "decision", 'I\'ll go with "Same"', {"label": "Same"}),
+            _row("subway_safety", "p2", "decision", 'I\'ll go with "Less"', {"label": "Less"}),
+        ]
+        df = pd.DataFrame(rows)
+        df["judge_answered"] = [False, True]
+        df["schema_version"] = "v1"
+        df["is_quotable"] = True
+        df.to_parquet(tmp_path / "subway_safety_extractions.parquet", index=False)
+        out = X.load(root=tmp_path, require_canonical=False)
+        assert out.pair_id.tolist() == ["p2"]
+        kept = X.load(root=tmp_path, require_canonical=False, answered_only=False)
+        assert sorted(kept.pair_id) == ["p1", "p2"]
+
+    def test_the_denominator_drops_it_too(self, tmp_path):
+        rows = [
+            _row("subway_safety", "p1", "decision", "x", {"label": "Same"}),
+            _row("subway_safety", "p2", "decision", "y", {"label": "Less"}),
+            _row("subway_safety", "p3", "decision", "z", {"label": "More"}),
+        ]
+        df = pd.DataFrame(rows)
+        df["judge_answered"] = [False, True, True]
+        df.to_parquet(tmp_path / "subway_safety_extractions.parquet", index=False)
+        X._TOTALS_CACHE.clear()
+        assert int(X.trace_totals(tmp_path)["subway_safety"]) == 2
+
+
+class TestDedupe:
+    def test_a_duplicate_row_leaves_the_frame(self, tmp_path):
+        rows = [
+            _row("subway_safety", "p1", "uncertainty", "Let's look again", {"reason": "other"}),
+            _row("subway_safety", "p1", "uncertainty", "Let's look again", {"reason": "other"}),
+            _row("subway_safety", "p1", "visual_evidence", "trash can",
+                 {"image": "A", "valence": "bad", "category": "cleanliness"}),
+        ]
+        df = pd.DataFrame(rows)
+        df["is_duplicate"] = [False, True, False]
+        df.to_parquet(tmp_path / "subway_safety_extractions.parquet", index=False)
+        assert len(X.load(root=tmp_path, require_canonical=False)) == 2
+        assert len(X.load(root=tmp_path, require_canonical=False, dedupe=False)) == 3
+
+
+class TestRateDenominator:
+    def test_the_rate_follows_the_corpus_root(self, tmp_path):
+        """A corpus of 2 traces gives 50 spans for each 100 traces, not 0.02."""
+        rows = [
+            _row("subway_safety", "p1", "visual_evidence", "trash can",
+                 {"image": "A", "valence": "bad", "category": "cleanliness"}),
+            _row("subway_safety", "p2", "decision", "Same", {"label": "Same"}),
+        ]
+        pd.DataFrame(rows).to_parquet(tmp_path / "subway_safety_extractions.parquet", index=False)
+        X._TOTALS_CACHE.clear()
+        df = X.load(root=tmp_path, require_canonical=False)
+        rates = X.class_rates(df, root=tmp_path)
+        assert rates.loc["visual_evidence", "subway_safety"] == 50.0
+
+
+class TestPromoteLastVerdict:
+    def test_last_verdict_becomes_the_decision_when_none_exists(self):
+        import pandas as pd
+        df = pd.DataFrame({
+            "case": ["c"] * 4, "pair_id": ["p", "p", "q", "q"],
+            "extraction_class": ["verdict", "verdict", "verdict", "decision"],
+            "char_start": [10, 50, 5, 60], "extraction_text": ["a", "b", "c", "d"],
+        })
+        out = X.promote_last_verdict(df)
+        assert out.extraction_class.tolist() == ["verdict", "decision", "verdict", "decision"]
+
+    def test_a_corpus_without_verdicts_is_unchanged(self):
+        import pandas as pd
+        df = pd.DataFrame({"case": ["c"], "pair_id": ["p"], "extraction_class": ["decision"],
+                           "char_start": [1], "extraction_text": ["x"]})
+        assert X.promote_last_verdict(df).equals(df)

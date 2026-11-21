@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import dataclasses
 import math
+import os
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -45,18 +46,41 @@ class PatchGrid:
 
 def load_model(model_dir: str = MODEL_DIR_DEFAULT, device: str = "cuda:0"):
     """Load processor + model + production chat template. ~13 s on klara."""
+    import json
     from transformers import AutoProcessor, Gemma4UnifiedForConditionalGeneration
 
+    from dagspaces.common.model_registry import resolve_model_source
     from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
 
     is_g4u, tmpl = _gemma4_unified_chat_template(model_dir)
+    cls = Gemma4UnifiedForConditionalGeneration
     if not is_g4u or not tmpl:
-        raise RuntimeError(
-            f"{model_dir} is not gemma4_unified or chat_template.jinja missing")
+        # The E-series (Gemma4ForConditionalGeneration, model_type gemma4)
+        # carries a 16-block vision encoder and a causal decoder mask over
+        # the image tokens. Its own chat_template.jinja inserts <|image|>.
+        with open(os.path.join(model_dir, "config.json")) as f:
+            arch = json.load(f).get("architectures") or []
+        if any(a == "Gemma4ForConditionalGeneration" for a in arch):
+            from transformers import Gemma4ForConditionalGeneration
+            cls = Gemma4ForConditionalGeneration
+            with open(os.path.join(model_dir, "chat_template.jinja")) as f:
+                tmpl = f.read()
+        elif any("Gemma4Unified" in str(a) for a in arch):
+            # A PRETRAINED unified checkpoint (zoo/models/gemma-4-12B) has
+            # no chat template. The caller must use a raw completion frame
+            # (`probe_frame.render_raw`); `tmpl` is None.
+            tmpl = None
+            print(f"[monocle] {model_dir}: no chat template (a base "
+                  "checkpoint); use the raw frame", flush=True)
+        else:
+            raise RuntimeError(
+                f"{model_dir} is not gemma4_unified or gemma4, or "
+                "chat_template.jinja is missing")
+    # The node-local mirror, when the node holds one. See `attn_route`.
+    src = resolve_model_source(model_dir, stage_name="monocle")
     t0 = time.time()
-    proc = AutoProcessor.from_pretrained(model_dir)
-    model = Gemma4UnifiedForConditionalGeneration.from_pretrained(
-        model_dir, dtype=torch.bfloat16, device_map=device)
+    proc = AutoProcessor.from_pretrained(src)
+    model = cls.from_pretrained(src, dtype=torch.bfloat16, device_map=device)
     model.eval()
     print(f"[monocle] model loaded in {time.time() - t0:.0f}s "
           f"({type(model).__name__})", flush=True)

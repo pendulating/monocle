@@ -170,6 +170,21 @@ class TestImageLayout:
             assert content[1]["image_url"]["url"] == "file:///b.jpg"
             assert content[2]["text"] == "P"
 
+    def test_images_then_labels(self):
+        """Image-first layout: each anchor follows its own image.
+
+        Google asks for image content before text, and gemma-4-12b needs a text
+        anchor to bind two images. This layout meets both: block 0 is an image,
+        and no text comes before a picture it belongs to.
+        """
+        content = self._content("images_then_labels")
+        assert self._kinds(content) == ["image_url", "text", "image_url", "text", "text"]
+        assert content[0]["image_url"]["url"] == "file:///a.jpg"
+        assert content[1]["text"] == "Image A."
+        assert content[2]["image_url"]["url"] == "file:///b.jpg"
+        assert content[3]["text"] == "Image B."
+        assert content[4]["text"] == "P"
+
     def test_interleaved_labels(self):
         content = self._content("interleaved_labels")
         assert self._kinds(content) == ["text", "image_url", "text", "image_url", "text"]

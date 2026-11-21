@@ -1,0 +1,97 @@
+#!/bin/bash
+#SBATCH --job-name=monoclegpu
+#SBATCH --partition=gpu,pierson
+#SBATCH --gres=gpu:nvidia_rtx_a6000:1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=48G
+#SBATCH --time=01:30:00
+#SBATCH --requeue
+#SBATCH --open-mode=append
+#SBATCH --output=/share/ju/matt/mllmsci/outputs/monoclegpu_%j.out
+
+# The monocle runner for the cluster-wide `gpu` partition.
+#
+# WHY THIS FILE EXISTS
+#   `monocle.sub` pins `--nodelist=klara`. klara holds 8 cards but only 56
+#   CPUs, and other users take them too, so a queue of monocle jobs waits
+#   hours behind 1 node. The `gpu` partition holds 142 nodes.
+#
+# WARNING: USE THIS ONLY FOR A SHORT JOB.
+#   The `gpu` partition preempts. `patch_caption` and `causal_maps` write
+#   their parquet at the END, so a preemption loses the whole job. A job of
+#   about 20 minutes can pay that cost again; a job of 3 hours cannot.
+#   Keep a long job (for example the dense caption battery) on klara.
+#
+# WARNING: NAME THE CARD IN --gres.
+#   A node with 2 card types carries the feature of both, so --constraint
+#   can still give an 11 GB card. The guard below stops such a node early.
+
+# Generic monocle runner: sbatch monocle/monocle.sub <module> [args...]
+#   sbatch monocle/monocle.sub monocle.validate
+#   sbatch monocle/monocle.sub monocle.cli --image /path.jpg
+# Same env recipe as the activation-probe / GEPA runs: .venv-nightly
+# (transformers 5.12, native Gemma4Unified) + the klara libstdc++ preload.
+set -euo pipefail
+cd /share/ju/matt/mllmsci
+
+source ~/.bashrc
+# server.env carries MLLMSCI_MODEL_REGISTRY, which sends the weight load to the
+# node-local model mirror. Without it a job reads 24 GB of weights off NFS.
+set -a; source /share/ju/matt/mllmsci/server.env; set +a
+
+# The venv mirror matters MORE than the model mirror. The nightly venv holds
+# about 90k small files, and a cold torch + vllm + flashinfer import over NFS
+# costs about 13 minutes for each process spawn. This script used to activate
+# the NFS venv by hand, so each monocle job paid that, and a job looked hung
+# for 10 minutes with no output.
+#
+# activate_stage_venv.sh picks the /scratch mirror when the node holds a
+# complete one, builds it from the bootstrap tarball when it does not, and
+# falls back to NFS on any doubt. monocle needs the NIGHTLY venv, so the
+# driver venv is named here and not taken from server.env.
+export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
+# The helper is written for launcher setup blocks, which do not run under
+# `set -eu`. A probe of an unset variable must not kill the job, so the flags
+# go off around it and come back after.
+set +eu
+source /share/ju/matt/mllmsci/scripts/activate_stage_venv.sh
+set -eu
+# The fallback: activate_stage_venv.sh leaves the venv alone when no mirror
+# matches, so the NFS venv still has to be activated in that case.
+if [ -z "${VIRTUAL_ENV:-}" ]; then
+  echo "[monocle] no mirror; the job runs from the NFS venv"
+  source "$MLLMSCI_DRIVER_VENV/bin/activate"
+fi
+if [ -z "${MLLMSCI_STAGE_PYTHON:-}" ]; then
+  echo "[monocle] WARNING: no mirror interpreter; a cold import costs about"
+  echo "[monocle] 13 minutes. Run scripts/sync_venv_to_scratch.sh on this node."
+fi
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+export PYTHONUNBUFFERED=1
+export HF_HUB_OFFLINE=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+# The guard. gemma-4-12B needs about 24 GB for its weights alone. A small
+# card must fail NOW, and not after it reads the weights over NFS.
+MEM_MIB=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
+if [ -n "${MEM_MIB:-}" ] && [ "$MEM_MIB" -lt 40000 ]; then
+  echo "[monocle-gpu] STOP: $(hostname) gave a $MEM_MIB MiB card; it needs 40000 MiB."
+  exit 1
+fi
+
+echo "=== GPU sanity ==="
+echo "HOST=$(hostname) DATE=$(date) CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
+nvidia-smi -L || true
+
+MODULE="${1:-monocle.validate}"
+shift || true
+
+# Start from the mirror interpreter BY PATH. A copied venv keeps the original
+# `bin/activate`, which re-exports the NFS VIRTUAL_ENV, so `source
+# <mirror>/bin/activate` does NOT move the interpreter. Only
+# MLLMSCI_STAGE_PYTHON does, which is what the stage launchers use.
+PY="${MLLMSCI_STAGE_PYTHON:-python}"
+echo "[monocle] interpreter: $PY"
+"$PY" -m "$MODULE" "$@"

@@ -55,7 +55,7 @@ import pandas as pd
 import torch
 from PIL import Image
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -63,7 +63,7 @@ from monocle import canonical, extract, scoring  # noqa: E402
 from monocle import jlens_read  # noqa: E402  (jlens imported lazily inside)
 from monocle import safety_workspace as sw  # noqa: E402
 
-MODEL_DIR = "/share/pierson/matt/zoo/models/gemma-4-12B-it"
+MODEL_DIR = "/share/ju/matt/zoo/models/gemma-4-12B-it"
 OUT_DEFAULT = REPO / "outputs/_monocle/answer_tokens"
 
 #: The reference instrument. The wikitext lens is the one whose readout

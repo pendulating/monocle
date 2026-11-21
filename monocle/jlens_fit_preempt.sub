@@ -1,0 +1,75 @@
+#!/bin/bash
+#SBATCH --job-name=jlensmm
+#SBATCH --partition=gpu,pierson
+#SBATCH --gres=gpu:nvidia_rtx_a6000:1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=112G
+#SBATCH --time=02:00:00
+#SBATCH --requeue
+#SBATCH --open-mode=append
+#SBATCH --output=/share/ju/matt/mllmsci/outputs/jlensmm_%j.out
+
+# The multimodal J-lens fit, on the cluster-wide `gpu` partition.
+#
+# WHY THIS IS SAFE TO PREEMPT
+#   `jlens_fit_mm.py` writes `fit_ckpt_shard<i>of<n>.pt` after every 2 images.
+#   It writes to a temporary name and then renames, so a job that dies during
+#   a write leaves the last good checkpoint. On restart it reads the file and
+#   goes on from `next_idx`. A preemption thus costs 2 images, about 8 minutes.
+#   `--requeue` makes SLURM start the task again by itself.
+#
+# WHY THE GRES NAMES A CARD TYPE
+#   The `gpu` partition holds cards from 11 GB to 141 GB. The fit needs about
+#   43 GB at dim_batch 8 and about 33 GB at dim_batch 4.
+#   A `--constraint` of card features does NOT work. A node with 2 card types
+#   carries the feature of both, and SLURM can then give the small card. We
+#   asked for `a6000|6000ada|...` and got an 11 GB 2080 Ti. Name the card in
+#   `--gres`, and check the memory at the start as well.
+#   Override on the command line for another 48 GB card, for example:
+#     sbatch --gres=gpu:nvidia_rtx_6000_ada_generation:1 ...
+#
+# WARNING: a checkpoint remembers its own `source_layers`. A fit over a new
+# set of blocks MUST get a new --out-dir, or the loader stops with an error.
+#
+# Usage:
+#   sbatch monocle/jlens_fit_preempt.sub --shard 0/4 --all-layers \
+#       --dim-batch 4 --out-dir outputs/_monocle/jlens/mm_all47
+set -euo pipefail
+cd /share/ju/matt/mllmsci
+
+source ~/.bashrc
+set -a; source /share/ju/matt/mllmsci/server.env; set +a
+
+# A `gpu` node holds no /scratch mirror at first. The helper builds one from
+# the bootstrap tarball, so only the first job on a node pays for it.
+export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
+set +eu
+source /share/ju/matt/mllmsci/scripts/activate_stage_venv.sh
+set -eu
+if [ -z "${VIRTUAL_ENV:-}" ]; then
+  echo "[jlens] no mirror; the job runs from the NFS venv"
+  source "$MLLMSCI_DRIVER_VENV/bin/activate"
+fi
+
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+export PYTHONUNBUFFERED=1
+export HF_HUB_OFFLINE=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+# The guard. A card that is too small must fail NOW, and not after it reads
+# 24 GB of weights. Exit 1 so the log names the node, and submit again.
+MEM_MIB=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
+if [ -n "${MEM_MIB:-}" ] && [ "$MEM_MIB" -lt 40000 ]; then
+  echo "[jlens] STOP: $(hostname) gave a $MEM_MIB MiB card; the fit needs 40000 MiB."
+  exit 1
+fi
+
+echo "=== jlens mm fit ==="
+echo "HOST=$(hostname) JOB=${SLURM_JOB_ID} RESTARTS=${SLURM_RESTART_COUNT:-0} DATE=$(date)"
+nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
+
+PY="${MLLMSCI_STAGE_PYTHON:-python}"
+echo "[jlens] interpreter: $PY"
+"$PY" -m monocle.jlens_fit_mm "$@"

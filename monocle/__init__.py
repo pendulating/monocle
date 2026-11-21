@@ -15,5 +15,5 @@ Modules:
     validate — phase-0 geometry checks (run this first on any new model)
 """
 
-MODEL_DIR_DEFAULT = "/share/pierson/matt/zoo/models/gemma-4-12B-it"
+MODEL_DIR_DEFAULT = "/share/ju/matt/zoo/models/gemma-4-12B-it"
 MODEL_PATCH_PX = 48  # vision patch_size 16 x pooling_kernel_size 3

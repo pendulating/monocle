@@ -31,16 +31,29 @@ from typing import Any, Optional
 import torch
 from PIL import Image
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 sys.path.insert(0, str(REPO))
 
 from monocle import extract  # noqa: E402
 
 
 def load_lens(path: str):
+    """Read a lens of this project or a released J++ lens (`koayon/jpp-lenses`).
+
+    A J++ file holds `parameters`, `source_layers` and `config`. Its map is
+    1 Jacobian for each layer, thus it fits `JacobianLens`. The weights stay
+    memory-mapped, and `meta` keeps the config of the fit.
+    """
     from jlens import JacobianLens
 
-    return JacobianLens.load(path)
+    head = torch.load(path, map_location="cpu", weights_only=True, mmap=True)
+    if "parameters" not in head:
+        return JacobianLens.load(path)
+    cfg = head["config"]
+    if cfg["lens_type"] != "jacobian":
+        raise ValueError(f"{path}: lens type {cfg['lens_type']} is not 1 map for each layer")
+    return JacobianLens(dict(head["parameters"]["jacobians"]), n_prompts=cfg["num_prompts_trained_on"],
+                        d_model=cfg["d_model"], meta=dict(cfg))
 
 
 def wrap_for_unembed(model: Any, tokenizer: Any):

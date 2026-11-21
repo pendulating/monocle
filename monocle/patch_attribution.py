@@ -65,7 +65,7 @@ import pandas as pd
 import torch
 from PIL import Image
 
-REPO = Path("/share/pierson/matt/mllmsci")
+REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -74,11 +74,22 @@ from monocle import canonical, extract  # noqa: E402
 from monocle import jlens_read  # noqa: E402  (jlens imported lazily inside)
 from monocle import safety_workspace as sw  # noqa: E402
 
-MODEL_DIR = "/share/pierson/matt/zoo/models/gemma-4-12B-it"
+MODEL_DIR = "/share/ju/matt/zoo/models/gemma-4-12B-it"
 OUT_DEFAULT = REPO / "outputs/_monocle/patch_attribution"
 
 FITTED_LAYERS = [6, 12, 18, 24, 30, 36, 42, 46]
 FINAL_LAYER = 47
+
+#: The layer to read. Dense scan over L34-L46, 7 cases x 200 pairs, mean
+#: r(A-B, c): L40 0.766, L41 0.720, L42 0.789, **L43 0.805**, L44 0.679,
+#: L45 0.735, L46 0.234. L42 is a shoulder. The window is L40-L45.
+PEAK_LAYER = 43
+
+#: The last patch of a block aggregates it — 117x the gradient of any other
+#: patch at L46, at an ordinary activation norm. It holds ~43% of the L46 map
+#: and its sign OPPOSES the rest, so L46 needs it masked: dropping it takes
+#: subway_safety from 0.402 to 0.616. At L40-L45 it helps, so keep it there.
+AGGREGATOR_MASK_LAYERS = (46,)
 SEED = 777
 
 CONTRASTS = ("judgment", "abstain")
@@ -227,26 +238,75 @@ def pool_tokens(
             for b, v in merged.items()}
 
 
+def mask_aggregator(
+    values: np.ndarray, layer: int,
+    mask_layers: tuple[int, ...] = AGGREGATOR_MASK_LAYERS,
+) -> np.ndarray:
+    """Zero the block's final patch, on the layers where it inverts the map.
+
+    Returns a copy. At L46 that 1 cell of 256 holds about 43% of the map with
+    the OPPOSITE sign to the rest, so a map that keeps it reads backwards. At
+    L40-L45 the same cell agrees with the rest and must be kept.
+    """
+    if layer not in mask_layers or values.size == 0:
+        return values
+    out = np.array(values, copy=True)
+    out[-1] = 0.0
+    return out
+
+
 def row_profile(values: np.ndarray, n_rows: int, n_cols: int) -> np.ndarray:
     """Share of the total |attribution| held by each patch row.
 
-    The positional diagnostic. The patch block is raster-ordered and the model
-    is causal, so a patch in the LAST row is the only kind that has attended to
-    every other patch: it is the aggregation bottleneck of the image. Gradient
-    from the answer position flows through it whatever the picture holds.
+    The positional diagnostic. A deep attribution map collapses onto the LAST
+    patch row of each image. The picture content does not change this. Read
+    this number before you read a map.
 
-    Measured on subway_safety (job 289469), share held by row 15 of 16 against
-    a uniform 0.0625:
+    **The cause is not causal aggregation.** gemma-4-12b sets
+    `use_bidirectional_attention: "vision"`, so the patches of one image attend
+    to each other in both directions, and only the text stays causal. Thus no
+    patch is an aggregation point. An earlier version of this docstring made
+    that claim, and the attention mask refutes it.
 
-    | layer | prod | neutral |
+    The cause is not distance to the answer either. Both image blocks peak on
+    their last row, and the FIRST block peaks harder, but it sits farther from
+    the answer. Share held by row 15 of 16 against a uniform 0.0625, over 200
+    pairs for each case (patch_attribution_v2):
+
+    | layer | A prod | B prod | A blind | B blind |
+    |---|---|---|---|---|
+    | L24 | 0.07 | 0.08 | 0.08 | 0.07 |
+    | L36 | 0.35 | 0.23 | 0.29 | 0.18 |
+    | L46 | 0.63 | 0.41 | 0.59 | 0.37 |
+
+    (subway_safety. The other 6 cases agree to about 0.05.)
+
+    Row 0 is sky. It is equally uniform and equally low-texture, and it stays
+    near 0.02. Thus the effect follows the row position, not the content. The
+    blind arm holds almost all of it, which is why the DIFF maps are the ones
+    to read.
+
+    **The cause is the gradient, not the activation.** `patch_norms.py`
+    decomposes a = ||g|| ||h|| cos at the LAST patch of each block against all
+    the others (25 pairs, subway_safety and libraries agree to 2%):
+
+    | layer | ||h|| ratio | ||g|| ratio |
     |---|---|---|
-    | L6 | 0.10 | 0.10 |
-    | L24 | 0.08 | 0.07 |
-    | L42 | 0.26 | 0.30 |
-    | L46 | 0.68 | 0.56 |
+    | L30 | 1.04 | 19.2 |
+    | L36 | 1.44 | 36.8 |
+    | L42 | 1.25 | 66.4 |
+    | L46 | 1.00 | **116.9** |
 
-    Row 0 (sky) is equally uniform and equally low-texture but stays at 0.02,
-    so this is causal position, not a register or low-information effect.
+    The activation norm is ordinary — exactly 1.00 at L46 — so this is not a
+    register or a norm artifact. The gradient is 117x. `c` really does move
+    when that position moves.
+
+    At L46 the only path from a patch to `c` is block 47's attention from the
+    answer position: `c` reads h_47[answer] alone. Thus the model routes each
+    image block to its FINAL patch and the answer reads the block from there.
+    Bidirectional attention lets any patch aggregate; the model picks the last.
+
+    That single cell holds about 20% of the map at L42 and 43% at L46.
     """
     mag = np.abs(values).reshape(n_rows, n_cols).sum(axis=1)
     total = mag.sum()
@@ -414,23 +474,31 @@ def readout_rows(
             continue
         for slot, positions in zip(("A", "B"), blocks):
             h = acts[layer][0, positions, :].float()
-            logits = lens_model.unembed(lens.transport(h, layer)).float()
-            probs = torch.softmax(logits, dim=-1)
-            top = torch.topk(probs, k, dim=-1)
-            n_rows, n_cols = grids[slot]
-            ids = top.indices.cpu().tolist()
-            vals = top.values.cpu().tolist()
-            for i, (row_ids, row_vals) in enumerate(zip(ids, vals)):
-                toks = tokenizer.convert_ids_to_tokens(row_ids)
-                for rank, (tid, tok, pr) in enumerate(
-                        zip(row_ids, toks, row_vals)):
-                    rows.append({
-                        **base, "layer": int(layer), "slot": slot,
-                        "patch_idx": i, "patch_row": i // n_cols,
-                        "patch_col": i % n_cols, "rank": rank,
-                        "token_id": int(tid),
-                        "token": scoring_display(tok),
-                        "prob": float(pr)})
+            # The COLOURS are computed on the centered residual, but the WORDS
+            # were not. If a shared direction dominates the block, every patch
+            # reads the same register token and the patch content never shows.
+            # Emit both, so the difference is measurable and not assumed.
+            for centered in (False, True):
+                use = center_over_patches(h) if centered else h
+                logits = lens_model.unembed(
+                    lens.transport(use, layer)).float()
+                probs = torch.softmax(logits, dim=-1)
+                top = torch.topk(probs, k, dim=-1)
+                n_rows, n_cols = grids[slot]
+                ids = top.indices.cpu().tolist()
+                vals = top.values.cpu().tolist()
+                for i, (row_ids, row_vals) in enumerate(zip(ids, vals)):
+                    toks = tokenizer.convert_ids_to_tokens(row_ids)
+                    for rank, (tid, tok, pr) in enumerate(
+                            zip(row_ids, toks, row_vals)):
+                        rows.append({
+                            **base, "layer": int(layer), "slot": slot,
+                            "centered": centered,
+                            "patch_idx": i, "patch_row": i // n_cols,
+                            "patch_col": i % n_cols, "rank": rank,
+                            "token_id": int(tid),
+                            "token": scoring_display(tok),
+                            "prob": float(pr)})
     return rows
 
 
@@ -600,8 +668,8 @@ def run_case(
                     for slot, positions, im in zip(("A", "B"), blocks, imgs):
                         g = grads[layer][0, positions, :]
                         h = acts[layer][0, positions, :]
-                        a = grad_x_activation(
-                            g, center_over_patches(h)).cpu().numpy()
+                        a = mask_aggregator(grad_x_activation(
+                            g, center_over_patches(h)).cpu().numpy(), layer)
                         n_r, n_c = grids[slot]
                         raw = tok_by.get((layer, slot), {})
                         toks = {i: [t for _, t, _ in sorted(v)]
@@ -724,8 +792,9 @@ def summarize_case(
         "by_group": groups,
         "massive_activation": diag,
         # Read these BEFORE any map. A high prod_neutral_r means the layer's
-        # map is question-independent; a high last_row_share means it is
-        # dominated by the causal aggregation row (uniform = 1/16 = 0.0625).
+        # map is question-independent. A high last_row_share means the map
+        # collapses onto the last patch row (uniform = 1/16 = 0.0625). That
+        # row is NOT a causal aggregation point -- see row_profile.
         "positional": positional,
     }
     p = case_dir / f"summary{suffix}.json"
