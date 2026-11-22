@@ -10,7 +10,7 @@ Thus a quiet early layer draws small and a confident late layer draws large.
 `monocle.render_layers` holds that normalization.
 
 Warning: the R-lens gives junk below block 30, and the J-lens gives junk below
-block 36. Read `vlm-narratives-docs/r-lens.md` before you trust an early frame.
+block 36. Read `research/docs/r-lens.md` before you trust an early frame.
 
 Usage:
     python -m research.monocle.patch_word_gif --case restaurants --n-images 3
@@ -25,7 +25,7 @@ the images. The RQ1 figure uses it (`research/scripts/rq1/patch_words_sample.py`
 
 `--layout text_first` puts the question before the image. A patch reads only
 the tokens before it, so only this layout lets the question change the patch
-words (`vlm-narratives-docs/modality-order.md`). Give it its own `--tag`.
+words (`research/docs/modality-order.md`). Give it its own `--tag`.
 
 `text_first` also moves the patches to later positions. The pair
 `question_first` (question, image, filler) and `neutral_first` (filler,

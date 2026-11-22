@@ -27,7 +27,7 @@ class ICExtractRunner(StageRunner):
 
     The stage reads a results parquet of a THINKING run. It needs no dataset and
     no pair sampler, thus it takes its input from `ic_extract.results_path`.
-    See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+    See `research/docs/ic-ingredient-extraction.md`.
     """
 
     stage_name = "ic_extract"

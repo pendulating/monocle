@@ -769,5 +769,5 @@ outputs need a few GB of disk (canonical: about 0.5 GB).
 | `data/f4_traces/b2/x2/<arm>/` | the merged batch 2 extractions |
 | `data/f4_traces/pooled/` | the pool of the 2 batches |
 
-When batch 2 ends, add a section to `vlm-narratives-docs/facct-runbook.md`
+When batch 2 ends, add a section to `research/docs/facct-runbook.md`
 with the job ids, the B3 table, and the B10 table.

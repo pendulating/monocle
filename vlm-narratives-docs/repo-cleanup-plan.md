@@ -1,6 +1,6 @@
 # Plan: make the repo a starting point for GPU vision inference
 
-Written 2026-11-21. Status: phases 0 to 4 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22). Phases 3 and 4 are on the branch `cleanup/phase-3`.
+Written 2026-11-21. Status: phases 0 to 5 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22). Phases 3 to 5 are on the branch `cleanup/phase-3`.
 
 ## Progress
 
@@ -17,6 +17,10 @@ Written 2026-11-21. Status: phases 0 to 4 are done (see "Progress"). Phase 2 is 
 | 3c: the model paths | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 | 3d: the job env, W&B, personal data, data defaults | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 | 4: packaging | Done 2026-11-22 | Branch `cleanup/phase-3`. |
+| 5a: the factory, the template, the example | Done 2026-11-22 | Branch `cleanup/phase-3`. Both examples ran on `slurm_gpu_1x`. |
+| 5b: framework defaults | Done 2026-11-22 | Branch `cleanup/phase-3`. |
+| 5c: tests and CI | Done 2026-11-22 | Branch `cleanup/phase-3`. |
+| 5d: README, `docs/`, the research notes | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 
 The rename of phase 2a has these rules:
 
@@ -304,6 +308,22 @@ Check: `uv sync` on a fresh clone, then `uv sync --extra research` and `uv sync 
 | CLAUDE.md | Change it to the new layout and commands. |
 
 Check: a person who does not know the repo makes a new dagspace from the template and runs it, with the README only.
+
+What phase 5 did (2026-11-22):
+
+| Item | Result |
+|------|--------|
+| Factory | `dagspaces/common/dagspace_factory.py`: `make_dagspace(module, name=, stages=, **settings)`. It sets the module and name of each function, thus submitit pickles `execute_stage_job` by reference. An unknown setting gives a `TypeError`. |
+| Stage runner | `dagspaces/common/runners/dataframe.py`: `DataFrameStageRunner(stage_name, fn)` for a function `(df, cfg) -> DataFrame`. `apply_image_root` joins `data.image_root` to relative paths. |
+| Template | `dagspaces/_template/` (one `describe` stage) and `tests/test_template_dagspace.py` (5 tests with a fake model). `scripts/new_dagspace.py NAME` copies both. |
+| Example | `examples/images/`: 10 Carol M. Highsmith photos (public domain) and `images.parquet` with relative paths. `data=example_images`, `vqa pipeline=example_images`, `_template pipeline=describe_images`. `scripts/make_image_table.py` makes a table of a folder. |
+| Bug: no resume dir | `run_vllm_inference` failed with `range() arg 3 must not be zero` when `model.resume_dir` was not set. Each production pipeline set it, thus no run saw the bug. |
+| Bug: recovery | The basic recovery of `stage_submission` read the pickle of a failed job as a result, and a `TypeError` hid the real error. |
+| Framework defaults | ocr, embed and pairwisevqa default to the example images. pairwisevqa defaults to `prompt=pairwise_example`. `IMAGE_FORWARD_NO_PROJECT_ROOTS=1` removes the project roots, and `tests/test_framework_configs.py` composes each default with it. The 172 composes did not change, except the embed default. |
+| Tests | A root `conftest.py` (server.env, the markers `gpu`, `slurm`, `data`, the path fixtures). The 12 fixed `/share/ju/matt/mllmsci` paths are gone. `scripts/test_*.py` moved to `tests/`. A clean clone gives 1892 passed and 3 skipped. |
+| CI | `.github/workflows/ci.yml`: the tests with no GPU, SLURM or local data; ruff (syntax errors and undefined names); pyright on the files that are clean. The full framework has about 270 old pyright errors. |
+| Docs | A new `README.md`. `docs/` has 6 new guides in STE. The old guides are deleted. 88 research pages moved from `vlm-narratives-docs/` to `research/docs/`, and 182 links changed. `sv/docs/` holds the catalog and curation notes. `site/speech-guide.md` is the speech guide of this site. |
+| Not done | The live site venv does not have the `dagspace` script. It needs `uv sync` in compat mode (an author decision, because jobs use the venv). |
 
 ## Phase 6: split the framework (optional)
 

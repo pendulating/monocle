@@ -4,7 +4,7 @@
 # The job copies the model and the 1,000 images to node-local /scratch, starts
 # a vLLM or SGLang server, and sends the 2 prompts of D86 to each image, 1
 # answer each (D88). The server stays up for both prompts. A requeue resumes
-# from responses.jsonl. Rules: vlm-narratives-docs/facct-runbook.md, F4
+# from responses.jsonl. Rules: research/docs/facct-runbook.md, F4
 # (D31 to D40, D86 to D90).
 #
 # Submit from the project root, one job for each model key:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """F10.3: the held-out test of the removal hypothesis (D157).
 
-The tests are set in vlm-narratives-docs/facct-runbook.md, before the run: 80 paired
+The tests are set in research/docs/facct-runbook.md, before the run: 80 paired
 t tests on `c_yes_i` (Bonferroni), 16 cells x 5 tests, on 400 images that F10.3 did
 not use. Each test reads with the expected sign of F10.3. The hypothesis covers the 4
 cells with Bronx images and the prompt `manhattan`.

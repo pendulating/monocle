@@ -5,7 +5,7 @@
 # the canonical gemma layout is `interleaved_labels`. The first gemma half of
 # this arm ran `images_then_labels` (rule of 2026-08-20) and thus held the
 # layout as well as the forced answer. See
-# `vlm-narratives-docs/prompt-ablations.md`.
+# `research/docs/prompt-ablations.md`.
 #
 # ─── What changes against `million_proxy_gemma12b` ───────────────────────────
 # ONE thing: the decoder cannot emit `NotSure`. Same layout, same prompt, same

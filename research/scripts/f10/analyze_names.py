@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """F10.1: the tests of the text swap of the place name (D148).
 
-The tests are set in vlm-narratives-docs/facct-runbook.md, F10.1, before the
+The tests are set in research/docs/facct-runbook.md, F10.1, before the
 run. The primary tests are 24 t tests on `c_yes_i` (Bonferroni): 4 models x 2
 cases x 3 contrasts.
 

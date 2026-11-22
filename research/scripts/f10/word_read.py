@@ -12,7 +12,7 @@ a word is pooled in 2 forms, before any control is subtracted:
 
 The analysis subtracts the control words (`analyze_reads.py`). The output is 1 part
 file for each chunk in `--out-dir`, 1 row for each image and layer. A restart skips
-the done images. Rules: vlm-narratives-docs/facct-runbook.md, F10.2.
+the done images. Rules: research/docs/facct-runbook.md, F10.2.
 
 Use:
     python research/scripts/f10/word_read.py --model-key gemma-4-31b --model-dir DIR --lens FILE \

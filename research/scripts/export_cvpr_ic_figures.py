@@ -18,7 +18,7 @@ Usage:
 
 Warning: run it from the canonical venv, `.venv-mllmsci-vllm025cu129`.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

@@ -469,6 +469,6 @@ Never swap one for the other.
 
 ## Related
 
-- `vlm-narratives-docs/r-lens.md` — the rules study, and the stage-4 gate
-- `vlm-narratives-docs/canonical-lens-prompt-path.md` — the mandatory prompt path
-- `vlm-narratives-docs/patch-attribution.md` — the L20 scoreboard
+- `research/docs/r-lens.md` — the rules study, and the stage-4 gate
+- `research/docs/canonical-lens-prompt-path.md` — the mandatory prompt path
+- `research/docs/patch-attribution.md` — the L20 scoreboard

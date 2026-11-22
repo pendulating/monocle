@@ -60,8 +60,8 @@ has run on, and that is not always all 7 cases and both raters. `coverage()`
 reports what is present, and every figure names it. Do not read a missing case
 as a null result.
 
-See `vlm-narratives-docs/aesthetic-hierarchy.md` and
-`vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/aesthetic-hierarchy.md` and
+`research/docs/langextract-trace-extraction.md`.
 """
 
 from __future__ import annotations

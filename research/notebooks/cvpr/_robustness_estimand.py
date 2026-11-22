@@ -4,7 +4,7 @@ Tier A (`_robustness.py`) asks whether a wording arm changes the per-pair
 judgments. This module asks the question the paper cares about: does the
 validation-by-proxy result of the subway-safety case survive the 2 wording
 arms that cost the most agreement, `paraphrase` and `persona`, at 25,000
-pairs. Plan: `vlm-narratives-docs/robustness-battery-rerun-plan.md`, phase 6.
+pairs. Plan: `research/docs/robustness-battery-rerun-plan.md`, phase 6.
 
 Every read goes through the canonical registry. The 2 arms register as
 `paraphrase` and `persona` (`research/scripts/register_canonical_runs.py`), and each

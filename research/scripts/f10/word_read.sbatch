@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.2: the read of the word list. 1 model, 1 GPU. A requeue resumes.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.2.
+# Rules: research/docs/facct-runbook.md, F10.2.
 #
 #   sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f102-gemma-4-31b research/scripts/f10/word_read.sbatch
 # Optional env: F10_LIMIT (images for each case, smoke test), F10_TAG (a suffix for the output dir).

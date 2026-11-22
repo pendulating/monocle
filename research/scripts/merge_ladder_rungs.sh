@@ -3,7 +3,7 @@
 #
 # The merge is CPU work: JacobianLens.merge is an n_prompts-weighted mean, so
 # it needs no GPU and no model. See
-# vlm-narratives-docs/lens-corpus-faithfulness.md.
+# research/docs/lens-corpus-faithfulness.md.
 #
 # Usage: bash research/scripts/merge_ladder_rungs.sh [R0 R1 ...]
 set -euo pipefail

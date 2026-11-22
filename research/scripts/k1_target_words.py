@@ -6,7 +6,7 @@ anyone counts. These lists are written here so a later run uses the same
 words as an earlier one.
 
 The restaurants list is the one the first content test used, and it is
-copied from `vlm-narratives-docs/causal-lens-retrospective.md`. The other
+copied from `research/docs/causal-lens-retrospective.md`. The other
 6 lists are built the same way, from the question of the case.
 """
 from __future__ import annotations

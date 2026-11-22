@@ -37,7 +37,7 @@ is causal, thus the patches of another adjective are the patches of the `cool` s
 
 `--noun` changes the noun of the question. The position `place` then names that noun.
 
-Rules: vlm-narratives-docs/facct-runbook.md, F10.6.
+Rules: research/docs/facct-runbook.md, F10.6.
 
 Use:
     python research/scripts/f10/hop_all.py --model-key gemma-4-31b --model-dir DIR --lens FILE \

@@ -80,7 +80,7 @@ The rate divides by the whole kept mass, which `run_counts` returns beside the
 counts, never by the sum of the truncated counter. Without that rule the top
 30,000 trigrams — under half of the mass — would move every rate.
 
-See `vlm-narratives-docs/aesthetic-hierarchy.md`.
+See `research/docs/aesthetic-hierarchy.md`.
 """
 
 from __future__ import annotations

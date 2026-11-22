@@ -6,7 +6,7 @@ axis. Thus a difference between two rungs names its cause.
 The ladder targets the single-image causal gate (`research/monocle/patch_map_causal.py`),
 because that gate holds the result the ladder must move: a fitted transport
 scores +0.10 where the local Jacobian scores +0.49. See
-`vlm-narratives-docs/lens-corpus-faithfulness.md` for the preregistration.
+`research/docs/lens-corpus-faithfulness.md` for the preregistration.
 
 | Rung | Images | Prompt | Target positions |
 |---|---|---|---|

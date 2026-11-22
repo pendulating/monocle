@@ -19,11 +19,11 @@ result that does not generalize as clearly as each result that does.
 | File | Why |
 |------|-----|
 | `CLAUDE.md` | The language rule (ASD-STE100), the documentation rules, SLURM use |
-| `vlm-narratives-docs/f10-judgment-mechanism.md` | Main result, Question 2 (sense), F10.19, F10.23, F10.24, F10.25, Methods, Limits |
-| `vlm-narratives-docs/f10-analysis-walkthrough.md` | The 12 analyses and how each claim stands |
-| `vlm-narratives-docs/f10-manuscript-proposals.md`, section 2 | The canonical terms and what the code computes |
-| `vlm-narratives-docs/facct-claim-map.md` | The claims, and the results that support each claim |
-| `vlm-narratives-docs/jacobian-lens-review.md`, `lens-registry.md` | The lens method and the lens files |
+| `research/docs/f10-judgment-mechanism.md` | Main result, Question 2 (sense), F10.19, F10.23, F10.24, F10.25, Methods, Limits |
+| `research/docs/f10-analysis-walkthrough.md` | The 12 analyses and how each claim stands |
+| `research/docs/f10-manuscript-proposals.md`, section 2 | The canonical terms and what the code computes |
+| `research/docs/facct-claim-map.md` | The claims, and the results that support each claim |
+| `research/docs/jacobian-lens-review.md`, `lens-registry.md` | The lens method and the lens files |
 | `research/scripts/f10/hop_store.py`, `hop_models.py`, `hop_adjectives.py`, `hop_outcomes.py` | The readers and the F10.24 code that you extend |
 | `paper/sec/3_methods.tex`, `paper/sec/4_results.tex` in `artificial-aesthetic/` | The voice and the claims of the paper. Read only, do not edit |
 

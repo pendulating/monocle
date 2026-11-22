@@ -21,7 +21,7 @@ Use (the GPU step goes through `label_inference_valence.sbatch`):
     F9V_ARGS="--tag smoke --limit 600" sbatch --export=ALL --exclude=g3-compute-17 \
         research/scripts/f9/label_inference_valence.sbatch
 
-See `vlm-narratives-docs/f9-inference-valence.md`.
+See `research/docs/f9-inference-valence.md`.
 """
 from __future__ import annotations
 

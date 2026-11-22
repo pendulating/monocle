@@ -34,7 +34,7 @@ batch, `--suffix` names the files (`f4_<case>_<suffix>.parquet`, always in
 `extract_input/`, the folder that `extract_shard.py` reads), and `--no-smoke`
 writes no smoke set. The smoke code reads files of the first round only.
 
-F9 (D142, `vlm-narratives-docs/f9-extraction-design.md`): `--subj` reads
+F9 (D142, `research/docs/f9-extraction-design.md`): `--subj` reads
 `data/f4_traces/subj/extract_input/f4_{restaurant,street}_subj.parquet` and
 writes `f4_<case>_x2.parquet`, the smoke sets `f4_x2smoke_<case>.parquet`
 (4 texts for each (model, field) and the 10 longest qwen3.5-9b traces,

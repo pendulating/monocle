@@ -29,7 +29,7 @@ table; the cut rate and the tokens; the `response_from_trace` row; the B10
 coverage of each merged file.
 
 Outputs go to `research/figures/f9/` (CSV, JSON, and 3 figures with a caption JSON).
-See `vlm-narratives-docs/f9-subjective-prompt.md`.
+See `research/docs/f9-subjective-prompt.md`.
 
 Use:
     .venv-mllmsci-vllm025cu129/bin/python research/scripts/f9/analyze_subjective.py

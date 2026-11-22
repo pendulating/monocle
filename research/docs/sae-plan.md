@@ -327,7 +327,7 @@ instead of it.
 | `monocle/sae_census.py`, `scripts/sae_select.py` | stages 3 and 4 (the latent catalogue and the selection) |
 | `monocle/sae_steer.py`, `monocle/sae_writers.py` | stages 5 and 6 |
 | `outputs/_monocle/sae/<ckpt>/<dict>/` | weights, metrics, catalogue, crops |
-| `vlm-narratives-docs/sae-results.md` | the results page |
+| `research/docs/sae-results.md` | the results page |
 
 ## Related
 

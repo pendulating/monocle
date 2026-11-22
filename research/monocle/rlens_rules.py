@@ -7,7 +7,7 @@ The J-lens transports a residual with an averaged gradient,
 only what flows BACKWARD through gemma-4 while the fit runs, so a raw
 gradient gives way to a Layer-wise Relevance Propagation coefficient.
 
-The reason is in `vlm-narratives-docs/r-lens-proposal.md`. Our J-lens is
+The reason is in `research/docs/r-lens-proposal.md`. Our J-lens is
 unreadable below L30, and the image stops acting on the answer above L30, so
 the readable window and the causal window never meet.
 

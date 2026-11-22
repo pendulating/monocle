@@ -12,7 +12,7 @@ Run:
     python research/scripts/build_ic_examples.py            # write and verify
     python research/scripts/build_ic_examples.py --check    # verify only
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

@@ -2,7 +2,7 @@
 
 To change a table, edit `build_tables.py` and run it from the repo root. Do not edit a `.tex` file by hand.
 
-The numbers come from data files. The rows match `vlm-narratives-docs/facct-claim-map.md`.
+The numbers come from data files. The rows match `research/docs/facct-claim-map.md`.
 
 | File | Label | Place in `sec/4_results.tex` |
 |------|-------|------------------------------|

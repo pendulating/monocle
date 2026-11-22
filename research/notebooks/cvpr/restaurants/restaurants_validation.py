@@ -21,7 +21,7 @@ The headline proxy is no longer the single most recent inspection. It is the
 MEAN score over the cycle initial inspections of each restaurant. The export
 now carries 4 proxies at once, and the outdoor-dining channel joins them as a
 CONFOUNDER of the preference judgment. See
-`vlm-narratives-docs/restaurant-proxies.md`.
+`research/docs/restaurant-proxies.md`.
 
 Run it:
     .venv-nightly/bin/marimo edit research/notebooks/cvpr/restaurants/restaurants_validation.py
@@ -98,7 +98,7 @@ def _(NOTEBOOK_VERSION, geo, mo, pr, prov, px):
 
     **Warning: the prompt asks for a PREFERENCE, and the inspection record
     measures FOOD SAFETY.** The 2 constructs are not the same thing. Read
-    `vlm-narratives-docs/restaurant-proxies.md` before you call a low
+    `research/docs/restaurant-proxies.md` before you call a low
     correlation a failure of the model.
     """
     )

@@ -3,7 +3,7 @@
 The battery re-runs the July 2026 reviewer-2 perturbations on the CANONICAL
 setup: the minimal prompt, greedy decoding, each rater's production layout,
 and 1,000 canonical pairs cut out of the 1,000,000-pair table. Plan and
-arms: `vlm-narratives-docs/robustness-battery-rerun-plan.md`.
+arms: `research/docs/robustness-battery-rerun-plan.md`.
 Launch: `research/scripts/launch_robustness_battery.sh`.
 
 What this module reads

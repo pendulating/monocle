@@ -3,7 +3,7 @@
 # Change:   the July expert persona is ADDED as the system turn
 # Everything else is the canonical minimal contract. The structured_output
 # block is a byte copy of the base file, so guided decoding does not change.
-# Plan:     vlm-narratives-docs/robustness-battery-rerun-plan.md (phase 2)
+# Plan:     research/docs/robustness-battery-rerun-plan.md (phase 2)
 
 system: |
   You are an expert urban planner and sociologist. You will be shown two

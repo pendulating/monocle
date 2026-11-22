@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """F10.3: the tests of the coordinate swap of the place names (D152, D153).
 
-The tests are set in vlm-narratives-docs/facct-runbook.md, F10.3, before the run.
+The tests are set in research/docs/facct-runbook.md, F10.3, before the run.
 The primary tests are 64 paired t tests on `c_yes_i` (Bonferroni): 16 cells
 (model, case, image borough, prompt) x 4 tests. Each test reads with the expected
 sign: the sign of (`clean` of the other prompt - `clean` of this prompt).

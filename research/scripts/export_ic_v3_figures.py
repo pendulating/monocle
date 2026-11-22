@@ -35,7 +35,7 @@ Usage:
 Warning: the script reads about 3.4 GB of corpus in all, 1 arm at a time.
 It takes about 2 minutes. Run it from the canonical venv.
 
-See `vlm-narratives-docs/ic-v3-analysis.md`.
+See `research/docs/ic-v3-analysis.md`.
 """
 
 from __future__ import annotations

@@ -43,7 +43,7 @@ import torch
 REPO = Path("/share/ju/matt/mllmsci")
 JLENS = REPO / "outputs/_monocle/jlens"
 OUT_DEFAULT = JLENS / "LENS_REGISTRY.json"
-DOC_DEFAULT = REPO / "vlm-narratives-docs/lens-registry.md"
+DOC_DEFAULT = REPO / "research/docs/lens-registry.md"
 CHUNK = 8 << 20
 
 #: The command that builds this registry again.
@@ -61,7 +61,7 @@ ANNOTATIONS: dict[str, dict] = {
         "fitted": "July 2026",
         "note": "layers 6..46, stride 6, plus 46",
     },
-    # Step 1 of vlm-narratives-docs/lens-refusal-probe-plan.md (2026-09-06).
+    # Step 1 of research/docs/lens-refusal-probe-plan.md (2026-09-06).
     "outputs/_monocle/jlens/varA/half0/gemma4_12b_lens.pt": {
         "corpus": "WikiText prompts 0-127 of corpus_wikitext_1k.json",
         "estimand": "the wikitext map again; half 0 of the variance floor",
@@ -126,7 +126,7 @@ ANNOTATIONS: dict[str, dict] = {
         "prompt_kind": "describe",
         "dim_batch": 8,
         "fitted": "2026-08-24",
-        "note": "see vlm-narratives-docs/lens-corpus-faithfulness.md",
+        "note": "see research/docs/lens-corpus-faithfulness.md",
     },
     "outputs/_monocle/jlens/ladder/R1/gemma4_12b_lens.pt": {
         "corpus": "128 cyclomedia images, describe contexts",
@@ -135,7 +135,7 @@ ANNOTATIONS: dict[str, dict] = {
         "prompt_kind": "describe",
         "dim_batch": 8,
         "fitted": "2026-08-24",
-        "note": "see vlm-narratives-docs/lens-corpus-faithfulness.md",
+        "note": "see research/docs/lens-corpus-faithfulness.md",
     },
     "outputs/_monocle/jlens/ladder/R2/gemma4_12b_lens.pt": {
         "corpus": "128 cyclomedia images, rating prompt, case subway_safety",
@@ -144,7 +144,7 @@ ANNOTATIONS: dict[str, dict] = {
         "prompt_kind": "rating",
         "dim_batch": 4,
         "fitted": "merged 2026-08-26",
-        "note": "see vlm-narratives-docs/lens-corpus-faithfulness.md",
+        "note": "see research/docs/lens-corpus-faithfulness.md",
     },
     "outputs/_monocle/jlens/ladder/R3/gemma4_12b_lens.pt": {
         "corpus": "images from the analysis pool, held out, case subway_safety",
@@ -153,7 +153,7 @@ ANNOTATIONS: dict[str, dict] = {
         "prompt_kind": "rating",
         "dim_batch": 4,
         "fitted": "not fitted",
-        "note": "see vlm-narratives-docs/lens-corpus-faithfulness.md",
+        "note": "see research/docs/lens-corpus-faithfulness.md",
     },
     "outputs/_monocle/jlens/lrp/gemma4_12b_lens.pt": {
         "corpus": "128 WikiText prompts",
@@ -187,7 +187,7 @@ MERGED: list[tuple[str, Path]] = [
     ("ladder_R3", JLENS / "ladder/R3/gemma4_12b_lens.pt"),
     ("lrp_wikitext", JLENS / "lrp/gemma4_12b_lens.pt"),
     ("lrp_mm", JLENS / "mm/lrp/gemma4_12b_lens.pt"),
-    # Step 1 of vlm-narratives-docs/lens-refusal-probe-plan.md (2026-09-06).
+    # Step 1 of research/docs/lens-refusal-probe-plan.md (2026-09-06).
     ("varA_half0", JLENS / "varA/half0/gemma4_12b_lens.pt"),
     ("varA_half1", JLENS / "varA/half1/gemma4_12b_lens.pt"),
     ("wikitext1k", JLENS / "wikitext1k/gemma4_12b_lens.pt"),

@@ -6,7 +6,7 @@ to the source on `pair_id`.
 
 Warning: only a THINKING run holds a trace. The canonical battery runs greedy
 with `max_tokens=128`, thus its `model_reasoning` column is empty. See
-`vlm-narratives-docs/reasoning-trace-analysis.md`.
+`research/docs/reasoning-trace-analysis.md`.
 
 Shards and resume
 -----------------
@@ -14,7 +14,7 @@ The stage cuts the trace table into row ranges and writes 1 parquet for each
 range under `chunks/`. A rerun skips a range whose chunk exists. Thus a job that
 the walltime stops keeps everything it finished.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/langextract-trace-extraction.md`.
 """
 
 from __future__ import annotations

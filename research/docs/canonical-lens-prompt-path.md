@@ -8,7 +8,7 @@ The model this path drives is described in [gemma4-12b-architecture.md](gemma4-1
 **Note, 2026-08-20:** the layout decision of that date replaced
 `interleaved_labels` with `images_then_labels`. A run that was registered before
 that date warns in `prompt_cfg` and needs a re-run before a lens read. See
-[gemma-4-best-practices.md](gemma-4-best-practices.md).
+[gemma-4-best-practices.md](../../vlm-narratives-docs/gemma-4-best-practices.md).
 
 ## Why it exists
 

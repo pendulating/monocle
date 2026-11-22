@@ -30,7 +30,7 @@ invention of the extractor, and its words are not the model's.
 Warning: a span is short. A block therefore holds far fewer words than a trace
 cloud, and `min_count` matters more: raise it when a block shows noise.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

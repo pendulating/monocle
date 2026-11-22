@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """F8.2 and F8.3: the tests of the counterfactual cue and of the R3 readout.
 
-The tests are set in vlm-narratives-docs/facct-runbook.md, F8.2 and F8.3,
+The tests are set in research/docs/facct-runbook.md, F8.2 and F8.3,
 before the run. This script does only those tests.
 
 | Part | Test | Files in `research/figures/f8/cue/` |

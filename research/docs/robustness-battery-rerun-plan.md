@@ -174,7 +174,7 @@ Checklist, 1 line for each rater:
 - [x] 5.4 (tables/robustness.tex, robustness-abstention.tex, robustness-side.tex; all 3 are input) Copy the generated table to `papers/.../tables/robustness.tex` and
       `\input` it in place of the hand-written table in
       `sec/B_addtl-results.tex`.
-- [x] 5.5 (done 2026-09-04; tier B results and the merge trap added 2026-09-04 23:50) Doc page `vlm-narratives-docs/robustness-battery.md`: the arms, the
+- [x] 5.5 (done 2026-09-04; tier B results and the merge trap added 2026-09-04 23:50) Doc page `research/docs/robustness-battery.md`: the arms, the
       commands, the results, and the traps.
 
 ## Phase 6. Tier B: the downstream estimand at 25k pairs

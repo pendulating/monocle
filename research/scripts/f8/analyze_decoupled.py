@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """F8.5: the tests of the decoupled cue (D136).
 
-The tests are set in vlm-narratives-docs/facct-runbook.md, F8.5, before the
+The tests are set in research/docs/facct-runbook.md, F8.5, before the
 run. The primary tests are 32 paired t tests (Bonferroni): 4 models x 2
 cases x 2 instructed readouts x 2 contrasts.
 

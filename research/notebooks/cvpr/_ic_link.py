@@ -35,7 +35,7 @@ the reasoning. Thus every table here splits on the size of the proxy gap.
 Warning: the code and the judgment come from the SAME run, thus this shows an
 association and never a cause.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

@@ -64,7 +64,8 @@ This rule applies to:
 
 ## Documentation
 
-Write project information in `vlm-narratives-docs/`.
+Write a research note in `research/docs/` and a framework note in
+`vlm-narratives-docs/`. The user guides of the framework are in `docs/`.
 
 **Warning:** The Obsidian wiki at `vault/context/` is no longer maintained. Do
 not write to it. Read it only for history.

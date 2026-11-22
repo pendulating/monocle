@@ -23,7 +23,7 @@ The gate of the version 3 ladder (2026-09-28): truncated under 10%,
 verbatim over 95%, dup under 5%, no empty answer, and every class of the
 schema present in the shard. `--gate` exits 1 when a shard fails it.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "Version 3".
+See `research/docs/langextract-trace-extraction.md`, "Version 3".
 """
 from __future__ import annotations
 

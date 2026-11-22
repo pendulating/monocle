@@ -225,4 +225,4 @@ as an honest abstention rate, and the two look the same.
 
 ## See also
 
-- [gemma4-12b-architecture.md](gemma4-12b-architecture.md) — the 48 blocks, the two attention kinds, the encoder-free vision path.
+- [gemma4-12b-architecture.md](../research/docs/gemma4-12b-architecture.md) — the 48 blocks, the two attention kinds, the encoder-free vision path.

@@ -400,7 +400,7 @@ done
 `research/scripts/merge_trace_extractions.py` takes several sweep directories, thus a
 re-run in its own sweep merges with the first one.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md` for the throughput
+See `research/docs/langextract-trace-extraction.md` for the throughput
 numbers and the shard layout.
 
 ## The other channels

@@ -15,7 +15,7 @@ The predictions of the extractors are NOT imported. The annotators label
 blind, and `research/scripts/score_gold_set.py` compares the export with each
 `data/gold_set/predictions_<arm>.json` after.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "The gold set".
+See `research/docs/langextract-trace-extraction.md`, "The gold set".
 """
 from __future__ import annotations
 

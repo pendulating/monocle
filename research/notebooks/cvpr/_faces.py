@@ -84,7 +84,7 @@ also carries:
   face mix of the places explains. This is the number the paper needs: it says
   how much of a published place score is the camera.
 
-See `vlm-narratives-docs/camera-face-effect.md`.
+See `research/docs/camera-face-effect.md`.
 """
 
 from __future__ import annotations

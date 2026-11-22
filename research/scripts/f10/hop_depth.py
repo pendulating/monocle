@@ -24,7 +24,7 @@ images are `data/f10/hop_depth/images.parquet`. Row i of the arrays is row i of 
 | `text_reads.npy`, `text_residuals.npy` | the same text with no image; `after_image` is NaN |
 
 `hop_store.py` opens these files. A restart resumes at the first missing shard. Rules:
-vlm-narratives-docs/facct-runbook.md, F10.5.
+research/docs/facct-runbook.md, F10.5.
 
 Use:
     python research/scripts/f10/hop_depth.py --model-key gemma-4-31b --model-dir DIR --lens FILE \

@@ -3,7 +3,7 @@
 
 For each item (1 image, 1 prompt, 1 stored final answer) the script builds the
 2-turn chat of D18 and reads 2 logit differences at the first token of the
-readout turn (vlm-narratives-docs/facct-runbook.md, F8.3):
+readout turn (research/docs/facct-runbook.md, F8.3):
 
 | Readout | Context | Value |
 |---------|---------|-------|

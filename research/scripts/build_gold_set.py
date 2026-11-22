@@ -70,7 +70,7 @@ Use
     python research/scripts/build_gold_set.py
     python research/scripts/build_gold_set.py --n-per-judge 15 --max-chars 9000 --seed 20260922
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "The gold set".
+See `research/docs/langextract-trace-extraction.md`, "The gold set".
 """
 from __future__ import annotations
 

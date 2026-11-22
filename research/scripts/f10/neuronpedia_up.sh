@@ -2,7 +2,7 @@
 # Start the local Neuronpedia viewer for the F10.6 runs on this node.
 # A second call reuses the install, replaces the runs and restarts the server.
 # The app and the database listen on 127.0.0.1 only. A gate gives the login node the app port.
-# See vlm-narratives-docs/neuronpedia-viewer.md.
+# See research/docs/neuronpedia-viewer.md.
 #
 #   bash research/scripts/f10/neuronpedia_up.sh
 set -euo pipefail

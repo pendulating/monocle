@@ -21,7 +21,7 @@
 #
 # The 4 arms make a 2 x 2 of judge and extractor, so a difference between 2
 # judges can be read apart from a difference between 2 extractors. See
-# vlm-narratives-docs/langextract-trace-extraction.md, Phases 6 and 7.
+# research/docs/langextract-trace-extraction.md, Phases 6 and 7.
 #
 # The version 2 arms (schema `urban_cues_v2`, 2026-09-20) run the same 2 x 2
 # with enums on the values, a qwen example, and a buffer that holds the

@@ -21,7 +21,7 @@ README.txt into the output, and zips it.
                         # the copy that Anonymous GitHub serves at anonymous.4open.science/w/<id>/site/anon/
                         # (a sandboxed page with no CORS, so the run goes into the page as a data: URL)
 
-Requires node (the webapp uses Next 15) and git. See vlm-narratives-docs/neuronpedia-public-release.md.
+Requires node (the webapp uses Next 15) and git. See research/docs/neuronpedia-public-release.md.
 """
 
 from __future__ import annotations

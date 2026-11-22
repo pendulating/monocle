@@ -82,8 +82,8 @@
 # `research/notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
 # that the 2 agree.
 #
-# See `vlm-narratives-docs/langextract-trace-extraction.md` and
-# `vlm-narratives-docs/ic-ingredient-extraction.md`.
+# See `research/docs/langextract-trace-extraction.md` and
+# `research/docs/ic-ingredient-extraction.md`.
 
 name: urban_cues
 schema_version: v3

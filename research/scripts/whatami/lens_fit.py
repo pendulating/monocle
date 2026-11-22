@@ -8,7 +8,7 @@
 | `mm_textafter` | the same images | the text positions after the image | the same span as `mm` |
 
 These are the corpora and estimands of the gemma-4-12B lenses `wikitext`,
-`mm` and `mm_textafter` (vlm-narratives-docs/lens-registry.md). None of the
+`mm` and `mm_textafter` (research/docs/lens-registry.md). None of the
 fit images is in the whatami sample (no recording in common).
 
 The image corpus gives `mm` and `mm_textafter` from the SAME backward passes:

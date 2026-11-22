@@ -35,7 +35,7 @@ Every function takes plain span tables (`pandas.DataFrame`) with the columns
 `start`, `end`, `cls`, `text`, and the loader functions build them from the
 export and from the corpora.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "The gold set".
+See `research/docs/langextract-trace-extraction.md`, "The gold set".
 """
 from __future__ import annotations
 

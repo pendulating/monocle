@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.1: the text swap of the place name. 1 model, 1 GPU. A requeue resumes.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.1.
+# Rules: research/docs/facct-runbook.md, F10.1.
 #
 # Submit from the project root, 1 job for each model:
 #   sbatch --export=ALL,F10_MODEL=gemma-4-12b --job-name=f10-gemma-4-12b research/scripts/f10/name_swap.sbatch

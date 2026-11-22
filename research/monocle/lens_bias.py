@@ -10,7 +10,7 @@ The metric
 Take the top ``k`` patches by absolute causal effect. Score Pearson ``r``
 between the causal map and a candidate map on those patches. Take the mean
 over the donor-target pairs. This is the metric of the stage-4 table in
-`vlm-narratives-docs/r-lens.md`, and ``--verify`` reproduces that table.
+`research/docs/r-lens.md`, and ``--verify`` reproduces that table.
 
 The maps
 --------
@@ -54,7 +54,7 @@ DEFAULT_K = 50
 CANDIDATES = {"taylor": "local", "lens_delta": "fitted", "lens_own": "fitted",
               "meang": "constant", "meangp": "constant"}
 
-#: The stage-4 table, for --verify. See vlm-narratives-docs/r-lens.md.
+#: The stage-4 table, for --verify. See research/docs/r-lens.md.
 STAGE4 = {
     "_J2": {12: (0.607, +0.198, 0.520, -0.073),
             18: (0.587, +0.348, 0.477, -0.073),

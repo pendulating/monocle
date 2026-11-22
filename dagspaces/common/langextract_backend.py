@@ -32,7 +32,7 @@ Warning: install LangExtract with `--no-deps`.
 A plain install pulls `google-genai` and `google-cloud-storage`, which we never
 call. It also moves `websockets` down from 17.0.1 to 16.1.1.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/langextract-trace-extraction.md`.
 """
 
 from __future__ import annotations

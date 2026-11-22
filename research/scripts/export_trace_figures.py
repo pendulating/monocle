@@ -31,7 +31,7 @@ into `master/figures/`. The file names carry the `NOTEBOOK_VERSION` of
 A corpus that fails the registry gate writes every name with a `_stale`
 suffix, as the notebooks do.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/langextract-trace-extraction.md`.
 """
 from __future__ import annotations
 

@@ -4,7 +4,7 @@ Run from the repo root:
     .venv-vllm025cu129/bin/python research/tables_export/build_tables.py
 
 Each table comes from a data file. No number is typed by hand, except the
-table of quotes, which names 4 images. See vlm-narratives-docs/facct-claim-map.md.
+table of quotes, which names 4 images. See research/docs/facct-claim-map.md.
 """
 from pathlib import Path
 

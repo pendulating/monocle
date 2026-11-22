@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """F10.2: the tests of the read of the word list (D155).
 
-The tests are set in vlm-narratives-docs/facct-runbook.md, F10.2, before the run.
+The tests are set in research/docs/facct-runbook.md, F10.2, before the run.
 The score of a word on 1 image is its pooled lens logit minus the mean over the
 band of control words, at the primary layer of the model. A word reads when its Pearson r
 has the expected sign, passes Bonferroni over the `valence` and `word` tests, and

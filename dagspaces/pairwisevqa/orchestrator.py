@@ -517,7 +517,7 @@ class TraceExtractRunner(StageRunner):
 
     The stage reads a results parquet of a THINKING run. It needs no dataset and
     no pair sampler, thus it takes its input from `trace_extract.results_path`.
-    See `vlm-narratives-docs/langextract-trace-extraction.md`.
+    See `research/docs/langextract-trace-extraction.md`.
     """
 
     stage_name = "trace_extract"

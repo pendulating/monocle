@@ -165,7 +165,7 @@ PROXY_LABEL = {
     # The schools proxy changed its name at export v1.1.0. The old name
     # described the SOURCE, which holds 40 metrics; the new name describes the
     # measurement. Keep both keys: an archived v1.0.0 export still uses the
-    # old one. See `vlm-narratives-docs/proxy-audit-fixes.md`.
+    # old one. See `research/docs/proxy-audit-fixes.md`.
     "school_attendance": "School attendance",
     "school_report_card": "School report card",
     # The vintage rows. Each case gets the field that describes ITS unit, thus
@@ -174,7 +174,7 @@ PROXY_LABEL = {
     "acquisition_year": "Park acquisition year",
     "year_completed": "POPS completion year",
     # The v1.2.0 proxies from the 2026-08-31 upgrade wave. See
-    # `vlm-narratives-docs/proxy-audit-fixes.md`.
+    # `research/docs/proxy-audit-fixes.md`.
     "inspection_score_history": "DOHMH mean inspection score (oriented)",
     "outdoor_dining": "Outdoor dining licence share",
     "grade_a_rate": "Grade A rate",

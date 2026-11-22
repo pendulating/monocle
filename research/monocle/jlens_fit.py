@@ -64,7 +64,7 @@ GLOBAL_BLOCKS = [5, 11, 17, 23, 29, 35, 41, 47]
 
 #: `jacobian` averages the raw gradient. `lrp` averages a relevance
 #: coefficient instead, which makes an R-lens. See research/monocle/rlens_rules.py and
-#: vlm-narratives-docs/r-lens-proposal.md.
+#: research/docs/r-lens-proposal.md.
 RULE_CHOICES = ("jacobian", "lrp")
 
 

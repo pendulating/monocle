@@ -10,7 +10,7 @@ def _(mo):
     # The lens-refusal probe: the interventions
 
     Three steps of the ladder of
-    `vlm-narratives-docs/lens-refusal-probe-plan.md` act on the model
+    `research/docs/lens-refusal-probe-plan.md` act on the model
     instead of the ranks:
 
     | Step | Question | Folder |

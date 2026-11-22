@@ -6,7 +6,7 @@
 # The job then stops the server and reads R3 with the offline engine on the
 # canonical F4 answers and on the cue answers.
 # Phase B: R3 on the batch-2 F4 answers (the rest of the pool).
-# Rules: vlm-narratives-docs/facct-runbook.md, F8.2 and F8.3.
+# Rules: research/docs/facct-runbook.md, F8.2 and F8.3.
 #
 # Submit from the project root, one job for each model and phase:
 #   sbatch --export=ALL,F8_MODEL=gemma-4-12b,F8_PHASE=A --job-name=f8A-gemma-4-12b research/scripts/f8/cue_job.sbatch

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.7: logit metrics from the saved residuals. 1 model, 1 GPU. A requeue resumes.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.7.
+# Rules: research/docs/facct-runbook.md, F10.7.
 #
 #   sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f107-gemma-4-31b research/scripts/f10/hop_logit.sbatch
 # Optional env: F10_LIMIT (the first images only), F10_TAG (a suffix for the output dir),

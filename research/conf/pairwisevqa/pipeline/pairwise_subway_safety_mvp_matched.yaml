@@ -14,6 +14,6 @@
 # 100,000-pair table, thus it joins both arms pair for pair.
 #
 # See `sweep/million_matched_gemma12b.yaml` and
-# `vlm-narratives-docs/prompt-ablations.md`.
+# `research/docs/prompt-ablations.md`.
 defaults:
   - pairwise_subway_safety_mvp

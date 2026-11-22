@@ -17,7 +17,7 @@ The stage cuts the trace table into row ranges and writes 1 parquet for each
 range under `chunks/`. A rerun skips a range whose chunk exists. Thus a job that
 the walltime stops keeps everything it finished.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

@@ -45,7 +45,7 @@ The default base dir is `multirun/<date>_<experiment>`. Merge with:
 
     python research/scripts/merge_trace_extractions.py <base-dir>/runs --out <root>
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "Submit without a
+See `research/docs/langextract-trace-extraction.md`, "Submit without a
 monitor".
 """
 from __future__ import annotations

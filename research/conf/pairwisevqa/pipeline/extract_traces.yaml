@@ -22,7 +22,7 @@
 #
 #   ... runtime.sample_n=20 runtime.skip_inference=true
 #
-# See `vlm-narratives-docs/langextract-trace-extraction.md`.
+# See `research/docs/langextract-trace-extraction.md`.
 
 # Warning: a plain group entry must come BEFORE every `override` entry. Hydra
 # rejects a defaults list that adds a group after an override.

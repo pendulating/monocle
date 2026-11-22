@@ -4,7 +4,7 @@ One canonical parquet catalog, one Polars + polars-st query API, one CLI for
 building / validating / querying. Replaces the per-run NFS walk in
 `sv/scripts/create_cyclomedia_dataset.py`.
 
-See `docs/plans/cyclomedia-catalog.md` for the full design.
+See `sv/docs/cyclomedia-catalog.md` for the full design.
 """
 
 from __future__ import annotations

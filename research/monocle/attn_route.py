@@ -20,7 +20,7 @@ different mechanism from a sliding one:
 One shared key/value set means the 16 heads read the SAME vectors and differ
 only by their query. Thus the attention row is unusually simple to read.
 
-See `vlm-narratives-docs/gemma4-12b-architecture.md`.
+See `research/docs/gemma4-12b-architecture.md`.
 
 Output
 ------

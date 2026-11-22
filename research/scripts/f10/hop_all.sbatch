@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.6: the read of every token of the prompt. 1 model, 1 GPU. A requeue resumes.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.6.
+# Rules: research/docs/facct-runbook.md, F10.6.
 #
 #   sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f106-gemma-4-31b research/scripts/f10/hop_all.sbatch
 # Optional env: F10_LIMIT (the first images only), F10_TAG (a suffix for the output dir),
@@ -8,7 +8,7 @@
 # F10_NOUN (the noun of the question; a noun other than `place` goes in the tag).
 #
 # An array task is 1 worker. The task id picks the model, the adjective and the noun from PLAN, and
-# many workers can fill 1 store. See vlm-narratives-docs/f10-judgment-mechanism.md.
+# many workers can fill 1 store. See research/docs/f10-judgment-mechanism.md.
 #SBATCH --clusters=g3
 #SBATCH --partition=g3
 #SBATCH --account=nissenbaum

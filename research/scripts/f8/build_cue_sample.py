@@ -3,7 +3,7 @@
 
 Each image gets 2 rows: the `rich` arm and the `poor` arm. The 2 arms give a
 neighbourhood name in the borough of the image. Only the name changes between
-the 2 prompts. Rules: vlm-narratives-docs/facct-runbook.md, F8.2.
+the 2 prompts. Rules: research/docs/facct-runbook.md, F8.2.
 
 The pair of an image is 1 of the 2 pairs of its borough, drawn with a fixed
 seed. When the image is in an NTA of that pair, the image gets the other pair.

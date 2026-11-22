@@ -38,7 +38,7 @@ Two parts:
       every fitted layer, saved long and rendered as side-by-side heatmaps plus
       a prod-minus-neutral difference map.
       Warning: these maps are NOT causal maps. The fitted lens fails every
-      causal gate (vlm-narratives-docs/causal-lens-retrospective.md), so a
+      causal gate (research/docs/causal-lens-retrospective.md), so a
       bright cell shows a disposition and not a cause. For the causal
       importance of a region, use `research/monocle/causal_maps.py`.
 
@@ -812,7 +812,7 @@ DISPOSITION_README = """DISPOSITION MAPS - NOT CAUSAL MAPS
 These maps show what each patch is disposed to make the model say through the
 fitted Jacobian lens. A bright cell does NOT show a patch that causes the
 answer. The fitted lens fails every causal gate in
-vlm-narratives-docs/causal-lens-retrospective.md. For the causal importance of
+research/docs/causal-lens-retrospective.md. For the causal importance of
 an image region, use research/monocle/causal_maps.py instead.
 """
 
@@ -835,7 +835,7 @@ def run_part_b(
     Warning: these maps are a DISPOSITION readout, not a causal map. They show
     what each patch is disposed to make the model say through the fitted lens.
     The fitted lens fails every causal gate in
-    vlm-narratives-docs/causal-lens-retrospective.md, so a bright cell is not
+    research/docs/causal-lens-retrospective.md, so a bright cell is not
     an important region. For causal region importance use
     `research/monocle/causal_maps.py`. Every panel title carries the "[disposition]"
     stamp, and `maps/README_DISPOSITION.txt` repeats the warning beside the

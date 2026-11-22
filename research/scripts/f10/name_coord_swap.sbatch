@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.3: the coordinate swap of the place names. 1 model, 1 GPU. A requeue resumes.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.3.
+# Rules: research/docs/facct-runbook.md, F10.3.
 #
 # Submit from the project root, 1 job for each model:
 #   sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f103-gemma-4-31b research/scripts/f10/name_coord_swap.sbatch

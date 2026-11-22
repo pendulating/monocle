@@ -15,7 +15,7 @@ each word, and on Gemma 2 requests give different values for the same token.
 Nothing masks the output, thus `top_*` is the first token of the free answer.
 The output is 1 part file for each chunk in `--out-dir`, and `retest.parquet`:
 the first `--retest` items again, in reverse order, for the noise of the readout.
-A restart skips the done items. Rules: vlm-narratives-docs/facct-runbook.md, F10.1.
+A restart skips the done items. Rules: research/docs/facct-runbook.md, F10.1.
 
 Use:
     python research/scripts/f10/name_swap_readout.py --model-key gemma-4-12b --model-path DIR \

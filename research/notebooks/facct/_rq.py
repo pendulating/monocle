@@ -2,7 +2,7 @@
 
 The notebook puts the evidence for the 3 research questions of the FAccT
 paper in one place, for the camera-ready figures and tables. The review
-that sorts the results is `vlm-narratives-docs/facct-rq-evidence.md`.
+that sorts the results is `research/docs/facct-rq-evidence.md`.
 
 This module does no test. It reads the result files that the analysis
 scripts and notebooks wrote, and it uses `_f8` for the F8 figures.

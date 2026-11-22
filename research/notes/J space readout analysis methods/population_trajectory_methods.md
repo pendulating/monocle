@@ -13,11 +13,11 @@ Facts on the lens and the store:
 - At inference, the J++ lens is "one linear map per layer", and the read is `W_U J_l h` — [J++ repo](https://github.com/safety-research/jpp_lens); `research/monocle/jlens_read.py` loads 1 Jacobian for each layer.
 - The J-lens authors flag the open question. They cannot rule out that "these layer-wise effects are artifacts of the J-lens methodology". The first third of the model gives noisy reads — [Workspace paper](https://transformer-circuits.pub/2026/workspace/index.html).
 - The swap succeeds on 54% to 70% of trials, by model. The authors call the lens "an imperfect tool" — [Workspace paper](https://transformer-circuits.pub/2026/workspace/index.html).
-- Local warning: J++ and the R-lens share the top-1 token on only 0.0 to 1.6% of image blocks — `vlm-narratives-docs/facct-runbook.md`, F7.
-- Local record: a community audit found that banded Gemma models do not resolve concepts through the fitted lens, and that a Qwen model does. I did not read that audit — `vlm-narratives-docs/jacobian-lens-review.md`.
+- Local warning: J++ and the R-lens share the top-1 token on only 0.0 to 1.6% of image blocks — `research/docs/facct-runbook.md`, F7.
+- Local record: a community audit found that banded Gemma models do not resolve concepts through the fitted lens, and that a Qwen model does. I did not read that audit — `research/docs/jacobian-lens-review.md`.
 - Store: 197 neighbourhoods with 3 images each give 591 images. Gemma-4-31B layers are 0 to 56 of 59. Qwen3.5-9B layers are 0 to 28 of 31. The word axes hold 53,999 and 43,563 tokens — `data/f10/hop_all/*/manifest.json`, `research/scripts/f10/hop_depth.py`.
 - The margin `yes_no` is the log probability of `Yes` minus that of `No` at the last position — `research/scripts/f10/hop_depth.py`.
-- The decoder is causal, and the image comes first, thus patches cannot see the question — `vlm-narratives-docs/facct-runbook.md`, F7.
+- The decoder is causal, and the image comes first, thus patches cannot see the question — `research/docs/facct-runbook.md`, F7.
 
 ### Method comparison
 
@@ -260,7 +260,7 @@ Observational mediation fails here for the same reason as in neuroscience: other
 - The same authors got "satisfying insight" on "about a quarter of the prompts", and their examples are existence proofs and a biased sample — [Lindsey 2025](https://transformer-circuits.pub/2025/attribution-graphs/biology.html).
 - Spider to ant changes the output from 8 to 6. In an arithmetic prompt, 21, 42 and 49 appear in order, and activation patching confirms the same depths — [Workspace paper](https://transformer-circuits.pub/2026/workspace/index.html).
 - Warning from a known system: lesions and correlation analyses found structure in a microprocessor but no hierarchy of information processing, for example a "Donkey Kong transistor" — [Jonas and Kording 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5230747/).
-- Local record: the removal test holds on Qwen3.5-9B and fails on Gemma-4-31B, and 0 of 90 gated area tests pass. The swap was validated on 2-hop facts, not evaluative questions — `vlm-narratives-docs/facct-runbook.md`, F10.
+- Local record: the removal test holds on Qwen3.5-9B and fails on Gemma-4-31B, and 0 of 90 gated area tests pass. The swap was validated on 2-hop facts, not evaluative questions — `research/docs/facct-runbook.md`, F10.
 
 ### Inferences
 - Observational form: `X` = scene score, `M` = read or residual projection at an early cell, `Y` = margin. Other cells at the same depth share causes with `M`. Sequential ignorability is not plausible for a single projection.
@@ -276,7 +276,7 @@ Observational mediation fails here for the same reason as in neuroscience: other
   4. Test necessity by ablation of the subspace, and test sufficiency by a scrub of the other dimensions.
   5. Add a placebo: swap a random subspace of the same variance, and swap at a cell after the stage.
   6. Report the share of the margin gap that the swap moves.
-- A stage subspace can come from the decoder's Haufe pattern or a CP loading, so the intervention itself does not need the lens. This matters, because activation addition on the lens direction gave a null result on Gemma-4-12B (`vlm-narratives-docs/jacobian-lens-review.md`, F1).
+- A stage subspace can come from the decoder's Haufe pattern or a CP loading, so the intervention itself does not need the lens. This matters, because activation addition on the lens direction gave a null result on Gemma-4-12B (`research/docs/jacobian-lens-review.md`, F1).
 - Off-manifold risk: a patched vector can be unlike any real state. Swaps with real vectors from another image are safer than synthetic directions.
 - Evaluative judgments may not have a single bridge word. A subspace swap may work where a word swap fails. Failed word swaps thus do not disprove a stage.
 
@@ -293,8 +293,8 @@ Second-order RSA across models needs no alignment and uses the 591 shared images
 - Hyperalignment maps responses into a common space of shared tuning functions — [Haxby 2011](https://collaborate.princeton.edu/en/publications/a-common-high-dimensional-model-of-the-representational-space-in-/); [Haxby 2020](https://elifesciences.org/articles/56601.pdf).
 - SRM handles different functional topographies and improves detection of a shared response — [Chen 2015](https://papers.nips.cc/paper/2015/hash/b3967a0e938dc2a6340e258630febd5a-Abstract.html).
 - Depth precedent: mean first layer of bridge decoding differs by model, for example 8.9 of 32 in LLaMA 2 7B, 27.1 of 80 in LLaMA 3 70B, and 5.4 of 32 in Pythia 6.9B — [Biran 2024](https://arxiv.org/html/2406.12775v2).
-- Local warning: in a comparison of 3 models, layers paired by relative depth "cannot separate the lens from the model" — `vlm-narratives-docs/facct-runbook.md`, F7.
-- Patch reads name the scene best at L45 of 59 for Gemma-4-31B and at L20 to L24 of 31 for Qwen3.5-9B — `vlm-narratives-docs/facct-runbook.md`, F7.
+- Local warning: in a comparison of 3 models, layers paired by relative depth "cannot separate the lens from the model" — `research/docs/facct-runbook.md`, F7.
+- Patch reads name the scene best at L45 of 59 for Gemma-4-31B and at L20 to L24 of 31 for Qwen3.5-9B — `research/docs/facct-runbook.md`, F7.
 
 ### Inferences
 - Token map, from the manifests: Gemma has 2 tokens after the image, Qwen has 1. Both have the same 14 question tokens, and 9 template tokens after them. Only the Gemma `\n\n` lacks a partner. Thus the token axis aligns with no method.

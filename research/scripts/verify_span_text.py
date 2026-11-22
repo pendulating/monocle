@@ -27,7 +27,7 @@ Usage:
 Warning: the script writes the parquet in place. It changes no existing
 column. Run it one time for each root; a second run gives the same result.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/langextract-trace-extraction.md`.
 """
 
 from __future__ import annotations

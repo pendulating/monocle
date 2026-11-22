@@ -731,7 +731,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--layout", default="image_first", choices=sg.LAYOUTS,
                     help="the block order. image_first is production; the "
                          "others are probes and write their own folder. "
-                         "See vlm-narratives-docs/modality-order.md")
+                         "See research/docs/modality-order.md")
     ap.add_argument("--filler-kind", default="neutral",
                     choices=list(mo.FILLER_KINDS),
                     help="the content of the filler block, for a layout that "

@@ -63,7 +63,7 @@ The arm
 paper number reads. Pass `noabstain`, `nocity`, or `textfirst` to read an
 ablation at the unit layer.
 
-See `vlm-narratives-docs/unit-validation.md`.
+See `research/docs/unit-validation.md`.
 """
 
 from __future__ import annotations

@@ -5,7 +5,7 @@
 # the canonical gemma layout is `interleaved_labels`, which the whole
 # 1,000,000-pair canonical battery ran. The first gemma half of this arm ran
 # `images_then_labels` and thus held the layout as well as the place name.
-# See `vlm-narratives-docs/prompt-ablations.md`.
+# See `research/docs/prompt-ablations.md`.
 #
 # ─── What changes against `million_proxy_gemma12b` ───────────────────────────
 # ONE thing: every case reads its `*_nocity` prompt. Same layout, same

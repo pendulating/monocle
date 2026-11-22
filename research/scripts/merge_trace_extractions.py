@@ -20,7 +20,7 @@ Example:
 Warning: the script reports a case whose shards do not agree, and it never
 repairs one. A missing shard means a job died. Run that shard again.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/langextract-trace-extraction.md`.
 """
 
 from __future__ import annotations

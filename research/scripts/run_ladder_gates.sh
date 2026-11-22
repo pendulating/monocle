@@ -6,7 +6,7 @@
 #   12 images -> 6 donor-target pairs, layers 12/18/20/24, batch 8.
 # L20 carries no lens arm; it is the local instrument's anchor.
 #
-# See vlm-narratives-docs/lens-corpus-faithfulness.md.
+# See research/docs/lens-corpus-faithfulness.md.
 #
 # Usage: bash research/scripts/run_ladder_gates.sh [R0 R1 ...]
 set -euo pipefail

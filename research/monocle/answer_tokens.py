@@ -37,7 +37,7 @@ Outputs (per case, under `--out-dir`)
 Both frames carry `case`, so the per-case files concatenate.
 
 Prompts, pairs, and labels all come from the canonical run registry through
-`monocle.canonical`. See vlm-narratives-docs/canonical-lens-prompt-path.md.
+`monocle.canonical`. See research/docs/canonical-lens-prompt-path.md.
 """
 from __future__ import annotations
 

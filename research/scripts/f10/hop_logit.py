@@ -31,7 +31,7 @@ same token.
 | `kl_capped` | KL(model output || read), with the softcap on both |
 | `agree` | 1 if the top token of the read is the top token of the model output |
 
-Rules: vlm-narratives-docs/facct-runbook.md, F10.7.
+Rules: research/docs/facct-runbook.md, F10.7.
 
 Use:
     python research/scripts/f10/hop_logit.py --model-key gemma-4-31b --model-dir DIR --lens FILE \

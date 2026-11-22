@@ -15,8 +15,8 @@ Logits are log-scale scores that have no sample size. Thus no count-based varian
 ### Cited Findings
 - Monroe et al. define `b_w = log(p_w) - log(p_1)` and `p_w = exp(b_w) / sum_j exp(b_j)`. This is a softmax over log-scale scores, with one reference word. (Full text, eq. 6-7.) — [Monroe et al. 2008](https://languagelog.ldc.upenn.edu/myl/Monroe.pdf)
 - In Fightin' Words, variance depends on "the absolute frequency of a word". The approximation is `sigma^2 = 1/(y_i + a_i) + 1/(y_j + a_j)`. (Full text, eq. 17-20.) — [Monroe et al. 2008](https://languagelog.ldc.upenn.edu/myl/Monroe.pdf)
-- The project lens is `logits_l[answer] = unembed(J_l @ h_l[answer])`. — [answer-token-readout.md](/share/ju/matt/mllmsci/vlm-narratives-docs/answer-token-readout.md)
-- In the project code, unembed is final norm + `lm_head` + softcap. `J = I` gives the plain logit lens. — [jacobian-lens-review.md](/share/ju/matt/mllmsci/vlm-narratives-docs/jacobian-lens-review.md)
+- The project lens is `logits_l[answer] = unembed(J_l @ h_l[answer])`. — [answer-token-readout.md](/share/ju/matt/mllmsci/research/docs/answer-token-readout.md)
+- In the project code, unembed is final norm + `lm_head` + softcap. `J = I` gives the plain logit lens. — [jacobian-lens-review.md](/share/ju/matt/mllmsci/research/docs/jacobian-lens-review.md)
 - Log-ratios are the standard way to get subcompositional coherence. This principle says that an analysis of a subset of parts must agree with the analysis of the full composition. (Abstract or excerpt.) — [UPF working paper 1106](https://econ-papers.upf.edu/papers/1106.pdf); a later paper accepts near coherence — [Aitchison's CoDA 40 Years On](https://ar5iv.labs.arxiv.org/html/2201.05197)
 - A 2026 preprint treats softmax attention rows as compositional data with centred log-ratio coordinates. It is one preprint. (Abstract or excerpt.) — [arXiv 2608.14712](https://arxiv.org/pdf/2608.14712)
 
@@ -243,7 +243,7 @@ A weighted centroid is valid, but its result depends on the weight. Softmax weig
 - Soft cosine is `a'Sb / sqrt(a'Sa * b'Sb)`, with `S` a term similarity matrix. It reduces to cosine when `S` is the identity. (Abstract or excerpt.) — [arXiv 2602.14755](https://arxiv.org/pdf/2602.14755); [Sidorov et al. 2014](https://cys.cic.ipn.mx/index.php/CyS/article/view/2043)
 - gensim gives a sparse term similarity matrix for this. — [gensim tutorial](https://nbviewer.jupyter.org/github/piskvorky/gensim/blob/3.8.1/docs/notebooks/soft_cosine_tutorial.ipynb)
 - Nearest-neighbour results from a trained embedding are sensitive to small corpus changes, more so in small corpora. The authors advise an average over bootstrap samples. (Abstract or excerpt.) — [Antoniak and Mimno 2018](https://aclanthology.org/Q18-1008/)
-- The project logit lens decodes the hidden state with the unembedding matrix. — [terminology.md](/share/ju/matt/mllmsci/vlm-narratives-docs/terminology.md)
+- The project logit lens decodes the hidden state with the unembedding matrix. — [terminology.md](/share/ju/matt/mllmsci/research/docs/terminology.md)
 
 ### Inferences
 - **Centroid forms.**

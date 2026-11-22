@@ -29,7 +29,7 @@ Use:
 Output: `scores_by_class.csv`, `scores_attributes.csv`, `agreement_humans.csv`,
 and a short summary on stdout.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "The gold set".
+See `research/docs/langextract-trace-extraction.md`, "The gold set".
 """
 from __future__ import annotations
 

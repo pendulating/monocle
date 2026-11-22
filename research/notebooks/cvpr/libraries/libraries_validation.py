@@ -55,7 +55,7 @@ def _():
     # `proxy_window`.
     # 1.2.0: 3 building-condition proxies join by BIN, and the polygon floor
     # rises from 1 to 3. The area numbers MOVE at this version. See
-    # `vlm-narratives-docs/building-condition-proxies.md`.
+    # `research/docs/building-condition-proxies.md`.
     NOTEBOOK_VERSION = "1.2.0"
     CASE = "libraries"
     CURATION_ROOT = "curation/facdb_libraries"

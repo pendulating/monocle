@@ -13,7 +13,7 @@ image gives the baseline of the same text. A word that the image adds is a candi
 | `means_depth.pt` | the same for each (prompt, position, case, borough, layer), all layers |
 | `text.pt` | the same read with no image: 1 vector for each (prompt, position, layer) |
 
-Rules: vlm-narratives-docs/facct-runbook.md, F10.4.
+Rules: research/docs/facct-runbook.md, F10.4.
 
 Use:
     python research/scripts/f10/hop_read.py --model-key gemma-4-31b --model-dir DIR --lens FILE \

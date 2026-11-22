@@ -10,7 +10,7 @@ writes `data/ic_ingredients/<case>_ic_ingredients.parquet`.
 
 Warning: read the scale as 1 to 6. Code 7 needs an organizing principle above
 the integrations, and the schema holds no ingredient for it. See
-`vlm-narratives-docs/ic-ingredient-extraction.md`.
+`research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

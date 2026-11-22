@@ -31,7 +31,7 @@ notebook: for 1 text, (good - bad) / spans over its `visual_evidence` spans
 with a valence. Another outcome (for example the R3 readout `c` of F8.3)
 can come from a parquet file (`--outcome-parquet`).
 
-See `vlm-narratives-docs/f8-method-b.md`.
+See `research/docs/f8-method-b.md`.
 
 Run (the default valence outcome)::
 

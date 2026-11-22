@@ -68,7 +68,7 @@ take 2 different keys, and `.env` holds both. This module reads them by name:
 
 Do not print them. Do not put them in a notebook cell or an error message.
 
-See `vlm-narratives-docs/subway-station-proxy.md`.
+See `research/docs/subway-station-proxy.md`.
 """
 
 from __future__ import annotations

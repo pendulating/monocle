@@ -11,7 +11,7 @@ context), with:
 `--sources text_after` moves the SOURCE to the text positions after the last
 patch (the question and the generation prompt), and `--context-kind cases`
 puts the single-image case prompt there instead of the neutral caption. That
-is fit C of vlm-narratives-docs/lens-refusal-probe-plan.md: the lens whose
+is fit C of research/docs/lens-refusal-probe-plan.md: the lens whose
 estimand is the question-token read. The target span does not change.
 
 That makes J_l literally the patch -> verbalization transport, fitted

@@ -1,6 +1,6 @@
 """The probe frame: the pairs, the questions, the template, and the token ids.
 
-The lens-refusal probe (`vlm-narratives-docs/lens-refusal-probe-plan.md`)
+The lens-refusal probe (`research/docs/lens-refusal-probe-plan.md`)
 asks gemma-4-12b one question about one street image and reads the answer
 position. The frame differs from the 7 cases in 3 ways:
 

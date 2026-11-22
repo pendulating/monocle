@@ -12,7 +12,7 @@
 #SBATCH --output=/share/ju/matt/mllmsci/outputs/jlensB_%j.out
 
 # The TEXT J-lens fit (monocle.jlens_fit), on the cluster-wide `gpu` partition.
-# Fit B of vlm-narratives-docs/lens-refusal-probe-plan.md: 1,000 WikiText prompts.
+# Fit B of research/docs/lens-refusal-probe-plan.md: 1,000 WikiText prompts.
 # `jlens_fit.py` checkpoints every 5 prompts, thus a preemption costs 5 prompts.
 #
 # WHY THIS IS SAFE TO PREEMPT

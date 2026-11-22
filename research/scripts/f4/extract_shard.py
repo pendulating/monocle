@@ -159,7 +159,7 @@ ARMS.update({
                                                                 # The caption prompt on the street views (D133).
                                                                 "street_captions_x2", "street_captions_b2x2")),
 })
-# F9 (D139, D142; `vlm-narratives-docs/f9-extraction-design.md`): the cue
+# F9 (D139, D142; `research/docs/f9-extraction-design.md`): the cue
 # schemas plus the class `verdict`. Each arm reads the F9 answers and, again,
 # the F4 answers of the same images, thus the F9 test has 1 schema on both
 # sides. Their spans go under `multirun/f4x2_subj/`, apart from the x2 spans

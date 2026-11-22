@@ -32,7 +32,7 @@ that the prompt never lists. `normalize` maps a value onto the declared
 vocabulary and keeps the original in `<attribute>_raw`. Read
 `vocabulary_report` before you quote a rate.
 
-See `vlm-narratives-docs/langextract-trace-extraction.md`.
+See `research/docs/langextract-trace-extraction.md`.
 """
 
 from __future__ import annotations

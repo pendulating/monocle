@@ -101,7 +101,7 @@ MODELS: Tuple[str, ...] = ("gemma-4-12b", "qwen3.5-9b")
 # `matched` is a CONTROL, not an ablation. The canonical gemma-4-12b cell ran
 # `interleaved_labels` at 1,000,000 pairs and shares 91.7% of the `pair_id`
 # rows of the 100,000-pair arms. Read the gemma half of `nocity` and
-# `textfirst` against `matched`. See vlm-narratives-docs/prompt-ablations.md.
+# `textfirst` against `matched`. See research/docs/prompt-ablations.md.
 #
 # Warning: an arm is NOT a model and NOT a case. Do not read a number of one
 # arm beside a number of another without saying which arm it comes from.
@@ -109,7 +109,7 @@ ARMS: Tuple[str, ...] = ("canonical", "noabstain", "nocity", "textfirst",
                          "matched", "paraphrase", "persona")
 
 # The arms that hold 1 case on purpose. The robustness battery of 2026-09-04
-# (`vlm-narratives-docs/robustness-battery-rerun-plan.md`, tier B) re-runs
+# (`research/docs/robustness-battery-rerun-plan.md`, tier B) re-runs
 # the subway-safety proxies under 2 wording arms at 25,000 pairs. The other
 # 6 cases were never meant to run there, thus the grid must not ask for them.
 ARM_CASES: Dict[str, Tuple[str, ...]] = {

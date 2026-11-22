@@ -46,7 +46,7 @@ Warning: raise `SCHEMA_VERSION` when you change a field, an enum, or the prompt.
 Never edit a version in place. The version reaches every output row, and 2
 versions must never pool.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

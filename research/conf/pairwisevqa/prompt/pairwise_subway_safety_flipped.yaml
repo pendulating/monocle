@@ -3,7 +3,7 @@
 # Change:   the question asks which entrance looks LESS safe; the analysis negates the scores
 # Everything else is the canonical minimal contract. The structured_output
 # block is a byte copy of the base file, so guided decoding does not change.
-# Plan:     vlm-narratives-docs/robustness-battery-rerun-plan.md (phase 2)
+# Plan:     research/docs/robustness-battery-rerun-plan.md (phase 2)
 
 system: null
 

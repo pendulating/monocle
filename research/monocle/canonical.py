@@ -60,7 +60,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-#: The registry directory. See vlm-narratives-docs/canonical-run-registry.md.
+#: The registry directory. See research/docs/canonical-run-registry.md.
 REGISTRY = REPO / "research/notebooks/cvpr/canonical_data"
 
 #: The only model this study can lens. See the Scope note above.

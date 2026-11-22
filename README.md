@@ -1,423 +1,125 @@
-# UAIR: Urban AI Risks Assessment Framework
+# image-forward
 
-Large-scale AI-powered analysis of urban AI risks in news media.
+image-forward runs vision-language models over large image tables on GPU
+clusters. You give a table of images and a prompt. The framework runs the model
+with vLLM, in a local process or in SLURM jobs, and writes a parquet table of
+the answers.
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+- **Configs, not code.** Hydra configs give the data, the model, the prompt and
+  the pipeline. A pipeline is a DAG of stages.
+- **SLURM.** A small monitor process submits one GPU job for each stage and
+  passes the outputs between the stages.
+- **Large runs.** Batches stream through `llm.chat`. A stage can resume after a
+  preemption, and it can read images from a pack in place of many NFS files.
+- **New tasks.** `scripts/new_dagspace.py` makes a new task from a template
+  that runs on the 10 example images.
 
----
+## Quickstart
 
-## Overview
-
-UAIR (Urban AI Risks) is a scalable pipeline framework for assessing AI-related risks in urban contexts through large-scale inference over news article datasets. The framework enables researchers to:
-
-- **Classify** articles for AI relevance using LLM-powered or heuristic methods
-- **Categorize** articles into risk taxonomies (climate adaptation, governance, ethics)
-- **Extract** structured information about AI deployments and impacts
-- **Cluster** articles by topic to discover emerging patterns
-- **Verify** claims and validate extracted information
-
-### Key Features
-
-- **Configuration-Driven**: Define complex multi-stage dagspaces in YAML, no code changes needed
-- **Scalable**: Process millions of articles using Ray Data and SLURM clusters
-- **LLM-Integrated**: Built-in vLLM support with automatic GPU management
-- **Modular**: Mix and match stages, models, and datasets
-- **Tracked**: Automatic experiment logging with Weights & Biases
-- **Extensible**: Easy to add custom processing stages
-
----
-
-## Quick Start
-
-### Installation
+You need Linux x86_64, an NVIDIA GPU with a CUDA 12.9 driver, and
+[uv](https://docs.astral.sh/uv/).
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/UAIR.git
-cd UAIR
-
-# Create virtual environment
-python -m venv .venv
+git clone git@github.com:pendulating/monocle.git image-forward
+cd image-forward
+bash scripts/build_venv.sh            # the locked environment in .venv (vLLM 0.25, torch 2.11)
 source .venv/bin/activate
-
-# Install dependencies
-uv pip install -r requirements.txt
 ```
 
-### Run Your First Pipeline
+On a node with a GPU, describe the 10 example images:
 
 ```bash
-# Topic modeling on a sample of articles
-python -m dagspaces.uair.cli \
-  runtime.debug=true \
-  runtime.sample_n=100 \
-  data.parquet_path=/path/to/articles.parquet
+dagspace vqa -m hydra/launcher=local pipeline=example_images
 ```
 
-### Example: Full Risk Assessment Pipeline
+The first run downloads `Qwen/Qwen2.5-VL-3B-Instruct` from Hugging Face. The
+output is a parquet table with one answer for each image:
+
+```
+multirun/<date>_VQA_EXAMPLE/<time>/0/outputs/vqa/example_images.parquet
+```
+
+On a SLURM cluster, write `server.env` first (see
+[docs/site-setup.md](docs/site-setup.md)). Then send the stage to a GPU job:
 
 ```bash
-# Complete pipeline: classify → taxonomy → verify
-python -m dagspaces.uair.cli \
-  pipeline=taxonomy_full \
-  data.parquet_path=/path/to/articles.parquet
+cp server.env.example server.env      # set the partition and the venv
+dagspace vqa -m hydra/launcher=local pipeline=example_images runtime.stage_launcher=slurm_gpu_1x
 ```
 
-Results are saved to `outputs/` with full experiment tracking in W&B.
+**Note:** use `-m` in each `dagspace` command. The SLURM launchers work only in
+Hydra multirun mode.
 
----
-
-## Documentation
-
-Complete documentation is available in `docs/`:
-
-### Getting Started
-
-- **[Documentation Hub](docs/README.md)** - Documentation navigation and index
-- **[User Guide](docs/USER_GUIDE.md)** - Complete introduction with Quick Start
-- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Command cheat sheet
-
-### Building dagspaces
-
-- **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** - Pipeline recipes and config patterns
-- **[Custom Stages Guide](docs/CUSTOM_STAGES_GUIDE.md)** - Building custom processing stages
-
-### Learning Path
-
-| Level | Time | What to Read |
-|-------|------|--------------|
-| **Beginner** | 1-2 hours | [User Guide](docs/USER_GUIDE.md) (Intro + Quick Start + Core Concepts) |
-| **Intermediate** | 3-4 hours | [Configuration Guide](docs/CONFIGURATION_GUIDE.md) (Pipeline Recipes) |
-| **Advanced** | 5+ hours | [Custom Stages Guide](docs/CUSTOM_STAGES_GUIDE.md) (Build custom stages) |
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Pipeline Definition (YAML)                    │
-├─────────────────────────────────────────────────────────────────┤
-│  Sources → Stage 1 → Stage 2 → Stage 3 → Outputs               │
-│  (Data)    (classify) (taxonomy) (verify)  (Parquet)           │
-├─────────────────────────────────────────────────────────────────┤
-│              Orchestrator (DAG Execution Engine)                 │
-├─────────────────────────────────────────────────────────────────┤
-│  Ray Data (Distributed) | vLLM (GPU) | SLURM (Cluster) | W&B   │
-├─────────────────────────────────────────────────────────────────┤
-│            Hydra (Configuration Management)                      │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Built-in Processing Stages
-
-| Stage | Purpose | Input | Output |
-|-------|---------|-------|--------|
-| **classify** | Relevance filtering | Raw articles | `is_relevant` flag |
-| **taxonomy** | Risk categorization | Articles | `chunk_label` (risk category) |
-| **decompose** | Info extraction | Articles | Structured fields |
-| **topic** | Topic modeling | Articles | `topic_id`, cluster info |
-| **verification** | Claim validation | Labeled articles | Verification scores |
-
----
-
-## Project Structure
-
-```
-UAIR/
-├── docs/                          # Documentation
-│   ├── README.md                  # Documentation hub
-│   ├── USER_GUIDE.md              # Complete user guide
-│   ├── CUSTOM_STAGES_GUIDE.md     # Build custom stages
-│   ├── CONFIGURATION_GUIDE.md     # Config recipes
-│   └── QUICK_REFERENCE.md         # Cheat sheet
-├── dagspaces/uair/                # Core framework
-│   ├── cli.py                     # CLI entry point
-│   ├── orchestrator.py            # Pipeline orchestrator
-│   ├── config_schema.py           # Configuration schemas
-│   ├── wandb_logger.py            # W&B integration
-│   ├── conf/                      # Configuration files
-│   │   ├── config.yaml            # Base config
-│   │   ├── data/                  # Data source configs
-│   │   ├── model/                 # Model configs
-│   │   ├── prompt/                # Prompt templates
-│   │   ├── pipeline/              # Pipeline definitions
-│   │   └── hydra/launcher/        # SLURM configs
-│   └── stages/                    # Processing stages
-│       ├── classify.py            # Relevance classification
-│       ├── taxonomy.py            # Risk categorization
-│       ├── topic.py               # Topic modeling
-│       ├── verify.py              # Verification
-│       └── decompose.py           # Information extraction
-├── scripts/                       # Utility scripts
-├── data/                          # Data directory
-├── outputs/                       # Pipeline outputs
-└── requirements.txt               # Python dependencies
-```
-
----
-
-## Use Cases
-
-### Urban AI Risks Assessment (Primary)
-
-Analyze news coverage of AI deployments in urban contexts:
-
-```yaml
-# conf/pipeline/urban_risks.yaml
-pipeline:
-  graph:
-    nodes:
-      classify:  # Filter AI-relevant articles
-        stage: classify
-      taxonomy:  # Categorize by risk type
-        stage: taxonomy
-        depends_on: [classify]
-      verify:    # Validate claims
-        stage: verification
-        depends_on: [taxonomy]
-```
-
-### Custom Domain Analysis
-
-Adapt for other domains (medical, legal, scientific):
-
-1. Define your taxonomy in `conf/taxonomy/my_domain.yaml`
-2. Create custom prompts in `conf/prompt/my_prompts.yaml`
-3. Build pipeline in `conf/pipeline/my_pipeline.yaml`
-4. Run: `python -m dagspaces.uair.cli pipeline=my_pipeline`
-
-See [Custom Stages Guide](docs/CUSTOM_STAGES_GUIDE.md) for details.
-
----
-
-## Example dagspaces
-
-### Topic Modeling
+## Make your own task
 
 ```bash
-# Discover topics in your dataset
-python -m dagspaces.uair.cli \
-  pipeline=cluster_topic \
-  topic.embed.device=cuda \
-  data.parquet_path=/data/articles.parquet
+python scripts/new_dagspace.py signs                 # dagspaces/signs/ and its tests
+pytest tests/test_signs_dagspace.py                  # no GPU necessary
+dagspace signs -m hydra/launcher=local pipeline=describe_images
 ```
 
-### Multi-Stage Analysis
+Then edit the prompt in `dagspaces/signs/conf/prompt/describe.yaml`, and give
+your own images:
 
 ```bash
-# Full pipeline with classification, taxonomy, and verification
-python -m dagspaces.uair.cli \
-  pipeline=taxonomy_full \
-  runtime.sample_n=1000 \
-  data.parquet_path=/data/articles.parquet
+python scripts/make_image_table.py /data/my_images my_images.parquet --prompt "What does the sign say?"
+dagspace signs -m pipeline=describe_images data.parquet_path=$PWD/my_images.parquet data.image_root=null
 ```
 
-### Custom Configuration
+See [docs/add-a-dagspace.md](docs/add-a-dagspace.md) and
+[docs/add-a-stage.md](docs/add-a-stage.md).
 
-```bash
-# Override GPU and batch settings
-python -m dagspaces.uair.cli \
-  pipeline=my_pipeline \
-  model.engine_kwargs.max_model_len=8192 \
-  model.batch_size=16 \
-  model.engine_kwargs.tensor_parallel_size=4
-```
+## The dagspaces
 
-More examples in [Configuration Guide](docs/CONFIGURATION_GUIDE.md#pipeline-recipes).
+| Dagspace | Task |
+|----------|------|
+| `vqa` | One question for each image (or image set). The answer can be JSON. |
+| `ocr` | Text spotting with boxes. Large images are cut into tiles. |
+| `pairwisevqa` | A comparison of 2 images on an ordinal scale |
+| `embed` | Image and text embeddings |
+| `speech` | Speech recognition over video clips |
+| `_template` | The smallest dagspace: the source of `scripts/new_dagspace.py` |
 
----
+`dagspace <name>` runs `python -m dagspaces.<name>.cli`. For a dagspace outside
+`dagspaces/`, give the module path, for example `dagspace research.dagspaces.urbanroamvqa`.
 
-## Deployment
+## The layout
 
-### Local Execution
+| Folder | Content |
+|--------|---------|
+| `dagspaces/` | The framework: the dagspaces and `common/` (the DAG engine, SLURM, vLLM inference, W&B) |
+| `dagspaces/common/conf/` | The shared data, model and launcher configs |
+| `examples/images/` | 10 public-domain photos and a table of them |
+| `scripts/` | The venv build, the mirrors, the image table, the image pack, `new_dagspace.py` |
+| `tests/` | The framework tests |
+| `docs/` | The framework guides |
+| `site/` | The launchers of one cluster (Cornell Tech). Delete or replace it on your cluster. |
+| `sv/` | Project code: the Cyclomedia and NYC street-view data |
+| `research/` | Project code: interpretability, notebooks, experiment scripts, papers |
+| `vlm-narratives-docs/` | Project notes on the framework: decisions, upgrades, incidents |
 
-```bash
-# Run locally (no SLURM)
-python -m dagspaces.uair.cli \
-  hydra/launcher=null \
-  runtime.sample_n=100
-```
+The framework does not import `site/`, `sv/` or `research/`. A Hydra plugin adds
+their config folders to the search path. Set `IMAGE_FORWARD_NO_PROJECT_ROOTS=1`
+to use the framework configs only.
 
-### SLURM Cluster
+## Docs
 
-```bash
-# Submit to SLURM with GPU
-python -m dagspaces.uair.cli \
-  pipeline=my_pipeline \
-  hydra/launcher=slurm_gpu_4x
-```
-
-See [Configuration Guide - SLURM Launchers](docs/CONFIGURATION_GUIDE.md#slurm-launcher-configuration) for details.
-
----
-
-## Configuration
-
-UAIR uses [Hydra](https://hydra.cc/) for hierarchical configuration:
-
-```yaml
-# config.yaml
-defaults:
-  - data: inputs
-  - model: vllm_qwen3-30b
-  - prompt: classify
-  - pipeline: null
-
-runtime:
-  debug: false
-  sample_n: null
-  output_root: ./outputs
-
-pipeline:
-  sources:
-    articles:
-      path: ${data.parquet_path}
-  graph:
-    nodes:
-      # Define your stages here
-```
-
-**Override from command line**:
-```bash
-python -m dagspaces.uair.cli \
-  runtime.debug=true \
-  model.batch_size=8 \
-  data.parquet_path=/path/to/data.parquet
-```
-
-See [Configuration Guide](docs/CONFIGURATION_GUIDE.md) for comprehensive patterns.
-
----
+| Page | Content |
+|------|---------|
+| [docs/architecture.md](docs/architecture.md) | The parts, a run, the pipeline format, the config search order |
+| [docs/add-a-dagspace.md](docs/add-a-dagspace.md) | A new task from the template |
+| [docs/add-a-stage.md](docs/add-a-stage.md) | A stage function and a pipeline node |
+| [docs/site-setup.md](docs/site-setup.md) | `server.env` and the SLURM launchers |
+| [docs/models-and-mirrors.md](docs/models-and-mirrors.md) | The model configs and the node-local mirrors |
+| [docs/streaming-and-resume.md](docs/streaming-and-resume.md) | Large runs: batches, resume, image packs |
 
 ## Development
 
-### Running Tests
-
 ```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-pytest tests/
-
-# Run with coverage
-pytest --cov=dagspaces tests/
+bash scripts/build_venv.sh --extra wandb --extra research   # more extras: see pyproject.toml
+pytest -m "not gpu and not slurm and not data"              # the tests of the CI
+ruff check .
 ```
 
-### Creating a Custom Stage
-
-1. **Implement stage function** in `dagspaces/uair/stages/mystage.py`:
-```python
-def run_mystage(df, cfg):
-    # Your processing logic
-    return df
-```
-
-2. **Register stage** in `orchestrator.py`:
-```python
-class MyStageRunner(StageRunner):
-    stage_name = "mystage"
-    def run(self, context):
-        # ...
-```
-
-3. **Add to registry**:
-```python
-_STAGE_REGISTRY["mystage"] = MyStageRunner()
-```
-
-Full guide: [Custom Stages Guide](docs/CUSTOM_STAGES_GUIDE.md)
-
----
-
-## Research
-
-This framework supports the Urban AI Risks research project, assessing AI deployment risks in urban contexts through large-scale news analysis.
-
-**Related Work**:
-- Climate adaptation taxonomy (Weitz et al.)
-- AI risk frameworks
-- Urban AI governance
-
----
-
-## Contributing
-
-We welcome contributions! Areas of interest:
-
-- **New Stages**: Additional processing capabilities
-- **Taxonomies**: Domain-specific risk categorizations
-- **Optimizations**: Performance improvements
-- **Documentation**: Examples, tutorials, guides
-
-See [Custom Stages Guide](docs/CUSTOM_STAGES_GUIDE.md) for implementation guidelines.
-
----
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-## Getting Help
-
-### Documentation
-
-- Start with [User Guide](docs/USER_GUIDE.md)
-- Check [Quick Reference](docs/QUICK_REFERENCE.md) for common issues
-- Browse [Configuration Guide](docs/CONFIGURATION_GUIDE.md) for recipes
-
-### Common Issues
-
-**GPU Out of Memory**:
-```bash
-python -m dagspaces.uair.cli \
-  model.engine_kwargs.gpu_memory_utilization=0.6 \
-  model.batch_size=2
-```
-
-**Ray Object Store Full**:
-```bash
-python -m dagspaces.uair.cli \
-  runtime.rows_per_block=1000
-```
-
-**Debug Mode**:
-```bash
-python -m dagspaces.uair.cli \
-  runtime.debug=true \
-  runtime.sample_n=10
-```
-
-More troubleshooting: [Quick Reference - Troubleshooting](docs/QUICK_REFERENCE.md#troubleshooting)
-
----
-
-## Acknowledgments
-
-Built with:
-- [Hydra](https://hydra.cc/) - Configuration management
-- [Ray Data](https://docs.ray.io/en/latest/data/data.html) - Distributed processing
-- [vLLM](https://docs.vllm.ai/) - LLM inference
-- [Weights & Biases](https://wandb.ai/) - Experiment tracking
-- [SLURM](https://slurm.schedmd.com/) - Cluster scheduling
-
----
-
-## Contact
-
-For questions about the framework:
-- Check the [documentation](docs/)
-- Review [examples](docs/CONFIGURATION_GUIDE.md#pipeline-recipes)
-- Consult [troubleshooting guide](docs/QUICK_REFERENCE.md#troubleshooting)
-
----
-
-For additional information, consult the [User Guide - Quick Start](docs/USER_GUIDE.md#quick-start).
-
----
-
-*Project maintained by the Urban AI Risks research team.*
+The CI (`.github/workflows/ci.yml`) runs the tests, ruff and pyright on each
+push.

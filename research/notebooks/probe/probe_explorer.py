@@ -11,8 +11,8 @@ def _(mo):
 
     gemma-4-12b answers 1 question about 1 street image under a label pair,
     and the frame gives it the abstain label `unclear`. The plan is
-    `vlm-narratives-docs/lens-refusal-probe-plan.md` and the results are in
-    `vlm-narratives-docs/lens-refusal-probe-results.md`.
+    `research/docs/lens-refusal-probe-plan.md` and the results are in
+    `research/docs/lens-refusal-probe-results.md`.
 
     The probe has 2 rounds, and the switch under **Controls** picks 1 of
     them. Round 1 drew the images from the deciles of a tract proxy, it ran

@@ -22,7 +22,7 @@
 # This run also TESTS the aggregation result. If the final patch still takes
 # 80-105x the attention of any other patch with only 1 image, the pooling is
 # intrinsic. If it stops, the pooling belongs to the comparison. Both answers
-# are useful. See vlm-narratives-docs/patch-attribution.md.
+# are useful. See research/docs/patch-attribution.md.
 #
 # The data configs match the pairwise cases, so the image pool is the same:
 #   cyclomedia_near_subway_facing, cyclomedia_near_libraries_facing,

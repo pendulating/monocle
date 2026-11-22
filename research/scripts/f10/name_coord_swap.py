@@ -35,7 +35,7 @@ residual norm, and the step of bfloat16 is about 0.4%. Rounding removes such an 
 | `coords-*.parquet` | the clean coordinates of the 2 names, for each image, prompt and band layer |
 | `meta.json` | the band, the token ids, the cosine of each pair |
 
-Rules: vlm-narratives-docs/facct-runbook.md, F10.3.
+Rules: research/docs/facct-runbook.md, F10.3.
 
 Use:
     python research/scripts/f10/name_coord_swap.py --model-key gemma-4-31b --model-dir DIR --lens FILE \

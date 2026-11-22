@@ -64,7 +64,7 @@ bootstrap over PLACES, and it resamples the SAME place index for both arms. The 
 the same places, so an unpaired interval would throw that away and read much
 too wide.
 
-See `vlm-narratives-docs/quantile-shift.md`.
+See `research/docs/quantile-shift.md`.
 """
 
 from __future__ import annotations

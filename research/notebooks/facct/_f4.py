@@ -39,7 +39,7 @@ schema version that ends in "r" marks the rows of the retry pass. A text with
 drops it, thus it counts as not read. The `none` items (a text part with no
 cue) stay in `raw` and leave `spans`.
 
-See `vlm-narratives-docs/facct-runbook.md`, section F4.
+See `research/docs/facct-runbook.md`, section F4.
 
 The pool of 2 batches (D132)
 ----------------------------

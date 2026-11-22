@@ -60,7 +60,7 @@ Warning: this is an association, not a cause
 The model narrates while it decides, thus a span can follow the judgment
 rather than drive it. Read a lift as "what goes with a win".
 
-See `vlm-narratives-docs/trace-channels.md`.
+See `research/docs/trace-channels.md`.
 """
 
 from __future__ import annotations

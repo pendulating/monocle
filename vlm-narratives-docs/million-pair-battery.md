@@ -322,9 +322,9 @@ of pairs. Expect that number to move very little.
 
 ## Related
 
-- [looks-like-rerun.md](looks-like-rerun.md) — the 100,000-pair battery whose
+- [looks-like-rerun.md](../research/docs/looks-like-rerun.md) — the 100,000-pair battery whose
   prompts these sweeps reuse
-- [canonical-run-registry.md](canonical-run-registry.md) — the gate a merged run
+- [canonical-run-registry.md](../research/docs/canonical-run-registry.md) — the gate a merged run
   must pass before a notebook reads it
 
 ## Image reads: use the pack

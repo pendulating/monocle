@@ -28,7 +28,7 @@
 #   python scripts/merge_pairwise_shards.py --sweep-dir <base>/gemma/runs \
 #       --sweep million_matched_gemma12b --out-dir multirun/matched_merged
 #
-# See `vlm-narratives-docs/prompt-ablations.md`.
+# See `research/docs/prompt-ablations.md`.
 
 set -euo pipefail
 

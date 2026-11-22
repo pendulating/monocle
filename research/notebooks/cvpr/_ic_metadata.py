@@ -36,7 +36,7 @@ gemma arm). The same-image tables are thin. The unit tables (1 facility, many
 images) and the 2 image cases (road quality and street photography read the
 SAME pairs under 2 prompts) give more repeats.
 
-See `vlm-narratives-docs/ic-metadata-findings.md`.
+See `research/docs/ic-metadata-findings.md`.
 """
 
 from __future__ import annotations

@@ -37,7 +37,7 @@ What counts, and what does not
 - An absence inside a CUT answer is not a zero. `truncated` marks such a trace,
   and `code_table` keeps it so a caller can drop it.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

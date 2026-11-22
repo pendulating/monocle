@@ -24,13 +24,13 @@ articles, degree adverbs, and plurals. `maintenance`, `well maintained`, and
 Warning: a perspective, an inference, and an uncertainty rate are facts about
 the extractor. The Qwen3.8-27B extractor marks about 2x the perspectives and
 the uncertainty spans of the Gemma-4-31B extractor on the same traces
-(`vlm-narratives-docs/langextract-trace-extraction.md`). Read every count of
+(`research/docs/langextract-trace-extraction.md`). Read every count of
 these classes beside the other extractor of the same judge.
 
 Warning: this is an association, not a cause. The model narrates while it
 decides, thus a span can follow the judgment rather than drive it.
 
-See `vlm-narratives-docs/ic-v3-analysis.md`.
+See `research/docs/ic-v3-analysis.md`.
 """
 
 from __future__ import annotations

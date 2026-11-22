@@ -26,7 +26,7 @@ what a case is ABOUT from what the model VALUES, thus the top of its list is
 `library`, `entrance`, and `roadway`, and its cross-case agreement sits near
 0.37.
 
-`vlm-narratives-docs/cue-hierarchy.md` answers the hierarchy question with the
+`research/docs/cue-hierarchy.md` answers the hierarchy question with the
 typed cues. A cue names its image, so the test turns directional, and the
 cross-case agreement of the cue PRICE is 0.90 over all 7 cases. Use the cue
 report for a claim about the hierarchy. Use this one for a claim about the
@@ -240,4 +240,4 @@ a result belongs to 1 model.
 
 The notebook calls `_canonical.verify_or_raise()` before it reads a run, like
 every other CVPR figure. It queries no network. See
-`vlm-narratives-docs/canonical-run-registry.md`.
+`research/docs/canonical-run-registry.md`.

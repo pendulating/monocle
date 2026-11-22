@@ -2,7 +2,7 @@
 """F10.1: build the items of the text swap of the place name (D148).
 
 Each image gets 5 arms. Only the place name changes. Rules:
-vlm-narratives-docs/facct-runbook.md, F10.1.
+research/docs/facct-runbook.md, F10.1.
 
 | Column | Content |
 |--------|---------|

@@ -12,7 +12,7 @@ constraint, and gives back the content without the thought block.
 Warning: call `shutdown()`. `vllm.LLM` does not stop its worker processes on its
 own, and a live worker holds the SLURM job open until the walltime ends.
 
-See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+See `research/docs/ic-ingredient-extraction.md`.
 """
 
 from __future__ import annotations

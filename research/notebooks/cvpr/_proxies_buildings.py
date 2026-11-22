@@ -53,7 +53,7 @@ first batch's rows. This module therefore keeps its own cache and names each
 file from a SHA-256 of the whole query. Delete `.proxy_cache/bld_*.parquet` to
 force a refresh.
 
-See `vlm-narratives-docs/building-condition-proxies.md`.
+See `research/docs/building-condition-proxies.md`.
 """
 
 from __future__ import annotations

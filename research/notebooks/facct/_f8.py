@@ -14,7 +14,7 @@ their CSV files. It reads the raw answers and readouts only for the views
 that the CSV files do not hold: the example of 1 image, and the NTA scatter.
 `bash research/scripts/f8/finalize.sh` makes the CSV files of F8.2 and F8.3 again.
 
-The record of each part is in `vlm-narratives-docs/`: `f8-method-b.md`,
+The record of each part is in `research/docs/`: `f8-method-b.md`,
 `f8-counterfactual-cue.md`, `f8-lens-figure.md`, and the F8 section of
 `facct-runbook.md`.
 """

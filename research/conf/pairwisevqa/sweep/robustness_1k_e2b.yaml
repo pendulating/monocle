@@ -6,7 +6,7 @@
 # and 1,000 canonical pairs CUT out of the 1,000,000-pair table
 # (multirun/pair_tables_1k_of_1m, from scripts/subset_pair_tables.py). Every
 # row is a row of the registered canonical run, thus the 2 join on pair_id
-# at 100%. Plan: vlm-narratives-docs/robustness-battery-rerun-plan.md.
+# at 100%. Plan: research/docs/robustness-battery-rerun-plan.md.
 #
 # One file holds one rater. The arms come in as --set overrides from
 # research/scripts/launch_robustness_battery.sh, one submit for each arm. The .hydra

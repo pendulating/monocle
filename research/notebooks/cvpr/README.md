@@ -559,7 +559,7 @@ unit better. State it as a finding. Never read it as agreement.
 Each case takes the field that describes ITS unit. A building year fits a
 library and a school, because the unit is a building. It does not fit a park:
 33% of the park units hold a BIN, and that BIN is a comfort station. See
-`vlm-narratives-docs/vintage-proxies.md`.
+`research/docs/vintage-proxies.md`.
 
 ## Geographies
 

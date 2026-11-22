@@ -24,7 +24,7 @@ def _(mo):
     and the notebook reads their CSV files in `research/figures/f8/`. It reads the
     raw answers only for the example of 1 image (section 2.6) and for the
     NTA scatter (section 3.2). The record of each part is in
-    `vlm-narratives-docs/`: `f8-method-b.md`, `f8-counterfactual-cue.md`,
+    `research/docs/`: `f8-method-b.md`, `f8-counterfactual-cue.md`,
     `f8-lens-figure.md`, and the F8 section of `facct-runbook.md`.
 
     **A value in bold is significant after the Bonferroni correction**

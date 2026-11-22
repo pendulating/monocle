@@ -11,7 +11,7 @@ This rule applies to:
 - Replies to the user
 - Code comments and docstrings
 - Comments in config files
-- Documentation in `vlm-narratives-docs/` and commit messages
+- Documentation in `docs/`, `vlm-narratives-docs/` and `research/docs/`, and commit messages
 
 ### Writing rules
 
@@ -65,8 +65,17 @@ equivalent, use it as a technical name.
 
 ## Documentation
 
-Project documentation lives in `vlm-narratives-docs/`. Write all project
-information there.
+The documentation has 3 folders:
+
+| Folder | Content |
+|--------|---------|
+| `docs/` | The framework guides for a new user: architecture, add a dagspace, add a stage, site setup, models and mirrors, large runs |
+| `vlm-narratives-docs/` | The framework notes: decisions, upgrades, incidents, the cleanup plan |
+| `research/docs/` | The research notes: experiments, results, paper plans, runbooks |
+
+Write a research note in `research/docs/`. Write a framework note in
+`vlm-narratives-docs/`. Change a guide in `docs/` when the change alters how a
+user does a task.
 
 **Warning:** The Obsidian wiki at `vault/context/` is no longer maintained.
 Do not write to it. Its content is stale. Read it only for history.
@@ -97,14 +106,24 @@ Python 3.12, managed with `uv`. The distribution name is `image-forward`; the im
 # Install the locked environment in .venv (add extras with --extra NAME)
 bash scripts/build_venv.sh --extra wandb --extra research
 
-# Run a pipeline (VQA example). `dagspace vqa` is the same as `python -m dagspaces.vqa.cli`.
+# Run the example on the 10 images of examples/images/ (in this process, on a GPU node)
+dagspace vqa -m hydra/launcher=local pipeline=example_images
+# The same, with the stage in a SLURM GPU job
+dagspace vqa -m hydra/launcher=local pipeline=example_images runtime.stage_launcher=slurm_gpu_1x
+
+# Run a pipeline. `dagspace vqa` is the same as `python -m dagspaces.vqa.cli`.
 dagspace vqa -m pipeline=vqa_cyclomedia_scaffolding runtime.debug=true runtime.sample_n=100
 
 # Run on SLURM with GPUs
 dagspace vqa -m hydra/launcher=slurm_gpu_4x pipeline=vqa_cyclomedia_scaffolding
 
-# Run tests
+# Make a new dagspace from dagspaces/_template, with its tests
+python scripts/new_dagspace.py NAME
+
+# Run tests (CI runs the selection with no GPU, SLURM or local data)
 pytest tests/test_vqa.py -v
+pytest -m "not gpu and not slurm and not data"
+ruff check .
 
 # Type checking
 pyright
@@ -137,6 +156,7 @@ The framework has five pipeline systems under `dagspaces/`. Each has the same st
 | `pairwisevqa` | Pairwise relative comparison of image pairs |
 | `embed` | Embedding inference |
 | `speech` | Speech recognition over video clips (ffmpeg audio isolation + granite-speech via vLLM, JU partition) |
+| `_template` | The smallest dagspace: one `describe` stage. `scripts/new_dagspace.py` copies it. |
 
 The experimental dagspaces are in `research/dagspaces/`: `urbanroamvqa`,
 `urbanvit`, `opf_vision_labels` and `artifact_gen`. They import the framework,
@@ -154,6 +174,8 @@ All dagspaces import shared modules directly from `dagspaces.common`:
 - `config_schema.py` — `PipelineGraphSpec`, `PipelineNodeSpec`, `ArtifactSpec` dataclasses
 - `orchestrator.py` — DAG utilities, `ArtifactRegistry`, `StageExecutionContext`, `StageResult`, SLURM helpers
 - `runners/base.py` — `StageRunner` base class
+- `runners/dataframe.py` — `DataFrameStageRunner`: runs a stage function `(df, cfg) -> DataFrame`, joins `data.image_root`, writes the parquet
+- `dagspace_factory.py` — `make_dagspace()`: the 3 orchestrator functions of a dagspace from its stage runners (see `dagspaces/_template/orchestrator.py`)
 - `wandb_logger.py` — Distributed W&B integration with auto-tagging
 - `vllm_inference.py` — vLLM inference utilities
 - `multiprocessing_utils.py` — SLURM detection, warning suppression
@@ -242,32 +264,38 @@ The VQA stage accepts images as: PIL objects, local file paths, base64 strings, 
 The Ray Data path is gone. The VQA stages now send chunked batches through
 in-process `llm.chat` calls. Results stream to parquet during the run, and
 resume chunks align with batch boundaries. See
-`vlm-narratives-docs/million-pair-battery.md` for details on shards and
-resume chunks.
+`docs/streaming-and-resume.md`, and `vlm-narratives-docs/million-pair-battery.md`
+for the details on shards and resume chunks.
 
 ## File Locations
 
 - `<output_root>/pipeline_manifest.json` — The orchestrator writes it in each run. It holds the stage results and the metadata. Git ignores it.
-- `scripts/` — The generic tools of the framework (venv build, scratch mirrors, image packs, shard merge).
+- `scripts/` — The generic tools of the framework (venv build, scratch mirrors, image packs, shard merge, `new_dagspace.py`, `make_image_table.py`).
+- `examples/images/` — 10 public-domain photos and `images.parquet`. `data=example_images` reads them.
+- `site/` — The launchers of this cluster and `site/speech-guide.md`. The framework does not need them.
 - `sv/` — The street-view code. The framework does not import it.
   - `sv/cyclomedia/`, `sv/cyclomedia_catalog/` — The Cyclomedia readers and the catalog builder.
   - `sv/ocr/` — The Cyclomedia OCR handler (`handler: sv.ocr.cyclomedia_handler:CyclomediaHandler`).
   - `sv/nyc/curation/` — The NYC Socrata curation (`python -m sv.nyc.curation`).
   - `sv/conf/`, `sv/nyc/conf/` — The dataset configs, in `common/` (all dagspaces) and `<dagspace>/` folders.
   - `sv/scripts/`, `sv/nyc/scripts/`, `sv/tests/`, `sv/nyc/tests/` — The data scripts and their tests.
+  - `sv/docs/` — The design notes of the catalog and the NYC curation.
 - `research/` — The research code. The framework does not import it. Run its code from the repo root, because the editable install maps only `dagspaces`.
   - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`.
   - `research/notebooks/` — The analysis notebooks (cvpr, facct).
   - `research/scripts/` — The experiment scripts (f4 to f10, batteries, exports).
   - `research/figures/`, `research/tables_export/` — The outputs of the notebooks and the scripts.
-  - `research/papers/`, `research/notes/` — The paper drafts and the research notes.
+  - `research/papers/`, `research/notes/` — The paper drafts and the method notes.
+  - `research/docs/` — The research documentation: experiments, results, runbooks (for example `facct-runbook.md`).
   - `research/conf/` — The research configs: the pairwisevqa batteries (`pipeline/`, `prompt/`, `sweep/`, `extract/`) and the GEPA configs. The plugin adds them to the search path.
   - `research/ic/` — The Integrative Complexity schema, codes, examples and the `ic_extract` stage. A pipeline adds the stage with `pipeline.stage_runners`.
   - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). The `gepa` package is not in the venv.
-- `docs/` — The framework guides (user guide, config guide, custom stages). They are stale: they describe `dagspaces/uair` and Ray Data. Phase 5 of `vlm-narratives-docs/repo-cleanup-plan.md` writes them again.
+- `docs/` — The framework guides: architecture, add a dagspace, add a stage, site setup, models and mirrors, large runs.
 - `vlm-narratives-docs/archive/documentation/` — Old development history (phase reports, implementation notes). Read it only for history.
+- `conftest.py` — Loads `server.env`, sets the markers `gpu`, `slurm` and `data`, and gives the path fixtures. CI (`.github/workflows/ci.yml`) runs `pytest -m "not gpu and not slurm and not data"`, ruff and pyright.
+- `tests/test_framework_configs.py` — Each framework default composes with no project roots (`IMAGE_FORWARD_NO_PROJECT_ROOTS=1`).
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
-- `vlm-narratives-docs/` — Project documentation. Write project information here.
-- `artificial-aesthetic/` — The FAccT paper repo. The LaTeX is the submodule `paper/`. `paperkit` copies the figures, tables and numbers into it, and checks them. See `vlm-narratives-docs/paper-repo-sync.md`.
+- `vlm-narratives-docs/` — The framework notes (decisions, upgrades, incidents).
+- `artificial-aesthetic/` — The FAccT paper repo. The LaTeX is the submodule `paper/`. `paperkit` copies the figures, tables and numbers into it, and checks them. See `research/docs/paper-repo-sync.md`.
 - `vault/context/` — Obsidian wiki. NOT MAINTAINED. Stale. Read only for history.

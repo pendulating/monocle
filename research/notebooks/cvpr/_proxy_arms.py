@@ -49,7 +49,7 @@ here and a number in the master table can differ a little, because a case
 notebook can set its own floor. Comparing a recomputed arm with an exported
 control would read that difference as a prompt effect.
 
-See `vlm-narratives-docs/proxy-arms.md`.
+See `research/docs/proxy-arms.md`.
 """
 
 from __future__ import annotations
@@ -83,8 +83,8 @@ HERE = Path(__file__).resolve().parent
 #: purpose: a floor of 3 keeps 16 community districts, under `MIN_AREAS`, and
 #: the NTA layer does not rescue the case. The unit layer answers the
 #: single-plaza problem instead. See
-#: `vlm-narratives-docs/parks-plazas-proxies.md` and
-#: `vlm-narratives-docs/proxy-audit-fixes.md`.
+#: `research/docs/parks-plazas-proxies.md` and
+#: `research/docs/proxy-audit-fixes.md`.
 CASE_SPEC: Dict[str, Dict[str, Any]] = {
     "subway": dict(canon="subway_safety", root="curation/subway_entrances_all",
                    unit_table="entrances.parquet", kind=None, min_units=1,

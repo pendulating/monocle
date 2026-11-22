@@ -15,7 +15,7 @@ def _(mo):
     | RQ2 | Do the interpretations of the pixels correlate with the socioeconomic features of the area? | In restaurants, the valence of what the model sees and its "is this a cool place" judgment rise with % white and % bachelor's, in all models; the image-content controls remove about 10% | That the model treats people differently (the NTA is an ecological unit); the same for street photography (near null) |
     | RQ3 | Are the inferences and biases unavoidable? | The shift is present under every elicitation we tried (6 models, 2 batches, 2 extraction rounds, paraphrase, persona), and at fixed pixels a neighbourhood name alone changes the judgment | "Unavoidable": the direction of the name effect depends on the model and the case, and any name moves the judgment more than the rich-poor gap |
 
-    The review that sorts the results is `vlm-narratives-docs/facct-rq-evidence.md`.
+    The review that sorts the results is `research/docs/facct-rq-evidence.md`.
     This notebook does no test. It reads the result files of F4, F8 and the
     parent audit. **Bold** or a filled marker: significant after the
     Bonferroni correction of its family of tests.

@@ -2,8 +2,8 @@
 
 The probe asks gemma-4-12b one question about one street image under a
 label pair, and it gives the model an abstain label. The plan is
-`vlm-narratives-docs/lens-refusal-probe-plan.md` and the results are in
-`vlm-narratives-docs/lens-refusal-probe-results.md`.
+`research/docs/lens-refusal-probe-plan.md` and the results are in
+`research/docs/lens-refusal-probe-results.md`.
 
 The probe has 2 rounds. `set_round()` points every path constant at 1 of
 them, and every loader reads the constants at call time.

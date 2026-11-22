@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.4: read the whole vocabulary at the text positions after the image. 1 model, 1 GPU.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.4.
+# Rules: research/docs/facct-runbook.md, F10.4.
 #
 #   sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f104-gemma-4-31b research/scripts/f10/hop_read.sbatch
 # Optional env: F10_HELDOUT (the pilot output dir of this model), F10_N (images for each case and borough), F10_TAG (a suffix for the output dir).

@@ -20,7 +20,7 @@
 # After it lands:
 #   python research/scripts/merge_trace_extractions.py <sweep_dir> --schema ic
 #
-# See `vlm-narratives-docs/ic-ingredient-extraction.md`.
+# See `research/docs/ic-ingredient-extraction.md`.
 
 set -euo pipefail
 

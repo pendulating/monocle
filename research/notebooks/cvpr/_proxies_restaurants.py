@@ -46,7 +46,7 @@ preference, not a safety measure. Outdoor seating is visible from the street,
 thus the model can see it, and it plausibly drives the preference directly.
 A correlation with this channel therefore does NOT validate the model against
 an outside record. It measures how much of the judgment one visible amenity
-explains. State it that way. See `vlm-narratives-docs/restaurant-proxies.md`.
+explains. State it that way. See `research/docs/restaurant-proxies.md`.
 
 The unit layer
 --------------

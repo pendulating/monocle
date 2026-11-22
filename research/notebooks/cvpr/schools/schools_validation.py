@@ -61,7 +61,7 @@ def _():
     # 1.2.0: 3 building-condition proxies join by BIN, the teacher survey adds
     # `school_kept_clean`, and the Economic Need Index adds
     # `school_economic_need`. The attendance row stays for context. See
-    # `vlm-narratives-docs/building-condition-proxies.md`.
+    # `research/docs/building-condition-proxies.md`.
     NOTEBOOK_VERSION = "1.2.0"
     CASE = "schools"
     CURATION_ROOT = "curation/facdb_schools_k_12"

@@ -4,7 +4,7 @@ Use:
     python research/scripts/check_trace_arms.py
 
 A FAILED shard is rerun with `submit_trace_shards --arm <arm> --only case:shard --base-dir <base>`.
-See `vlm-narratives-docs/langextract-trace-extraction.md`, "Submit without a monitor".
+See `research/docs/langextract-trace-extraction.md`, "Submit without a monitor".
 """
 import glob, json, os, subprocess, sys
 from collections import Counter, defaultdict

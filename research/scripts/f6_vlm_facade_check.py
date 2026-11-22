@@ -5,7 +5,7 @@ Geometry cannot see a truck in front of a storefront. This step asks a model
 about the pixels of each best view (`f6_select_storefront_views.py
 render-best`), and keeps only the restaurants with a "Yes".
 
-The rules come from the decisions in `vlm-narratives-docs/facct-runbook.md`
+The rules come from the decisions in `research/docs/facct-runbook.md`
 (D63 to D69).
 
 | Rule | Value | Decision |

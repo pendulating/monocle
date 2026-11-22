@@ -9,7 +9,7 @@ aimed at the footprint point nearest the DOHMH point P. The advisor review of
 showed that P is on the street centerline, so that point is often a building
 corner, and the normal there is the 45 degree diagonal. Version 2 finds the
 storefront wall from the address street. The rules come from the decisions in
-`vlm-narratives-docs/facct-runbook.md` (D46 to D84).
+`research/docs/facct-runbook.md` (D46 to D84).
 
 The rules
 ---------

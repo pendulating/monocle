@@ -3,7 +3,7 @@
 
 F6 asks whether an image that the facing filter attributes to a restaurant
 truly shows a restaurant, in high definition, from close by. See
-`vlm-narratives-docs/facct-runbook.md`, section F6.
+`research/docs/facct-runbook.md`, section F6.
 
 The sample
 ----------

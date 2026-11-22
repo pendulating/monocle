@@ -13,7 +13,7 @@ Build the sample first: `research/scripts/f6_build_restaurant_depiction_sample.p
 Use:
     python research/scripts/f6_label_studio_setup.py --port 8927
 
-See `vlm-narratives-docs/facct-runbook.md`, section F6.
+See `research/docs/facct-runbook.md`, section F6.
 """
 from __future__ import annotations
 

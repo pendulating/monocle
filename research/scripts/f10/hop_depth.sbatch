@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # F10.5: the depth read of the residual stream and the J++ lens. 1 model, 1 GPU. A requeue resumes.
-# Rules: vlm-narratives-docs/facct-runbook.md, F10.5.
+# Rules: research/docs/facct-runbook.md, F10.5.
 #
 #   sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f105-gemma-4-31b research/scripts/f10/hop_depth.sbatch
 # Optional env: F10_LIMIT (the first images only), F10_TAG (a suffix for the output dir).

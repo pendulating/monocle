@@ -15,7 +15,7 @@
 # example. Never edit a version in place. The version reaches every output row,
 # and 2 versions must never pool.
 #
-# See `vlm-narratives-docs/langextract-trace-extraction.md`.
+# See `research/docs/langextract-trace-extraction.md`.
 
 name: urban_cues
 schema_version: v1

@@ -2,7 +2,7 @@
 # Launch the robustness battery on the canonical setup: 4 raters x 11 arms
 # over 1,000 canonical pairs cut from the 1,000,000-pair table (tier A), or
 # 2 raters x 2 wording arms over 25,000 pairs (tier B).
-# Plan: vlm-narratives-docs/robustness-battery-rerun-plan.md
+# Plan: research/docs/robustness-battery-rerun-plan.md
 #
 # Each arm is ONE change against the rater's own canonical base. The base is
 # the sweep file robustness_1k_<rater>.yaml; the arm is a --set override.
