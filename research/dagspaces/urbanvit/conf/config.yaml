@@ -27,7 +27,7 @@ shard:
   output_dir: null
   # scratch_root: base for per-user shard dirs on fast local storage
   scratch_root: ${oc.env:URBANVIT_SCRATCH_ROOT,/scratch/${oc.env:USER}/urbanvit/shards}
-  # split strategy (see research/docs/urbanvit-dagspace.md)
+  # split strategy (see .dev_history/urbanvit-dagspace.md)
   split:
     group_column: recording_id     # all rows with same recording_id stay in one split
     stratify_columns: [borough, year]

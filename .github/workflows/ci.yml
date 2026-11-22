@@ -1,5 +1,5 @@
 # CI of the framework: the tests with no GPU, no SLURM and no local data, and
-# the lint gates. See vlm-narratives-docs/repo-cleanup-plan.md (phase 5).
+# the lint gates. See .dev_history/repo-cleanup-plan.md (phase 5).
 name: ci
 
 on:

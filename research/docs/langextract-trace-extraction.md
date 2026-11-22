@@ -282,7 +282,7 @@ any install, as an sbatch job pinned to the node:
 sbatch --partition=pierson -w klara --wrap="bash scripts/sync_venv_to_scratch.sh"
 ```
 
-See [scratch-mirrors.md](../../vlm-narratives-docs/scratch-mirrors.md).
+See [models-and-mirrors.md](../../docs/models-and-mirrors.md).
 
 ### Phase 3 — The full extraction — DONE 2026-08-14
 

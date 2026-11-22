@@ -96,7 +96,6 @@ See [docs/add-a-dagspace.md](docs/add-a-dagspace.md) and
 | `site/` | The launchers of one cluster (Cornell Tech). Delete or replace it on your cluster. |
 | `sv/` | Project code: the Cyclomedia and NYC street-view data |
 | `research/` | Project code: interpretability, notebooks, experiment scripts, papers |
-| `vlm-narratives-docs/` | Project notes on the framework: decisions, upgrades, incidents |
 
 The framework does not import `site/`, `sv/` or `research/`. A Hydra plugin adds
 their config folders to the search path. Set `IMAGE_FORWARD_NO_PROJECT_ROOTS=1`

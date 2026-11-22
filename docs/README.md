@@ -12,5 +12,12 @@ repo `README.md` first for the install and the quickstart.
 | [models-and-mirrors.md](models-and-mirrors.md) | The model configs, the model zoo and the node-local mirrors |
 | [streaming-and-resume.md](streaming-and-resume.md) | Large runs: chunked batches, resume after a preemption, image packs |
 
-The project notes of this repo (experiments, decisions, history) are in
-`vlm-narratives-docs/` (framework notes) and `research/docs/` (research notes).
+More pages about this repo:
+
+| Page | Content |
+|------|---------|
+| [project-config-roots.md](project-config-roots.md) | The project config folders (`site/`, `sv/`, `research/`) and the search-path plugin |
+| [gpu-census-tool.md](gpu-census-tool.md) | `scripts/gpu_census.py`: the GPU supply of a SLURM partition |
+| [gemma-4-best-practices.md](gemma-4-best-practices.md) | How the pairwise and lens paths follow the Gemma 4 model card |
+
+The research notes are in `research/docs/`.

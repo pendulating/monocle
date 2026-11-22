@@ -7,7 +7,7 @@
 # Build the image pack of the 1M-pair battery. One sequential read of the
 # 1.1 million unique images on /share/ju, written as blobs under multirun/ (also on
 # /share/ju since the 2026-10 move off /share/pierson).
-# See vlm-narratives-docs/nfs-load-pairvqa-sweeps.md.
+# See docs/streaming-and-resume.md.
 cd /share/ju/matt/mllmsci
 source /share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate
 python scripts/build_image_pack.py \

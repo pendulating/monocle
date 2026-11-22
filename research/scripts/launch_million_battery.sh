@@ -32,7 +32,7 @@
 # When it lands:
 #   python scripts/merge_pairwise_shards.py --sweep-dir <base>/qwen/runs --dry-run
 #
-# See `vlm-narratives-docs/million-pair-battery.md`.
+# See `research/docs/million-pair-battery.md`.
 
 set -euo pipefail
 

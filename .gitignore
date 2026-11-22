@@ -364,3 +364,7 @@ flash-attention/*
 
 # Scripts that left git in the cleanup of 2026-11-22. They stay on disk for reference.
 /archive/
+
+# The development history of the codebase: plans, upgrade logs, incident
+# reports, reviews and proposals. It stays on disk and out of git.
+/.dev_history/

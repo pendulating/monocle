@@ -25,12 +25,12 @@ Usage:
   python3 scripts/gpu_census.py history --days 14
   python3 scripts/gpu_census.py history --days 14 --constraint 'a6000|6000ada' --by-hour
   python3 scripts/gpu_census.py waits --days 14
-  python3 scripts/gpu_census.py report --days 30 --out vlm-narratives-docs/gpu-partition-census.md
+  python3 scripts/gpu_census.py report --days 30 --out .dev_history/gpu-partition-census.md
   python3 scripts/gpu_census.py snapshot --csv multirun/gpu_snapshots.csv
 
 Every subcommand takes `--json` and writes the numbers instead of the table.
 
-See `vlm-narratives-docs/gpu-partition-census.md`.
+See `.dev_history/gpu-partition-census.md`.
 """
 
 from __future__ import annotations
@@ -972,7 +972,7 @@ def main() -> None:
     s.add_argument("--days", type=float, default=30.0)
     s.add_argument("--step", type=int, default=300)
     s.add_argument("--thresholds", type=int, nargs="+", default=[1, 8, 32, 64])
-    s.add_argument("--out", default="vlm-narratives-docs/gpu-partition-census.md",
+    s.add_argument("--out", default=".dev_history/gpu-partition-census.md",
                    help="`-` writes to the terminal")
     s.set_defaults(func=cmd_report)
 

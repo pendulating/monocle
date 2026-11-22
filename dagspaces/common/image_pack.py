@@ -6,7 +6,7 @@ A pairvqa row opens 2 JPEG files under `/share/ju/cyclomedia/raw`. The tree is
 deep, thus 1 cold open costs about 8 NFS round trips (LOOKUP, ACCESS, OPEN,
 READ, CLOSE, GETATTR). A battery of 1,000,000 pairs opens 15,400,000 files
 over 1,100,000 unique images, and above about 30 shards the `ju-nfs-02` server
-collapses. See `vlm-narratives-docs/nfs-load-pairvqa-sweeps.md`.
+collapses. See `docs/streaming-and-resume.md`.
 
 A pack holds the same JPEG bytes in a few large blob files. A read of 1 image
 is then 1 `pread` of about 240 kB, which is 1 NFS READ, with no directory

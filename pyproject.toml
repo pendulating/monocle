@@ -155,7 +155,7 @@ explicit = true
 [tool.ruff]
 line-length = 100
 # The framework only. research/ and sv/ have their own style for now.
-extend-exclude = ["research", "sv", "tools", "vault", "artificial-aesthetic", "sub", "multirun", "outputs", "data"]
+extend-exclude = ["research", "sv", "tools", "artificial-aesthetic", "sub", "multirun", "outputs", "data", "archive"]
 
 [tool.ruff.lint]
 # The CI gate: syntax errors and undefined names. Add more rules step by step.

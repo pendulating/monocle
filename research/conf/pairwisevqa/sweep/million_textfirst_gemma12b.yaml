@@ -30,7 +30,7 @@
 # Warning: this arm BREAKS the modality order of the gemma-4 card on purpose.
 # It is a probe. Do NOT take its layout as a default for a new sweep.
 # See `feedback_images_then_labels_always` and
-# `vlm-narratives-docs/gemma-4-best-practices.md`.
+# `docs/gemma-4-best-practices.md`.
 #
 # ┌─ THE CONTROL READS CLEANLY HERE ───────────────────────────────────────────┐
 # │ `million_proxy_gemma12b` ran `interleaved_labels`, and this arm runs      │

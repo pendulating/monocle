@@ -14,7 +14,7 @@
 # 1. Every image is in the image pack. A fresh draw takes other photographs
 #    of the same units, the pack does not hold them, and the shards then read
 #    /share/ju over NFS, which collapses above about 30 shards. See
-#    `vlm-narratives-docs/nfs-load-pairvqa-sweeps.md`.
+#    `docs/streaming-and-resume.md`.
 # 2. Every row joins the greedy canonical battery on `pair_id` at 100%, thus a
 #    trace sits beside the greedy label of the same pair, in the same A/B
 #    order, on the same photographs.

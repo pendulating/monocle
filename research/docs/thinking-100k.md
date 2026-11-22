@@ -31,7 +31,7 @@ of the canonical 1,000,000-pair table. Thus:
 - Every image is in the image pack (`runtime.image_pack`), and no shard
   reads /share/ju. A fresh draw takes other photographs of the same units
   and the pack does not hold them. See
-  [nfs-load-pairvqa-sweeps.md](../../vlm-narratives-docs/nfs-load-pairvqa-sweeps.md).
+  [streaming-and-resume.md](../../docs/streaming-and-resume.md).
 - Every row joins the greedy canonical battery on `pair_id` at 100%: the
   same photographs, the same A/B order. A trace sits beside the greedy label
   of its pair. The 10,000-pair corpus did not have this.

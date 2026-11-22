@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copy the model weights and the probe images to node-local /scratch.
 #
-# The rule is the same as for the venv mirrors (vlm-narratives-docs/scratch-mirrors.md):
+# The rule is the same as for the venv mirrors (docs/models-and-mirrors.md):
 # a copy is valid only when its .sync_complete marker names the same source.
 # The script writes the marker last, thus a killed copy is never used.
 #

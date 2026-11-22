@@ -49,10 +49,10 @@ python3 scripts/gpu_census.py inventory --min-vram 40
 # Write the whole census as a page.
 python3 scripts/gpu_census.py report --days 30 \
     --constraint 'a6000|6000ada|a40|a100|l40s' \
-    --out vlm-narratives-docs/gpu-partition-census.md
+    --out .dev_history/gpu-partition-census.md
 ```
 
-`vlm-narratives-docs/gpu-partition-census.md` holds the last census. Build it
+`.dev_history/gpu-partition-census.md` holds the last census. Build it
 again when you want new numbers.
 
 ## How the replay works
@@ -182,6 +182,6 @@ a job that asks for `6000ada` can land on one. Read the models of a node with
 
 - `site/conf/common/hydra/launcher/slurm_gpu_preempt.yaml` — the launcher
   whose constraint this census measures.
-- `vlm-narratives-docs/million-pair-battery.md` — the run that raised the
+- `research/docs/million-pair-battery.md` — the run that raised the
   question.
-- `vlm-narratives-docs/gpu-partition-census.md` — the census itself.
+- `.dev_history/gpu-partition-census.md` — the census itself.

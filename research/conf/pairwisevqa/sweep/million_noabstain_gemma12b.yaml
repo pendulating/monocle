@@ -32,7 +32,7 @@
 #
 # Warning: a 46-shard case ran past the 180-minute launcher default in the
 # first battery. Give the launch script a walltime that fits: see
-# `vlm-narratives-docs/million-pair-battery.md`, "A shard needs more than 180
+# `research/docs/million-pair-battery.md`, "A shard needs more than 180
 # minutes".
 
 # ┌─ UPDATE 2026-08-20 — LAYOUT IS NOW `images_then_labels` ───────────────────┐

@@ -11,7 +11,7 @@ This rule applies to:
 - Replies to the user
 - Code comments and docstrings
 - Comments in config files
-- Documentation in `docs/`, `vlm-narratives-docs/` and `research/docs/`, and commit messages
+- Documentation in `docs/`, `research/docs/` and `.dev_history/`, and commit messages
 
 ### Writing rules
 
@@ -70,12 +70,18 @@ The documentation has 3 folders:
 | Folder | Content |
 |--------|---------|
 | `docs/` | The framework guides for a new user: architecture, add a dagspace, add a stage, site setup, models and mirrors, large runs |
-| `vlm-narratives-docs/` | The framework notes: decisions, upgrades, incidents, the cleanup plan |
+| `.dev_history/` | Gitignored. The development history of the code: plans, upgrade logs, incident reports, reviews, proposals |
 | `research/docs/` | The research notes: experiments, results, paper plans, runbooks |
 
-Write a research note in `research/docs/`. Write a framework note in
-`vlm-narratives-docs/`. Change a guide in `docs/` when the change alters how a
-user does a task.
+| Note | Folder |
+|------|--------|
+| How the framework works now | `docs/`. Change a guide when a change alters how a user does a task. |
+| A research experiment, a result, a runbook | `research/docs/` |
+| How the code changed: a plan, an upgrade log, an incident, a fix, a review, a proposal | `.dev_history/` (not in git) |
+
+A page in `docs/` or `research/docs/` must not link to `.dev_history/`. A clone
+does not have that folder. Put the current facts in the guide, and keep the
+story of the change in `.dev_history/`.
 
 The old Obsidian wiki (`vault/context/`), the UAIR docs archive and the old
 one-off scripts left git on 2026-11-22. The tag `archive/pre-cleanup-2026-11-21`
@@ -181,7 +187,7 @@ All dagspaces import shared modules directly from `dagspaces.common`:
 - `vllm_inference.py` — vLLM inference utilities
 - `multiprocessing_utils.py` — SLURM detection, warning suppression
 - `stage_utils.py` — `ensure_dotenv()`, `extract_last_json()`, `sanitize_for_json()`, `resolve_thinking_mode()`, `maybe_silence_vllm_logs()`
-- `image_pack.py` — Read images from a pack of blob files (`runtime.image_pack`) instead of the raw NFS tree. Build with `scripts/build_image_pack.py`. See `vlm-narratives-docs/nfs-load-pairvqa-sweeps.md`.
+- `image_pack.py` — Read images from a pack of blob files (`runtime.image_pack`) instead of the raw NFS tree. Build with `scripts/build_image_pack.py`. See `docs/streaming-and-resume.md`.
 - `conf/data/` — Shared data configs (symlinked from root as `datasets/`)
 - `conf/model/` — Shared model configs (symlinked from root as `models/`)
 - `conf/hydra/launcher/` — Shared SLURM launcher configs (symlinked from root as `launchers/`)
@@ -220,7 +226,7 @@ The dataset configs (Cyclomedia, NYC, bayflood, nexar) are in `sv/conf/` and
 `hydra_plugins/mllmsci_searchpath/` adds them (and `research/conf/`) to the search path of each
 dagspace. Thus `pipeline=vqa_bayflood` and `data=cyclomedia_manhattan` work
 as before. Run the commands from the repo root, or Hydra does not find the
-plugin. See `vlm-narratives-docs/project-config-roots.md`.
+plugin. See `docs/project-config-roots.md`.
 
 Site-specific settings (SLURM partition, project paths, NCCL) are in `server.env`, loaded automatically by `ensure_dotenv()`.
 
@@ -253,8 +259,8 @@ back to NFS.
 | `bash scripts/sync_venv_to_scratch.sh` | Deploy the venv mirror on this node |
 | `bash scripts/sync_model_registry_to_scratch.sh` | Deploy the model mirror |
 
-See `vlm-narratives-docs/scratch-mirrors.md` and
-`vlm-narratives-docs/vllm-025-upgrade.md`.
+See `docs/models-and-mirrors.md`. The history of the mirrors and of the
+vLLM 0.25 upgrade is in `.dev_history/` (see "Documentation").
 
 ### Image Input Formats
 
@@ -265,7 +271,7 @@ The VQA stage accepts images as: PIL objects, local file paths, base64 strings, 
 The Ray Data path is gone. The VQA stages now send chunked batches through
 in-process `llm.chat` calls. Results stream to parquet during the run, and
 resume chunks align with batch boundaries. See
-`docs/streaming-and-resume.md`, and `vlm-narratives-docs/million-pair-battery.md`
+`docs/streaming-and-resume.md`, and `research/docs/million-pair-battery.md`
 for the details on shards and resume chunks.
 
 ## File Locations
@@ -296,6 +302,6 @@ for the details on shards and resume chunks.
 - `tests/test_framework_configs.py` — Each framework default composes with no project roots (`IMAGE_FORWARD_NO_PROJECT_ROOTS=1`).
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
-- `vlm-narratives-docs/` — The framework notes (decisions, upgrades, incidents).
+- `.dev_history/` — Gitignored. The development history: the cleanup plan, upgrade logs, incident reports, reviews and proposals.
 - `artificial-aesthetic/` — The FAccT paper repo. The LaTeX is the submodule `paper/`. `paperkit` copies the figures, tables and numbers into it, and checks them. See `research/docs/paper-repo-sync.md`.
 - `archive/` — Gitignored. Old research scripts that left git on 2026-11-22, at their old paths. Read them for reference. Do not import them.

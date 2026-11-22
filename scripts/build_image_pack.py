@@ -6,7 +6,7 @@ Why
 The pairvqa stage reads each image from the raw tree on `/share/ju`. A cold
 open costs about 8 NFS round trips, and a battery of 1,000,000 pairs makes
 15,400,000 of them over only 1,100,000 unique files. The server collapses
-above about 30 shards. See `vlm-narratives-docs/nfs-load-pairvqa-sweeps.md`.
+above about 30 shards. See `docs/streaming-and-resume.md`.
 
 This script reads each unique image ONE time and writes the bytes into blob
 files of `--per-blob` images (about 4 GB at 16,384). A stage that sets

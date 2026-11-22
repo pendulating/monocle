@@ -32,7 +32,7 @@ setup:
   # The monitor runs the driver: it keeps the NFS venv, not a /scratch mirror.
   - export IMAGE_FORWARD_SKIP_SCRATCH_VENV=1
   # Use a node-local /scratch mirror of the venv when the node has one.
-  # See scripts/activate_stage_venv.sh and vlm-narratives-docs/scratch-mirrors.md.
+  # See scripts/activate_stage_venv.sh and docs/models-and-mirrors.md.
   - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/scripts/activate_stage_venv.sh
   - unset WANDB_DISABLED
   - export WANDB_SILENT=true

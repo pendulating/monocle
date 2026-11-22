@@ -31,7 +31,7 @@ runtime:
   # Read the images from a pack of blob files instead of the raw tree on
   # /share/ju. Build it with scripts/build_image_pack.py. The bytes are the
   # same, thus the results do not change. Leave null to read the files.
-  # See vlm-narratives-docs/nfs-load-pairvqa-sweeps.md.
+  # See docs/streaming-and-resume.md.
   image_pack: null
   # How many rows one chunk holds. The runner rounds this up to a whole number
   # of batches. A chunk is the unit of loss: 2,000 rows is about 18 minutes of

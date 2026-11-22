@@ -163,7 +163,7 @@ ARM_MODELS: Dict[str, Tuple[str, ...]] = {"matched": ("gemma-4-12b",)}
 #: because the gemma-4 card asks for an image to open the message. The
 #: `noabstain`, `nocity` and `textfirst` gemma arms ran under that rule and
 #: thus carry a recorded layout problem until they run again. See
-#: vlm-narratives-docs/gemma-4-best-practices.md.
+#: docs/gemma-4-best-practices.md.
 REQUIRED_LAYOUT = "interleaved_labels"
 
 

@@ -8,7 +8,7 @@ Each tar entry is two files keyed on `sample_id`:
   - `<sample_id>.json` — dict with the row's label columns and metadata
 
 The split decision is **group-aware on `recording_id`** and stratified by
-(borough × year) — see research/docs/urbanvit-dagspace.md. All 4 faces (L/B/R/F)
+(borough × year) — see .dev_history/urbanvit-dagspace.md. All 4 faces (L/B/R/F)
 of a single recording always land in the same split.
 """
 from __future__ import annotations
