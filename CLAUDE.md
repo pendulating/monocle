@@ -230,10 +230,11 @@ resume chunks.
 
 ## File Locations
 
-- `pipeline_manifest.json` — Tracks execution results and metadata for completed pipeline runs
+- `<output_root>/pipeline_manifest.json` — The orchestrator writes it in each run. It holds the stage results and the metadata. Git ignores it.
 - `notebooks/` — Analysis notebooks (prompt optimization, OCR verification)
 - `scripts/` — Dataset creation and utility scripts
-- `documentation/` and `docs/` — Detailed guides (user guide, config guide, custom stages)
+- `docs/` — The framework guides (user guide, config guide, custom stages). They are stale: they describe `dagspaces/uair` and Ray Data. Phase 5 of `vlm-narratives-docs/repo-cleanup-plan.md` writes them again.
+- `vlm-narratives-docs/archive/documentation/` — Old development history (phase reports, implementation notes). Read it only for history.
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
 - `vlm-narratives-docs/` — Project documentation. Write project information here.

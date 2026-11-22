@@ -1,0 +1,227 @@
+# Plan: make the repo a starting point for GPU vision inference
+
+Written 2026-11-21. Status: phases 0 and 1 are done (see "Progress").
+
+## Progress
+
+| Phase | Status | Where |
+|-------|--------|-------|
+| 0 | Done 2026-11-21 | Tag `archive/pre-cleanup-2026-11-21` on GitHub. Branch `cleanup/phase-1`. |
+| 1 | Done 2026-11-21 | Branch `cleanup/phase-1`. |
+
+Phase 1 found these problems. It did not repair them:
+
+| Problem | Phase |
+|---------|-------|
+| The single-image GEPA path (`urbanvqa/gepa_cli.py`, `prompt_opt/gepa_adapter.py`, `prompt_opt/runner.py`, `stages/persistent_vllm.py`, `stages/persistent_cambrian.py`) fails at import. It needs `_filter_vllm_engine_kwargs` and `_sanitize_prompt_value`, and no module defines them. The pairwise GEPA path works. | 2: move to `research/`, or delete |
+| `urbanvqa/conf/pipeline/vqa.yaml` does not compose. It loads the data config `vqa_inputs`, which does not exist. | 5: the example pipeline |
+| `scripts/condense.py` imports `utils.logger`, which is gone. | 2: sort the scripts |
+| `scripts/install_flash_attention.sh` needs a `requirements.in`, which does not exist. | 4 |
+| `urbanvqa/conf/model/` has 16 copies of files in `common/conf/model/`. | 2 |
+| `import dagspaces.urbanvqa.prompt_opt.dataset` fails. The package `__init__` imports `runner.py`, which imports `gepa`. `gepa` is not in `pyproject.toml` and not in the venv. | 4: an extra, or 2: move |
+
+The ignored `dagspaces/.deprecated/` (167 files) is in
+`/share/ju/matt/archive/mllmsci-dagspaces-deprecated-2026-11-21.tar.gz`.
+
+## The goal
+
+A new project must be able to do these steps:
+
+1. Clone the repo.
+2. Install the core with `uv sync`.
+3. Write the site settings in one file.
+4. Run an example VQA pipeline on a folder of images, on one local GPU.
+5. Run the same pipeline on SLURM, with a change to the launcher only.
+6. Add a new stage or a new dagspace from a template in less than one hour.
+
+Today, none of these steps works on a fresh clone at a different site.
+
+## The current state
+
+The data comes from 3 audits on 2026-11-21: the dagspaces, the site coupling, and the packaging, tests and docs.
+
+| Problem | Evidence |
+|---------|----------|
+| A fresh clone does not compose | The `datasets` symlink points to `conf/data/`, which git ignores. 7 of 9 dagspaces have no default `data` config. |
+| The code is tied to one site | About 860 tracked lines name `/share/ju` or `mwf62`: scripts 406, dagspaces/common 160, monocle 102, other dagspaces about 100. |
+| The launchers are tied to one cluster | Partitions `ju`, `pierson` and `klara`, a list of 8 excluded nodes, and a default venv path under `/share/ju`. |
+| Site settings are in many places | `server.env`, the launchers, `scripts/activate_stage_venv.sh` (CUDA and FFmpeg paths), and the model YAMLs (`model_source: /share/ju/matt/zoo/...`). |
+| `ensure_dotenv()` loads too late | It runs in the stage jobs only. `dagspace_main` does not call it before Hydra composes the launcher. It also needs a `.env` file next to `server.env`. |
+| The environment is not reproducible | `pyproject.toml` and `uv.lock` give vLLM 0.19 / cu128. The default venv is vLLM 0.25 / cu129, from `requirements-vllm025cu129.txt`. That file copies pins from a venv in another project. The venv has 4 different names in 4 places. |
+| The dependencies are not split | One flat list holds vLLM and torch, and also geopandas, osmnx, marimo, wordcloud, trueskill and peft. |
+| Framework and research are mixed | `dagspaces/common` holds about 11k LOC of generic code and about 12k LOC of urban research code: `curation/`, `cyclomedia*/`, `ic_*`, `langextract_backend.py`. |
+| Dead and broken code | `urbanvqa/stages/persistent_vllm.py` and `persistent_cambrian.py` fail at import. `urbanvqa/prompt_opt/dataset.py` imports a missing name. `urbanocr/stages/ocr.py:73` imports a missing module inside a `try`. About 19 urbanvqa pipelines use stage types that no registry holds. |
+| Boilerplate in each dagspace | Each `orchestrator.py` has about 80 lines that are the same, plus a `DagspaceSettings` call with about 15 flags. There is no template. |
+| The docs are stale | `README.md` and `docs/` describe `dagspaces/uair` and Ray Data. Both are gone. `documentation/` is development history. |
+| No test setup or CI | No `conftest.py`, no markers, no `.github/workflows`. 14 test files have fixed `/share` paths. |
+| Tracked clutter | `resources/` (263 crawled news articles), `viz_output/`, `pipeline_manifest.json`, an empty `utils/`, `constraints.txt`, and the orphan gitlink `flash-attention` (no `.gitmodules` entry). |
+
+## The decision to make first
+
+**Recommendation:** restructure in place first (phases 0 to 5). Then split the framework into its own repo with `git subtree split` (phase 6), which keeps the history.
+
+The two other options have problems:
+
+- A new template repo from zero loses the history and the tests that we have now.
+- A cleanup without a split leaves the research weight in each clone.
+
+## Phase 0: protect the current state
+
+1. Tag the current `main` as `archive/pre-cleanup-2026-11-21` and push the tag.
+2. Do all moves with `git mv`, so that `git log --follow` works.
+3. Do large git operations when the NFS load is low. On 2026-11-21, `git ls-tree` stopped in I/O wait for more than 27 minutes.
+
+## Phase 1: remove the dead and broken code (low risk)
+
+| Item | Action |
+|------|--------|
+| `resources/sample_data/ai_article_crawl/` (263 files), `resources/*.json` and `*.md` | Remove. They are from the old article pipeline. |
+| The UAIR pipelines in `urbanvqa/conf/pipeline/` (about 19), and the `stopwords/`, `taxonomy/`, `topic/`, `synthesis/` and `prompts/decision_trees` groups | Remove. No registry holds their stage types. |
+| `urbanvqa/stages/persistent_vllm.py`, `persistent_cambrian.py`, `prompt_opt/` (GEPA) | Repair the imports, or move them to research. They fail at import now. `urbanpairvqa/prompt_opt/gepa_pairwise.py` depends on them. |
+| `urbanocr/stages/ocr.py:73` | Import `dagspaces.common.logging_filters`. |
+| The orchestrator wrappers `_submit_and_wait` and `_recover_slurm_job` | Remove if nothing calls them. |
+| The `config_schema.py` shims in urbanembed, urbanroamvqa and urbanvit | Import `dagspaces.common.config_schema` directly. |
+| `flash-attention` gitlink, `utils/`, `constraints.txt`, `viz_output/`, `pipeline_manifest.json` | Remove from git. |
+| `dagspaces/.deprecated/` (ignored, 19k LOC on disk) | Delete from disk, because it appears in grep results. |
+| Stale `__pycache__` | Delete. |
+| `documentation/` (22 files) | Move to `vlm-narratives-docs/archive/`. |
+
+Check: `pytest --collect-only` passes, and `python -m dagspaces.<x>.cli --cfg job` composes for each dagspace.
+
+## Phase 2: separate the framework from the research
+
+The target layout (the author decided it on 2026-11-21):
+
+```
+dagspaces/           the general framework
+  common/            orchestrator, stage_submission, runners, vllm_inference,
+                     dp_worker_full, model_registry, image_pack, wandb_logger,
+                     cli_utils, stage_utils, logging, config_schema
+  vqa/ pairvqa/      task dagspaces (generic stages and generic example configs)
+  ocr/ embed/ speech/
+  _template/         a dagspace to copy (phase 5)
+sv/                  the street-view (Cyclomedia) code: cyclomedia/,
+                     cyclomedia_catalog/, the Cyclomedia data configs, the pair
+                     sampler, the OCR data handler, the camera mask
+  nyc/               the NYC code: curation/ (Socrata: dohmh, facdb, permits,
+                     subway, open_restaurants), the NYC data configs
+                     (bayflood, nexar, scaffolding)
+research/
+  monocle/  notebooks/  figures/  tables_export/  research_notes/  papers/
+  scripts/  (f4, f8, f9, f10, whatami, rq1, k1_*, probe_*, steer_*, ...)
+  conf/     the urbanpairvqa sweep and extract configs
+  ic/       ic_schema, ic_codes, the IC examples
+  dagspaces/  roamvqa, vit, opf_vision_labels, artifact_gen (experimental)
+scripts/             about 20 generic tools: build_image_pack, build_venv,
+                     sync_*_to_scratch, activate_stage_venv, gpu_census,
+                     download_mllm_model, merge_pairwise_shards
+tools/trashbot_annotator/   separate project (own pyproject); later its own repo
+```
+
+Steps:
+
+1. Move the Cyclomedia modules out of `dagspaces/common` to `sv/`, and the NYC curation to `sv/nyc/`.
+2. Move `ic_schema.py`, `ic_codes.py` and the IC examples to `research/ic/`. Read `langextract_backend.py` and `vllm_structured.py`. If they have no IC or urban content, they stay in `dagspaces/common`. If not, they go to `research/ic/`.
+3. Change the imports in `urbanpairvqa/stages/ic_extract.py`, `trace_extract.py`, and the scripts and tests.
+4. Move `urbanpairvqa/conf/sweep/` (55) and `conf/extract/` (33) to `research/conf/`. Move the Cyclomedia and NYC data configs to `sv/conf/` and `sv/nyc/conf/`. Add these paths to the Hydra searchpath of the research configs only.
+5. Move the experiment scripts, the notebooks, the figures and the monocle package to `research/`.
+6. Decide on the names of the task dagspaces. We can drop the `urban` prefix (`urbanvqa` to `vqa`) or keep it. A rename changes all the CLI commands and the docs. Thus, do it one time only, in this phase.
+7. Move the dataset-specific tests (curation, cyclomedia, ic) with their code.
+
+Check: the full test suite. Also run one research pipeline (a pairvqa `sweep`) with `runtime.debug=true runtime.sample_n=20`. It must give the same output as before the move.
+
+## Phase 3: make the code portable
+
+| Item | Action |
+|------|--------|
+| Site settings | Make `server.env` the single source. Write a complete `server.env.example` with all keys: `SLURM_PARTITION`, `SLURM_ACCOUNT`, `SLURM_QOS`, `MLLMSCI_PROJECT_ROOT`, `MLLMSCI_VENV_ACTIVATE`, `MLLMSCI_MODEL_ZOO`, `MLLMSCI_MODEL_REGISTRY`, `MLLMSCI_CUDA_HOME`, `MLLMSCI_FFMPEG_LIBDIR`, `HF_HOME`, `VLLM_CACHE_ROOT`, `WANDB_ENTITY`, `WANDB_PROJECT`, and the NCCL keys. |
+| `ensure_dotenv()` | Load `server.env` with no need for `.env`. Call it in `dagspace_main` before Hydra composes. |
+| Launchers | Keep a small generic set: `local`, `slurm_cpu`, `slurm_gpu_{1,2,4}x`, `slurm_monitor`. Read the partition, account, QoS, constraint and exclude list from the environment. Move `ju`, `klara` and `preempt` to `conf/hydra/launcher/site/`, or to an untracked site directory. Remove `source ~/.bashrc`. |
+| SLURM job name | `orchestrator.py:943` writes `matt-{job_name}`. Use `${oc.env:USER}` or a config key. |
+| Model configs | Write `model_source` as a Hugging Face ID, or as `${oc.env:MLLMSCI_MODEL_ZOO}/<name>`. Do not write an absolute path. |
+| `scripts/activate_stage_venv.sh` | Read the CUDA and FFmpeg paths from the environment. Stop with a clear message when a path is missing. |
+| W&B | Remove the default entity `urbanekg`. Turn W&B off when `WANDB_ENTITY` is not set. |
+| Personal data | Remove `--mail-user` from the 6 `.sub` files. Remove the login host from `neuronpedia-viewer.md`. |
+| Data configs | Track `generic_images.yaml` and one small example dataset config. Make it the default `data` in each task dagspace. Repair the `datasets` symlink, or remove it. |
+| The `MLLMSCI_` prefix | Keep it, or rename it together with the package (see the open decisions). |
+
+Check: clone the repo to a new directory as a different user, or in a container. Do the steps 1 to 4 of the goal with a public model (for example Qwen3-VL-2B).
+
+## Phase 4: packaging
+
+1. Add a `[build-system]` table. Install `dagspaces` as the core package.
+2. Split the dependencies into the core and extras:
+
+| Group | Content |
+|-------|---------|
+| core | vllm, torch, transformers, hydra-core, hydra-submitit-launcher, jinja2, pandas, pyarrow, pillow |
+| `wandb` | wandb |
+| `speech` | silero-vad and the audio dependencies |
+| `ocr`, `embed` | only if they need more |
+| `urban` | geopandas, osmnx, rasterio, polars-st, duckdb, boto3 |
+| `research` | monocle and its dependencies: peft, timm, scikit-learn, statsmodels, trueskill |
+| `notebooks` | marimo, ipykernel, matplotlib, plotly, wordcloud |
+| `dev` | pytest, pyright, ruff |
+
+3. Make `pyproject.toml` and `uv.lock` describe the default environment (vLLM 0.25, cu129). Remove `requirements-vllm025cu129.txt`. Do not let `scripts/build_venv_vllm025.sh` copy flash-attn from another project.
+4. Use one venv name in all places.
+5. Make `flash-attn` an extra. A source build must not block the core install.
+6. Add console scripts. Example: `dagspace vqa pipeline=...`, in addition to `python -m dagspaces.vqa.cli`.
+7. Narrow `pyrightconfig.json` to the framework.
+
+Check: `uv sync` on a fresh clone, then `uv sync --extra research` and `uv sync --extra urban`.
+
+## Phase 5: the tools for a new project
+
+| Item | Content |
+|------|---------|
+| Less boilerplate | Add a `make_dagspace(name, stages, settings)` factory to `dagspaces/common`. A new `orchestrator.py` then needs about 15 lines, not about 80. Set the `DagspaceSettings` flags to sensible defaults. |
+| `dagspaces/_template/` | A minimal dagspace with one stage, `conf/config.yaml`, one pipeline, one prompt and one test. |
+| `scripts/new_dagspace.py` | Copy the template and set the names. |
+| An example that runs | `examples/vqa_folder/`: 10 public images, one prompt and a pipeline. Run it with `hydra/launcher=local` and with `slurm_gpu_1x`. |
+| Tests | Add a `conftest.py` with the markers `gpu`, `slurm` and `data`. Give fixtures for the paths. Remove the `/share` paths from the 14 test files. Move `scripts/test_*.py` into `tests/`. |
+| CI | A GitHub Actions workflow: `pytest -m "not gpu and not slurm and not data"`, pyright on the framework, and ruff. |
+| Docs | Write `README.md` again: what the repo does, a 5-minute quickstart, and the layout. Write `docs/` again in STE: architecture, add a stage, add a dagspace, site setup and launchers, model registry and scratch mirrors, results that stream and resume. Use the current pages `scratch-mirrors.md`, `vllm-025-upgrade.md`, `million-pair-battery.md` and `nfs-load-pairvqa-sweeps.md` as the source. Move the research pages of `vlm-narratives-docs/` to `research/docs/`. |
+| CLAUDE.md | Change it to the new layout and commands. |
+
+Check: a person who does not know the repo makes a new dagspace from the template and runs it, with the README only.
+
+## Phase 6: split the framework (optional)
+
+1. Use `git subtree split` (or `git filter-repo`) on `dagspaces/`, `scripts/` (generic), `docs/`, `examples/` and `tests/` (framework). The result is a new repo that keeps the history.
+2. Make it a GitHub template repository.
+3. Make this repo (mllmsci / monocle) depend on the framework by version. This repo then holds `sv/` and `research/` only.
+4. Move `tools/trashbot_annotator/` to its own repo.
+
+## The order and the size
+
+| Phase | Risk | Size | Depends on |
+|-------|------|------|------------|
+| 0 Protect | none | 15 min | none |
+| 1 Remove dead code | low | half a day | 0 |
+| 2 Separate | medium (imports, configs) | 1 to 2 days | 1 |
+| 3 Portable | medium (launchers) | 1 to 2 days | 2 |
+| 4 Packaging | medium (vLLM and CUDA pins) | 1 day | 3 |
+| 5 Tools | low | 1 to 2 days | 4 |
+| 6 Split | low | half a day | 5 |
+
+Do phases 1 and 3 in small commits on a branch. Each commit must keep the tests and one research pipeline in a state that works. The FAccT work must not stop.
+
+**Warning:** Do not start phase 2 while a long sweep runs from this checkout. The SLURM stage jobs import the code from the repo path, and a move during a run breaks the run.
+
+## Decisions
+
+The author decided these on 2026-11-21:
+
+| Decision | Result |
+|----------|--------|
+| Restructure in place, or a new repo now | In place. Split later (phase 6). |
+| The layout of phase 2 | `dagspaces/` for the framework, `sv/` for Cyclomedia, `sv/nyc/` for NYC, `research/` for monocle, the notebooks, the figures and the experiment scripts. |
+| The experimental dagspaces (`urbanroamvqa`, `urbanvit`, `opf_vision_labels`, `artifact_gen`) | Move them to `research/`. |
+| `tools/trashbot_annotator/` | A separate project. Move it to its own repo in phase 6. |
+| A history rewrite to remove large files | No. The split in phase 6 makes a clean repo. |
+
+These are still open. They must be decided before phase 2:
+
+1. The task dagspace names: keep `urbanvqa` and the others, or rename them to `vqa`, `pairvqa`, `ocr`, `embed` and `speech`.
+2. The framework and package name, and the env prefix (`MLLMSCI_`).
