@@ -89,19 +89,19 @@ Write the text in STE (see the section above).
 
 MLLMSCI / UAIR (Urban AI Risks Assessment Framework) — a scalable pipeline framework for large-scale multimodal LLM inference over urban datasets. Uses vLLM for GPU inference, Hydra for configuration, and W&B for experiment tracking. Runs on SLURM clusters.
 
-Python 3.12, managed with `uv`.
+Python 3.12, managed with `uv`. The distribution name is `image-forward`; the import path is `dagspaces`.
 
 ## Common Commands
 
 ```bash
-# Install dependencies
-uv pip install -e .
+# Install the locked environment in .venv (add extras with --extra NAME)
+bash scripts/build_venv.sh --extra wandb --extra research
 
-# Run a pipeline (VQA example)
-python -m dagspaces.vqa.cli pipeline=vqa_cyclomedia_scaffolding runtime.debug=true runtime.sample_n=100
+# Run a pipeline (VQA example). `dagspace vqa` is the same as `python -m dagspaces.vqa.cli`.
+dagspace vqa -m pipeline=vqa_cyclomedia_scaffolding runtime.debug=true runtime.sample_n=100
 
 # Run on SLURM with GPUs
-python -m dagspaces.vqa.cli hydra/launcher=slurm_gpu_4x pipeline=vqa_cyclomedia_scaffolding
+dagspace vqa -m hydra/launcher=slurm_gpu_4x pipeline=vqa_cyclomedia_scaffolding
 
 # Run tests
 pytest tests/test_vqa.py -v
@@ -117,6 +117,8 @@ Each dagspace has its own CLI entry point:
 - `python -m research.dagspaces.urbanroamvqa.cli` — Multi-step street traversal VQA
 - `python -m dagspaces.embed.cli` — Embedding inference
 - `python -m dagspaces.speech.cli` — Speech recognition over video clips
+
+The `dagspace` console script runs each of them: `dagspace <name>`, or `dagspace research.dagspaces.urbanroamvqa`.
 
 All accept Hydra overrides: `model.batch_size=32 runtime.debug=true data.parquet_path=/path/to/data.parquet`
 
@@ -209,7 +211,10 @@ Supports `${oc.env:VAR}` interpolation and optional defaults.
 
 ### Environments and node-local mirrors
 
-`.venv-vllm025cu129` (vLLM 0.25.0, torch 2.11.0+cu129) is the default for all
+`pyproject.toml` and `uv.lock` give the environment: vLLM 0.25.0, torch
+2.11.0+cu129. The extras are `wandb`, `speech`, `embed`, `flash-attn`,
+`langextract`, `urban`, `research`, `notebooks` and `cambrian`. A new clone uses
+`.venv`. On this site, `.venv-vllm025cu129` is the default for all
 launchers. `server.env` sets it. `.venv-3.12` (vLLM 0.19) and `.venv-nightly`
 (vLLM 0.23) stay on disk; override `IMAGE_FORWARD_VENV_ACTIVATE` to use one.
 
@@ -221,7 +226,7 @@ back to NFS.
 
 | Command | Purpose |
 |---------|---------|
-| `bash scripts/build_venv_vllm025.sh` | Build the default environment again |
+| `bash scripts/build_venv.sh [--extra NAME]` | Build an environment from `uv.lock` |
 | `bash scripts/sync_venv_to_scratch.sh` | Deploy the venv mirror on this node |
 | `bash scripts/sync_model_registry_to_scratch.sh` | Deploy the model mirror |
 

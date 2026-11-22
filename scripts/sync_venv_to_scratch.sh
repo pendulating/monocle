@@ -31,7 +31,16 @@ set -euo pipefail
 MAKE_TARBALL=0
 if [ "${1:-}" = "--make-tarball" ]; then MAKE_TARBALL=1; shift; fi
 
-SRC="${1:-/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129}"
+# The default venv: the one that the jobs activate (IMAGE_FORWARD_VENV_ACTIVATE in
+# server.env), or else the active venv, or else <repo root>/.venv.
+# shellcheck disable=SC1091
+source "$(dirname "${BASH_SOURCE[0]}")/load_server_env.sh"
+if [ -n "${IMAGE_FORWARD_VENV_ACTIVATE:-}" ]; then
+  _default_src="$(dirname "$(dirname "$IMAGE_FORWARD_VENV_ACTIVATE")")"
+else
+  _default_src="${VIRTUAL_ENV:-$IMAGE_FORWARD_PROJECT_ROOT/.venv}"
+fi
+SRC="${1:-$_default_src}"
 NAME="$(basename "$SRC" | sed 's/^\.//')"
 DST="${2:-/scratch/$USER/venvs/$NAME}"
 TARBALL="${SYNC_VENV_TARBALL:-$(dirname "$SRC")/.venv-mirrors/$NAME.tar.zst}"

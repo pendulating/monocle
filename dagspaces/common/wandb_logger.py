@@ -132,8 +132,12 @@ def _apply_wandb_settings_defaults() -> None:
 
 _apply_wandb_settings_defaults()
 
-# Import wandb after environment is configured
-import wandb as wandb_module  # noqa: E402
+# Import wandb after environment is configured. W&B is an optional extra
+# (image-forward[wandb]); without it, the logger stays off.
+try:
+    import wandb as wandb_module  # noqa: E402
+except ImportError:
+    wandb_module = None
 
 # Host detection and compute metadata live in sibling modules. Re-export the
 # names here so existing imports from this module keep their behavior.
@@ -307,6 +311,12 @@ class WandbConfig:
             if enabled and not entity:
                 print(
                     "[wandb] W&B is off: set WANDB_ENTITY (server.env) or wandb.entity to log runs.",
+                    file=sys.stderr,
+                )
+                enabled = False
+            if enabled and wandb_module is None:
+                print(
+                    "[wandb] W&B is off: the wandb package is not installed (install image-forward[wandb]).",
                     file=sys.stderr,
                 )
                 enabled = False
@@ -585,7 +595,7 @@ class WandbLogger:
             with WandbLogger._lock:
                 if WandbLogger._wandb is None:
                     WandbLogger._wandb = wandb_module
-                    WandbLogger._wandb_available = True
+                    WandbLogger._wandb_available = wandb_module is not None
 
     @classmethod
     def with_config(
@@ -620,7 +630,7 @@ class WandbLogger:
             with WandbLogger._lock:
                 if WandbLogger._wandb is None:
                     WandbLogger._wandb = wandb_module
-                    WandbLogger._wandb_available = True
+                    WandbLogger._wandb_available = wandb_module is not None
 
         return instance
 

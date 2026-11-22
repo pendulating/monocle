@@ -1,6 +1,6 @@
 # Plan: make the repo a starting point for GPU vision inference
 
-Written 2026-11-21. Status: phases 0 to 3 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22). Phase 3 is on the branch `cleanup/phase-3`.
+Written 2026-11-21. Status: phases 0 to 4 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22). Phases 3 and 4 are on the branch `cleanup/phase-3`.
 
 ## Progress
 
@@ -16,6 +16,7 @@ Written 2026-11-21. Status: phases 0 to 3 are done (see "Progress"). Phase 2 is 
 | 3b: the launchers and the job names | Done 2026-11-22 | Branch `cleanup/phase-3`. See `site/README.md`. |
 | 3c: the model paths | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 | 3d: the job env, W&B, personal data, data defaults | Done 2026-11-22 | Branch `cleanup/phase-3`. |
+| 4: packaging | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 
 The rename of phase 2a has these rules:
 
@@ -108,6 +109,21 @@ Phase 3d has these rules:
 | W&B | The default entity `urbanekg` is gone from the 9 dagspace configs. With no entity, W&B is off and the run prints 1 line. This site sets `WANDB_ENTITY` in `server.env`. The 3 GEPA configs keep their entity. |
 | Personal data | The 6 `.sub` files have no `--mail-user` or `--mail-type` now. `neuronpedia-viewer.md` has no login host, address or user name. |
 | Data defaults | The vqa default is now the generic `vqa_inputs`. Only the vqa composes with no pipeline changed (19 of 172). `inputs` and `multimodal_inputs` have no `/share/pierson` default. `flattened_rules.yaml` goes to `research/conf/vqa/data/`. The ocr, embed and pairwisevqa defaults stay for phase 5. |
+
+Phase 4 has these rules:
+
+| Item | Result |
+|------|--------|
+| Name | The distribution is `image-forward`. The import path stays `dagspaces`. |
+| Packages | `setup.py` lists the packages: `dagspaces*`, `research*`, `sv*` and `hydra_plugins.mllmsci_searchpath`. `[tool.setuptools.packages.find]` cannot find the namespace package `hydra_plugins` without a walk of the full repo, and that walk takes more than 10 minutes. The Hydra plugin now works from each directory. |
+| Core and extras | The core is the framework: vLLM, torch, transformers, Hydra, submitit, jinja2, pandas, pyarrow, pillow and some small packages. The extras are `wandb`, `speech`, `embed`, `flash-attn`, `langextract`, `urban`, `research`, `notebooks` and `cambrian`. The dev group adds pytest, pyright and ruff. W&B is optional now: without the package, the logger stays off. |
+| Not kept | `boto3`, `datasets`, `nltk`, `ninja`, `packaging` and `setuptools` left the list. No tracked file imports the first three. The flash-attn build gets the others. |
+| Lock | `uv.lock` holds vLLM 0.25.0+cu129, torch 2.11.0+cu129 and the CUDA pins. It is for Linux x86_64 only. Each of the 277 locked packages that the default venv holds has the same version as in the venv. |
+| Pins | `requirements-vllm025cu129.txt` is gone. Its pins are in `[tool.uv] constraint-dependencies`. |
+| Build | `scripts/build_venv.sh` runs `uv sync --frozen` into `.venv` (or `$VENV`). It copies no flash-attn from another project. `install_flash_attention.sh` is gone (it needed a `requirements.in` that does not exist). |
+| Venv name | A new clone uses `.venv` in all places. This site keeps its venv through `server.env`. `sync_venv_to_scratch.sh` gets its default source from `IMAGE_FORWARD_VENV_ACTIVATE`. |
+| Console script | `dagspace <name> ARGS` is the same as `python -m dagspaces.<name>.cli ARGS`. A module path also works: `dagspace research.dagspaces.urbanroamvqa`. |
+| Pyright | `pyrightconfig.json` checks `dagspaces`, `hydra_plugins` and `scripts` only. |
 
 Phase 1 found these problems. It did not repair them:
 

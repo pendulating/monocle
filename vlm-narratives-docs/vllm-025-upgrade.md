@@ -21,17 +21,17 @@ export IMAGE_FORWARD_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activat
 ## Build the environment
 
 ```bash
-bash scripts/build_venv_vllm025.sh
+bash scripts/build_venv.sh --extra wandb --extra research
 ```
 
-The version pins for the CUDA stack are in `requirements-vllm025cu129.txt`.
-The other packages come from `pyproject.toml`. The script installs torch
-first, from the cu129 index, so that no later step can pull the default-index
-cu128 build in as a dependency.
+Since phase 4 of `repo-cleanup-plan.md`, `pyproject.toml` and `uv.lock` give
+the environment. `[tool.uv.sources]` gets torch from the cu129 index and vLLM
+from the cu129 wheel of the release. `[tool.uv] constraint-dependencies` holds
+the pins of the CUDA stack (before, `requirements-vllm025cu129.txt`).
 
-`flash-attn` has no published wheel for torch 2.11+cu129, and a source build
-costs about an hour. The script copies the build that UAIR already made,
-because both environments use CPython 3.12 and the same torch ABI.
+`flash-attn` has no published wheel for torch 2.11+cu129. It is the extra
+`flash-attn` now, and uv builds it from source (about an hour). Before, the
+build script copied the build of another project.
 
 **Warning:** after you change this environment, sync the `/scratch` mirrors
 again. See [scratch-mirrors.md](scratch-mirrors.md).
