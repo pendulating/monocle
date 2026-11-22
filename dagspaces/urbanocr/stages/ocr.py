@@ -70,7 +70,7 @@ def _maybe_silence_vllm_logs() -> None:
     if _VLLM_LOGS_SILENCED:
         return
     try:
-        from ..logging_filters import PatternModuloFilter
+        from dagspaces.common.logging_filters import PatternModuloFilter
         lg = logging.getLogger("vllm")
         try:
             n = int(os.environ.get("URBANOCR_VLLM_LOG_EVERY", "10") or "10")

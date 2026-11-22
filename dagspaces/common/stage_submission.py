@@ -6,9 +6,8 @@ copy of each. A :class:`DagspaceSettings` instance selects the exact behavior
 variant of a dagspace: job-name prefix, GPU preflight, W&B summary detail,
 recovery mode, manifest fields, and the config directory.
 
-Each orchestrator keeps its public names (``execute_stage_job``,
-``run_experiment``, ``_submit_and_wait``, ``_recover_slurm_job``) and
-delegates to the functions here. submitit pickles the submitted callable by
+Each orchestrator keeps its public names (``execute_stage_job`` and
+``run_experiment``) and delegates to the functions here. submitit pickles the submitted callable by
 module path, so the per-dagspace wrapper functions stay the submit targets.
 """
 

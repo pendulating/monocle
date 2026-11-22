@@ -14,17 +14,12 @@ the functions below delegate to it and keep the public names stable.
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from omegaconf import DictConfig
 
 # -- Common infrastructure imports ------------------------------------------
 from dagspaces.common import stage_submission
-from dagspaces.common.config_schema import PipelineNodeSpec
-from dagspaces.common.orchestrator import (
-    StageExecutionContext,
-    StageResult,
-)
 from dagspaces.common.runners.base import StageRunner
 
 # -- Dagspace-local imports -------------------------------------------------
@@ -134,40 +129,3 @@ def run_experiment(cfg: DictConfig) -> None:
         cfg, _STAGE_JOB_SETTINGS, execute_fn=execute_stage_job
     )
 
-
-# ---------------------------------------------------------------------------
-# SLURM submission with error recovery
-# ---------------------------------------------------------------------------
-
-def _submit_and_wait(
-    cfg: DictConfig,
-    node: PipelineNodeSpec,
-    node_cfg: DictConfig,
-    inputs: Dict[str, str],
-    output_paths: Dict[str, str],
-    output_dir: str,
-    output_root: str,
-    parent_group: Optional[str],
-) -> StageResult:
-    """Submit a stage as a SLURM job and wait for completion with recovery."""
-    return stage_submission.submit_and_wait(
-        cfg=cfg,
-        node=node,
-        node_cfg=node_cfg,
-        inputs=inputs,
-        output_paths=output_paths,
-        output_dir=output_dir,
-        output_root=output_root,
-        parent_group=parent_group,
-        settings=_STAGE_JOB_SETTINGS,
-        execute_fn=execute_stage_job,
-    )
-
-
-def _recover_slurm_job(
-    job, node: PipelineNodeSpec, original_exc: Exception
-) -> StageResult:
-    """Try to recover a SLURM job result when submitit reports failure."""
-    return stage_submission.recover_slurm_job(
-        job, node, original_exc, mode=_STAGE_JOB_SETTINGS.recovery_mode
-    )
