@@ -22,7 +22,8 @@ from gradient_rank import spectrum  # noqa: E402
 from linear_probe import run as probe_run  # noqa: E402
 from null_bar import paired  # noqa: E402
 
-PY_BIN = str(REPO / ".venv-3.12/bin/python")
+# The interpreter of the test run. Before, a fixed path to .venv-3.12, which a new clone does not have.
+PY_BIN = sys.executable
 
 
 class TestSpectrum:

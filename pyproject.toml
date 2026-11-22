@@ -110,6 +110,10 @@ dev = [
 dagspaces = ["**/*.yaml", "**/*.json", "**/*.jinja", "**/*.md"]
 
 [tool.uv]
+# The editable install puts the repo root on sys.path (a .pth file). Hydra finds
+# plugins with pkgutil, and pkgutil cannot list the namespace hydra_plugins
+# through the path hook of the default editable mode.
+config-settings-package = { image-forward = { editable_mode = "compat" } }
 # The vLLM 0.25 cu129 wheel is for Linux x86_64 only.
 environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
 # The CUDA stack: the vLLM 0.25 binary wheel links against these versions.

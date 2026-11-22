@@ -124,6 +124,9 @@ Phase 4 has these rules:
 | Venv name | A new clone uses `.venv` in all places. This site keeps its venv through `server.env`. `sync_venv_to_scratch.sh` gets its default source from `IMAGE_FORWARD_VENV_ACTIVATE`. |
 | Console script | `dagspace <name> ARGS` is the same as `python -m dagspaces.<name>.cli ARGS`. A module path also works: `dagspace research.dagspaces.urbanroamvqa`. |
 | Pyright | `pyrightconfig.json` checks `dagspaces`, `hydra_plugins` and `scripts` only. |
+| Editable mode | The project installs in the setuptools `compat` editable mode (`[tool.uv] config-settings-package`). It puts the repo root on `sys.path`. Hydra finds plugins with `pkgutil`, and `pkgutil` cannot list `hydra_plugins` through the path hook of the default mode. |
+| langextract | The pairwisevqa orchestrator imported `trace_extract`, and thus langextract, at load. A core install could not run pairwisevqa. The import is now in the stage runner. |
+| Fresh clone check | A sparse clone on `/scratch`: `uv sync` (32 s from the uv cache), then `--extra research` and `--extra urban`. vLLM 0.25.0+cu129 imports. `dagspace ocr` from `/tmp` finds the `sv/` configs. The tests: 1902 passed, 3 skipped (local data), 9 failed. 8 are the known `test_canonical_prompt` failures. The 9th used a fixed `.venv-3.12` path; it now uses the test interpreter. |
 
 Phase 1 found these problems. It did not repair them:
 

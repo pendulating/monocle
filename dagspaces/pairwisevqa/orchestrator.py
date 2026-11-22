@@ -38,7 +38,6 @@ from .samplers.pairs import (
     build_unit_random_pairs,
 )
 from .stages.pairwise_vqa import run_pairwise_vqa_stage
-from .stages.trace_extract import run_trace_extract_stage
 
 _CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
 
@@ -531,6 +530,10 @@ class TraceExtractRunner(StageRunner):
             os.path.dirname(results_path) if results_path else context.output_dir
         )
         os.makedirs(output_dir, exist_ok=True)
+
+        # The stage needs the langextract extra. Import it only here, so that
+        # the other pairwisevqa stages run without the extra.
+        from .stages.trace_extract import run_trace_extract_stage
 
         out, metadata = run_trace_extract_stage(cfg, output_dir)
 
