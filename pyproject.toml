@@ -152,6 +152,20 @@ name = "pytorch-cu129"
 url = "https://download.pytorch.org/whl/cu129"
 explicit = true
 
+[tool.ruff]
+line-length = 100
+# The framework only. research/ and sv/ have their own style for now.
+extend-exclude = ["research", "sv", "tools", "vault", "artificial-aesthetic", "sub", "multirun", "outputs", "data"]
+
+[tool.ruff.lint]
+# The CI gate: syntax errors and undefined names. Add more rules step by step.
+select = ["E9", "F63", "F7", "F82"]
+
 [tool.pytest.ini_options]
 # The framework tests are in tests/. The street-view tests are in sv/.
 testpaths = ["tests", "sv"]
+markers = [
+    "gpu: the test needs a CUDA GPU",
+    "slurm: the test submits a SLURM job",
+    "data: the test reads data that is not in git (the model zoo, multirun/, data/)",
+]

@@ -6,7 +6,7 @@ imports in the plain `.venv` that lacks jlens. These tests exercise the pure
 geometry, label-collapse, metric, and checkpoint logic on tiny tensors and
 fake tokenizers.
 
-Run: /share/ju/matt/mllmsci/.venv/bin/python -m pytest \
+Run: python -m pytest \
         tests/test_safety_workspace.py -v
 """
 from __future__ import annotations
@@ -19,7 +19,7 @@ import pytest
 from omegaconf import OmegaConf
 import torch
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 

@@ -18,17 +18,19 @@ No GPU is needed. The tokenizer tests skip when the model directory is absent.
 from __future__ import annotations
 
 import sys
+import os
 from pathlib import Path
 
 import pytest
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from research.monocle import canonical  # noqa: E402
 
-MODEL_DIR = Path("/share/ju/matt/zoo/models/gemma-4-12B-it")
+# The model zoo of server.env (the root conftest loads it). Without it, the GPU tests skip.
+MODEL_DIR = Path(os.environ.get("IMAGE_FORWARD_MODEL_ZOO") or REPO / "no-model-zoo") / "gemma-4-12B-it"
 
 ROW = {
     "pair_id": "unit_00000042",
