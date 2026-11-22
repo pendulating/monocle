@@ -4,16 +4,24 @@
 Usage:
     python scripts/download_mllm_model.py \
         --model_name Qwen/Qwen2.5-VL-7B-Instruct \
-        --zoo_path /share/ju/matt/zoo/models
+        --zoo_path /path/to/models
     
     Or use a smaller model:
     python scripts/download_mllm_model.py \
-        --model_name Qwen/Qwen2.5-VL-3B-Instruct \
-        --zoo_path /share/ju/matt/zoo/models
+        --model_name Qwen/Qwen2.5-VL-3B-Instruct
+
+The default of --zoo_path is IMAGE_FORWARD_MODEL_ZOO (see server.env.example).
 """
 
 import argparse
 import os
+
+try:  # Read IMAGE_FORWARD_MODEL_ZOO from server.env, when the framework is installed.
+    from dagspaces.common.stage_utils import ensure_dotenv
+
+    ensure_dotenv()
+except ImportError:
+    pass
 from pathlib import Path
 
 
@@ -78,8 +86,9 @@ def main():
     parser.add_argument(
         "--zoo_path",
         type=str,
-        default="/share/ju/matt/zoo/models",
-        help="Path to zoo models directory (default: /share/ju/matt/zoo/models)",
+        default=os.environ.get("IMAGE_FORWARD_MODEL_ZOO"),
+        required=not os.environ.get("IMAGE_FORWARD_MODEL_ZOO"),
+        help="Path to the model folder (default: $IMAGE_FORWARD_MODEL_ZOO)",
     )
     parser.add_argument(
         "--use_symlinks",

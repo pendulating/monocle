@@ -14,7 +14,7 @@
 # `enable_thinking: false` gives the "chat" mode, with no thought block.
 # vLLM also maps `quant_method: fp8` to `deepseek_v4_fp8`.
 model:
-  model_source: /share/ju/matt/zoo/models/DeepSeek-V4-Flash-0731
+  model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/DeepSeek-V4-Flash-0731
   model_family: deepseek_v4
   multimodal: false
   thinking_mode: off

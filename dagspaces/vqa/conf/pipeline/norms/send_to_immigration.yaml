@@ -31,7 +31,7 @@ pipeline:
           runtime.streaming_io: ${runtime.streaming_io}
           runtime.debug: ${runtime.debug}
           runtime.sample_n: ${runtime.sample_n}
-          model.model_source: /share/ju/matt/zoo/models/Qwen3-VL-2B-Instruct
+          model.model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen3-VL-2B-Instruct
           model.engine_kwargs.gpu_memory_utilization: 0.92
           model.engine_kwargs.tensor_parallel_size: 1
           model.engine_kwargs.max_model_len: 4192  # 324 visual + 162 prompt + 16 output ≈ 502

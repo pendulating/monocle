@@ -14,6 +14,7 @@ Written 2026-11-21. Status: phases 0, 1 and 2 are done (see "Progress"). Phase 2
 | 2d: move the research configs, IC and GEPA to `research/` | Done 2026-11-22 | Branch `cleanup/phase-2`. |
 | 3a: the env prefix and `server.env` | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 | 3b: the launchers and the job names | Done 2026-11-22 | Branch `cleanup/phase-3`. See `site/README.md`. |
+| 3c: the model paths | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 
 The rename of phase 2a has these rules:
 
@@ -85,6 +86,17 @@ Phase 3b has these rules:
 | sbatch options | A stage job gets `account`, `qos`, `constraint` and `exclude` from the launcher. A null or empty value gives no option. There is no default partition `pierson` in the code now. |
 | Job names | `<IMAGE_FORWARD_JOB_PREFIX>-<job>`. The default prefix is `$USER`. This site sets `IMAGE_FORWARD_JOB_PREFIX=matt` in `server.env`, so the battery scripts still find `matt-PAIRVQA-shard`. |
 | `server.env.example` | It lists all the site keys, with a comment for each. |
+
+Phase 3c has these rules:
+
+| Item | Result |
+|------|--------|
+| Zoo paths | The 45 framework configs with a zoo path now write `${oc.env:IMAGE_FORWARD_MODEL_ZOO}/<name>`. This site sets the key in `server.env`. A compare of 228 composes found no change after the substitution. |
+| Hub IDs | We did not change a zoo path to a Hub ID. Many zoo folders do not record their Hub ID, and some names differ from the Hub names. The 5 configs with a Hub ID stay. A user without a zoo writes `model.model_source=<org>/<name>`. |
+| LoRA configs | The 18 `qwen3.5-9b` GRPO and SFT configs point to the checkpoints of another project. They go to `research/conf/common/model/qwen3.5-9b/`. The names do not change. |
+| `server.env` load | Each stage job now calls `ensure_dotenv()` (before, only embed, pairwisevqa and speech). The shard drivers and `prebuild_pair_tables.py` call it before they compose. |
+| Code defaults | `rerank.py` uses the zoo key or the Hub ID. `submit_trace_shards.py` finds the repo root from its own path. The GEPA stage reads the zoo key; before, its import failed. |
+| Not changed | The `sv/` and `research/` configs keep their absolute paths. They are site code. |
 
 Phase 1 found these problems. It did not repair them:
 

@@ -1,7 +1,7 @@
 # @package _global_
 # Gemma-4-26B-A4B: multimodal MoE, 26B total / ~4B active params per token
 model:
-  model_source: /share/ju/matt/zoo/models/Gemma-4-26B-A4B
+  model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Gemma-4-26B-A4B
   model_family: gemma-4
   thinking_mode: off
   engine_kwargs:

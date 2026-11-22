@@ -1,7 +1,7 @@
 # Multimodal Model Configuration - Using Zoo (Absolute Path)
 # Example: Load multimodal model from local zoo
 
-model_source: /share/ju/matt/zoo/models/Qwen2.5-VL-3B-Instruct
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen2.5-VL-3B-Instruct
 
 engine_kwargs:
   tensor_parallel_size: 1

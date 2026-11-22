@@ -2,7 +2,7 @@
 # Uses LLM.score() with Qwen3VLForSequenceClassification architecture
 # for (query, document) relevance scoring.
 
-model_source: /share/ju/matt/zoo/models/Qwen3-VL-Rereanker-8B
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen3-VL-Rereanker-8B
 
 engine_kwargs:
   tensor_parallel_size: 1

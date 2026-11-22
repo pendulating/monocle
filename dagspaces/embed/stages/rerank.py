@@ -81,9 +81,11 @@ def _get_query_embedding(
     if not query_text:
         raise ValueError("reranking.query_text is empty and no query_embedding_path provided")
 
+    # The default: the local model zoo (IMAGE_FORWARD_MODEL_ZOO), or else the Hub ID.
+    _zoo = os.environ.get("IMAGE_FORWARD_MODEL_ZOO")
     emb_model = str(
         getattr(cfg.reranking, "embedding_model_source", None)
-        or "/share/ju/matt/zoo/models/Qwen3-VL-Embedding-8B"
+        or (os.path.join(_zoo, "Qwen3-VL-Embedding-8B") if _zoo else "Qwen/Qwen3-VL-Embedding-8B")
     )
     print(f"[rerank] Computing query embedding inline with {emb_model}", flush=True)
 

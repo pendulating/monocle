@@ -54,9 +54,6 @@ from dagspaces.common.resource_tracker_patch import apply_patch as _apply_resour
 
 _apply_resource_tracker_patch()
 
-# Model zoo base path
-MODEL_ZOO_BASE = "/share/ju/matt/zoo/models"
-
 # vLLM logging state
 _VLLM_LOGS_SILENCED = False
 

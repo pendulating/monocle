@@ -36,7 +36,7 @@
 # document intended settings and are forward-compatible with option (b).
 # ===============================================================================
 
-model_source: /share/ju/matt/zoo/models/LocateAnything-3B
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/LocateAnything-3B
 
 # Reference / intended engine settings. Consumed only once an engine that supports the
 # architecture exists (see header). Left here so the config is complete and forward-compatible.

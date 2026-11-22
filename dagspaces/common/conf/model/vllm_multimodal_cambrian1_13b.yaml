@@ -2,7 +2,7 @@
 # Optimized for 2-GPU setup with RTX A6000 (48GB each) using sidecar processor
 # Updated with best practices from Cambrian paper
 
-model_source: /share/ju/matt/zoo/models/cambrian-13b
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/cambrian-13b
 
 # Cambrian-specific sidecar settings (not vLLM - Cambrian uses custom processor)
 cambrian:

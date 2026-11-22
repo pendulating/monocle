@@ -48,6 +48,11 @@ _CONF_DIR = os.path.join(_ROOT, "dagspaces", "pairwisevqa", "conf")
 
 def _compose(sweep: str, case: str, extra: List[str]):
     from hydra import compose, initialize_config_dir
+
+    from dagspaces.common.stage_utils import ensure_dotenv
+
+    # The configs read server.env keys, for example IMAGE_FORWARD_MODEL_ZOO.
+    ensure_dotenv()
     from hydra.core.global_hydra import GlobalHydra
     overrides = [f"+sweep={sweep}", f"pipeline={case}"] + list(extra)
     GlobalHydra.instance().clear()

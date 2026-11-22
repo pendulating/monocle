@@ -8,7 +8,7 @@
 # the strongest model of the other family. See
 # `vlm-narratives-docs/langextract-trace-extraction.md`, "The extractor".
 model:
-  model_source: /share/ju/matt/zoo/models/Qwen3.8-27B
+  model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen3.8-27B
   model_family: qwen3.5
   # A vision model whose name lacks "-VL". Force multimodal, as for the 9B.
   multimodal: true

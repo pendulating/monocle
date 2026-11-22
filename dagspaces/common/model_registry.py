@@ -1,6 +1,6 @@
 """Node-local model registry: send zoo model loads to a /scratch mirror.
 
-The model zoo is on NFS (``/share/ju/matt/zoo/models``). Weight loading
+The model zoo is a shared folder (``IMAGE_FORWARD_MODEL_ZOO``, often on NFS). Weight loading
 is a bandwidth-bound sequential read, and the pipeline pays it at each vLLM
 engine start. The canonical models are thus mirrored to node-local /scratch by
 ``scripts/sync_model_registry_to_scratch.sh`` (one mirror for each node — the

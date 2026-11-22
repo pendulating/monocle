@@ -4,7 +4,7 @@
 # Model source: Can be HuggingFace Hub identifier or local zoo path
 # Examples:
 #   - HuggingFace Hub: "Qwen/Qwen2.5-VL-3B-Instruct"
-#   - Absolute zoo path: "/share/ju/matt/zoo/models/Qwen2.5-VL-3B-Instruct"
+#   - Absolute zoo path: "${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen2.5-VL-3B-Instruct"
 #   - Relative zoo name: "Qwen2.5-VL-3B-Instruct" (auto-resolved to zoo)
 model_source: "Qwen/Qwen2.5-VL-3B-Instruct"  # Example multimodal model
 

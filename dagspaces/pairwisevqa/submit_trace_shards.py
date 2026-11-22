@@ -56,6 +56,7 @@ import json
 import os
 import sys
 from collections import defaultdict
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from omegaconf import DictConfig, OmegaConf
@@ -68,7 +69,7 @@ from dagspaces.pairwisevqa.submit_shards import (
 
 __version__ = "1.0.0"
 
-_ROOT = "/share/ju/matt/mllmsci"
+_ROOT = str(Path(__file__).resolve().parents[2])  # the repo root
 
 # The registered trace runs of the canonical registry, as named on 2026-09-04.
 # The same table lives in `research/scripts/launch_trace_extraction.sh`.
@@ -164,6 +165,11 @@ def compose_cfg(arm: Dict[str, Any], case: str, shard: int, shard_count: int,
                 shard_rows: int, output_root: str, extra: List[str]) -> DictConfig:
     """Compose the Hydra config of 1 shard, with no Hydra run directory."""
     from hydra import compose, initialize_config_dir
+
+    from dagspaces.common.stage_utils import ensure_dotenv
+
+    # The configs read server.env keys, for example IMAGE_FORWARD_MODEL_ZOO.
+    ensure_dotenv()
     from hydra.core.global_hydra import GlobalHydra
 
     results_path = arm["runs"][case]

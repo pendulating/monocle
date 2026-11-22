@@ -16,6 +16,7 @@ Uses vllm.LLM directly so the model stays in GPU memory across evaluations.
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from contextlib import contextmanager
 from copy import deepcopy
@@ -28,11 +29,13 @@ from omegaconf import DictConfig, OmegaConf
 from dagspaces.vqa.stages.vqa import (
     _build_guided_decoding_config,
     _ensure_json_schema_dict,
-    MODEL_ZOO_BASE,
     _filter_vllm_engine_kwargs,
 )
 
 LOG = logging.getLogger(__name__)
+
+# The local model folder (server.env). Empty: use the Hub ID.
+MODEL_ZOO_BASE = os.environ.get("IMAGE_FORWARD_MODEL_ZOO", "")
 
 # Thread-local storage for evaluation context
 _thread_local = threading.local()
@@ -332,7 +335,7 @@ class PersistentVLLMProcessor:
             raise ValueError("model.model_source is required")
         
         resolved_model_source = model_source
-        if not model_source.startswith("/") and "/" in model_source:
+        if MODEL_ZOO_BASE and not model_source.startswith("/") and "/" in model_source:
             # Try local zoo path
             local_path = os.path.join(MODEL_ZOO_BASE, model_source.split("/")[-1])
             if os.path.exists(local_path):

@@ -104,6 +104,11 @@ def compose_cfg(sweep: str, model: str, case: str, shard: int,
                 output_root: str, extra: List[str]) -> DictConfig:
     """Compose the Hydra config of 1 shard, with no Hydra run directory."""
     from hydra import compose, initialize_config_dir
+
+    from dagspaces.common.stage_utils import ensure_dotenv
+
+    # The configs read server.env keys, for example IMAGE_FORWARD_MODEL_ZOO.
+    ensure_dotenv()
     from hydra.core.global_hydra import GlobalHydra
 
     overrides = [

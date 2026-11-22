@@ -9,7 +9,7 @@
 #   - Vision: patch_size=16, spatial_merge_size=2
 #   - Size on disk: ~58GB
 
-model_source: /share/ju/matt/zoo/models/Qwen3-VL-30B-A3B-Instruct
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen3-VL-30B-A3B-Instruct
 
 engine_kwargs:
   # Parallelism - MoE models need tensor parallelism for expert distribution

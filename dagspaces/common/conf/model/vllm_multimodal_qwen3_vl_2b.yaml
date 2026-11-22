@@ -2,7 +2,7 @@
 # Same zoo path as AWQ/GPTQ variants; full-precision for accuracy when throughput is secondary.
 # ~4+ GB model weights; fits on a single A6000 with room for batching.
 
-model_source: /share/ju/matt/zoo/models/Qwen3-VL-2B-Instruct
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen3-VL-2B-Instruct
 
 engine_kwargs:
   tensor_parallel_size: 1  # Single GPU -- 2B fits easily

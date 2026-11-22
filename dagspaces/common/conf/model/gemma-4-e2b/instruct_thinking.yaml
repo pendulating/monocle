@@ -17,7 +17,7 @@
 # Configured identically to instruct.yaml except for the thinking flips below,
 # so thinking-vs-non-thinking isn't confounded by config drift.
 model:
-  model_source: /share/ju/matt/zoo/models/Gemma-4-E2B-it
+  model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Gemma-4-E2B-it
   model_family: gemma-4
   thinking_mode: on
   chat_template_kwargs:

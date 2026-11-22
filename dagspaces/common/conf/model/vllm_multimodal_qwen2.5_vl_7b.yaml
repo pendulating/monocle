@@ -1,7 +1,7 @@
 # Multimodal Model Configuration - Qwen2.5-VL-7B-Instruct
 # Optimized for 2-GPU setup with RTX A6000 (48GB each)
 
-model_source: /share/ju/matt/zoo/models/Qwen2.5-VL-7B-Instruct
+model_source: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen2.5-VL-7B-Instruct
 
 engine_kwargs:
   tensor_parallel_size: 1  # No need to split across 2 GPUs

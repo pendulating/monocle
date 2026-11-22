@@ -76,7 +76,8 @@ class DagspaceSettings:
         Run ``_sanitize_cuda_visible_devices`` plus the GPU env log before a
         stage starts. Off for the CPU-only pipelines.
     ensure_dotenv_first:
-        Call ``ensure_dotenv()`` at the start of a SLURM child job.
+        Call ``ensure_dotenv()`` at the start of a SLURM child job. On by
+        default: the configs read ``server.env`` keys (``IMAGE_FORWARD_MODEL_ZOO``).
     status_includes_inputs:
         Add ``inputs`` to the ``running`` status payloads.
     log_rows_metric:
@@ -112,7 +113,7 @@ class DagspaceSettings:
     config_dir: str
     registry_provider: Callable[[], Dict[str, StageRunner]]
     gpu_preflight: bool = False
-    ensure_dotenv_first: bool = False
+    ensure_dotenv_first: bool = True
     status_includes_inputs: bool = False
     log_rows_metric: bool = False
     full_wandb_summaries: bool = True
