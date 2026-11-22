@@ -67,5 +67,6 @@ This rule applies to:
 Write a research note in `research/docs/` and a framework note in
 `vlm-narratives-docs/`. The user guides of the framework are in `docs/`.
 
-**Warning:** The Obsidian wiki at `vault/context/` is no longer maintained. Do
-not write to it. Read it only for history.
+The old Obsidian wiki (`vault/context/`), the UAIR docs archive and the old
+one-off scripts left git on 2026-11-22. The tag `archive/pre-cleanup-2026-11-21`
+holds them. Do not add them again.

@@ -77,8 +77,9 @@ Write a research note in `research/docs/`. Write a framework note in
 `vlm-narratives-docs/`. Change a guide in `docs/` when the change alters how a
 user does a task.
 
-**Warning:** The Obsidian wiki at `vault/context/` is no longer maintained.
-Do not write to it. Its content is stale. Read it only for history.
+The old Obsidian wiki (`vault/context/`), the UAIR docs archive and the old
+one-off scripts left git on 2026-11-22. The tag `archive/pre-cleanup-2026-11-21`
+holds them. Do not add them again.
 
 **When to write documentation:**
 
@@ -291,11 +292,10 @@ for the details on shards and resume chunks.
   - `research/ic/` — The Integrative Complexity schema, codes, examples and the `ic_extract` stage. A pipeline adds the stage with `pipeline.stage_runners`.
   - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). The `gepa` package is not in the venv.
 - `docs/` — The framework guides: architecture, add a dagspace, add a stage, site setup, models and mirrors, large runs.
-- `vlm-narratives-docs/archive/documentation/` — Old development history (phase reports, implementation notes). Read it only for history.
 - `conftest.py` — Loads `server.env`, sets the markers `gpu`, `slurm` and `data`, and gives the path fixtures. CI (`.github/workflows/ci.yml`) runs `pytest -m "not gpu and not slurm and not data"`, ruff and pyright.
 - `tests/test_framework_configs.py` — Each framework default composes with no project roots (`IMAGE_FORWARD_NO_PROJECT_ROOTS=1`).
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
 - `vlm-narratives-docs/` — The framework notes (decisions, upgrades, incidents).
 - `artificial-aesthetic/` — The FAccT paper repo. The LaTeX is the submodule `paper/`. `paperkit` copies the figures, tables and numbers into it, and checks them. See `research/docs/paper-repo-sync.md`.
-- `vault/context/` — Obsidian wiki. NOT MAINTAINED. Stale. Read only for history.
+- `archive/` — Gitignored. Old research scripts that left git on 2026-11-22, at their old paths. Read them for reference. Do not import them.

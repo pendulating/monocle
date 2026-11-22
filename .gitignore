@@ -361,3 +361,6 @@ flash-attention/*
 # A local clone of Dao-AILab/flash-attention. It is not a submodule, and no
 # script uses it.
 /flash-attention/
+
+# Scripts that left git in the cleanup of 2026-11-22. They stay on disk for reference.
+/archive/

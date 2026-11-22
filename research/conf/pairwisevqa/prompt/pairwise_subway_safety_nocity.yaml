@@ -31,8 +31,8 @@
 #   - no "base your judgement only on observable cues" / "do not speculate"
 #   - no instruction about what to ignore (weather, time of day, ...)
 #   - no examples
-# Adding any of these back is an ABLATION, not a fix — keep it in its own file
-# under prompt/deprecated/ or a new variant so the battery stays comparable.
+# Adding any of these back is an ABLATION, not a fix — keep it in a new variant
+# file so the battery stays comparable.
 
 # No system persona. `null` means the stage omits the system turn entirely —
 # NOT an empty system turn (`system: ""`), which renders a vestigial empty block.

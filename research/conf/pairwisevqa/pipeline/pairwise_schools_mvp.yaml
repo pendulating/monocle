@@ -5,8 +5,8 @@
 # Warning: the prompt changed on 2026-08-13. It was
 # `pairwise_school_send_child_ordinal` ("which school would you rather send
 # your child to?"), which asked for a parent's preference and thus did not
-# share a subject with the report-card proxy. The old file stays in
-# `prompt/deprecated/` for provenance. A run from before that date is NOT
+# share a subject with the report-card proxy. The old file is in the git tag
+# archive/pre-cleanup-2026-11-21 (`prompt/deprecated/`). A run from before that date is NOT
 # comparable with a run after it.
 #
 # Mirrors `pairwise_restaurants_mvp.yaml` with three changes:
