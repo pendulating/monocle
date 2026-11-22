@@ -23,7 +23,7 @@
 # Row count (2026-04-28 build): 490,851 rows across 18,488 unique restaurants
 # (camis); ~32× more units than the libraries facing parquet.
 
-parquet_path: "/share/pierson/matt/mllmsci/curation/dohmh_restaurants_inspected_all/cyclomedia_near_restaurants_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/dohmh_restaurants_inspected_all/cyclomedia_near_restaurants_facing.parquet"
 
 columns:
   sample_id: sample_id

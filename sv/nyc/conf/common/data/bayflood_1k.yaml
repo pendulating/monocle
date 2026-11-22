@@ -3,7 +3,7 @@
 # Metadata is stored in processed split folders (metadata.csv) and will be joined
 # using the derived image sample_id.
 
-processed_root: /share/pierson/matt/mllmsci/data/bayflood_1k_splits
+processed_root: /share/ju/matt/mllmsci/data/bayflood_1k_splits
 split: train
 
 parquet_path: ${.processed_root}/${.split}/metadata.csv

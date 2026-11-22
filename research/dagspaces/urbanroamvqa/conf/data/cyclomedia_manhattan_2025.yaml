@@ -1,6 +1,6 @@
 # Cyclomedia Manhattan dataset config for roaming VQA
 
-parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
+parquet_path: "/share/ju/matt/mllmsci/data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
 metadata_parquet: ${data.parquet_path}
 
 image_root: ""

@@ -24,7 +24,7 @@
 # C(1990, 2) ≈ 1.98M canonical pairs available without replacement, so the
 # 50k-pair MVP budget fits comfortably (~2.5% of the canonical budget).
 
-parquet_path: "/share/pierson/matt/mllmsci/curation/subway_entrances_all/cyclomedia_near_subway_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/subway_entrances_all/cyclomedia_near_subway_facing.parquet"
 
 columns:
   sample_id: sample_id

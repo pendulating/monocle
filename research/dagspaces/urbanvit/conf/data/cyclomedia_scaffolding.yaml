@@ -4,7 +4,7 @@
 # of the training loss per-head; no label column yet → training is a no-op
 # until labels are populated.
 
-parquet_path: /share/pierson/matt/mllmsci/curation/scaffolding_permits_2020_through_2025/cyclomedia_near_permits.parquet
+parquet_path: /share/ju/matt/mllmsci/curation/scaffolding_permits_2020_through_2025/cyclomedia_near_permits.parquet
 
 columns:
   id: sample_id

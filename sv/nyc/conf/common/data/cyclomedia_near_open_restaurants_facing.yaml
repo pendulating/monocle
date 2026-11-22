@@ -26,7 +26,7 @@
 # .slurm_jobs/curation_open_restaurants/). Curation has 1,309 licensed
 # restaurants across ~4 km² coverage (mostly Manhattan + Brooklyn).
 
-parquet_path: "/share/pierson/matt/mllmsci/curation/open_restaurants_all/cyclomedia_near_open_restaurants_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/open_restaurants_all/cyclomedia_near_open_restaurants_facing.parquet"
 
 columns:
   sample_id: sample_id

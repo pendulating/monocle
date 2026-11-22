@@ -11,7 +11,7 @@
 # `image_path_original` column — the dagspace's load_input_frame falls
 # through to `image_path` directly.
 
-parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/opf_vision_30k.parquet"
+parquet_path: "/share/ju/matt/mllmsci/data/cyclomedia/opf_vision_30k.parquet"
 
 columns:
   sample_id: sample_id

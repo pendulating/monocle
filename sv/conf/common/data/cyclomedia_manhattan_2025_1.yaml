@@ -11,7 +11,7 @@
 #       --faces F,B,L,R
 
 # Path to the pre-built parquet manifest (set via pipeline overrides)
-parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
+parquet_path: "/share/ju/matt/mllmsci/data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
 
 columns:
   # Prompt is NOT in the parquet manifest – it comes from the pipeline's

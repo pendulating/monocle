@@ -8,6 +8,6 @@ columns:
   sample_id: sample_id
   image_path: image_path
 
-image_path: /share/pierson/matt/mllmsci/data/bayflood_nearby_floodnet
+image_path: /share/ju/matt/mllmsci/data/bayflood_nearby_floodnet
 
 default_prompt: "Analyze and estimate the deepest floodwater level of the image."

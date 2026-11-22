@@ -18,7 +18,7 @@
 # a 100k-pair run consumes ~220k image-slots, so against 500k blocks each block
 # is reused ~0.4x — most runs sample distinct blocks across all of NYC.
 
-parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet"
+parquet_path: "/share/ju/matt/mllmsci/data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet"
 
 columns:
   sample_id: sample_id

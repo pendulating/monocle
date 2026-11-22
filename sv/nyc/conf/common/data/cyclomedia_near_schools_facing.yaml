@@ -27,7 +27,7 @@
 # attribution_confidence: mean 0.050, max 0.645 (lower than restaurants which
 # was 0.15/0.66, but adequate for weighted within-school sampling).
 
-parquet_path: "/share/pierson/matt/mllmsci/curation/facdb_schools_k_12/cyclomedia_near_schools_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/facdb_schools_k_12/cyclomedia_near_schools_facing.parquet"
 
 columns:
   sample_id: sample_id

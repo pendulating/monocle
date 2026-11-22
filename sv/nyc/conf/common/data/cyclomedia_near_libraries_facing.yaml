@@ -29,7 +29,7 @@
 # blocked by a non-unit NYC building (e.g. Castle Hill side-street shots where
 # Top Banana Food Market occludes the library).
 
-parquet_path: "/share/pierson/matt/mllmsci/curation/facdb_libraries/cyclomedia_near_libraries_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/facdb_libraries/cyclomedia_near_libraries_facing.parquet"
 
 columns:
   sample_id: sample_id

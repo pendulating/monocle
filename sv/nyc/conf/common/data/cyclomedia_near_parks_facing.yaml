@@ -36,7 +36,7 @@
 #                                 Feeds pair_sampler.weight_column downstream.
 #   recording_id, face, dataset, latitude, longitude, bearing — catalog metadata
 
-parquet_path: "/share/pierson/matt/mllmsci/curation/facdb_parks_plazas/cyclomedia_near_parks_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/facdb_parks_plazas/cyclomedia_near_parks_facing.parquet"
 
 columns:
   sample_id: sample_id

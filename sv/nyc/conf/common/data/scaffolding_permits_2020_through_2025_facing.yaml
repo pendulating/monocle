@@ -13,7 +13,7 @@
 # Faces: F, B, L, R only (U/D drop in filter-facing — no horizontal bearing).
 
 # Absolute path to the facing-filtered curation parquet.
-parquet_path: "/share/pierson/matt/mllmsci/curation/scaffolding_permits_2020_through_2025/cyclomedia_near_permits_facing.parquet"
+parquet_path: "/share/ju/matt/mllmsci/curation/scaffolding_permits_2020_through_2025/cyclomedia_near_permits_facing.parquet"
 
 columns:
   # Unique key within a dataset: "{recording_id}_{face}". Cross-dataset
