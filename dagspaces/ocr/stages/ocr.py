@@ -73,7 +73,7 @@ def _maybe_silence_vllm_logs() -> None:
         from dagspaces.common.logging_filters import PatternModuloFilter
         lg = logging.getLogger("vllm")
         try:
-            n = int(os.environ.get("URBANOCR_VLLM_LOG_EVERY", "10") or "10")
+            n = int(os.environ.get("IMAGE_FORWARD_VLLM_LOG_EVERY", "10") or "10")
         except Exception:
             n = 10
         lg.setLevel(logging.INFO)
@@ -93,7 +93,7 @@ def _suppress_multiprocessing_warnings(cfg: Optional[DictConfig] = None) -> None
     suppress = get_suppress_child_warnings(cfg)
     if suppress:
         import warnings
-        os.environ["URBANOCR_SUPPRESS_WARNINGS"] = "true"
+        os.environ["IMAGE_FORWARD_SUPPRESS_WARNINGS"] = "true"
         _apply_resource_tracker_patch()
         warnings.filterwarnings(
             "ignore",

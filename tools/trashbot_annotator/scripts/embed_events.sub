@@ -30,8 +30,8 @@ echo ""
 REPO_DIR="/share/ju/matt/mllmsci"
 TOOL_DIR="$REPO_DIR/tools/trashbot_annotator"
 DRIVER_VENV="$REPO_DIR/.venv-mllmsci-vllm025cu129"
-ZOO="${MLLMSCI_MODEL_ZOO:-/share/ju/matt/zoo/models}"
-REGISTRY="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
+ZOO="${IMAGE_FORWARD_MODEL_ZOO:-/share/ju/matt/zoo/models}"
+REGISTRY="${IMAGE_FORWARD_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
 # The 8B embedding model is the strongest multimodal embedder in the
 # zoo. Do not point this at a generative model (Qwen3-Omni, Qwen3-VL
@@ -50,12 +50,12 @@ if [ ! -f "$DRIVER_VENV/bin/activate" ]; then
     exit 1
 fi
 
-export MLLMSCI_DRIVER_VENV="$DRIVER_VENV"
+export IMAGE_FORWARD_DRIVER_VENV="$DRIVER_VENV"
 # shellcheck disable=SC1091
 source "$REPO_DIR/scripts/activate_stage_venv.sh"
 
-if [ -n "${MLLMSCI_STAGE_PYTHON:-}" ] && [ -x "${MLLMSCI_STAGE_PYTHON}" ]; then
-    PY="$MLLMSCI_STAGE_PYTHON"
+if [ -n "${IMAGE_FORWARD_STAGE_PYTHON:-}" ] && [ -x "${IMAGE_FORWARD_STAGE_PYTHON}" ]; then
+    PY="$IMAGE_FORWARD_STAGE_PYTHON"
 else
     source "$DRIVER_VENV/bin/activate"
     PY="$(which python)"

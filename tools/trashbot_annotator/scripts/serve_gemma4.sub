@@ -37,8 +37,8 @@ echo ""
 # ----------------------------- CONFIGURATION ----------------------------- #
 REPO_DIR="/share/ju/matt/mllmsci"
 DRIVER_VENV="$REPO_DIR/.venv-mllmsci-vllm025cu129"
-ZOO="${MLLMSCI_MODEL_ZOO:-/share/ju/matt/zoo/models}"
-REGISTRY="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
+ZOO="${IMAGE_FORWARD_MODEL_ZOO:-/share/ju/matt/zoo/models}"
+REGISTRY="${IMAGE_FORWARD_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
 # MODEL_NAME selects a zoo model by registry name. MODEL_ID overrides it
 # with an explicit HF id or path; then no registry resolution happens.
@@ -70,12 +70,12 @@ fi
 
 # Select the fastest venv on this node and set up CUDA plus FFmpeg.
 # Sourced, not executed. See the header of activate_stage_venv.sh.
-export MLLMSCI_DRIVER_VENV="$DRIVER_VENV"
+export IMAGE_FORWARD_DRIVER_VENV="$DRIVER_VENV"
 # shellcheck disable=SC1091
 source "$REPO_DIR/scripts/activate_stage_venv.sh"
 
-if [ -n "${MLLMSCI_STAGE_PYTHON:-}" ] && [ -x "${MLLMSCI_STAGE_PYTHON}" ]; then
-    PY="$MLLMSCI_STAGE_PYTHON"
+if [ -n "${IMAGE_FORWARD_STAGE_PYTHON:-}" ] && [ -x "${IMAGE_FORWARD_STAGE_PYTHON}" ]; then
+    PY="$IMAGE_FORWARD_STAGE_PYTHON"
 else
     # Fallback: run from the NFS driver venv, as before the mirror existed.
     source "$DRIVER_VENV/bin/activate"

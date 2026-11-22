@@ -52,9 +52,9 @@ mkdir -p "$TMPDIR" logs/f10
 echo "host=$(hostname -s) job=${SLURM_JOB_ID} model=$MODEL commit=$(git rev-parse --short HEAD) $(date -u +%FT%TZ)"
 nvidia-smi -L
 
-export MLLMSCI_DRIVER_VENV=$VENV
+export IMAGE_FORWARD_DRIVER_VENV=$VENV
 source scripts/activate_stage_venv.sh
-PY="${MLLMSCI_STAGE_PYTHON:-$VENV/bin/python}"
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-$VENV/bin/python}"
 _site="$(dirname "$PY")/../lib/python3.12/site-packages"
 export FLASHINFER_EXTRA_CUDAFLAGS="-I$(readlink -f "$_site/nvidia/cublas/include")"
 export FLASHINFER_EXTRA_CFLAGS="$FLASHINFER_EXTRA_CUDAFLAGS"

@@ -37,9 +37,9 @@ export TMPDIR=/scratch/$USER/tmp
 mkdir -p "$TMPDIR" logs/f10
 echo "host=$(hostname -s) job=${SLURM_JOB_ID} model=$MODEL $(date -u +%FT%TZ)"
 nvidia-smi -L
-export MLLMSCI_DRIVER_VENV=$VENV
+export IMAGE_FORWARD_DRIVER_VENV=$VENV
 source scripts/activate_stage_venv.sh
-PY="${MLLMSCI_STAGE_PYTHON:-$VENV/bin/python}"
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-$VENV/bin/python}"
 eval "$(bash research/scripts/whatami/stage_inputs.sh "$SRC" "$SAMPLE" "$PY")"
 "$PY" research/scripts/f10/hop_lean.py --model-key "$MODEL" --model-dir "$MODEL_LOCAL" --lens "outputs/_monocle/jlens/jpp/$MODEL/lens.pt" \
     --image-root "$IMAGE_ROOT" --sample "$SAMPLE" --limit "${F10_LIMIT:-0}" ${F10_PROMPTS:+--prompts "$F10_PROMPTS"}

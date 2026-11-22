@@ -44,13 +44,13 @@ set -a; source /share/ju/matt/mllmsci/server.env; set +a
 
 # A `gpu` node holds no /scratch mirror at first. The helper builds one from
 # the bootstrap tarball, so only the first job on a node pays for it.
-export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
+export IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
 set +eu
 source /share/ju/matt/mllmsci/scripts/activate_stage_venv.sh
 set -eu
 if [ -z "${VIRTUAL_ENV:-}" ]; then
   echo "[jlens] no mirror; the job runs from the NFS venv"
-  source "$MLLMSCI_DRIVER_VENV/bin/activate"
+  source "$IMAGE_FORWARD_DRIVER_VENV/bin/activate"
 fi
 
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
@@ -70,6 +70,6 @@ echo "=== jlens mm fit ==="
 echo "HOST=$(hostname) JOB=${SLURM_JOB_ID} RESTARTS=${SLURM_RESTART_COUNT:-0} DATE=$(date)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
-PY="${MLLMSCI_STAGE_PYTHON:-python}"
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-python}"
 echo "[jlens] interpreter: $PY"
 "$PY" -m research.monocle.jlens_fit_mm "$@"

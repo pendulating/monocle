@@ -15,13 +15,13 @@ additional_parameters:
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
+  - source ${oc.env:IMAGE_FORWARD_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
   # Prefer a node-local /scratch mirror of the driver venv when the node has
-  # one. This exports MLLMSCI_STAGE_PYTHON, which the submitit command line
+  # one. This exports IMAGE_FORWARD_STAGE_PYTHON, which the submitit command line
   # reads (dagspaces/common/orchestrator.py::_create_submitit_executor).
   # A cold torch/vllm/flashinfer import over NFS costs about 13 minutes for
   # each process spawn. See scripts/sync_venv_to_scratch.sh.
-  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/activate_stage_venv.sh
+  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/activate_stage_venv.sh
   # `source ~/.bashrc` conda-activates anaconda base, whose old libstdc++.so.6
   # lacks GLIBCXX_3.4.32 and shadows the system one. flashinfer >=0.6.12 JIT
   # kernels (vLLM sampling) need 3.4.32, so force the system libstdc++ (which
@@ -32,7 +32,6 @@ setup:
   - export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
   - if [ -n "$SLURM_GPUS_ON_NODE" ] && [ "$SLURM_GPUS_ON_NODE" -gt 0 ]; then export CUDA_VISIBLE_DEVICES=$(seq -s, 0 $((SLURM_GPUS_ON_NODE - 1))); else unset CUDA_VISIBLE_DEVICES; fi
   - export PYTHONUNBUFFERED=1
-  - export URBANVQA_TENSOR_PARALLEL_SIZE=2
   - echo "=== GPU sanity (pre-job) ==="
   - echo "HOST=$(hostname) DATE=$(date)"
   - echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES SLURM_JOB_GPUS=$SLURM_JOB_GPUS SLURM_STEP_GPUS=$SLURM_STEP_GPUS SLURM_GPUS_ON_NODE=$SLURM_GPUS_ON_NODE"

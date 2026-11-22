@@ -311,7 +311,7 @@ def _load_parquet_dataset(
         except Exception:
             n = int(sample_n)
         try:
-            seed_env = os.environ.get("MLLMSCI_SAMPLE_SEED", "777")
+            seed_env = os.environ.get("IMAGE_FORWARD_SAMPLE_SEED", "777")
             seed = int(seed_env) if seed_env is not None else 777
         except Exception:
             seed = 777
@@ -688,7 +688,7 @@ def _update_slurm_gpu_envs(valid_devices: List[str]) -> None:
 
 
 def _adjust_tensor_parallel_env(
-    valid_count: int, env_prefix: str = "MLLMSCI"
+    valid_count: int, env_prefix: str = "IMAGE_FORWARD"
 ) -> None:
     """Clamp the tensor-parallel env var to the sanitised GPU count."""
     tp_env_name = f"{env_prefix}_TENSOR_PARALLEL_SIZE"
@@ -703,7 +703,7 @@ def _adjust_tensor_parallel_env(
         pass
 
 
-def _log_gpu_environment(reason: str, env_prefix: str = "MLLMSCI") -> None:
+def _log_gpu_environment(reason: str, env_prefix: str = "IMAGE_FORWARD") -> None:
     """Print a structured JSON status block describing the current GPU environment."""
     try:
         cuda_visible = [
@@ -746,7 +746,7 @@ def _log_gpu_environment(reason: str, env_prefix: str = "MLLMSCI") -> None:
 
 def _sanitize_cuda_visible_devices(
     reason: str = "",
-    env_prefix: str = "MLLMSCI",
+    env_prefix: str = "IMAGE_FORWARD",
     cfg: Optional[DictConfig] = None,
 ) -> None:
     """Remove bad logical GPUs from ``CUDA_VISIBLE_DEVICES`` before stage startup.
@@ -758,7 +758,7 @@ def _sanitize_cuda_visible_devices(
         ``"stage_start"`` or ``"node:my_stage"``.
     env_prefix:
         Prefix for the sanitisation book-keeping env vars
-        (e.g. ``"MLLMSCI"`` or ``"VQA"``).
+        (e.g. ``"IMAGE_FORWARD"`` or ``"VQA"``).
     cfg:
         Optional Hydra config.  When provided, ``model.engine_kwargs.tensor_parallel_size``
         is clamped to the number of valid GPUs via OmegaConf.
@@ -916,11 +916,11 @@ def _create_submitit_executor(
     # vLLM stage spawns three processes. The bash expansion below moves the
     # choice of interpreter to job runtime on the node that SLURM assigns:
     # `activate_stage_venv.sh` (sourced from the launcher setup block) exports
-    # MLLMSCI_STAGE_PYTHON only when that node holds a complete /scratch mirror
+    # IMAGE_FORWARD_STAGE_PYTHON only when that node holds a complete /scratch mirror
     # of the driver venv. If it does not, the expansion gives the same
     # sys.executable that submitit would have used.
     python_spec = launcher_cfg.get("python") or (
-        f'"${{MLLMSCI_STAGE_PYTHON:-{sys.executable}}}"'
+        f'"${{IMAGE_FORWARD_STAGE_PYTHON:-{sys.executable}}}"'
     )
     with _clean_slurm_env():
         executor = submitit.AutoExecutor(folder=log_folder, slurm_python=python_spec)
@@ -928,7 +928,7 @@ def _create_submitit_executor(
     # Tell the setup block which venv the driver runs from. The scratch mirror
     # is then used only when it is a mirror of THIS venv, which stops a silent
     # swap of the engine version on a cluster with more than one venv.
-    setup_lines: List[str] = [f"export MLLMSCI_DRIVER_VENV={sys.prefix}"]
+    setup_lines: List[str] = [f"export IMAGE_FORWARD_DRIVER_VENV={sys.prefix}"]
     setup_lines.extend(launcher_cfg.get("setup", []))
 
     params: Dict[str, Any] = dict(

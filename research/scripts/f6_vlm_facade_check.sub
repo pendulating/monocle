@@ -18,10 +18,10 @@
 # the parts that exist, so you can submit it again after a failure.
 set -euo pipefail
 cd /share/ju/matt/mllmsci
-export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129
-source "${MLLMSCI_DRIVER_VENV}/bin/activate"
+export IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129
+source "${IMAGE_FORWARD_DRIVER_VENV}/bin/activate"
 source scripts/activate_stage_venv.sh
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
 export PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 nvidia-smi -L || true
-"${MLLMSCI_STAGE_PYTHON:-python}" research/scripts/f6_vlm_facade_check.py ask "$@"
+"${IMAGE_FORWARD_STAGE_PYTHON:-python}" research/scripts/f6_vlm_facade_check.py ask "$@"

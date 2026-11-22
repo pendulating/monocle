@@ -174,7 +174,7 @@ class WandbConfig:
         table_sample_seed: Random seed for table row sampling.
         default_experiment_name: Fallback for cfg.experiment.name in run names.
         env_var_prefix: Prefix for dagspace-specific sanitizer env vars
-                        (e.g. "MLLMSCI", "VQA").  Empty string means
+                        (e.g. "IMAGE_FORWARD", "VQA").  Empty string means
                         no sanitizer vars are read.
         full_column_stages: Stage names for which all DataFrame columns are
                             logged (not just the first 12).
@@ -245,7 +245,7 @@ class WandbConfig:
             cfg: Hydra config object.
             default_project: Fallback W&B project name.
             default_experiment_name: Fallback for cfg.experiment.name.
-            env_var_prefix: Prefix for GPU sanitizer env vars (e.g. "MLLMSCI").
+            env_var_prefix: Prefix for GPU sanitizer env vars (e.g. "IMAGE_FORWARD").
             full_column_stages: Stage names that log all DataFrame columns.
             full_column_key_prefixes: Key prefixes that also trigger full-column
                 logging.

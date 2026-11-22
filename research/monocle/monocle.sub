@@ -23,7 +23,7 @@ set -euo pipefail
 cd /share/ju/matt/mllmsci
 
 source ~/.bashrc
-# server.env carries MLLMSCI_MODEL_REGISTRY, which sends the weight load to the
+# server.env carries IMAGE_FORWARD_MODEL_REGISTRY, which sends the weight load to the
 # node-local model mirror. Without it a job reads 24 GB of weights off NFS.
 set -a; source /share/ju/matt/mllmsci/server.env; set +a
 
@@ -37,7 +37,7 @@ set -a; source /share/ju/matt/mllmsci/server.env; set +a
 # complete one, builds it from the bootstrap tarball when it does not, and
 # falls back to NFS on any doubt. monocle needs the NIGHTLY venv, so the
 # driver venv is named here and not taken from server.env.
-export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
+export IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
 # The helper is written for launcher setup blocks, which do not run under
 # `set -eu`. A probe of an unset variable must not kill the job, so the flags
 # go off around it and come back after.
@@ -48,9 +48,9 @@ set -eu
 # matches, so the NFS venv still has to be activated in that case.
 if [ -z "${VIRTUAL_ENV:-}" ]; then
   echo "[monocle] no mirror; the job runs from the NFS venv"
-  source "$MLLMSCI_DRIVER_VENV/bin/activate"
+  source "$IMAGE_FORWARD_DRIVER_VENV/bin/activate"
 fi
-if [ -z "${MLLMSCI_STAGE_PYTHON:-}" ]; then
+if [ -z "${IMAGE_FORWARD_STAGE_PYTHON:-}" ]; then
   echo "[monocle] WARNING: no mirror interpreter; a cold import costs about"
   echo "[monocle] 13 minutes. Run scripts/sync_venv_to_scratch.sh on this node."
 fi
@@ -69,7 +69,7 @@ shift || true
 # Start from the mirror interpreter BY PATH. A copied venv keeps the original
 # `bin/activate`, which re-exports the NFS VIRTUAL_ENV, so `source
 # <mirror>/bin/activate` does NOT move the interpreter. Only
-# MLLMSCI_STAGE_PYTHON does, which is what the stage launchers use.
-PY="${MLLMSCI_STAGE_PYTHON:-python}"
+# IMAGE_FORWARD_STAGE_PYTHON does, which is what the stage launchers use.
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-python}"
 echo "[monocle] interpreter: $PY"
 "$PY" -m "$MODULE" "$@"

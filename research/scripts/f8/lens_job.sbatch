@@ -45,9 +45,9 @@ mkdir -p "$TMPDIR" logs/f8
 echo "host=$(hostname -s) job=${SLURM_JOB_ID} args='$ARGS' commit=$(git rev-parse --short HEAD) $(date -u +%FT%TZ)"
 nvidia-smi -L
 
-export MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129
+export IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129
 source scripts/activate_stage_venv.sh
-PY="${MLLMSCI_STAGE_PYTHON:-$MLLMSCI_DRIVER_VENV/bin/python}"
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-$IMAGE_FORWARD_DRIVER_VENV/bin/python}"
 # The anaconda python loads an old libstdc++ first (see serve_and_query.sbatch).
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
 

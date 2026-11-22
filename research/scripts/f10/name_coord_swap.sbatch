@@ -38,9 +38,9 @@ export TMPDIR=/scratch/$USER/tmp
 mkdir -p "$TMPDIR" logs/f10
 echo "host=$(hostname -s) job=${SLURM_JOB_ID} model=$MODEL commit=$(git rev-parse --short HEAD) $(date -u +%FT%TZ)"
 nvidia-smi -L
-export MLLMSCI_DRIVER_VENV=$VENV
+export IMAGE_FORWARD_DRIVER_VENV=$VENV
 source scripts/activate_stage_venv.sh
-PY="${MLLMSCI_STAGE_PYTHON:-$VENV/bin/python}"
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-$VENV/bin/python}"
 eval "$(bash research/scripts/whatami/stage_inputs.sh "$SRC" data/f8/images_all.parquet "$PY")"
 echo "python=$PY MODEL_LOCAL=$MODEL_LOCAL IMAGE_ROOT=$IMAGE_ROOT"
 "$PY" research/scripts/f10/name_coord_swap.py --model-key "$MODEL" --model-dir "$MODEL_LOCAL" \

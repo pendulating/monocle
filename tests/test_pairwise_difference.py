@@ -271,9 +271,9 @@ class TestRegistry:
     def test_registry_path_resolution(self, tmp_path, monkeypatch):
         cli = tmp_path / "cli.jsonl"
         assert diff.registry_path(cli) == cli
-        monkeypatch.setenv("MLLMSCI_DIFFTEST_REGISTRY", str(tmp_path / "env.jsonl"))
+        monkeypatch.setenv("IMAGE_FORWARD_DIFFTEST_REGISTRY", str(tmp_path / "env.jsonl"))
         assert diff.registry_path(None) == tmp_path / "env.jsonl"
-        monkeypatch.delenv("MLLMSCI_DIFFTEST_REGISTRY")
+        monkeypatch.delenv("IMAGE_FORWARD_DIFFTEST_REGISTRY")
         assert diff.registry_path(None) == diff.DEFAULT_REGISTRY
 
 

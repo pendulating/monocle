@@ -16,7 +16,7 @@
 # ┌─ WHY THE TWO CANONICAL MODELS CANNOT SHARE A SWEEP ────────────────────────┐
 # │ gemma-4-12b is the encoder-free `gemma4_unified` arch and needs            │
 # │ `.venv-nightly` (vLLM 0.23 cu129) + the klara_1x LD_PRELOAD libstdc++      │
-# │ line. `MLLMSCI_VENV_ACTIVATE` is resolved once at submit time and baked    │
+# │ line. `IMAGE_FORWARD_VENV_ACTIVATE` is resolved once at submit time and baked    │
 # │ into every job's sbatch script, so one multirun = one venv. Putting both   │
 # │ models in a single sweeper param list would run one of them on the wrong   │
 # │ interpreter. Launch them separately and pool the parquets afterwards.      │

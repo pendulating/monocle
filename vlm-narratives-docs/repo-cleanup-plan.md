@@ -1,6 +1,6 @@
 # Plan: make the repo a starting point for GPU vision inference
 
-Written 2026-11-21. Status: phases 0 and 1 are done (see "Progress").
+Written 2026-11-21. Status: phases 0, 1 and 2 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22).
 
 ## Progress
 
@@ -12,6 +12,7 @@ Written 2026-11-21. Status: phases 0 and 1 are done (see "Progress").
 | 2b: move the research code to `research/` | Done 2026-11-22 | Branch `cleanup/phase-2`. The paper repo `artificial-aesthetic` has the new paths in its manifest. |
 | 2c: move the street-view code to `sv/` | Done 2026-11-22 | Branch `cleanup/phase-2`. See `project-config-roots.md`. |
 | 2d: move the research configs, IC and GEPA to `research/` | Done 2026-11-22 | Branch `cleanup/phase-2`. |
+| 3a: the env prefix and `server.env` | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 
 The rename of phase 2a has these rules:
 
@@ -22,7 +23,7 @@ The rename of phase 2a has these rules:
 | Not changed | The paths of past runs (`multirun/<date>_URBANPAIRVQA/...`), the run records (`.json`, `.csv`), `vault/` and `vlm-narratives-docs/archive/` |
 | Not changed: `stage_name` (`urbanpairvqa_pairwise`, `urbanvqa_vqa`, `urbanocr_ocr`) | It names the streaming folders on disk. The resume code and 2 report scripts read these folders. A change stops the resume of a run that exists. |
 | Not changed: the job prefix `PAIRVQA` | The battery scripts look for the job name `matt-PAIRVQA-shard`. Phase 3 changes the job names. |
-| Not changed: `URBANOCR_*`, `URBANVQA_*` env variables | Phase 3 (the `IMAGE_FORWARD_` prefix). |
+| Not changed: `URBANOCR_*`, `URBANVQA_*` env variables | Phase 3a renamed them. |
 
 The move of phase 2b has these rules:
 
@@ -62,6 +63,16 @@ The move of phase 2d has these rules:
 | GEPA | The author chose to keep both paths. The single-image path goes to `research/prompt_opt/vqa/` (with `gepa_cli.py` and the 2 persistent stages). The pairwise path goes to `research/prompt_opt/pairwise/`. |
 | Model configs | The 16 files in `vqa/conf/model/` that were byte copies of `common/conf/model/` are removed. |
 | For phase 5 | `pairwisevqa` has no pipeline and no prompt in the framework now. Its default prompt is a research prompt. |
+
+Phase 3a has these rules:
+
+| Item | Result |
+|------|--------|
+| The env prefix | Each `MLLMSCI_*` variable is now `IMAGE_FORWARD_*`, in code, configs, scripts, tests and the current docs. The 2 `URBANOCR_*` names in `ocr.py` also. `server.env` uses the new names. There is no fallback to the old names. |
+| `URBANVQA_TENSOR_PARALLEL_SIZE` | Removed from the OCR launcher. No code read it. |
+| `ensure_dotenv()` | It loads `server.env` and `.env` each on their own (before, `server.env` loaded only when `.env` existed). `IMAGE_FORWARD_SERVER_ENV` can name a different site file. `dagspace_main` calls it after the SLURM strip and before Hydra composes. |
+| The SLURM keys | Phase 3b names them `IMAGE_FORWARD_SLURM_PARTITION`, `IMAGE_FORWARD_SLURM_ACCOUNT` and `IMAGE_FORWARD_SLURM_QOS`, not `SLURM_*`. The CLI removes each `SLURM*` variable before a launch, and SLURM sets `SLURM_PARTITION` in each job. |
+| Not changed | `URBANVIT_SCRATCH_ROOT` (a research dagspace setting), `vault/`, `vlm-narratives-docs/archive/`, past run records. |
 
 Phase 1 found these problems. It did not repair them:
 

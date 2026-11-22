@@ -2,7 +2,7 @@
 
 The registry sends a model load to a node-local /scratch mirror, but only when
 the mirror carries a ``.sync_complete`` marker that names the same source.
-Each test below sets MLLMSCI_MODEL_REGISTRY to a temporary directory, so no
+Each test below sets IMAGE_FORWARD_MODEL_REGISTRY to a temporary directory, so no
 test touches a real mirror.
 """
 
@@ -20,7 +20,7 @@ def zoo(tmp_path, monkeypatch):
     reg_dir = tmp_path / "registry" / "models"
     zoo_dir.mkdir(parents=True)
     reg_dir.mkdir(parents=True)
-    monkeypatch.setenv("MLLMSCI_MODEL_REGISTRY", str(reg_dir))
+    monkeypatch.setenv("IMAGE_FORWARD_MODEL_REGISTRY", str(reg_dir))
 
     def make(name: str, *, mirror: bool = False, marker_src: str = None):
         src = zoo_dir / name
@@ -68,9 +68,9 @@ def test_no_mirror_falls_back(zoo):
 
 def test_registry_unset_is_a_no_op(zoo, monkeypatch):
     src, dst = zoo("Qwen3.5-9B", mirror=True)
-    monkeypatch.delenv("MLLMSCI_MODEL_REGISTRY", raising=False)
+    monkeypatch.delenv("IMAGE_FORWARD_MODEL_REGISTRY", raising=False)
     assert resolve_model_source(str(src)) == str(src)
-    monkeypatch.setenv("MLLMSCI_MODEL_REGISTRY", "")
+    monkeypatch.setenv("IMAGE_FORWARD_MODEL_REGISTRY", "")
     assert resolve_model_source(str(src)) == str(src)
 
 

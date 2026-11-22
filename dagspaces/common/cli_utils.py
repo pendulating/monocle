@@ -55,6 +55,7 @@ def dagspace_main(
 
     At import time the decorator strips the inherited SLURM variables. Pass
     ``strip_slurm_env=False`` for a copy that never stripped them (ocr).
+    Then it loads ``server.env`` and ``.env`` (see ``ensure_dotenv``).
     The decorator then applies ``hydra.main`` with the ``conf/`` directory
     next to the file of the decorated function. Hydra passes an absolute
     config path through verbatim, so the config search path matches the old
@@ -68,6 +69,11 @@ def dagspace_main(
     def decorate(fn: Callable[[DictConfig], None]) -> Callable[[], None]:
         if strip_slurm_env:
             strip_inherited_slurm_env()
+        # Load server.env and .env after the strip, and before Hydra composes.
+        # The launcher configs read the site settings with ${oc.env:...}.
+        from dagspaces.common.stage_utils import ensure_dotenv
+
+        ensure_dotenv()
 
         # Resolve the conf directory from the module that declares fn, so the
         # search path does not depend on where this helper lives.

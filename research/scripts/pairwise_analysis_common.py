@@ -209,7 +209,7 @@ def adjust_pvalues(results: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
 def registry_path(cli_value: Optional[Path]) -> Path:
     if cli_value is not None:
         return cli_value
-    env = os.environ.get("MLLMSCI_DIFFTEST_REGISTRY")
+    env = os.environ.get("IMAGE_FORWARD_DIFFTEST_REGISTRY")
     return Path(env) if env else DEFAULT_REGISTRY
 
 

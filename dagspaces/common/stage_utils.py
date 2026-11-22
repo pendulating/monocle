@@ -50,35 +50,46 @@ _DOTENV_LOADED = False
 _VLLM_LOGS_SILENCED = False
 
 
-def ensure_dotenv() -> None:
-    """Load project-root ``.env`` and ``server.env`` into ``os.environ``.
+def _find_project_root() -> Optional[str]:
+    """Return the first folder above this file that holds ``server.env``, ``.env`` or ``pyproject.toml``."""
+    search_dir = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(6):
+        for marker in ("server.env", ".env", "pyproject.toml"):
+            if os.path.isfile(os.path.join(search_dir, marker)):
+                return search_dir
+        parent = os.path.dirname(search_dir)
+        if parent == search_dir:
+            break
+        search_dir = parent
+    return None
 
-    Walks up from this file's directory to find the project root, then
-    loads both ``.env`` (pipeline inputs, checkpoint paths) and
-    ``server.env`` (SLURM partition, project paths, NCCL settings).
-    Existing env vars are NOT overwritten (``override=False``).
-    Idempotent -- subsequent calls are no-ops.
+
+def ensure_dotenv() -> None:
+    """Load the site settings (``server.env``) and the secrets (``.env``) into ``os.environ``.
+
+    ``server.env`` holds the site settings: the SLURM partition, the venv, the
+    caches and the NCCL keys. ``IMAGE_FORWARD_SERVER_ENV`` can name a
+    different file. ``.env`` holds the API keys. Each file is optional, and
+    each loads without the other. A variable that the environment already
+    sets is not overwritten. A second call does nothing.
+
+    See ``server.env.example`` for the keys.
     """
     global _DOTENV_LOADED
     if _DOTENV_LOADED:
         return
+    _DOTENV_LOADED = True
     try:
         from dotenv import load_dotenv as _load
-
-        search_dir = os.path.dirname(os.path.abspath(__file__))
-        # Walk up to repo root (max 5 levels: common/ -> dagspaces/ -> repo/)
-        for _ in range(5):
-            env_file = os.path.join(search_dir, ".env")
-            if os.path.isfile(env_file):
-                _load(env_file, override=False)
-                server_env = os.path.join(search_dir, "server.env")
-                if os.path.isfile(server_env):
-                    _load(server_env, override=False)
-                break
-            search_dir = os.path.dirname(search_dir)
     except ImportError:
-        pass
-    _DOTENV_LOADED = True
+        return
+    root = _find_project_root()
+    site_env = os.environ.get("IMAGE_FORWARD_SERVER_ENV") or (
+        os.path.join(root, "server.env") if root else None
+    )
+    for env_file in (site_env, os.path.join(root, ".env") if root else None):
+        if env_file and os.path.isfile(env_file):
+            _load(env_file, override=False)
 
 
 def maybe_silence_vllm_logs() -> None:
@@ -87,7 +98,7 @@ def maybe_silence_vllm_logs() -> None:
     Reads ``VLLM_LOGGING_LEVEL`` (default ``"WARNING"``).  Also installs a
     ``PatternModuloFilter`` on the root ``vllm`` logger to throttle the
     high-frequency "Elapsed time for batch" message; the throttle period is
-    controlled by ``MLLMSCI_VLLM_LOG_EVERY`` (default ``10``).
+    controlled by ``IMAGE_FORWARD_VLLM_LOG_EVERY`` (default ``10``).
 
     The function is idempotent: subsequent calls after the first are no-ops.
     All exceptions are silently swallowed so that a missing ``vllm`` package
@@ -119,7 +130,7 @@ def maybe_silence_vllm_logs() -> None:
 
             root_vllm = logging.getLogger("vllm")
             try:
-                n = int(os.environ.get("MLLMSCI_VLLM_LOG_EVERY", "10") or "10")
+                n = int(os.environ.get("IMAGE_FORWARD_VLLM_LOG_EVERY", "10") or "10")
             except Exception:
                 n = 10
             existing = getattr(root_vllm, "filters", [])

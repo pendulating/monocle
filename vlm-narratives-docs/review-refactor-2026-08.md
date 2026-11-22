@@ -111,7 +111,7 @@ with no pattern.
 |---|---|
 | `get_stage_logger(name)` | Returns a stdlib logger with one stderr handler |
 | Format | `%(asctime)s %(name)s %(levelname)s %(message)s` |
-| Level | `MLLMSCI_LOG_LEVEL` env var, default INFO |
+| Level | `IMAGE_FORWARD_LOG_LEVEL` env var, default INFO |
 | Idempotence | Repeated calls add no second handler |
 | Propagation | Off, so each line prints once |
 

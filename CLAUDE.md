@@ -211,7 +211,7 @@ Supports `${oc.env:VAR}` interpolation and optional defaults.
 
 `.venv-vllm025cu129` (vLLM 0.25.0, torch 2.11.0+cu129) is the default for all
 launchers. `server.env` sets it. `.venv-3.12` (vLLM 0.19) and `.venv-nightly`
-(vLLM 0.23) stay on disk; override `MLLMSCI_VENV_ACTIVATE` to use one.
+(vLLM 0.23) stay on disk; override `IMAGE_FORWARD_VENV_ACTIVATE` to use one.
 
 A stage job starts from a node-local `/scratch` mirror of the venv when the
 node holds one. Weight loads go to a `/scratch` model mirror by the same rule.

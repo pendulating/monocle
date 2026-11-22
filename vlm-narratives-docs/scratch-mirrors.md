@@ -44,7 +44,7 @@ A symlink does not help. The bytes must be on the local disk.
 `activate_stage_venv.sh` also prepends the FFmpeg library directory, which
 torchcodec needs before `import vllm` on 0.25. Each launcher sources the
 script for that reason, and `slurm_monitor.yaml` sets
-`MLLMSCI_SKIP_SCRATCH_VENV=1` to keep the FFmpeg path but skip the venv swap.
+`IMAGE_FORWARD_SKIP_SCRATCH_VENV=1` to keep the FFmpeg path but skip the venv swap.
 See [vllm-025-upgrade.md](vllm-025-upgrade.md).
 
 ## The safety marker
@@ -101,7 +101,7 @@ when the node holds none. Four guards keep it safe:
 | 25 GB free on `/scratch` | A sync that fills the disk and kills the job |
 | Any failure falls back to NFS | A node problem stopping the stage |
 
-Set `MLLMSCI_SCRATCH_AUTOSYNC=0` to turn it off. `MLLMSCI_SCRATCH_AUTOSYNC_WAIT`
+Set `IMAGE_FORWARD_SCRATCH_AUTOSYNC=0` to turn it off. `IMAGE_FORWARD_SCRATCH_AUTOSYNC_WAIT`
 sets how long a task waits for another task's sync (900 seconds by default).
 
 **Warning:** the tarball is per venv, and the name drops the leading dot.
@@ -128,12 +128,12 @@ empty" never fires on a compute node. Our toolkit wins whenever it is present.
 
 ## How a stage selects the mirror
 
-1. `_create_submitit_executor` puts `export MLLMSCI_DRIVER_VENV=<sys.prefix>`
+1. `_create_submitit_executor` puts `export IMAGE_FORWARD_DRIVER_VENV=<sys.prefix>`
    first in the setup block. It also sets the submitit interpreter to
-   `"${MLLMSCI_STAGE_PYTHON:-<sys.executable>}"`.
+   `"${IMAGE_FORWARD_STAGE_PYTHON:-<sys.executable>}"`.
 2. The launcher setup block sources `scripts/activate_stage_venv.sh`.
 3. That script derives the mirror path from the driver venv name, tests the
-   marker, and exports `MLLMSCI_STAGE_PYTHON` only when the marker agrees.
+   marker, and exports `IMAGE_FORWARD_STAGE_PYTHON` only when the marker agrees.
 4. The shell expands the interpreter at job runtime, on the node that SLURM
    assigned. If there is no valid mirror, the expansion gives the same
    `sys.executable` that submitit would have used.
@@ -142,12 +142,12 @@ empty" never fires on a compute node. Our toolkit wins whenever it is present.
 monitor job runs the driver. If the monitor activated the mirror, `sys.prefix`
 would become a `/scratch` path, and no stage node could match the marker.
 
-**Warning:** do not put `MLLMSCI_SCRATCH_VENV` in `server.env`. A stage reads
+**Warning:** do not put `IMAGE_FORWARD_SCRATCH_VENV` in `server.env`. A stage reads
 that file with `ensure_dotenv()`, which runs inside python, but
 `activate_stage_venv.sh` runs in the SLURM shell before python starts.
 
 **Warning:** start the driver from the same venv that `server.env` names.
-`MLLMSCI_DRIVER_VENV` comes from the `sys.prefix` of the driver process, not
+`IMAGE_FORWARD_DRIVER_VENV` comes from the `sys.prefix` of the driver process, not
 from the launcher setup block. If you start the driver from `.venv-3.12` while
 the mirrors hold `.venv-vllm025cu129`, the marker does not agree and each stage
 falls back to NFS. The result is correct but slow.
@@ -162,7 +162,7 @@ line of the two below:
 
 ## The model registry
 
-`MLLMSCI_MODEL_REGISTRY` in `server.env` gives the registry root. An empty
+`IMAGE_FORWARD_MODEL_REGISTRY` in `server.env` gives the registry root. An empty
 value switches the feature off, so a machine without a mirror is not affected.
 
 The contract:
@@ -199,14 +199,14 @@ guards match the venv autosync:
 | A time limit of 30 minutes | A slow NFS read does not hold the GPU. |
 | Every failure falls back | The stage always runs. |
 
-Set `MLLMSCI_MODEL_AUTOSYNC=0` to turn it off.
+Set `IMAGE_FORWARD_MODEL_AUTOSYNC=0` to turn it off.
 
 A mirror of a DIFFERENT source keeps its marker. The code does not touch it,
 and the stage reads NFS. This is the same refusal that the sync script makes.
 
 ## pairwisevqa did not read server.env (2026-08-28)
 
-`MLLMSCI_MODEL_REGISTRY` lives in `server.env`. A stage job reads that file
+`IMAGE_FORWARD_MODEL_REGISTRY` lives in `server.env`. A stage job reads that file
 only when its dagspace sets `ensure_dotenv_first=True`. embed,
 artifact_gen, urbanvit and speech set it. pairwisevqa did not.
 
@@ -243,10 +243,10 @@ the import is latency-bound, not bandwidth-bound.
 **The fixes.**
 
 1. `monocle.sub` sources `scripts/activate_stage_venv.sh` with
-   `MLLMSCI_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly`. monocle
+   `IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly`. monocle
    needs the nightly venv, so the driver venv is named there and NOT taken
    from `server.env`, which names the vllm025 venv.
-2. `monocle.sub` sources `server.env`, so `MLLMSCI_MODEL_REGISTRY` is set.
+2. `monocle.sub` sources `server.env`, so `IMAGE_FORWARD_MODEL_REGISTRY` is set.
 3. `attn_route.load_eager` and `extract.load_model` call
    `resolve_model_source`. `load_eager` is the single load point for every
    monocle GPU entry point except `extract`.
@@ -261,9 +261,9 @@ on after it. An unset-variable probe must not kill the job.
 `VIRTUAL_ENV`. The helper still prints `node-local venv on klara`, because the
 marker is valid. The interpreter is the NFS one.
 
-The mechanism that works is `MLLMSCI_STAGE_PYTHON`, which the helper exports
+The mechanism that works is `IMAGE_FORWARD_STAGE_PYTHON`, which the helper exports
 next to the source line. The stage launchers put it on the submitit command
-line, and `monocle.sub` now runs `"${MLLMSCI_STAGE_PYTHON:-python}" -m`.
+line, and `monocle.sub` now runs `"${IMAGE_FORWARD_STAGE_PYTHON:-python}" -m`.
 
 This cost 3 jobs and about 40 minutes to find, because the success message and
 the true state disagree. To check a job, read the line that `monocle.sub`

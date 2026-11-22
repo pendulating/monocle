@@ -123,10 +123,10 @@ class VLLMEngine:
         # intra-node all-reduce through the socket path. The UAIR project
         # measured SHM on as worth about 21% for gemma-4-31b at TP=2 on A6000
         # (2026-07-12). A 1-GPU engine runs no collective, thus it keeps the
-        # default. A launcher that sets MLLMSCI_NCCL_SHM_DISABLE names its own
+        # default. A launcher that sets IMAGE_FORWARD_NCCL_SHM_DISABLE names its own
         # value.
         if int(engine_kwargs.get("tensor_parallel_size", 1) or 1) > 1:
-            os.environ["NCCL_SHM_DISABLE"] = os.environ.get("MLLMSCI_NCCL_SHM_DISABLE", "0")
+            os.environ["NCCL_SHM_DISABLE"] = os.environ.get("IMAGE_FORWARD_NCCL_SHM_DISABLE", "0")
             print(f"[{stage_name}] TP>1: NCCL_SHM_DISABLE={os.environ['NCCL_SHM_DISABLE']}", flush=True)
         # Data parallelism belongs to `run_vllm_inference`, which shards a
         # DataFrame across worker processes. This path holds 1 engine, thus the

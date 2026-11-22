@@ -81,7 +81,7 @@ def collect_compute_metadata(
     Args:
         cfg: Optional Hydra config to extract model/runtime parameters.
         env_var_prefix: Dagspace prefix for GPU sanitizer env vars (e.g.
-            "MLLMSCI" reads MLLMSCI_GPU_SANITIZE_ORIGINAL etc.).  Empty string
+            "IMAGE_FORWARD" reads IMAGE_FORWARD_GPU_SANITIZE_ORIGINAL etc.).  Empty string
             skips sanitizer var collection.
         extra_runtime_keys: Additional runtime config keys to log beyond the
             base set.

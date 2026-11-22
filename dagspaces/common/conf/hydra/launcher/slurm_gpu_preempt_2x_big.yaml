@@ -141,11 +141,11 @@ additional_parameters:
 setup:
   - export HYDRA_FULL_ERROR=1
   - source ~/.bashrc
-  - source ${oc.env:MLLMSCI_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
+  - source ${oc.env:IMAGE_FORWARD_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
   # A node-local mirror of the venv, when the node holds one. Only klara does
   # today, thus this is a no-op on the `gpu` partition and the import comes
   # over NFS. See scripts/sync_venv_to_scratch.sh.
-  - source ${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/activate_stage_venv.sh
+  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/activate_stage_venv.sh
   # `source ~/.bashrc` conda-activates anaconda base, whose old libstdc++.so.6
   # lacks GLIBCXX_3.4.32 and shadows the system one. Force the system library
   # ahead of it, but ONLY when the node really holds it: an LD_PRELOAD that
@@ -163,12 +163,12 @@ setup:
   # fails with EDQUOT). Every cache a job writes must go somewhere else, or the
   # job dies in start-up. `df` on the home mount shows the export and NOT the
   # quota, thus it looks like there is room when there is none.
-  - export VLLM_CACHE_ROOT=${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/.cache/vllm
+  - export VLLM_CACHE_ROOT=${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}/.cache/vllm
   # flashinfer builds its cache under FLASHINFER_WORKSPACE_BASE/.cache, and the
   # base defaults to the home directory.
-  - export FLASHINFER_WORKSPACE_BASE=${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}
+  - export FLASHINFER_WORKSPACE_BASE=${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}
   # Catches the libraries that follow the XDG rule.
-  - export XDG_CACHE_HOME=${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/.cache
+  - export XDG_CACHE_HOME=${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}/.cache
   # torch and triton write their JIT caches per node. TMPDIR is node-local, thus
   # these stay off NFS and off the home quota.
   - echo "=== GPU sanity (pre-job) ==="
@@ -210,7 +210,7 @@ setup:
   # thus the cleanup keeps the job on the fast node-local path instead of the
   # /tmp fallback. It never touches the venv or the model mirror, and only 1 job
   # for each node holds its lock. See scripts/prepare_scratch.sh.
-  - bash ${oc.env:MLLMSCI_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/prepare_scratch.sh || true
+  - bash ${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/prepare_scratch.sh || true
   - SCRATCH_FREE=$(df --output=avail -k /scratch 2>/dev/null | tail -1 | tr -dc 0-9)
   - if [ -n "$SCRATCH_FREE" ] && [ "$SCRATCH_FREE" -gt 10485760 ]; then export TMPDIR=/scratch/$USER; else export TMPDIR=/tmp/$USER; fi
   - mkdir -p $TMPDIR

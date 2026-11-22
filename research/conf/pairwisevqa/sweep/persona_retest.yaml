@@ -17,7 +17,7 @@
 # 2 runs (1 arm × 2 models), 1,000 pairs each.
 #
 # Usage — pair each launch with the matching persona_probe run of the same case:
-#   export MLLMSCI_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activate
+#   export IMAGE_FORWARD_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activate
 #   export HYDRA_SWEEP_DIR=multirun/persona_retest_roadquality
 #   python -m dagspaces.pairwisevqa.cli --multirun +sweep=persona_retest \
 #       pipeline=pairwise_road_quality_mvp

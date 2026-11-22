@@ -32,9 +32,9 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export TMPDIR=/scratch/$USER/tmp
 mkdir -p "$TMPDIR" logs/f10
 echo "host=$(hostname -s) job=${SLURM_JOB_ID} model=$MODEL shard=${F10_SHARD:-0/1} $(date -u +%FT%TZ)"
-export MLLMSCI_DRIVER_VENV=$VENV
+export IMAGE_FORWARD_DRIVER_VENV=$VENV
 source scripts/activate_stage_venv.sh
-PY="${MLLMSCI_STAGE_PYTHON:-$VENV/bin/python}"
+PY="${IMAGE_FORWARD_STAGE_PYTHON:-$VENV/bin/python}"
 eval "$(bash research/scripts/whatami/stage_inputs.sh "$SRC" data/f8/images_all.parquet "$PY")"
 "$PY" research/scripts/f10/name_readout_hf.py --model-key "$MODEL" --model-dir "$MODEL_LOCAL" --image-root "$IMAGE_ROOT" \
     --out-dir "data/f10/runs-fp32${F10_TAG:+-$F10_TAG}/$MODEL" --shard "${F10_SHARD:-0/1}" --limit "${F10_LIMIT:-0}"

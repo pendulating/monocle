@@ -592,7 +592,7 @@ _STAGE_JOB_SETTINGS = stage_submission.DagspaceSettings(
     job_prefix="PAIRVQA",
     config_dir=_CONFIG_DIR,
     registry_provider=get_stage_registry,
-    # The stage job must read `server.env`. Without it MLLMSCI_MODEL_REGISTRY
+    # The stage job must read `server.env`. Without it IMAGE_FORWARD_MODEL_REGISTRY
     # is empty in the job, and `resolve_model_source` cannot find the
     # node-local model mirror. The weight read then goes to NFS each time.
     ensure_dotenv_first=True,

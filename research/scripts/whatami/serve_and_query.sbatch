@@ -116,9 +116,9 @@ if [ "$ENGINE" = sglang ]; then
   PY=$VENV/bin/python
 else
   VENV=$VENV_DEFAULT
-  export MLLMSCI_DRIVER_VENV=$VENV
+  export IMAGE_FORWARD_DRIVER_VENV=$VENV
   source scripts/activate_stage_venv.sh
-  PY="${MLLMSCI_STAGE_PYTHON:-$VENV/bin/python}"
+  PY="${IMAGE_FORWARD_STAGE_PYTHON:-$VENV/bin/python}"
   # On the B300 (sm_103a), qwen gets the FlashInfer attention backend, and its
   # JIT build includes cublasLt.h. /share/ju/matt/cuda-12.9 has no cuBLAS
   # headers (job 70186). The cuBLAS wheel in the venv has them, at the same

@@ -680,14 +680,14 @@ def detect_num_gpus() -> int:
     """Detect the number of GPUs available.
 
     Resolution order:
-    1. MLLMSCI_TENSOR_PARALLEL_SIZE env override
+    1. IMAGE_FORWARD_TENSOR_PARALLEL_SIZE env override
     2. CUDA_VISIBLE_DEVICES
     3. SLURM GPU env vars
     4. nvidia-smi -L
     5. Fallback to 1
     """
     # Env override
-    tp_env = os.environ.get("MLLMSCI_TENSOR_PARALLEL_SIZE")
+    tp_env = os.environ.get("IMAGE_FORWARD_TENSOR_PARALLEL_SIZE")
     if tp_env:
         try:
             val = int(tp_env)

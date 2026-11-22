@@ -13,7 +13,7 @@ def _worker_process_setup_hook() -> None:
     """Setup function for worker processes to suppress multiprocessing warnings.
 
     Configures logging and suppresses harmless resource_tracker warnings.
-    Checks the environment variable MLLMSCI_SUPPRESS_WARNINGS.
+    Checks the environment variable IMAGE_FORWARD_SUPPRESS_WARNINGS.
     """
     try:
         import asyncio
@@ -31,7 +31,7 @@ def _worker_process_setup_hook() -> None:
         except Exception:
             pass
 
-        suppress_warnings = os.environ.get("MLLMSCI_SUPPRESS_WARNINGS", "true").lower() in ("true", "1", "yes")
+        suppress_warnings = os.environ.get("IMAGE_FORWARD_SUPPRESS_WARNINGS", "true").lower() in ("true", "1", "yes")
         if not suppress_warnings:
             return
 

@@ -73,7 +73,7 @@ are incompatible". Take the redistributable tarball.
 `CUDA_HOME=/usr/local/cuda-12.8`. A test of the form
 `[ -z "${CUDA_HOME:-}" ] && export CUDA_HOME=...` therefore NEVER fires on a
 compute node, and the bug stays. Our toolkit wins whenever it is present.
-Override with `MLLMSCI_CUDA_HOME`.
+Override with `IMAGE_FORWARD_CUDA_HOME`.
 
 ## What it buys
 

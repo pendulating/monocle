@@ -51,7 +51,7 @@ def _setup_logging(verbose: bool) -> None:
     DEBUG through the level env var; without it the env var or INFO wins.
     """
     if verbose:
-        os.environ["MLLMSCI_LOG_LEVEL"] = "DEBUG"
+        os.environ["IMAGE_FORWARD_LOG_LEVEL"] = "DEBUG"
     get_stage_logger("sv.nyc.curation")
 
 

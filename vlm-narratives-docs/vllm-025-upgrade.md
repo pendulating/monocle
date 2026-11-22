@@ -15,7 +15,7 @@ replaces a two-environment split that was difficult to keep correct.
 Both older environments stay on disk. To go back for one run:
 
 ```bash
-export MLLMSCI_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activate
+export IMAGE_FORWARD_VENV_ACTIVATE=/share/ju/matt/mllmsci/.venv-3.12/bin/activate
 ```
 
 ## Build the environment
@@ -77,7 +77,7 @@ libstdc++ dependency, so the GLIBCXX wall is gone.
 An in-process load of `server.env` thus cannot help dlopen.
 `scripts/activate_stage_venv.sh` does the prepend in the SLURM shell, before
 python starts. Each launcher sources that script, **including the monitor**,
-which sets `MLLMSCI_SKIP_SCRATCH_VENV=1` to keep the FFmpeg path but skip the
+which sets `IMAGE_FORWARD_SKIP_SCRATCH_VENV=1` to keep the FFmpeg path but skip the
 venv swap.
 
 If you start a driver by hand, prepend the directory yourself:

@@ -28,8 +28,8 @@ _CONFIGURED = "_mllmsci_stage_configured"
 
 
 def _level_from_env() -> int:
-    """Read the level from ``MLLMSCI_LOG_LEVEL``. Unknown names mean INFO."""
-    raw = os.environ.get("MLLMSCI_LOG_LEVEL", "INFO").strip().upper()
+    """Read the level from ``IMAGE_FORWARD_LOG_LEVEL``. Unknown names mean INFO."""
+    raw = os.environ.get("IMAGE_FORWARD_LOG_LEVEL", "INFO").strip().upper()
     level = getattr(logging, raw, None)
     if not isinstance(level, int):
         return logging.INFO
@@ -45,7 +45,7 @@ def get_stage_logger(name: str) -> logging.Logger:
     The call is idempotent. Repeated calls with the same name return the
     same logger and never add a second handler.
 
-    The level comes from the ``MLLMSCI_LOG_LEVEL`` environment variable at
+    The level comes from the ``IMAGE_FORWARD_LOG_LEVEL`` environment variable at
     first setup. An unknown level name means INFO. A later explicit
     ``setLevel`` call wins over the env var.
 

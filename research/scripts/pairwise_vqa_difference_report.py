@@ -230,7 +230,7 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         type=Path,
         default=None,
         help=(
-            "Registry JSONL path. Default: $MLLMSCI_DIFFTEST_REGISTRY or "
+            "Registry JSONL path. Default: $IMAGE_FORWARD_DIFFTEST_REGISTRY or "
             f"{DEFAULT_REGISTRY}"
         ),
     )

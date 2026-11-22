@@ -20,7 +20,7 @@
 #   bash scripts/sync_venv_to_scratch.sh --make-tarball
 set -euo pipefail
 
-ROOT="${MLLMSCI_PROJECT_ROOT:-/share/ju/matt/mllmsci}"
+ROOT="${IMAGE_FORWARD_PROJECT_ROOT:-/share/ju/matt/mllmsci}"
 VENV="${VENV:-$ROOT/.venv-vllm025cu129}"
 CONSTRAINTS="$ROOT/requirements-vllm025cu129.txt"
 VLLM_WHEEL="https://github.com/vllm-project/vllm/releases/download/v0.25.0/vllm-0.25.0%2Bcu129-cp38-abi3-manylinux_2_28_x86_64.whl"

@@ -234,8 +234,8 @@ def execute_stage_job(
     node = deserialize_node(context_data["node"])
 
     if settings.gpu_preflight:
-        _sanitize_cuda_visible_devices(reason=f"job:{node.key}", env_prefix="MLLMSCI")
-        _log_gpu_environment(reason=f"job:{node.key}", env_prefix="MLLMSCI")
+        _sanitize_cuda_visible_devices(reason=f"job:{node.key}", env_prefix="IMAGE_FORWARD")
+        _log_gpu_environment(reason=f"job:{node.key}", env_prefix="IMAGE_FORWARD")
 
     context = StageExecutionContext(
         cfg=cfg, node=node,
@@ -662,10 +662,10 @@ def _run_node_locally(
     try:
         if settings.gpu_preflight:
             _sanitize_cuda_visible_devices(
-                reason=f"node:{node.key}", env_prefix="MLLMSCI"
+                reason=f"node:{node.key}", env_prefix="IMAGE_FORWARD"
             )
             _log_gpu_environment(
-                reason=f"node:{node.key}", env_prefix="MLLMSCI"
+                reason=f"node:{node.key}", env_prefix="IMAGE_FORWARD"
             )
         result = runner.run(context)
         stage_duration = time.time() - node_start

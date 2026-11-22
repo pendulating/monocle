@@ -20,13 +20,13 @@ Contract:
   line ``src=<original path>`` (the ``activate_stage_venv.sh`` marker
   convention). Freshness is the responsibility of the sync script — zoo models
   do not change after the download.
-- The registry root comes from ``MLLMSCI_MODEL_REGISTRY`` (set in
+- The registry root comes from ``IMAGE_FORWARD_MODEL_REGISTRY`` (set in
   ``server.env``). If it is empty or not set, this module does nothing, so a
   machine without a mirror is not affected.
 - A node that holds no mirror builds one HERE, before the weight load, with
   ``scripts/sync_model_registry_to_scratch.sh``. The first job on a node pays
   the copy; every later job on that node reads from local disk. Set
-  ``MLLMSCI_MODEL_AUTOSYNC=0`` to turn this off.
+  ``IMAGE_FORWARD_MODEL_AUTOSYNC=0`` to turn this off.
 - Each probe failure falls back to the original path.
 """
 
@@ -74,9 +74,9 @@ def _autosync(src_norm: str, mirror: str, stage_name: str) -> bool:
       3. A time limit. A slow NFS read does not hold the GPU for ever.
       4. Every failure falls back to NFS. The stage always runs.
     """
-    if (os.environ.get("MLLMSCI_MODEL_AUTOSYNC") or "1").strip() == "0":
+    if (os.environ.get("IMAGE_FORWARD_MODEL_AUTOSYNC") or "1").strip() == "0":
         return False
-    root = os.environ.get("MLLMSCI_PROJECT_ROOT") or os.path.dirname(
+    root = os.environ.get("IMAGE_FORWARD_PROJECT_ROOT") or os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     script = os.path.join(root, "scripts", "sync_model_registry_to_scratch.sh")
     if not os.path.isfile(script) or shutil.which("rsync") is None:
@@ -119,7 +119,7 @@ def resolve_model_source(path, *, stage_name: str = "model_registry") -> str:
     """
     src = str(path or "")
     try:
-        root = (os.environ.get("MLLMSCI_MODEL_REGISTRY") or "").strip()
+        root = (os.environ.get("IMAGE_FORWARD_MODEL_REGISTRY") or "").strip()
         if not root or not src.startswith("/"):
             return src
         src_norm = src.rstrip("/")
