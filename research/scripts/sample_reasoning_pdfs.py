@@ -20,7 +20,7 @@ JSON; pass ``--include-empty`` to sample from all rows regardless).
 
 The exact prompt is auto-resolved from the parquet filename
 (restaurants / schools / libraries -> the matching
-``dagspaces/pairwisevqa/conf/prompt/*.yaml``); override with ``--prompt-file``.
+``research/conf/pairwisevqa/prompt/*.yaml``); override with ``--prompt-file``.
 
 Examples
 --------
@@ -62,7 +62,7 @@ LABEL_ORDER = ["MuchLess", "Less", "Same", "More", "MuchMore"]
 
 # Prompt-config dir and the keyword -> prompt-stem map used to auto-resolve the
 # exact prompt from a parquet filename.
-PROMPT_DIR = Path(__file__).resolve().parents[2] / "dagspaces/pairwisevqa/conf/prompt"
+PROMPT_DIR = Path(__file__).resolve().parents[2] / "research/conf/pairwisevqa/prompt"
 # Warning: the schools prompt changed on 2026-08-13. A parquet from before that
 # date used `deprecated/pairwise_school_send_child_ordinal`, so the text below
 # is the WRONG prompt for it. Pass `--prompt-file` to render an older schools

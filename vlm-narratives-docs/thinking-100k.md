@@ -8,7 +8,7 @@ preemptable `gpu` partition.
 
 The 10x scale-up of the 10,000-pair trace corpus of 2026-08-14
 (`looks_thinking_*`). The sweeps are
-`dagspaces/pairwisevqa/conf/sweep/thinking100k_gemma12b.yaml` and
+`research/conf/pairwisevqa/sweep/thinking100k_gemma12b.yaml` and
 `thinking100k_qwen9b.yaml`. Each keeps the thinking contract of its
 10,000-pair parent: the reasoning parser, sampling at temperature 1.0,
 `allow_not_sure`, and the gemma layout `interleaved_labels`.

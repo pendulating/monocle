@@ -11,6 +11,7 @@ Written 2026-11-21. Status: phases 0 and 1 are done (see "Progress").
 | 2a: rename the task dagspaces | Done 2026-11-22 | Branch `cleanup/phase-2`. |
 | 2b: move the research code to `research/` | Done 2026-11-22 | Branch `cleanup/phase-2`. The paper repo `artificial-aesthetic` has the new paths in its manifest. |
 | 2c: move the street-view code to `sv/` | Done 2026-11-22 | Branch `cleanup/phase-2`. See `project-config-roots.md`. |
+| 2d: move the research configs, IC and GEPA to `research/` | Done 2026-11-22 | Branch `cleanup/phase-2`. |
 
 The rename of phase 2a has these rules:
 
@@ -48,18 +49,30 @@ The move of phase 2c has these rules:
 | OCR handler names | The framework knows only `generic`. A project handler is an import path, for example `sv.ocr.cyclomedia_handler:CyclomediaHandler`. |
 | Data configs in git | The `data/` rule in `.gitignore` also matched every `conf/data/` folder. Git did not track 34 data configs. They are now tracked. |
 | For phase 5 | The defaults of `ocr` (`data: cyclomedia`), `embed` (`data: cyclomedia_manhattan_2025_1`) and `pairwisevqa` (a Cyclomedia data config and a research prompt) name project configs. Replace them with generic examples. `ocr` has no generic pipeline now. |
-| Not moved yet | The pairwisevqa research configs (`pipeline/`, `prompt/`, `sweep/`, `extract/`), the IC code and the bayflood GEPA configs (`vqa/conf/prompt_opt/`). Phase 2d moves them. |
+| Not moved in 2c | The pairwisevqa research configs, the IC code and the bayflood GEPA configs. Phase 2d moved them. |
+
+The move of phase 2d has these rules:
+
+| Item | Result |
+|------|--------|
+| Research configs | The pairwisevqa `pipeline/`, `prompt/`, `sweep/` and `extract/` groups go to `research/conf/pairwisevqa/`. The GEPA configs go to `research/conf/vqa/prompt_opt/`. The plugin adds `research/conf/` to the search path. |
+| IC code | `ic_schema.py`, `ic_codes.py` and the 2 example files go to `research/ic/`. The `ic_extract` stage goes to `research/ic/extract_stage.py`, and its runner to `research/ic/runner.py`. |
+| Project stages | The framework has a new config key, `pipeline.stage_runners`. A pipeline names a runner by import path, and `stage_registry_for()` adds it to the registry. `ic_extract.yaml` uses it. |
+| Kept in the framework | `trace_extract`, `langextract_backend.py` and `vllm_structured.py`. They have no IC or urban content. The extract schemas they read are research configs. |
+| GEPA | The author chose to keep both paths. The single-image path goes to `research/prompt_opt/vqa/` (with `gepa_cli.py` and the 2 persistent stages). The pairwise path goes to `research/prompt_opt/pairwise/`. |
+| Model configs | The 16 files in `vqa/conf/model/` that were byte copies of `common/conf/model/` are removed. |
+| For phase 5 | `pairwisevqa` has no pipeline and no prompt in the framework now. Its default prompt is a research prompt. |
 
 Phase 1 found these problems. It did not repair them:
 
 | Problem | Phase |
 |---------|-------|
-| The single-image GEPA path (`vqa/gepa_cli.py`, `prompt_opt/gepa_adapter.py`, `prompt_opt/runner.py`, `stages/persistent_vllm.py`, `stages/persistent_cambrian.py`) fails at import. It needs `_filter_vllm_engine_kwargs` and `_sanitize_prompt_value`, and no module defines them. The pairwise GEPA path works. | 2: move to `research/`, or delete |
+| The single-image GEPA path (`vqa/gepa_cli.py`, `prompt_opt/gepa_adapter.py`, `prompt_opt/runner.py`, `stages/persistent_vllm.py`, `stages/persistent_cambrian.py`) fails at import. It needs `_filter_vllm_engine_kwargs` and `_sanitize_prompt_value`, and no module defines them. The pairwise GEPA path works. | 2d: moved to `research/prompt_opt/`. It still fails at import. |
 | `vqa/conf/pipeline/vqa.yaml` does not compose. It loads the data config `vqa_inputs`, which does not exist. | 5: the example pipeline |
 | `research/scripts/condense.py` imports `utils.logger`, which is gone. | 2: sort the scripts |
 | `scripts/install_flash_attention.sh` needs a `requirements.in`, which does not exist. | 4 |
-| `vqa/conf/model/` has 16 copies of files in `common/conf/model/`. | 2 |
-| `import dagspaces.vqa.prompt_opt.dataset` fails. The package `__init__` imports `runner.py`, which imports `gepa`. `gepa` is not in `pyproject.toml` and not in the venv. | 4: an extra, or 2: move |
+| `vqa/conf/model/` has 16 copies of files in `common/conf/model/`. | 2d: removed |
+| `import research.prompt_opt.vqa.dataset` fails. The package `__init__` imports `runner.py`, which imports `gepa`. `gepa` is not in `pyproject.toml` and not in the venv. | 2d: moved. 4: an extra for research, if the author wants GEPA again |
 
 The ignored `dagspaces/.deprecated/` (167 files) is in
 `/share/ju/matt/archive/mllmsci-dagspaces-deprecated-2026-11-21.tar.gz`.
@@ -91,7 +104,7 @@ The data comes from 3 audits on 2026-11-21: the dagspaces, the site coupling, an
 | The environment is not reproducible | `pyproject.toml` and `uv.lock` give vLLM 0.19 / cu128. The default venv is vLLM 0.25 / cu129, from `requirements-vllm025cu129.txt`. That file copies pins from a venv in another project. The venv has 4 different names in 4 places. |
 | The dependencies are not split | One flat list holds vLLM and torch, and also geopandas, osmnx, marimo, wordcloud, trueskill and peft. |
 | Framework and research are mixed | `dagspaces/common` holds about 11k LOC of generic code and about 12k LOC of urban research code: `curation/`, `cyclomedia*/`, `ic_*`, `langextract_backend.py`. |
-| Dead and broken code | `vqa/stages/persistent_vllm.py` and `persistent_cambrian.py` fail at import. `vqa/prompt_opt/dataset.py` imports a missing name. `ocr/stages/ocr.py:73` imports a missing module inside a `try`. About 19 vqa pipelines use stage types that no registry holds. |
+| Dead and broken code | `research/prompt_opt/vqa/stages/persistent_vllm.py` and `persistent_cambrian.py` fail at import. `vqa/prompt_opt/dataset.py` imports a missing name. `ocr/stages/ocr.py:73` imports a missing module inside a `try`. About 19 vqa pipelines use stage types that no registry holds. |
 | Boilerplate in each dagspace | Each `orchestrator.py` has about 80 lines that are the same, plus a `DagspaceSettings` call with about 15 flags. There is no template. |
 | The docs are stale | `README.md` and `docs/` describe `dagspaces/uair` and Ray Data. Both are gone. `documentation/` is development history. |
 | No test setup or CI | No `conftest.py`, no markers, no `.github/workflows`. 14 test files have fixed `/share` paths. |
@@ -118,7 +131,7 @@ The two other options have problems:
 |------|--------|
 | `resources/sample_data/ai_article_crawl/` (263 files), `resources/*.json` and `*.md` | Remove. They are from the old article pipeline. |
 | The UAIR pipelines in `vqa/conf/pipeline/` (about 19), and the `stopwords/`, `taxonomy/`, `topic/`, `synthesis/` and `prompts/decision_trees` groups | Remove. No registry holds their stage types. |
-| `vqa/stages/persistent_vllm.py`, `persistent_cambrian.py`, `prompt_opt/` (GEPA) | Repair the imports, or move them to research. They fail at import now. `pairwisevqa/prompt_opt/gepa_pairwise.py` depends on them. |
+| `research/prompt_opt/vqa/stages/persistent_vllm.py`, `persistent_cambrian.py`, `prompt_opt/` (GEPA) | Repair the imports, or move them to research. They fail at import now. `pairwisevqa/prompt_opt/gepa_pairwise.py` depends on them. |
 | `ocr/stages/ocr.py:73` | Import `dagspaces.common.logging_filters`. |
 | The orchestrator wrappers `_submit_and_wait` and `_recover_slurm_job` | Remove if nothing calls them. |
 | The `config_schema.py` shims in embed, urbanroamvqa and urbanvit | Import `dagspaces.common.config_schema` directly. |
@@ -163,8 +176,8 @@ Steps:
 
 1. Move the Cyclomedia modules out of `dagspaces/common` to `sv/`, and the NYC curation to `sv/nyc/`.
 2. Move `ic_schema.py`, `ic_codes.py` and the IC examples to `research/ic/`. Read `langextract_backend.py` and `vllm_structured.py`. If they have no IC or urban content, they stay in `dagspaces/common`. If not, they go to `research/ic/`.
-3. Change the imports in `pairwisevqa/stages/ic_extract.py`, `trace_extract.py`, and the scripts and tests.
-4. Move `pairwisevqa/conf/sweep/` (55) and `conf/extract/` (33) to `research/conf/`. Move the Cyclomedia and NYC data configs to `sv/conf/` and `sv/nyc/conf/`. Add these paths to the Hydra searchpath of the research configs only.
+3. Change the imports in `research/ic/extract_stage.py`, `trace_extract.py`, and the scripts and tests.
+4. Move `research/conf/pairwisevqa/sweep/` (55) and `conf/extract/` (33) to `research/conf/`. Move the Cyclomedia and NYC data configs to `sv/conf/` and `sv/nyc/conf/`. Add these paths to the Hydra searchpath of the research configs only.
 5. Move the experiment scripts, the notebooks, the figures and the monocle package to `research/`.
 6. Rename the task dagspaces to the generic names (see "Decisions"). A rename changes all the CLI commands and the docs. Thus, do it one time only, in this phase.
 7. Move the dataset-specific tests (curation, cyclomedia, ic) with their code.

@@ -23,7 +23,7 @@ def main() -> None:
     for arm, schema in schemas.items():
         target = OUT / "merged" / arm
         subprocess.run([sys.executable, str(ROOT / "research/scripts/f4/merge_extractions.py"), str(ROOT / "multirun/f10x_cool" / arm / "runs"), "--out", str(target),
-                        "--cases", "cool_x2", "--schema", str(ROOT / "dagspaces/pairwisevqa/conf/extract" / f"{schema}.yaml")], check=True)
+                        "--cases", "cool_x2", "--schema", str(ROOT / "research/conf/pairwisevqa/extract" / f"{schema}.yaml")], check=True)
         d = pd.read_parquet(target / "f4_cool_x2_extractions.parquet")
         parts.append(d.assign(arm=arm))
     d = pd.concat(parts, ignore_index=True)

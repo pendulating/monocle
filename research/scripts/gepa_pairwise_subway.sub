@@ -33,4 +33,4 @@ echo "=== GPU sanity ==="
 echo "HOST=$(hostname) DATE=$(date) CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
 nvidia-smi -L || true
 
-python -m dagspaces.pairwisevqa.prompt_opt.gepa_pairwise "$@"
+python -m research.prompt_opt.pairwise.gepa_pairwise "$@"

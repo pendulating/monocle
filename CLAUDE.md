@@ -192,7 +192,7 @@ Shared configs resolved via `hydra.searchpath: [pkg://dagspaces.common.conf]` in
 
 The dataset configs (Cyclomedia, NYC, bayflood, nexar) are in `sv/conf/` and
 `sv/nyc/conf/`, not in `dagspaces/`. The Hydra plugin
-`hydra_plugins/mllmsci_searchpath/` adds them to the search path of each
+`hydra_plugins/mllmsci_searchpath/` adds them (and `research/conf/`) to the search path of each
 dagspace. Thus `pipeline=vqa_bayflood` and `data=cyclomedia_manhattan` work
 as before. Run the commands from the repo root, or Hydra does not find the
 plugin. See `vlm-narratives-docs/project-config-roots.md`.
@@ -256,6 +256,9 @@ resume chunks.
   - `research/scripts/` — The experiment scripts (f4 to f10, batteries, exports).
   - `research/figures/`, `research/tables_export/` — The outputs of the notebooks and the scripts.
   - `research/papers/`, `research/notes/` — The paper drafts and the research notes.
+  - `research/conf/` — The research configs: the pairwisevqa batteries (`pipeline/`, `prompt/`, `sweep/`, `extract/`) and the GEPA configs. The plugin adds them to the search path.
+  - `research/ic/` — The Integrative Complexity schema, codes, examples and the `ic_extract` stage. A pipeline adds the stage with `pipeline.stage_runners`.
+  - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). The `gepa` package is not in the venv.
 - `docs/` — The framework guides (user guide, config guide, custom stages). They are stale: they describe `dagspaces/uair` and Ray Data. Phase 5 of `vlm-narratives-docs/repo-cleanup-plan.md` writes them again.
 - `vlm-narratives-docs/archive/documentation/` — Old development history (phase reports, implementation notes). Read it only for history.
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)

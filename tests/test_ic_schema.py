@@ -14,7 +14,7 @@ import json
 
 import pytest
 
-from dagspaces.common import ic_schema as S
+from research.ic import ic_schema as S
 
 
 # ---------------------------------------------------------------------------
@@ -507,14 +507,14 @@ V2_PROMPT_SHA256 = "36d771b54b4ed6c474590515175b54a341151c2ff03cceeb7d62784ec0aa
 def test_the_v2_prompt_is_byte_for_byte_unchanged():
     import hashlib
 
-    from dagspaces.common import ic_schema as S
+    from research.ic import ic_schema as S
 
     digest = hashlib.sha256(S.build_prompt("TRACE_HERE", None).encode()).hexdigest()
     assert digest == V2_PROMPT_SHA256
 
 
 def test_v3_moves_dismissal_and_nothing_else():
-    from dagspaces.common import ic_schema as S
+    from research.ic import ic_schema as S
 
     v2, v3 = S.order_for("v2"), S.order_for("v3")
     assert v2.index("dismissal") == 4 and v3.index("dismissal") == 2
@@ -528,7 +528,7 @@ def test_v3_moves_dismissal_and_nothing_else():
 
 def test_the_row_takes_its_version_from_the_order():
     """A row that says v2 while the run asked in v3 would pool 2 measurements."""
-    from dagspaces.common import ic_schema as S
+    from research.ic import ic_schema as S
 
     answer = {"dimensions": [{"name": "x", "quote": "a clean platform",
                               "type": "descriptive", "image": "A",
@@ -545,7 +545,7 @@ def test_the_row_takes_its_version_from_the_order():
 def test_an_unknown_order_is_not_a_version():
     import pytest as _pytest
 
-    from dagspaces.common import ic_schema as S
+    from research.ic import ic_schema as S
 
     with _pytest.raises(ValueError, match="no schema version"):
         S.version_for(("hedge", "dimension"))

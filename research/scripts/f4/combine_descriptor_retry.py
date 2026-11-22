@@ -40,12 +40,12 @@ SETS = {
     "restaurant": ("data/f4_traces/descriptors/f4_restaurant_desc_extractions.parquet",
                    "data/f4_traces/descriptors/f4_restaurant_desc_retry_flags.csv",
                    "multirun/f4_descriptors_retry_dsv4/runs/f4_descriptors_retry__0000/outputs/extractions",
-                   "dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v3r.yaml",
+                   "research/conf/pairwisevqa/extract/aesthetic_descriptors_v3r.yaml",
                    "data/f4_traces/descriptors/f4_restaurant_desc_final.parquet"),
     "street": ("data/f4_traces/descriptors_street/f4_street_desc_extractions.parquet",
                "data/f4_traces/descriptors_street/f4_street_desc_retry_flags.csv",
                "multirun/f4_descriptors_street_retry_dsv4/runs/f4_descriptors_street_retry__0000/outputs/extractions",
-               "dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v5r.yaml",
+               "research/conf/pairwisevqa/extract/aesthetic_descriptors_v5r.yaml",
                "data/f4_traces/descriptors_street/f4_street_desc_final.parquet"),
 }
 

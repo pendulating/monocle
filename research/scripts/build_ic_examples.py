@@ -25,7 +25,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO))
 
-from dagspaces.common import ic_schema as S  # noqa: E402
+from research.ic import ic_schema as S  # noqa: E402
 
 SOURCE_PARQUET = (
     "/share/ju/matt/mllmsci/multirun/2026-08-13_URBANPAIRVQA/01-37-12/0/"

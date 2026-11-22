@@ -11,7 +11,7 @@ again: 7 cases, 2 raters, 2 kinds of run.
 
 ## The 4 sweeps
 
-All 4 live in `dagspaces/pairwisevqa/conf/sweep/`. Each 1 holds the model AND
+All 4 live in `research/conf/pairwisevqa/sweep/`. Each 1 holds the model AND
 the 7-case axis, so a launch command carries neither.
 
 | Sweep | Kind | Model | Pairs | Jobs | GPU-hours |

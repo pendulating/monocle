@@ -15,7 +15,7 @@
 #       --base-dir <base>/<rater> --pairs-dir <pairs> --only-missing \
 #       --timeout-min 480 --set runtime.image_pack=<pack>
 #
-# See dagspaces/pairwisevqa/conf/sweep/thinking100k_gemma12b.yaml.
+# See research/conf/pairwisevqa/sweep/thinking100k_gemma12b.yaml.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

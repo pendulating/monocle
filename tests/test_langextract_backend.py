@@ -400,7 +400,7 @@ class TestAttributeEnums:
 class TestTheShippedSchemas:
     """The config groups of the paper corpus (v1 to v3) and of F4 (single-v1)."""
 
-    CONF = "dagspaces/pairwisevqa/conf/extract"
+    CONF = "research/conf/pairwisevqa/extract"
 
     @pytest.mark.parametrize("version", ["v1", "v2"])
     def test_the_examples_align(self, version):

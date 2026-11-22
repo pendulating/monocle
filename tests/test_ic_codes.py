@@ -11,7 +11,7 @@ import json
 import pandas as pd
 import pytest
 
-from dagspaces.common import ic_codes as IC
+from research.ic import ic_codes as IC
 
 
 def row(kind, *, name="", quote="q", found=True, attrs=None, index=0,

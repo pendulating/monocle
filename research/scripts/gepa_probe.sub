@@ -29,4 +29,4 @@ echo "=== GPU sanity ==="
 echo "HOST=$(hostname) DATE=$(date) CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
 nvidia-smi -L || true
 
-python -m dagspaces.pairwisevqa.prompt_opt.task_inference_probe "$@"
+python -m research.prompt_opt.pairwise.task_inference_probe "$@"

@@ -1,6 +1,6 @@
 """The Integrative Complexity report: load the corpus, code it, draw it.
 
-`dagspaces/common/ic_codes.py` holds the derivation, because it is a property
+`research/ic/ic_codes.py` holds the derivation, because it is a property
 of the schema and it belongs beside it. This module is the paper side: it finds
 the merged corpus, tests it against the canonical registry, and builds the
 tables and the figures.
@@ -30,7 +30,7 @@ REPO_ROOT = P.REPO_ROOT
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dagspaces.common import ic_codes as IC  # noqa: E402
+from research.ic import ic_codes as IC  # noqa: E402
 
 __version__ = "1.0.0"
 

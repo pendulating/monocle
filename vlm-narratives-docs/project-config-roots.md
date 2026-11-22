@@ -10,6 +10,7 @@ folders to the search path of each dagspace.
 |------|---------|
 | `sv/conf/` | The Cyclomedia configs |
 | `sv/nyc/conf/` | The NYC configs (curated facilities, scaffolding permits, bayflood, nexar) |
+| `research/conf/` | The research configs: the pairwisevqa `pipeline/`, `prompt/`, `sweep/` and `extract/` groups, and the GEPA configs (`vqa/prompt_opt/`) |
 
 Each root has this layout:
 
@@ -50,9 +51,31 @@ name for a project config.
 | Run the commands from the repo root. | Hydra finds the plugin through the `hydra_plugins` namespace package. The repo root must be on `sys.path`. Phase 4 of `repo-cleanup-plan.md` adds the package to `pyproject.toml`. |
 | Do not name a project config root in a framework config. | The framework must work without the project. |
 | Give a project OCR handler as an import path. | `handler: sv.ocr.cyclomedia_handler:CyclomediaHandler`. The framework knows only `generic`. |
+| Give a project stage as an import path. | See "Project stages" below. |
 
 ## Add a root
 
 1. Make the folder, for example `research/conf/`, with `common/` and `<dagspace>/` subfolders.
 2. Add the folder to `PROJECT_ROOTS` in the plugin.
 3. Compose a config of each dagspace that uses it, with `--cfg job`.
+
+## Project stages
+
+A pipeline can use a stage that the dagspace does not register. Name the
+runner in the `pipeline` block:
+
+```yaml
+pipeline:
+  stage_runners:
+    ic_extract: research.ic.runner:ICExtractRunner
+  graph:
+    nodes:
+      ic_extract:
+        stage: ic_extract
+```
+
+`stage_registry_for()` in `dagspaces/common/stage_submission.py` adds these
+runners to the dagspace registry. The monitor and the stage job both use it.
+The value is a `StageRunner` subclass or instance. A pipeline runner replaces a
+dagspace runner with the same name. The stage name stays short, thus the W&B
+metric names (`ic_extract/duration_s`) do not change.

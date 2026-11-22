@@ -19,7 +19,7 @@ def _(mo):
     | Step | Where | Cost of a change |
     |------|-------|------------------|
     | ingredients | `ic_extract` on the GPU | 59 GPU-hours |
-    | codes | `dagspaces/common/ic_codes.py` | seconds |
+    | codes | `research/ic/ic_codes.py` | seconds |
 
     The extractor never states a code. It returns SPANS: the dimensions the
     trace names, the perspectives it develops, the weighings it makes, and the
@@ -270,7 +270,7 @@ def _(mo):
 
 @app.cell
 def _(load_error, pd):
-    from dagspaces.common import ic_codes as IC
+    from research.ic import ic_codes as IC
 
     thresholds = None if load_error else pd.DataFrame([IC.thresholds_used()])
     thresholds

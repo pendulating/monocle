@@ -344,7 +344,7 @@ section of `whatami-lens-study.md` first.
 
 | Item | Value |
 |------|-------|
-| Prompt | `dagspaces/pairwisevqa/conf/prompt/pairwise_restaurant_eat_at_ordinal.yaml` ("Which restaurant would you rather eat at?") |
+| Prompt | `research/conf/pairwisevqa/prompt/pairwise_restaurant_eat_at_ordinal.yaml` ("Which restaurant would you rather eat at?") |
 | Unit | DOHMH-inspected restaurant; data `cyclomedia_near_restaurants_facing` |
 | Proxies | inspection score history (headline), last score, grade A rate, outdoor dining (confounder) |
 | Runs | canonical, `noabstain`, `nocity`; trace runs for both raters |
@@ -413,7 +413,7 @@ This is a list of what is on disk. It is not a choice (Q4).
 
 | Item | Value |
 |------|-------|
-| Sweeps | `dagspaces/pairwisevqa/conf/sweep/looks_thinking_gemma12b.yaml`, `looks_thinking_qwen9b.yaml` |
+| Sweeps | `research/conf/pairwisevqa/sweep/looks_thinking_gemma12b.yaml`, `looks_thinking_qwen9b.yaml` |
 | Rows | about 11,000 for each case (10,000 pairs and 10% repeats) |
 | Cases | all 7 |
 | Sampling (gemma) | temperature 1.0, top_p 0.95, top_k 64, `max_tokens` 4,096 |
@@ -690,7 +690,7 @@ schema, the extractor, and the input are new.
 
 | Part | Value | File |
 |------|-------|------|
-| Schema | `urban_cues_single` version `single-v1`. Claude drafted it (D94); the user edited and confirmed it (D99, D100) | `dagspaces/pairwisevqa/conf/extract/urban_cues_single_v1.yaml` |
+| Schema | `urban_cues_single` version `single-v1`. Claude drafted it (D94); the user edited and confirmed it (D99, D100) | `research/conf/pairwisevqa/extract/urban_cues_single_v1.yaml` |
 | Extractor | DeepSeek-V4-Flash-0731, revision `7872f01b`, 166.9 GB, MIT | `dagspaces/common/conf/model/deepseek-v4-flash/instruct.yaml` |
 | Input | 19,956 texts: 8,000 traces and 11,956 answers. The 44 empty answers are traces cut before the answer | `research/scripts/f4/build_extract_input.py` writes `data/f4_traces/extract_input/f4_{restaurant,caption}.parquet` |
 | Runner | 1 shard in a plain sbatch job on g3 | `research/scripts/f4/extract_shard.py`, `research/scripts/f4/extract.sbatch` |
@@ -842,7 +842,7 @@ and the edit distance between NTAs (D101). This section holds the inputs.
 | NTA of each restaurant | `research/scripts/f4/restaurant_nta.py` | `data/f4_traces/f4_restaurants_nta.parquet` |
 | Hashtags by regex (D101) | `research/scripts/f4/caption_hashtags.py` | `data/f4_traces/captions/f4_caption_hashtags.parquet` |
 | Extraction input | `research/scripts/f4/build_extract_input.py` (1.1.0) | `data/f4_traces/extract_input/f4_captions.parquet`, 6,000 answers |
-| Schema | `dagspaces/pairwisevqa/conf/extract/caption_options_v3.yaml` (`caption-v3`); examples from `research/scripts/f4/build_caption_examples.py` | classes `caption` (free `style`) and `hashtags` (`scope`: caption, general) |
+| Schema | `research/conf/pairwisevqa/extract/caption_options_v3.yaml` (`caption-v3`); examples from `research/scripts/f4/build_caption_examples.py` | classes `caption` (free `style`) and `hashtags` (`scope`: caption, general) |
 | Job | `sbatch --array=0 --export=ALL,F4X_ARM=captions,F4X_SHARDS=1 research/scripts/f4/extract.sbatch` | `multirun/f4_captions_dsv4/runs/f4_captions__0000/` |
 | Merge | `research/scripts/f4/merge_extractions.py multirun/f4_captions_dsv4/runs --cases captions --out data/f4_traces/captions` | `data/f4_traces/captions/f4_captions_extractions.parquet` |
 
@@ -1077,7 +1077,7 @@ plain form), `vibe` (yes, no), `slot` (free, the frame noun or none, D112),
 
 | File | Use |
 |------|-----|
-| `dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v2.yaml` | the schema (`descriptors-v2`) |
+| `research/conf/pairwisevqa/extract/aesthetic_descriptors_v2.yaml` | the schema (`descriptors-v2`) |
 | `research/scripts/f4/build_descriptor_examples.py` | builds the 7 examples from F4 texts (`--version`) |
 | `research/scripts/f4/build_descriptor_input.py` | writes the input: U+2011 becomes "-", with the same length |
 | `research/scripts/f4/build_descriptor_smoke.py` | the stratified smoke input: 6 texts for each model, case, and field |
@@ -1220,7 +1220,7 @@ camera advice, which is most of a street answer.
 
 | Item | Value |
 |------|-------|
-| Schema | `dagspaces/pairwisevqa/conf/extract/urban_cues_street_v1.yaml` (`street-v1`) |
+| Schema | `research/conf/pairwisevqa/extract/urban_cues_street_v1.yaml` (`street-v1`) |
 | Classes | the 5 of `single-v1`, same values, and `photo_advice` (kind: position, framing, equipment, timing, effect, other) |
 | New rules | 6: the place, the photo that the model got, and the planned picture are 3 subjects; 7: a described thing of the place inside advice is `visual_evidence`; 8: people inside advice are `person_reference`; 9: skip headings, option labels, goals, and plan notes |
 | Examples | 5 street texts, none in the smoke input; built by `research/scripts/f4/build_street_cue_examples.py` |

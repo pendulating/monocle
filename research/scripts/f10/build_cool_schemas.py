@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-CONF = ROOT / "dagspaces/pairwisevqa/conf/extract"
+CONF = ROOT / "research/conf/pairwisevqa/extract"
 RUNS = ROOT / "data/f4_traces/runs-cool"
 VALUES = ["beauty", "order", "heritage", "modernity", "edge", "character", "vitality", "community", "status", "utility", "nature", "comfort", "other"]
 NOTES = ["subjective", "no_taste", "forced_choice", "safe_default", "population_norm", "other"]

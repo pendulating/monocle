@@ -7,10 +7,10 @@ the GPU.
 
 | Piece | Where |
 |-------|-------|
-| Schema and prompt | `dagspaces/common/ic_schema.py` |
-| Examples | `dagspaces/common/ic_examples_v2.json` |
-| Stage | `dagspaces/pairwisevqa/stages/ic_extract.py` |
-| Pipeline | `dagspaces/pairwisevqa/conf/pipeline/ic_extract.yaml` |
+| Schema and prompt | `research/ic/ic_schema.py` |
+| Examples | `research/ic/ic_examples_v2.json` |
+| Stage | `research/ic/extract_stage.py` |
+| Pipeline | `research/conf/pairwisevqa/pipeline/ic_extract.yaml` |
 | Merge | `research/scripts/merge_trace_extractions.py --schema ic` |
 
 ## The rule that makes it work
@@ -144,7 +144,7 @@ traces, thus about 8 GPU-hours, or 6 shards of about 1.4 hours.
 
 ## From ingredients to codes
 
-`dagspaces/common/ic_codes.py` reads the ingredient table and gives each trace a
+`research/ic/ic_codes.py` reads the ingredient table and gives each trace a
 code. The GPU run is expensive and the thresholds are not settled, thus the run
 writes ingredients and the code lives on the CPU. A threshold change costs
 seconds.

@@ -18,7 +18,7 @@
 set -u
 cd /share/ju/matt/mllmsci
 PY=.venv-mllmsci-vllm025cu129/bin/python
-CONF=dagspaces/pairwisevqa/conf/extract
+CONF=research/conf/pairwisevqa/extract
 R=${F4X2_ROOT:-multirun/f4x2}
 OUT=${F4X2_OUT:-data/f4_traces/x2}
 SFX=${F4X2_SFX:-x2}

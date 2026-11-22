@@ -80,7 +80,7 @@ echo
 cd "${ROOT}"
 
 for sweep in "${SWEEPS[@]}"; do
-  conf="${ROOT}/dagspaces/pairwisevqa/conf/sweep/${sweep}.yaml"
+  conf="${ROOT}/research/conf/pairwisevqa/sweep/${sweep}.yaml"
   if [ ! -f "${conf}" ]; then
     echo "error: no sweep config at ${conf}" >&2
     exit 1

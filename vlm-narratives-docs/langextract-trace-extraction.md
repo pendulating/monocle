@@ -72,8 +72,8 @@ writes 1 parquet for each range.
 | `dagspaces/pairwisevqa/stages/trace_extract.py` | new | The stage: read traces, extract, write the long parquet |
 | `dagspaces/pairwisevqa/stages/__init__.py` | change | Export the stage function |
 | `dagspaces/pairwisevqa/orchestrator.py` | change | Add `"trace_extract": TraceExtractRunner()` to `_STAGE_REGISTRY` |
-| `dagspaces/pairwisevqa/conf/extract/urban_cues_v1.yaml` | new | The schema, the few-shot examples, and the chunk settings |
-| `dagspaces/pairwisevqa/conf/pipeline/extract_traces.yaml` | new | The 1-node pipeline, on `slurm_gpu_1x` |
+| `research/conf/pairwisevqa/extract/urban_cues_v1.yaml` | new | The schema, the few-shot examples, and the chunk settings |
+| `research/conf/pairwisevqa/pipeline/extract_traces.yaml` | new | The 1-node pipeline, on `slurm_gpu_1x` |
 | `research/notebooks/cvpr/_extractions.py` | new | Load the extractions, count them, and score them |
 | `research/notebooks/cvpr/_trace_notebook.py` | change | Add the extraction report beside the cloud |
 | `pyproject.toml` | change | Add `langextract`, `absl-py`, `ml-collections`, `more-itertools` |
@@ -248,8 +248,8 @@ row.
 |------|------|
 | `dagspaces/pairwisevqa/stages/trace_extract.py` | The stage: read, shard, extract, write |
 | `dagspaces/pairwisevqa/orchestrator.py` | `TraceExtractRunner`, in the registry as `trace_extract` |
-| `dagspaces/pairwisevqa/conf/extract/urban_cues_v1.yaml` | The 7 classes, 3 examples, and the chunk settings |
-| `dagspaces/pairwisevqa/conf/pipeline/extract_traces.yaml` | The 1-node pipeline, on `slurm_gpu_1x` |
+| `research/conf/pairwisevqa/extract/urban_cues_v1.yaml` | The 7 classes, 3 examples, and the chunk settings |
+| `research/conf/pairwisevqa/pipeline/extract_traces.yaml` | The 1-node pipeline, on `slurm_gpu_1x` |
 
 Command:
 
@@ -713,7 +713,7 @@ finish.
 
 ## Version 2
 
-`dagspaces/pairwisevqa/conf/extract/urban_cues_v2.yaml`, 2026-09-20. It
+`research/conf/pairwisevqa/extract/urban_cues_v2.yaml`, 2026-09-20. It
 keeps the 7 classes, the attribute names, and the value lists of version 1.
 
 | Change | Value | Why |
@@ -982,7 +982,7 @@ The rule of the IC pipeline holds: the prompt asks for the span, never for
 the judgment. "Justified" is a located `justification` span; "developed" is
 a perspective named more than one time; "revised" is a verdict whose label
 differs from the decision. The trace-level codes of category 3 derive on the
-CPU from the spans, as `dagspaces/common/ic_codes.py` does for the IC
+CPU from the spans, as `research/ic/ic_codes.py` does for the IC
 ingredients. `dismissal.about = premise` separates "I don't see a library"
 from a cue set aside, which the IC pilot found to be 39% of dismissals.
 

@@ -28,7 +28,7 @@ import pandas as pd
 import yaml
 
 ROOT = "/share/ju/matt/mllmsci"
-SCHEMA = os.path.join(ROOT, "dagspaces/pairwisevqa/conf/extract/urban_cues_street_v2.yaml")
+SCHEMA = os.path.join(ROOT, "research/conf/pairwisevqa/extract/urban_cues_street_v2.yaml")
 INPUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_streetsmoke_desc.parquet")
 DESC = os.path.join(ROOT, "data/f4_traces/descriptors_street/f4_street_desc_final.parquet")
 TRACK_C = ("visual_evidence", "inference")

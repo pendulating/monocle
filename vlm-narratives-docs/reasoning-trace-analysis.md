@@ -28,7 +28,7 @@ over a long trace, which destroys the text that the run exists to collect.
 | `multirun/think10k` | 2026-07-11 | subway safety, street photography | gemma-4-12b, qwen3.5-9b, gemma-4-e2b | 10,000 |
 | `thinking_public_investment` | 2026-08-13 | subway safety, libraries, schools, road quality | gemma-4-12b | 10,000 |
 
-The config is `dagspaces/pairwisevqa/conf/sweep/thinking_public_investment_10k.yaml`.
+The config is `research/conf/pairwisevqa/sweep/thinking_public_investment_10k.yaml`.
 
 ## The notebook
 

@@ -24,7 +24,7 @@ import pandas as pd
 import yaml
 
 ROOT = "/share/ju/matt/mllmsci"
-SCHEMA = os.path.join(ROOT, "dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v3.yaml")
+SCHEMA = os.path.join(ROOT, "research/conf/pairwisevqa/extract/aesthetic_descriptors_v3.yaml")
 INPUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_descsmoke_desc.parquet")
 
 __version__ = "1.0.0"

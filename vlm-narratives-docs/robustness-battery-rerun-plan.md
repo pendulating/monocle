@@ -81,7 +81,7 @@ contradicts the decision of 2026-09-02 and the registry. Do not copy it.
 
 ## Phase 2. Prompt variants
 
-New files under `dagspaces/pairwisevqa/conf/prompt/`, each a copy of
+New files under `research/conf/pairwisevqa/prompt/`, each a copy of
 `pairwise_subway_safety_ordinal.yaml` with ONE change. The
 `structured_output` block stays byte-identical so guided decoding does not
 change.

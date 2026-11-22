@@ -11,8 +11,8 @@ import json
 
 import pytest
 
-from dagspaces.pairwisevqa.prompt_opt import gepa_pairwise as gp
-from dagspaces.pairwisevqa.prompt_opt import task_inference_probe as probe
+from research.prompt_opt.pairwise import gepa_pairwise as gp
+from research.prompt_opt.pairwise import task_inference_probe as probe
 
 # Task words that must never appear in harness-authored reflector-visible
 # text. (The true-axis phrases in the probe's TASKS registry are exempt: the

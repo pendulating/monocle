@@ -2,7 +2,7 @@
 
 The framework (`dagspaces/`) does not know about the project code. This plugin
 lets a command such as `python -m dagspaces.vqa.cli -m pipeline=vqa_bayflood`
-find the configs in `sv/conf/` and `sv/nyc/conf/`.
+find the configs in `sv/conf/`, `sv/nyc/conf/` and `research/conf/`.
 
 Hydra finds this plugin through the `hydra_plugins` namespace package. The repo
 root must be on `sys.path`: run the commands from the repo root.
@@ -27,6 +27,7 @@ REPO = Path(__file__).resolve().parents[2]
 PROJECT_ROOTS = (
     REPO / "sv" / "conf",
     REPO / "sv" / "nyc" / "conf",
+    REPO / "research" / "conf",
 )
 
 #: The main config path of a dagspace: `.../dagspaces/<name>/conf` or `pkg://...dagspaces.<name>.conf`.

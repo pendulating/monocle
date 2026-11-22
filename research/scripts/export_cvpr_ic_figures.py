@@ -42,7 +42,7 @@ import _ic_link as LK  # noqa: E402
 import _ic_words as W  # noqa: E402
 import _style as S  # noqa: E402
 
-from dagspaces.common import ic_codes as IC  # noqa: E402
+from research.ic import ic_codes as IC  # noqa: E402
 
 __version__ = "1.0.0"
 

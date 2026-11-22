@@ -37,7 +37,6 @@ from .samplers.pairs import (
     build_global_random_pairs,
     build_unit_random_pairs,
 )
-from .stages.ic_extract import run_ic_extract_stage
 from .stages.pairwise_vqa import run_pairwise_vqa_stage
 from .stages.trace_extract import run_trace_extract_stage
 
@@ -570,62 +569,6 @@ class TraceExtractRunner(StageRunner):
         return StageResult(outputs=outputs, metadata=metadata)
 
 
-class ICExtractRunner(StageRunner):
-    """Extract the Integrative Complexity ingredients from a run's traces.
-
-    The stage reads a results parquet of a THINKING run. It needs no dataset and
-    no pair sampler, thus it takes its input from `ic_extract.results_path`.
-    See `vlm-narratives-docs/ic-ingredient-extraction.md`.
-    """
-
-    stage_name = "ic_extract"
-
-    def run(self, context: StageExecutionContext) -> StageResult:
-        cfg = context.cfg
-        out_paths = getattr(context, "output_paths", {}) or {}
-        results_path = out_paths.get("ingredients")
-        output_dir = (
-            os.path.dirname(results_path) if results_path else context.output_dir
-        )
-        os.makedirs(output_dir, exist_ok=True)
-
-        out, metadata = run_ic_extract_stage(cfg, output_dir)
-
-        if results_path:
-            out.to_parquet(results_path, index=False)
-
-        if context.logger:
-            try:
-                context.logger.log_metrics(
-                    {
-                        f"ic_extract/{k}": v
-                        for k, v in metadata.items()
-                        if isinstance(v, (int, float))
-                    }
-                )
-                if isinstance(out, pd.DataFrame) and not out.empty:
-                    prefer_cols = [
-                        c for c in [
-                            "pair_id", "case", "presented_label", "ingredient_type",
-                            "name", "quote", "attrs_json", "quote_method",
-                            "char_start", "char_end",
-                        ] if c in out.columns
-                    ]
-                    context.logger.log_table(
-                        out.head(2000), "ic_extract/ingredients",
-                        prefer_cols=prefer_cols, panel_group="inspect_results",
-                    )
-            except Exception as exc:
-                print(f"[ic_extract] Warning: failed to log to wandb: {exc}",
-                      flush=True)
-
-        outputs = _collect_outputs(
-            context,
-            {name: spec.optional for name, spec in context.node.outputs.items()},
-        )
-        return StageResult(outputs=outputs, metadata=metadata)
-
-
 # ---------------------------------------------------------------------------
 # Stage registry
 # ---------------------------------------------------------------------------
@@ -633,7 +576,6 @@ class ICExtractRunner(StageRunner):
 _STAGE_REGISTRY: Dict[str, StageRunner] = {
     "pairwise_vqa": PairwiseVQARunner(),
     "trace_extract": TraceExtractRunner(),
-    "ic_extract": ICExtractRunner(),
 }
 
 

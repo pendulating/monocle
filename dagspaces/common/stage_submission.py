@@ -180,6 +180,37 @@ def write_json_atomic(path: str, payload: Any, *, indent: int = 2) -> None:
 # SLURM child entrypoint
 # ---------------------------------------------------------------------------
 
+def stage_registry_for(settings: DagspaceSettings, cfg: DictConfig) -> Dict[str, StageRunner]:
+    """Return the dagspace stage registry plus the runners that the pipeline names.
+
+    A project adds a stage without a change to the framework. The pipeline
+    config names the runner by import path:
+
+        pipeline:
+          stage_runners:
+            my_stage: my_project.stages:MyStageRunner
+
+    The value is a ``StageRunner`` subclass or instance. A pipeline runner
+    replaces a dagspace runner with the same stage name.
+    """
+    import importlib
+
+    registry = dict(settings.registry_provider())
+    extra = OmegaConf.select(cfg, "pipeline.stage_runners", default=None) or {}
+    for stage, path in dict(extra).items():
+        module_name, sep, attr = str(path).partition(":")
+        if not sep or not attr:
+            raise ValueError(
+                f"pipeline.stage_runners.{stage}: write 'package.module:ClassName', not {path!r}"
+            )
+        obj = getattr(importlib.import_module(module_name), attr)
+        runner = obj() if isinstance(obj, type) else obj
+        if not isinstance(runner, StageRunner):
+            raise TypeError(f"pipeline.stage_runners.{stage}: {path} is not a StageRunner")
+        registry[str(stage)] = runner
+    return registry
+
+
 def _missing_runner_message(node: PipelineNodeSpec, settings: DagspaceSettings) -> str:
     if settings.registered_runner_message:
         return f"No runner registered for stage '{node.stage}' (node '{node.key}')"
@@ -214,7 +245,7 @@ def execute_stage_job(
         output_root=context_data["output_root"],
     )
 
-    runner = settings.registry_provider().get(node.stage)
+    runner = stage_registry_for(settings, cfg).get(node.stage)
     if runner is None:
         raise ValueError(_missing_runner_message(node, settings))
 
@@ -489,7 +520,7 @@ def _run_monitor_experiment(
             _register_graph_sources(graph_spec, registry)
 
             manifest: Dict[str, Any] = {"output_root": output_root, "nodes": {}}
-            stage_registry = settings.registry_provider()
+            stage_registry = stage_registry_for(settings, cfg)
             ordered_nodes = graph_spec.topological_order()
             pipeline_start = time.time()
 
@@ -681,7 +712,7 @@ def _run_inline_experiment(
             _register_graph_sources(graph_spec, registry)
 
             manifest: Dict[str, Any] = {"output_root": output_root, "nodes": {}}
-            stage_registry = settings.registry_provider()
+            stage_registry = stage_registry_for(settings, cfg)
             ordered_nodes = graph_spec.topological_order()
             pipeline_start = time.time()
 
