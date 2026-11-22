@@ -2,7 +2,7 @@
 
 defaults:
   - _self_
-  - data: cyclomedia_manhattan_2025_1
+  - data: example_images
   - model: qwen3_vl_embedding_8b
   - optional pipeline: null
 

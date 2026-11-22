@@ -15,6 +15,7 @@ A project config root has this layout:
 | `<root>/common/` | all dagspaces (shared groups, for example `data/`) |
 """
 
+import os
 import re
 from pathlib import Path
 
@@ -50,6 +51,10 @@ def dagspace_of(search_path: ConfigSearchPath):
 
 class MllmsciSearchPathPlugin(SearchPathPlugin):
     def manipulate_search_path(self, search_path: ConfigSearchPath) -> None:
+        # IMAGE_FORWARD_NO_PROJECT_ROOTS=1 gives the framework configs only, as
+        # in a clone with no site/, sv/ or research/. The tests use it.
+        if os.environ.get("IMAGE_FORWARD_NO_PROJECT_ROOTS") == "1":
+            return
         name = dagspace_of(search_path)
         if name is None:
             return

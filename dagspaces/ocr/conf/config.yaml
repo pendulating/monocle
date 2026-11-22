@@ -3,7 +3,7 @@
 
 defaults:
   - _self_
-  - data: cyclomedia
+  - data: generic_images
   - model: qwen3_vl_30b_ocr
   - prompt: text_spotting
   - optional pipeline: ocr_batch

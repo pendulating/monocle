@@ -1,15 +1,14 @@
 # Top-level Hydra config for PAIRWISEVQA
 
-# Compose-time defaults only. Every real run selects a case with `pipeline=`,
-# which overrides both `data` and `prompt` — see conf/pipeline/ for the seven
-# consolidated ranking cases. Street photography is the default because it is
-# the image-mode case, matching the default `pair_sampler.mode: image` below.
+# Compose-time defaults only. A real run selects a case with `pipeline=`, and
+# the pipeline overrides `data` and `prompt`. The defaults are the example
+# images and a generic prompt, thus a clone of the framework alone composes.
 # Retired configs live under the `deprecated/` sub-group of each config group
 # and are still selectable, e.g. `prompt=deprecated/pairwise_wealth_ordinal`.
 defaults:
   - _self_
-  - data: cyclomedia_pairwise_manhattan_2025_1
-  - prompt: pairwise_street_photography_ordinal
+  - data: example_images
+  - prompt: pairwise_example
   - model: vllm_multimodal_qwen3_vl_2b
   - optional pipeline: pairwise_street_photography_mvp
 

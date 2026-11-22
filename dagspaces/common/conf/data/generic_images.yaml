@@ -4,7 +4,7 @@
 handler: generic
 
 # Path to image directory
-image_path: "/path/to/images"
+image_path: ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/examples/images
 
 # Search subdirectories recursively
 recursive: true
