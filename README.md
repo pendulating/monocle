@@ -32,6 +32,11 @@ On a node with a GPU, describe the 10 example images:
 dagspace vqa -m hydra/launcher=local pipeline=example_images
 ```
 
+If `import vllm` stops with `Could not load ... libtorchcodec`, the node has no
+FFmpeg 4 to 7. Set `IMAGE_FORWARD_FFMPEG_LIBDIR` in `server.env`, then run
+`source scripts/activate_stage_venv.sh` before the command. See
+[docs/gotchas.md](docs/gotchas.md).
+
 The first run downloads `Qwen/Qwen2.5-VL-3B-Instruct` from Hugging Face. The
 output is a parquet table with one answer for each image:
 
@@ -111,6 +116,7 @@ to use the framework configs only.
 | [docs/site-setup.md](docs/site-setup.md) | `server.env` and the SLURM launchers |
 | [docs/models-and-mirrors.md](docs/models-and-mirrors.md) | The model configs and the node-local mirrors |
 | [docs/streaming-and-resume.md](docs/streaming-and-resume.md) | Large runs: batches, resume, image packs |
+| [docs/gotchas.md](docs/gotchas.md) | Problems that give a wrong or slow result with no clear error |
 
 ## Development
 

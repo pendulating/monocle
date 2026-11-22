@@ -264,7 +264,7 @@ vLLM 0.25 upgrade is in `.dev_history/` (see "Documentation").
 
 ### Image Input Formats
 
-The VQA stage accepts images as: PIL objects, local file paths, base64 strings, or HTTP URLs. Format is auto-detected in `_prepare_image_content()`.
+The VQA stage accepts images as: PIL objects, local file paths, `file://` paths and base64 strings. Format is auto-detected in `_prepare_image_content()`. **Warning:** inference does not download an `http(s)` URL, and it drops an image that does not load (a missing file gives no log line). The model then answers with the text only. See `docs/gotchas.md`.
 
 ## Current Performance State
 

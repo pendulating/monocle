@@ -11,6 +11,7 @@ repo `README.md` first for the install and the quickstart.
 | [site-setup.md](site-setup.md) | `server.env`, the SLURM launchers and the site configs |
 | [models-and-mirrors.md](models-and-mirrors.md) | The model configs, the model zoo and the node-local mirrors |
 | [streaming-and-resume.md](streaming-and-resume.md) | Large runs: chunked batches, resume after a preemption, image packs |
+| [gotchas.md](gotchas.md) | Problems that give a wrong or slow result with no clear error. Read it before a large run. |
 
 More pages about this repo:
 
