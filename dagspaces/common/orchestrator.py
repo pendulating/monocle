@@ -234,6 +234,42 @@ def _inject_prompt_from_file(
         pass  # Non-critical, stage may have defaults
 
 
+def _launcher_search_dirs(config_dir: str) -> List[str]:
+    """Return the config folders to search for a launcher, in Hydra's order.
+
+    The order is the same as in a Hydra compose: the dagspace ``conf/``, the
+    folders that a search-path plugin adds (for example a site launcher folder),
+    and last ``dagspaces/common/conf/``.
+    """
+    dirs: List[str] = []
+    try:
+        from hydra._internal.utils import create_config_search_path
+
+        for element in create_config_search_path(config_dir).get_path():
+            path = element.path or ""
+            if path.startswith("file://"):
+                path = path[len("file://"):]
+            if path and "://" not in path and os.path.isdir(path):
+                dirs.append(path)
+    except Exception:
+        dirs = [config_dir]
+    if config_dir not in dirs:
+        dirs.insert(0, config_dir)
+    common_conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conf")
+    if common_conf not in dirs:
+        dirs.append(common_conf)
+    return dirs
+
+
+def _find_launcher_file(config_dir: str, launcher_name: str) -> Optional[str]:
+    """Return the first ``hydra/launcher/<name>.yaml`` in the search path, or None."""
+    for d in _launcher_search_dirs(config_dir):
+        candidate = os.path.join(d, "hydra", "launcher", f"{launcher_name}.yaml")
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
 def _load_launcher_config(
     cfg: DictConfig, launcher_name: str, config_dir: str
 ) -> Optional[DictConfig]:
@@ -257,18 +293,8 @@ def _load_launcher_config(
         if not config_dir or not os.path.exists(config_dir):
             raise ValueError("Could not find config directory")
 
-        launcher_file = os.path.join(
-            config_dir, "hydra", "launcher", f"{launcher_name}.yaml"
-        )
-        # Fall back to common/conf/hydra/launcher/ if not found locally
-        if not os.path.exists(launcher_file):
-            common_conf = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), "conf"
-            )
-            launcher_file = os.path.join(
-                common_conf, "hydra", "launcher", f"{launcher_name}.yaml"
-            )
-        if not os.path.exists(launcher_file):
+        launcher_file = _find_launcher_file(config_dir, launcher_name)
+        if launcher_file is None:
             raise ValueError(f"Launcher config file not found: {launcher_name}.yaml")
 
         launcher_cfg = OmegaConf.load(launcher_file)
@@ -885,6 +911,22 @@ def _clean_slurm_env():  # type: ignore[return]
         os.environ.update(slurm_vars)
 
 
+def slurm_job_prefix() -> str:
+    """Return the first part of each stage job name: ``<prefix>-<job name>``.
+
+    ``IMAGE_FORWARD_JOB_PREFIX`` sets it (server.env can hold it). The default
+    is the user name, so ``squeue -n $USER-PAIRVQA-shard`` finds the jobs.
+    """
+    from dagspaces.common.stage_utils import ensure_dotenv
+
+    ensure_dotenv()
+    return (
+        os.environ.get("IMAGE_FORWARD_JOB_PREFIX")
+        or os.environ.get("USER")
+        or "image-forward"
+    )
+
+
 def _create_submitit_executor(
     launcher_cfg: DictConfig,
     job_name: str,
@@ -933,17 +975,22 @@ def _create_submitit_executor(
 
     params: Dict[str, Any] = dict(
         timeout_min=int(launcher_cfg.get("timeout_min", 120)),
-        slurm_partition=str(launcher_cfg.get("partition", "pierson")),
         slurm_mem=f"{int(launcher_cfg.get('mem_gb', 8))}GB",
         slurm_cpus_per_task=int(launcher_cfg.get("cpus_per_task", 2)),
         slurm_gpus_per_node=int(launcher_cfg.get("gpus_per_node", 0)),
         slurm_nodes=int(launcher_cfg.get("nodes", 1)),
         slurm_tasks_per_node=int(launcher_cfg.get("tasks_per_node", 1)),
         slurm_array_parallelism=int(launcher_cfg.get("array_parallelism", 1)),
-        name=f"matt-{job_name}",
+        name=f"{slurm_job_prefix()}-{job_name}",
         slurm_additional_parameters=launcher_cfg.get("additional_parameters", {}),
         slurm_setup=setup_lines,
     )
+    # The site settings: a launcher gives them, often from server.env. A value
+    # that is null or empty is left out, so sbatch uses the cluster default.
+    for key in ("partition", "account", "qos", "constraint", "exclude"):
+        value = launcher_cfg.get(key)
+        if value not in (None, ""):
+            params[f"slurm_{key}"] = str(value)
     if not use_srun:
         params["slurm_use_srun"] = False
 

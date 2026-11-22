@@ -13,6 +13,7 @@ Written 2026-11-21. Status: phases 0, 1 and 2 are done (see "Progress"). Phase 2
 | 2c: move the street-view code to `sv/` | Done 2026-11-22 | Branch `cleanup/phase-2`. See `project-config-roots.md`. |
 | 2d: move the research configs, IC and GEPA to `research/` | Done 2026-11-22 | Branch `cleanup/phase-2`. |
 | 3a: the env prefix and `server.env` | Done 2026-11-22 | Branch `cleanup/phase-3`. |
+| 3b: the launchers and the job names | Done 2026-11-22 | Branch `cleanup/phase-3`. See `site/README.md`. |
 
 The rename of phase 2a has these rules:
 
@@ -73,6 +74,17 @@ Phase 3a has these rules:
 | `ensure_dotenv()` | It loads `server.env` and `.env` each on their own (before, `server.env` loaded only when `.env` existed). `IMAGE_FORWARD_SERVER_ENV` can name a different site file. `dagspace_main` calls it after the SLURM strip and before Hydra composes. |
 | The SLURM keys | Phase 3b names them `IMAGE_FORWARD_SLURM_PARTITION`, `IMAGE_FORWARD_SLURM_ACCOUNT` and `IMAGE_FORWARD_SLURM_QOS`, not `SLURM_*`. The CLI removes each `SLURM*` variable before a launch, and SLURM sets `SLURM_PARTITION` in each job. |
 | Not changed | `URBANVIT_SCRATCH_ROOT` (a research dagspace setting), `vault/`, `vlm-narratives-docs/archive/`, past run records. |
+
+Phase 3b has these rules:
+
+| Item | Result |
+|------|--------|
+| Site launchers | The 19 launchers of this cluster and the OCR `slurm_gpu_4x` go to `site/conf/`, with no change. The plugin adds `site/conf/`, and it comes before `dagspaces/common/conf/`. A check found that each of the 14 launcher names in use gives the same file as before, in each of the 5 dagspaces. |
+| Generic launchers | `dagspaces/common/conf/hydra/launcher/` now has `local`, `slurm_cpu`, `slurm_gpu_{1,2,4}x` and `slurm_monitor`. They read `IMAGE_FORWARD_SLURM_{PARTITION,ACCOUNT,QOS,CONSTRAINT,EXCLUDE}`, the venv and an optional site script (`IMAGE_FORWARD_SITE_SETUP`). They have no `~/.bashrc`, no NCCL keys (these come from `server.env`) and no absolute path. |
+| Stage launcher lookup | `_load_launcher_config()` searches the same folders as Hydra, with the plugin folders. Before, it searched the dagspace `conf/` and `common/conf/` only. |
+| sbatch options | A stage job gets `account`, `qos`, `constraint` and `exclude` from the launcher. A null or empty value gives no option. There is no default partition `pierson` in the code now. |
+| Job names | `<IMAGE_FORWARD_JOB_PREFIX>-<job>`. The default prefix is `$USER`. This site sets `IMAGE_FORWARD_JOB_PREFIX=matt` in `server.env`, so the battery scripts still find `matt-PAIRVQA-shard`. |
+| `server.env.example` | It lists all the site keys, with a comment for each. |
 
 Phase 1 found these problems. It did not repair them:
 

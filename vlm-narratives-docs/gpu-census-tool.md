@@ -180,7 +180,7 @@ a job that asks for `6000ada` can land on one. Read the models of a node with
 
 ## Related
 
-- `dagspaces/common/conf/hydra/launcher/slurm_gpu_preempt.yaml` — the launcher
+- `site/conf/common/hydra/launcher/slurm_gpu_preempt.yaml` — the launcher
   whose constraint this census measures.
 - `vlm-narratives-docs/million-pair-battery.md` — the run that raised the
   question.

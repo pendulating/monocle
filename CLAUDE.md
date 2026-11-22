@@ -186,7 +186,7 @@ Hydra-based hierarchical config composition (version 1.3). Key config groups:
 - `model/` — vLLM model settings (shared via `dagspaces/common/conf/model/`)
 - `prompt/` — Jinja2 prompt templates (dagspace-local)
 - `pipeline/` — DAG node definitions (dagspace-local)
-- `hydra/launcher/` — SLURM launcher configs (shared via `dagspaces/common/conf/hydra/launcher/`, dagspace-local overrides where needed)
+- `hydra/launcher/` — SLURM launcher configs. The framework has a generic set in `dagspaces/common/conf/hydra/launcher/` (`local`, `slurm_cpu`, `slurm_gpu_{1,2,4}x`, `slurm_monitor`). They read the site settings from `server.env`. The launchers of this cluster are in `site/conf/` and take the place of the generic ones with the same name. See `site/README.md`.
 
 Shared configs resolved via `hydra.searchpath: [pkg://dagspaces.common.conf]` in each dagspace's `config.yaml`.
 

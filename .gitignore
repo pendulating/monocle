@@ -156,8 +156,7 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
+# site/ holds the cluster configs (see site/README.md), not mkdocs output.
 
 # mypy
 .mypy_cache/

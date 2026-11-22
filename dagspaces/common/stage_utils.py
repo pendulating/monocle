@@ -79,17 +79,24 @@ def ensure_dotenv() -> None:
     if _DOTENV_LOADED:
         return
     _DOTENV_LOADED = True
+    root = _find_project_root()
     try:
         from dotenv import load_dotenv as _load
     except ImportError:
+        _load = None
+    if _load is None:
+        if root and not os.environ.get("IMAGE_FORWARD_PROJECT_ROOT"):
+            os.environ["IMAGE_FORWARD_PROJECT_ROOT"] = root
         return
-    root = _find_project_root()
     site_env = os.environ.get("IMAGE_FORWARD_SERVER_ENV") or (
         os.path.join(root, "server.env") if root else None
     )
     for env_file in (site_env, os.path.join(root, ".env") if root else None):
         if env_file and os.path.isfile(env_file):
             _load(env_file, override=False)
+    # The launchers source scripts/activate_stage_venv.sh from the project root.
+    if root and not os.environ.get("IMAGE_FORWARD_PROJECT_ROOT"):
+        os.environ["IMAGE_FORWARD_PROJECT_ROOT"] = root
 
 
 def maybe_silence_vllm_logs() -> None:

@@ -1,48 +1,37 @@
-# Uses Hydra Submitit Slurm launcher
+# A generic CPU launcher. Set the site settings in server.env.
 _target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
 submitit_folder: ${hydra.sweep.dir}/.submitit/%j
-timeout_min: 2880
 nodes: 1
 tasks_per_node: 1
+array_parallelism: 1
+# The site settings come from server.env (see server.env.example). A key that
+# is not set is null, and submitit then leaves the sbatch option out.
+partition: ${oc.env:IMAGE_FORWARD_SLURM_PARTITION,null}
+account: ${oc.env:IMAGE_FORWARD_SLURM_ACCOUNT,null}
+qos: ${oc.env:IMAGE_FORWARD_SLURM_QOS,null}
+constraint: ${oc.env:IMAGE_FORWARD_SLURM_CONSTRAINT,null}
+exclude: ${oc.env:IMAGE_FORWARD_SLURM_EXCLUDE,null}
+timeout_min: 1440
 cpus_per_task: 2
 mem_gb: 16
-partition: ${oc.env:SLURM_PARTITION,pierson}
-array_parallelism: 1
 name: ${experiment.name}
-additional_parameters:
-  gres: "none"
-  wckey: ""
 srun_args:
-  - --gres=none
   - --cpu-bind=none
 setup:
   - export HYDRA_FULL_ERROR=1
-  - source ~/.bashrc
-  - source ${oc.env:IMAGE_FORWARD_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
-  # Prefer a node-local /scratch mirror of the driver venv when the node has
-  # one. This exports IMAGE_FORWARD_STAGE_PYTHON, which the submitit command line
-  # reads (dagspaces/common/orchestrator.py::_create_submitit_executor).
-  # A cold torch/vllm/flashinfer import over NFS costs about 13 minutes for
-  # each process spawn. See scripts/sync_venv_to_scratch.sh.
-  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT,/share/ju/matt/mllmsci}/scripts/activate_stage_venv.sh
+  - export PYTHONUNBUFFERED=1
+  # A site script: module loads, a conda fix, an LD_PRELOAD. server.env names it.
+  - if [ -n "$IMAGE_FORWARD_SITE_SETUP" ]; then source "$IMAGE_FORWARD_SITE_SETUP"; fi
+  - if [ -n "$IMAGE_FORWARD_VENV_ACTIVATE" ]; then source "$IMAGE_FORWARD_VENV_ACTIVATE"; fi
+  # Use a node-local /scratch mirror of the venv when the node has one.
+  # See scripts/activate_stage_venv.sh and vlm-narratives-docs/scratch-mirrors.md.
+  - if [ -n "$IMAGE_FORWARD_PROJECT_ROOT" ]; then source "$IMAGE_FORWARD_PROJECT_ROOT/scripts/activate_stage_venv.sh"; fi
   - unset WANDB_DISABLED
-  - if [ -n "$WANDB_MODE" ]; then export WANDB_MODE="$WANDB_MODE"; fi
-  - if [ -n "$WANDB_BASE_URL" ]; then export WANDB_BASE_URL="$WANDB_BASE_URL"; fi
-  - if [ -n "$WANDB_GROUP" ]; then export WANDB_GROUP="$WANDB_GROUP"; fi
   - export WANDB_SILENT=true
-  # Disable wandb service for distributed environments (uses in-process mode)
   - export WANDB_DISABLE_SERVICE=true
   - export TOKENIZERS_PARALLELISM=false
-  # Disable SLURM CPU binding which can conflict with submitit's launch context
   - export SLURM_CPU_BIND=none
-  # Respect SLURM CPU allocation for threaded libs (BLAS/OpenMP/numexpr/BLIS/veclib)
   - export OMP_NUM_THREADS=${oc.env:SLURM_CPUS_PER_TASK,2}
   - export MKL_NUM_THREADS=${oc.env:SLURM_CPUS_PER_TASK,2}
   - export OPENBLAS_NUM_THREADS=${oc.env:SLURM_CPUS_PER_TASK,2}
-  - export NUMEXPR_MAX_THREADS=${oc.env:SLURM_CPUS_PER_TASK,2}
-  - export VECLIB_MAXIMUM_THREADS=${oc.env:SLURM_CPUS_PER_TASK,2}
-  - export BLIS_NUM_THREADS=${oc.env:SLURM_CPUS_PER_TASK,2}
-  # Avoid GPU-related exports in CPU-only job
   - unset CUDA_VISIBLE_DEVICES
-  - unset PYTORCH_CUDA_ALLOC_CONF
-  - unset CUDA_LAUNCH_BLOCKING

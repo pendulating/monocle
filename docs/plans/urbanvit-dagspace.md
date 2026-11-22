@@ -156,7 +156,7 @@ Selection is a Hydra override: `shard=ffcv` or `shard=webdataset`.
 
 ## Launchers (to be created)
 
-`dagspaces/common/conf/hydra/launcher/slurm_gpu_klara_{1x,2x,4x}.yaml` — clones of the existing `slurm_gpu_Nx.yaml` with `partition: klara` pinned and `gres: gpu:N` set for A6000s. The existing 4x launcher already has `TORCH_CUDA_ARCH_LIST=8.6` and correct NCCL flags for PCIe-only boxes.
+`site/conf/common/hydra/launcher/slurm_gpu_klara_{1x,2x,4x}.yaml` — clones of the existing `slurm_gpu_Nx.yaml` with `partition: klara` pinned and `gres: gpu:N` set for A6000s. The existing 4x launcher already has `TORCH_CUDA_ARCH_LIST=8.6` and correct NCCL flags for PCIe-only boxes.
 
 ## Open items
 
