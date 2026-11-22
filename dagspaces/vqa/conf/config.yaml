@@ -14,6 +14,9 @@ runtime:
   debug: false
   sample_n: null
   output_root: null
+  # Stop the stage when an image of a row does not load. With false, the row
+  # gets an empty answer and __image_load_error__, and the stage continues.
+  strict_images: false
   serialize_nested_json: true
   max_errored_blocks: 0
   streaming_io: false

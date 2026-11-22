@@ -352,6 +352,8 @@ def main():
                 try:
                     pp = preprocess_fn(row)
                 except Exception as e:
+                    if type(e).__name__ == "ImageLoadError":
+                        row["__image_load_error__"] = str(e)
                     row["__preprocess_error__"] = str(e)
                     row["generated_text"] = ""
                     row["generated_reasoning"] = ""

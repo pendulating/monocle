@@ -7,7 +7,7 @@ result with no clear error. Read this page before a large run.
 
 | Symptom | Cause | Fix |
 |---------|-------|-------|
-| The answers do not agree with the images, or the model says that it sees no image | An image that does not load is dropped, and the model gets the text only | [Images that do not load](#images-that-do-not-load) |
+| Rows with an empty answer and an `__image_load_error__` column | An image of the row did not load, so the model did not see the row | [Images that do not load](#images-that-do-not-load) |
 | `import vllm` stops with `Could not load this library: .../libtorchcodec_core*.so` | No FFmpeg libraries on `LD_LIBRARY_PATH` when python started | [FFmpeg and torchcodec](#ffmpeg-and-torchcodec) |
 | `RuntimeError: FlashInfer requires GPUs with sm75 or higher` on a new GPU | The CUDA toolkit is older than 12.9 | [Blackwell GPUs and FlashInfer](#blackwell-gpus-and-flashinfer) |
 | `ValueError: Configuration is missing required 'pipeline' section` | The `pipeline=` name did not resolve, for example a typo | [A pipeline name that does not resolve](#a-pipeline-name-that-does-not-resolve) |
@@ -19,17 +19,25 @@ result with no clear error. Read this page before a large run.
 ## Images that do not load
 
 `run_vllm_inference` opens the images of each batch just before the model call.
-When an image does not load, the stage removes the image from the message and
-sends the rest of the prompt. The model then answers with the text only, and
-the run does not stop.
+When an image of a row does not load, the model does not see that row. The row
+gets an empty answer and an `__image_load_error__` column, and the run
+continues. At the end, the stage log gives the count:
+
+```
+WARNING [vqa] 3 rows have images that did not load. The model did not see these rows ...
+```
 
 | Image value | What happens |
 |-------------|--------------|
-| A path to a file that does not exist, or a file that PIL cannot read | The image is dropped. **The log has no message.** |
-| An `http://` or `https://` URL | The stage does not download it. The image is dropped, with the warning `skipping remote image URL (not fetched)`. |
+| A path to a file that does not exist, or a file that PIL cannot read | The row gets `__image_load_error__` |
+| An `http://` or `https://` URL | The stage does not download it. The row gets `__image_load_error__`. |
 | A local path, `file://` path, `data:` base64 URI or PIL image | The image loads |
 
-**Warning:** check the image paths before a large run. For example:
+Set `runtime.strict_images=true` to stop the stage on the first row with a
+missing image.
+
+**Warning:** check the image paths before a large run. A row with an error
+costs no GPU time, but it has no answer. For example:
 
 ```python
 import os, pandas as pd
@@ -70,8 +78,8 @@ targets is empty, and the check reports sm75.
 
 The fix:
 
-1. Install a CUDA 12.9 toolkit with `scripts/install_cuda_129_toolkit.sh`. It
-   needs no root and about 290 MB.
+1. Install a CUDA 12.9 toolkit with `scripts/install_cuda_129_toolkit.sh [PREFIX]`.
+   It needs no root and about 290 MB. The default PREFIX is `$HOME/cuda-12.9`.
 2. Set `IMAGE_FORWARD_CUDA_HOME` to it in `server.env`.
    `scripts/activate_stage_venv.sh` then sets `CUDA_HOME` in each job.
 

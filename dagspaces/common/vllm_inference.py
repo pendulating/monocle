@@ -343,6 +343,44 @@ def _batch_image_paths(
     return paths
 
 
+def _count_image_refs(messages: Optional[List[Dict[str, Any]]]) -> int:
+    """The number of image blocks in ``messages`` (a path, a URL or a PIL image)."""
+    n = 0
+    for msg in messages or []:
+        content = msg.get("content")
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            btype = block.get("type")
+            if btype == "image_url":
+                iu = block.get("image_url")
+                if (iu.get("url") if isinstance(iu, dict) else iu):
+                    n += 1
+            elif btype in ("image", "image_pil") and block.get(btype) is not None:
+                n += 1
+    return n
+
+
+def _image_load_error(messages: Optional[List[Dict[str, Any]]], n_loaded: int) -> Optional[str]:
+    """A message when fewer than all the images of a row loaded, else None.
+
+    The model must not see such a row: it would answer from the text only.
+    """
+    n_refs = _count_image_refs(messages)
+    if n_loaded >= n_refs:
+        return None
+    paths = _batch_image_paths([{"messages": messages}], [0], 0, 1)
+    first = paths[0][:200] if paths else "?"
+    return f"{n_refs - n_loaded} of {n_refs} images did not load (first image: {first})"
+
+
+def _skipped_record(error: str) -> Dict[str, Any]:
+    """The record of a row that did not go to the model."""
+    return {"raw_text": "", "prompt_tokens": 0, "completion_tokens": 0, "image_load_error": error}
+
+
 class _BatchPrefetcher:
     """Read and decode the images of the NEXT batch while the GPU runs this one.
 
@@ -2023,7 +2061,67 @@ def _run_transformers_text_inference(
 # Main inference function
 # ---------------------------------------------------------------------------
 
+class ImageLoadError(ValueError):
+    """A row names an image that does not load (a missing file, a URL, bad data).
+
+    A preprocess callback raises it. The row then does not go to the model: it
+    gets an empty answer and ``__image_load_error__``.
+    """
+
+
+# The error columns that a row keeps after the postprocess callback.
+_ERROR_COLUMNS = (
+    "__image_load_error__", "__preprocess_error__", "__request_error__",
+)
+
+
+def _keep_error_columns(postprocess: Callable[[Dict[str, Any]], Dict[str, Any]]):
+    """Wrap ``postprocess`` so that its result keeps the error columns of the row.
+
+    Many postprocess callbacks build a new dict. Without this wrapper, a row that
+    the model did not see comes out with an empty answer and no sign of the error.
+    """
+    def wrapped(row: Dict[str, Any]) -> Dict[str, Any]:
+        result = postprocess(row)
+        if isinstance(result, dict) and isinstance(row, dict):
+            for key in _ERROR_COLUMNS:
+                if key in row and key not in result:
+                    result[key] = row[key]
+        return result
+    wrapped.__wrapped__ = postprocess  # type: ignore[attr-defined]
+    return wrapped
+
+
 def run_vllm_inference(
+    df: pd.DataFrame,
+    cfg,
+    preprocess: Callable[[Dict[str, Any]], Dict[str, Any]],
+    postprocess: Callable[[Dict[str, Any]], Dict[str, Any]],
+    stage_name: str = "vllm_inference",
+) -> pd.DataFrame:
+    """Run vLLM batch inference on a DataFrame. See ``_run_vllm_inference``.
+
+    This wrapper keeps the error columns through ``postprocess``. It logs the
+    number of rows whose images did not load. With ``runtime.strict_images``,
+    it stops the stage when such a row exists. (The single-GPU path stops at
+    the first such row. The DP path stops here, after the inference.)
+    """
+    out = _run_vllm_inference(df, cfg, preprocess, _keep_error_columns(postprocess), stage_name)
+    if isinstance(out, pd.DataFrame) and "__image_load_error__" in out.columns:
+        bad = [v for v in out["__image_load_error__"] if isinstance(v, str) and v]
+        if bad:
+            _check_image_errors({0: f"{len(bad)} rows. First: {bad[0]}"}, stage_name,
+                                _strict_images_setting(cfg))
+            logger.warning(
+                f"[{stage_name}] {len(bad)} rows have images that did not load. The model "
+                f"did not see these rows: they have an empty answer and "
+                f"__image_load_error__. First: {bad[0]}. Set runtime.strict_images=true "
+                f"to stop on the first one."
+            )
+    return out
+
+
+def _run_vllm_inference(
     df: pd.DataFrame,
     cfg,
     preprocess: Callable[[Dict[str, Any]], Dict[str, Any]],
@@ -2248,6 +2346,9 @@ def run_vllm_inference(
             try:
                 preprocessed_rows.append(preprocess(row))
             except Exception as e:
+                if isinstance(e, ImageLoadError):
+                    _check_image_errors({idx: str(e)}, stage_name, _strict_images_setting(cfg))
+                    row["__image_load_error__"] = str(e)
                 row["__preprocess_error__"] = str(e)
                 print(f"[{stage_name}] Preprocess error on row {idx}: {e}")
                 preprocessed_rows.append(row)
@@ -2476,6 +2577,7 @@ def run_vllm_inference(
 
             gen_records: List[Dict[str, Any]] = []
             shared_sp = sampling_params_list if not isinstance(sampling_params_list, list) else None
+            _strict_images = _strict_images_setting(cfg)
             for _chunk_start in range(0, len(prompts), _resume_rows):
                 _chunk_end = min(_chunk_start + _resume_rows, len(prompts))
                 _cached = _read_resume_chunk(
@@ -2508,14 +2610,25 @@ def run_vllm_inference(
                         # messages and let llm.chat() insert the placeholders.
                         import gc
                         batch_messages = []
+                        _sent_sp = []
+                        _skipped: Dict[int, str] = {}
                         for j in range(start, end):
                             msgs_j = preprocessed_rows[valid_indices[j]].get("messages") or []
-                            batch_messages.append(_hydrate_messages_for_chat(msgs_j, _decoded))
+                            hydrated = _hydrate_messages_for_chat(msgs_j, _decoded)
+                            _err = _image_load_error(msgs_j, _count_image_refs(hydrated))
+                            if _err:
+                                _skipped[j - start] = _err
+                                continue
+                            batch_messages.append(hydrated)
+                            _sent_sp.append(sampling_batch if shared_sp else sampling_batch[j - start])
+                        _check_image_errors(_skipped, stage_name, _strict_images)
                         _ctk = dict(getattr(cfg.model, "chat_template_kwargs", {}) or {})
                         _chat_extra = {"chat_template_kwargs": _ctk} if _ctk else {}
-                        batch_outputs = list(llm.chat(
-                            batch_messages, sampling_batch, use_tqdm=False, **_chat_extra,
-                        ))
+                        _outs = list(llm.chat(
+                            batch_messages, sampling_batch if shared_sp else _sent_sp,
+                            use_tqdm=False, **_chat_extra,
+                        )) if batch_messages else []
+                        batch_outputs = _with_skipped(_outs, _skipped, end - start)
                         del batch_messages
                         gc.collect()
                     elif _has_any_images:
@@ -2526,10 +2639,17 @@ def run_vllm_inference(
                         import gc
                         from vllm import TokensPrompt
                         mm_prompts = []
+                        _sent_sp = []
+                        _skipped = {}
                         _batch_imgs: List[Any] = []  # keep refs alive until generate() returns
                         for j in range(start, end):
                             msgs_j = preprocessed_rows[valid_indices[j]].get("messages")
                             imgs = _extract_images_from_messages(msgs_j, _decoded) if msgs_j else None
+                            _err = _image_load_error(msgs_j, len(imgs or []))
+                            if _err:
+                                _skipped[j - start] = _err
+                                continue
+                            _sent_sp.append(sampling_batch if shared_sp else sampling_batch[j - start])
                             if imgs:
                                 _batch_imgs.extend(imgs)
                                 # Tokenize with image placeholders to get token IDs
@@ -2540,7 +2660,12 @@ def run_vllm_inference(
                                 ))
                             else:
                                 mm_prompts.append(prompt_batch[j - start])
-                        batch_outputs = list(llm.generate(mm_prompts, sampling_batch, lora_request=lora_request))
+                        _check_image_errors(_skipped, stage_name, _strict_images)
+                        _outs = list(llm.generate(
+                            mm_prompts, sampling_batch if shared_sp else _sent_sp,
+                            lora_request=lora_request,
+                        )) if mm_prompts else []
+                        batch_outputs = _with_skipped(_outs, _skipped, end - start)
                         # Free this batch's decoded images before decoding the next.
                         del mm_prompts, _batch_imgs
                         gc.collect()
@@ -2594,6 +2719,8 @@ def run_vllm_inference(
                 # `_records_from_outputs`; a resumed job reads the same shape
                 # back from its chunk parquet.
                 record = next(output_iter)
+                if isinstance(record.get("image_load_error"), str):
+                    row["__image_load_error__"] = record["image_load_error"]
                 raw_text = record.get("raw_text") or ""
                 if raw_text:
                     reasoning, content = _split_reasoning(
@@ -2780,6 +2907,32 @@ def _write_resume_chunk(
             pass
 
 
+def _strict_images_setting(cfg) -> bool:
+    """``runtime.strict_images``: stop the stage when an image does not load."""
+    try:
+        return bool(getattr(getattr(cfg, "runtime", None), "strict_images", False) or False)
+    except Exception:
+        return False
+
+
+def _check_image_errors(skipped: Dict[int, str], stage_name: str, strict: bool) -> None:
+    """Stop the stage on a row with missing images when ``strict`` is set."""
+    if skipped and strict:
+        first = next(iter(skipped.values()))
+        raise RuntimeError(f"[{stage_name}] runtime.strict_images=true: {first}")
+
+
+def _with_skipped(outputs: List[Any], skipped: Dict[int, str], n: int) -> List[Any]:
+    """Put a skip record at each skipped position, so the outputs align with the rows."""
+    if not skipped:
+        return outputs
+    it = iter(outputs)
+    merged = [_skipped_record(skipped[i]) if i in skipped else next(it) for i in range(n)]
+    if next(it, None) is not None:
+        raise RuntimeError("vLLM returned more outputs than the rows that it got")
+    return merged
+
+
 def _records_from_outputs(outputs: List[Any]) -> List[Dict[str, Any]]:
     """Reduce vLLM outputs to what the postprocess step reads.
 
@@ -2788,6 +2941,9 @@ def _records_from_outputs(outputs: List[Any]) -> List[Dict[str, Any]]:
     """
     records: List[Dict[str, Any]] = []
     for output in outputs:
+        if isinstance(output, dict):  # a row that did not go to the model
+            records.append(output)
+            continue
         raw_text = ""
         completion_tokens = 0
         if getattr(output, "outputs", None):

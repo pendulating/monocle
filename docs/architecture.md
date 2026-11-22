@@ -148,6 +148,7 @@ A row gives its images as a local path, a `file://` path, a `data:` base64 URI
 or a PIL image. A relative path joins `data.image_root`. Inference opens the
 images batch by batch, thus the memory holds about one batch of images.
 
-**Warning:** the stage does not download an `http(s)` URL, and it drops an
-image that does not load. The model then answers with the text only, and the
-run continues. See [gotchas.md](gotchas.md).
+**Warning:** the stage does not download an `http(s)` URL. A row with an image
+that does not load gets an empty answer and `__image_load_error__`, and the run
+continues. Set `runtime.strict_images=true` to stop the run. See
+[gotchas.md](gotchas.md).

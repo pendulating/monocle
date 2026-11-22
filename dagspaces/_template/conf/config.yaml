@@ -13,6 +13,9 @@ runtime:
   debug: false
   sample_n: null
   output_root: null
+  # Stop the stage when an image of a row does not load. With false, the row
+  # gets an empty answer and __image_load_error__, and the stage continues.
+  strict_images: false
   job_memory_gb: 32
   # The launcher of each stage job, for example slurm_gpu_1x. With null, the
   # stages run in the process of the CLI (or of the monitor job).

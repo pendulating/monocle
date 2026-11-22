@@ -343,6 +343,14 @@ def _make_preprocess(cfg: DictConfig):
         # The common vllm_inference.py expects images in message content blocks
         if is_multimodal:
             pil_img = _resolve_pil_image(row)
+            if pil_img is None and _names_an_image(row):
+                from dagspaces.common.vllm_inference import ImageLoadError
+
+                raise ImageLoadError(
+                    f"image did not load: {str(row.get('image_path'))[:200]} "
+                    f"(a missing file, an unreadable file, or a URL, which the stage "
+                    f"does not download)"
+                )
             if pil_img is not None:
                 # Rewrite messages with PIL image in content blocks
                 # (for compatibility with common vllm_inference multimodal path)
@@ -388,6 +396,14 @@ def _make_preprocess(cfg: DictConfig):
         return result
 
     return preprocess
+
+
+def _names_an_image(row: Dict[str, Any]) -> bool:
+    """True when the row gives an image (a path or an in-memory image)."""
+    path = row.get("image_path")
+    if isinstance(path, str) and path.strip():
+        return True
+    return row.get("image") is not None
 
 
 def _make_postprocess(cfg: DictConfig):

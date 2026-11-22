@@ -19,6 +19,9 @@ runtime:
   debug: false
   sample_n: null
   output_root: null
+  # Stop the stage when an image of a row does not load. With false, the row
+  # gets an empty answer and __image_load_error__, and the stage continues.
+  strict_images: false
   job_memory_gb: 64
   # Debug/smoke option to skip model inference and emit deterministic labels.
   skip_inference: false
