@@ -42,7 +42,7 @@
 # Then compare the NotSure rate of the two arms.
 #
 # Warning: these runs are NOT canonical, and a thinking run uses different
-# sampling. `notebooks/cvpr/_provenance.py` drops them.
+# sampling. `research/notebooks/cvpr/_provenance.py` drops them.
 
 sampling_params_vqa:
   # Google's standard sampling for gemma-4: temperature 1.0, top_p 0.95,

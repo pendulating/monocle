@@ -1,4 +1,4 @@
-"""Unit tests for the abstention part of `notebooks/cvpr/_trace_channels.py`.
+"""Unit tests for the abstention part of `research/notebooks/cvpr/_trace_channels.py`.
 
 These tests build small frames by hand. They read no corpus and need no GPU.
 They cover the trace frame (the reason and marker counts), the AUC of each
@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 import _trace_channels as TC  # noqa: E402
 

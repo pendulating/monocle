@@ -11,7 +11,7 @@ the GPU.
 | Examples | `dagspaces/common/ic_examples_v2.json` |
 | Stage | `dagspaces/pairwisevqa/stages/ic_extract.py` |
 | Pipeline | `dagspaces/pairwisevqa/conf/pipeline/ic_extract.yaml` |
-| Merge | `scripts/merge_trace_extractions.py --schema ic` |
+| Merge | `research/scripts/merge_trace_extractions.py --schema ic` |
 
 ## The rule that makes it work
 
@@ -112,7 +112,7 @@ and model:
 export HYDRA_SWEEP_DIR=multirun/ic_<name>
 .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.pairwisevqa.cli -m \
     pipeline=ic_extract \
-    ic_extract.results_path=notebooks/cvpr/canonical_data/trace/canonical/<case>__gemma-4-12b/results.parquet \
+    ic_extract.results_path=research/notebooks/cvpr/canonical_data/trace/canonical/<case>__gemma-4-12b/results.parquet \
     ic_extract.shard_count=6 ic_extract.shard_index=0,1,2,3,4,5 \
     hydra.launcher.array_parallelism=4
 ```
@@ -124,7 +124,7 @@ that, every registry link is called `results.parquet`, and the case would be
 Then merge:
 
 ```bash
-python scripts/merge_trace_extractions.py multirun/ic_<name>/... --schema ic
+python research/scripts/merge_trace_extractions.py multirun/ic_<name>/... --schema ic
 ```
 
 ## Cost
@@ -180,9 +180,9 @@ and none for image B has described, not differentiated.
 
 | Piece | Where |
 |-------|-------|
-| Loader, tables, and figures | `notebooks/cvpr/_ic.py` |
-| Notebook | `notebooks/cvpr/master/ic_complexity.py` |
-| Headless export | `scripts/export_cvpr_ic_figures.py` |
+| Loader, tables, and figures | `research/notebooks/cvpr/_ic.py` |
+| Notebook | `research/notebooks/cvpr/master/ic_complexity.py` |
+| Headless export | `research/scripts/export_cvpr_ic_figures.py` |
 
 Both paths hold 2 gates: the canonical registry must match the disk, and the
 corpus must come from the REGISTERED thinking runs
@@ -196,7 +196,7 @@ about.
 
 ## The word blocks
 
-`notebooks/cvpr/_ic_words.py` counts the words of the located SPANS, not of the
+`research/notebooks/cvpr/_ic_words.py` counts the words of the located SPANS, not of the
 whole trace, and asks what each part of the reasoning sounds like. The weights
 use the same `distinctive` score as the trace clouds, thus a word grows when 1
 block uses it and the others do not.
@@ -255,7 +255,7 @@ as a data-quality signal first.
 
 ## The link to the proxy
 
-`notebooks/cvpr/_ic_link.py` and `master/ic_linking.py` ask whether a complex
+`research/notebooks/cvpr/_ic_link.py` and `master/ic_linking.py` ask whether a complex
 trace agrees with the outside measurement more often than a simple one. The
 join happens at the POLYGON, because no per-unit proxy exists:
 

@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import torch
 
-from monocle import causal_words as cw
+from research.monocle import causal_words as cw
 
 
 class FakeTok:

@@ -42,7 +42,7 @@
 # from `x2_smoke_doc_ids.json`.
 #
 # Every `extraction_text` appears in its own `text` word for word.
-# `scripts/f4/build_descriptor_v6_examples.py --case street` builds each span
+# `research/scripts/f4/build_descriptor_v6_examples.py --case street` builds each span
 # as a slice of its text and prints the examples block. Change an example
 # there, not here.
 #

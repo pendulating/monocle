@@ -2,7 +2,7 @@
 
 **Status:** proposed — awaiting scaffold
 **Owner:** mllmsci
-**Target path:** `dagspaces/urbanvit/`
+**Target path:** `research/dagspaces/urbanvit/`
 **Purpose:** High-throughput ViT training and inference over Cyclomedia street view imagery. First concrete use case: scaffolding classification (three-way: none / standard green / fancy white).
 
 ## Why a new dagspace
@@ -33,7 +33,7 @@ All existing dagspaces wrap VLM inference via vLLM. UrbanViT is the home for pur
 ## Directory layout
 
 ```
-dagspaces/urbanvit/
+research/dagspaces/urbanvit/
 ├── __init__.py
 ├── __main__.py
 ├── cli.py

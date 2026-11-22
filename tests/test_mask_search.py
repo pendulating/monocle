@@ -12,7 +12,7 @@ REPO = Path(__file__).resolve().parent.parent
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle.mask_search import MaskBlender  # noqa: E402
+from research.monocle.mask_search import MaskBlender  # noqa: E402
 
 
 def _h(b=1, n=8, d=4):
@@ -76,7 +76,7 @@ class TestCellToSlot:
     """1 mask value must cover every slot of its block."""
 
     def test_a_group_shares_one_value(self):
-        from monocle.patch_map_causal import patch_groups
+        from research.monocle.patch_map_causal import patch_groups
         groups = patch_groups(16, 2)
         n_cell, n_slot = len(groups), 16
         m = torch.zeros(n_cell, n_slot)
@@ -112,14 +112,14 @@ class TestAttnMasker:
 
     def test_a_weight_of_one_adds_nothing(self):
         import torch
-        from monocle.mask_search import AttnMasker
+        from research.monocle.mask_search import AttnMasker
         m = self._mask((1, 4, 6, 6))
         _, kw = AttnMasker([2, 3], torch.ones(2))(None, (), {"attention_mask": m})
         assert torch.allclose(kw["attention_mask"], m)
 
     def test_a_small_weight_drives_the_key_down(self):
         import torch
-        from monocle.mask_search import AttnMasker
+        from research.monocle.mask_search import AttnMasker
         m = self._mask((1, 4, 6, 6))
         _, kw = AttnMasker([2], torch.tensor([1e-6]))(
             None, (), {"attention_mask": m})
@@ -130,7 +130,7 @@ class TestAttnMasker:
 
     def test_a_three_dim_mask_works(self):
         import torch
-        from monocle.mask_search import AttnMasker
+        from research.monocle.mask_search import AttnMasker
         m = self._mask((1, 6, 6))
         _, kw = AttnMasker([1], torch.tensor([1e-6]))(
             None, (), {"attention_mask": m})
@@ -138,7 +138,7 @@ class TestAttnMasker:
 
     def test_the_gradient_reaches_the_weight(self):
         import torch
-        from monocle.mask_search import AttnMasker
+        from research.monocle.mask_search import AttnMasker
         w = torch.full((2,), 0.5, requires_grad=True)
         m = self._mask((1, 2, 4, 4))
         _, kw = AttnMasker([1, 2], w)(None, (), {"attention_mask": m})
@@ -148,13 +148,13 @@ class TestAttnMasker:
 
     def test_a_boolean_mask_is_refused(self):
         import torch
-        from monocle.mask_search import AttnMasker
+        from research.monocle.mask_search import AttnMasker
         m = torch.zeros((1, 2, 4, 4), dtype=torch.bool)
         with pytest.raises(RuntimeError, match="boolean"):
             AttnMasker([1], torch.ones(1))(None, (), {"attention_mask": m})
 
     def test_a_missing_mask_is_refused(self):
         import torch
-        from monocle.mask_search import AttnMasker
+        from research.monocle.mask_search import AttnMasker
         with pytest.raises(RuntimeError, match="eager"):
             AttnMasker([1], torch.ones(1))(None, (), {})

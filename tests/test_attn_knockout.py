@@ -1,8 +1,8 @@
-"""Cutting the answer's view of the image. See monocle/attn_knockout.py."""
+"""Cutting the answer's view of the image. See research/monocle/attn_knockout.py."""
 import pytest
 import torch
 
-from monocle import attn_knockout as ak
+from research.monocle import attn_knockout as ak
 
 
 class TestMaskPatcher:

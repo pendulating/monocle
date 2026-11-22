@@ -1,8 +1,8 @@
-"""Is the map about the question? See monocle/prompt_specificity.py."""
+"""Is the map about the question? See research/monocle/prompt_specificity.py."""
 import numpy as np
 import pytest
 
-from monocle import prompt_specificity as ps
+from research.monocle import prompt_specificity as ps
 
 
 class TestPromptSpec:
@@ -11,7 +11,7 @@ class TestPromptSpec:
 
     def test_the_control_is_not_a_case(self):
         """`daylight` must not leak into the 7-case battery."""
-        from monocle import single as sg
+        from research.monocle import single as sg
         assert "daylight" not in sg.CASE_RATING
 
     def test_the_control_asks_nothing_about_quality(self):

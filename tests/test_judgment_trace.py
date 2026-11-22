@@ -1,11 +1,11 @@
-"""The position-by-layer judgment trace. See monocle/judgment_trace.py."""
+"""The position-by-layer judgment trace. See research/monocle/judgment_trace.py."""
 import numpy as np
 import pandas as pd
 import pytest
 import torch
 
-from monocle import judgment_trace as jt
-from monocle.attn_route import BOI_TOKEN_ID, EOI_TOKEN_ID
+from research.monocle import judgment_trace as jt
+from research.monocle.attn_route import BOI_TOKEN_ID, EOI_TOKEN_ID
 
 IMG = 258880
 

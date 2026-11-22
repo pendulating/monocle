@@ -37,7 +37,7 @@ thinking on is a possible second arm.
 
 ### The image sample
 
-`scripts/whatami/sample_images.py` draws the sample (seed 20261020).
+`research/scripts/whatami/sample_images.py` draws the sample (seed 20261020).
 
 1. The frame is the 2025 Cyclomedia coverage: the `year=2025` partitions of the
    five `*_2025_1k` datasets in `/share/ju/cyclomedia/catalog/v1`. The 2017
@@ -93,7 +93,7 @@ Llama Guard 3 Vision uses the same architecture.
 
 The SGLang stack:
 
-- The pins are in `scripts/whatami/requirements-sglang0522-cu130.txt`: torch
+- The pins are in `research/scripts/whatami/requirements-sglang0522-cu130.txt`: torch
   2.14.1+cu130, sglang-kernel 0.4.9+cu130, transformers 5.19.0, flashinfer
   0.7.1.
 - Take sglang-kernel from the cu130 index (`docs.sglang.ai/whl/cu130`). Its
@@ -101,7 +101,7 @@ The SGLang stack:
   B300 (10.3). The PyPI build holds only `sm_100a` and `sm_120a`, which do not.
 - The SGLang 0.5.22 wheels are `manylinux_2_34`. Compile for
   `x86_64-manylinux_2_39` (glibc 2.39 on g3), not 2.28.
-- `scripts/whatami/ensure_scratch_venv.sh` builds the venv on node `/scratch`
+- `research/scripts/whatami/ensure_scratch_venv.sh` builds the venv on node `/scratch`
   in the job. The marker holds the sha of the pins.
 - The job sets `CUDA_HOME=/usr/local/cuda-13.3` for this venv.
 - The job sets `--attention-backend flashinfer`. On Blackwell, SGLang selects
@@ -145,10 +145,10 @@ A first copy of the weights from NFS to `/scratch` ran at 36 to 200 MB/s on
 
 ```bash
 # from the project root, on any host that can submit to g3
-bash scripts/whatami/submit_all.sh                         # the 4 models in a chain
-bash scripts/whatami/submit_all.sh llama-3.2-90b           # one model
+bash research/scripts/whatami/submit_all.sh                         # the 4 models in a chain
+bash research/scripts/whatami/submit_all.sh llama-3.2-90b           # one model
 WHATAMI_TAG=smoke WHATAMI_LIMIT=5 WHATAMI_REPEATS=2 \
-  bash scripts/whatami/submit_all.sh gemma-4-12b           # a smoke test
+  bash research/scripts/whatami/submit_all.sh gemma-4-12b           # a smoke test
 ```
 
 QoS `nissenbaum` gives the group 1 GPU. Thus the jobs run one after the other.
@@ -156,16 +156,16 @@ The chain uses `afterany`, thus a failed model does not block the next one.
 
 ### What one job does
 
-`scripts/whatami/serve_and_query.sbatch`:
+`research/scripts/whatami/serve_and_query.sbatch`:
 
 1. It gets the venv. The vLLM 0.25 venv comes from its `/scratch` mirror
    (`activate_stage_venv.sh`). The SGLang venv is built on `/scratch`.
-2. `scripts/whatami/stage_inputs.sh` copies the weights and the 1,000 images to
+2. `research/scripts/whatami/stage_inputs.sh` copies the weights and the 1,000 images to
    `/scratch/$USER/whatami/`. Each copy has a `.sync_complete` marker.
 3. It starts the server on `127.0.0.1` and waits for `/health`. vLLM gets
    `--allowed-local-media-path` set to the image copy. SGLang reads any local
    path.
-4. `scripts/whatami/query.py` sends the requests (128 at a time). The repeats of
+4. `research/scripts/whatami/query.py` sends the requests (128 at a time). The repeats of
    one image go together, thus the server can reuse the image encoding.
 5. It stops the server.
 

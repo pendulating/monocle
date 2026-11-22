@@ -16,7 +16,7 @@ fixed effects for the image content and asks: does the NTA coefficient stay?
 
 | Item | Value |
 |------|-------|
-| Script | `scripts/f8/method_b.py` 1.0.0 (module and CLI) |
+| Script | `research/scripts/f8/method_b.py` 1.0.0 (module and CLI) |
 | Test | `tests/test_f8_method_b.py` (7 tests, all pass) |
 | Data | the pool (`data/f4_traces/pooled/`), the x2 spans, read with `_f4.load_extractions` and `_f4.spans` |
 | Unit | 1 text: 1 (model, case, field, image) |
@@ -54,7 +54,7 @@ the p values agree.
 | Cuisine FE | `_f4.image_cuisines(100)`: 26 cuisines, plus `other (small)` for cuisines with fewer than 100 images | the 4.12 rule |
 | Grade FE | the DOHMH grade with the `grade_date` closest to the capture time of the image, before or after | see the next table |
 | Borough FE | the first 2 letters of the NTA code (MN, BX, BK, QN, SI) | the NTA sits inside 1 borough, thus the borough is the same for each image of 1 NTA |
-| Output folder | `figures/f8/method_b/` at the repository root | the brief of the run gave this path |
+| Output folder | `research/figures/f8/method_b/` at the repository root | the brief of the run gave this path |
 
 The DOHMH grade. The source is the inspection table
 `curation/dohmh_restaurants_inspected_all/restaurants.parquet` (1 row for
@@ -81,7 +81,7 @@ cannot give the grade at the capture time.
 
 ## Results
 
-The full table is `figures/f8/method_b/valence_fits.csv`. A summary for
+The full table is `research/figures/f8/method_b/valence_fits.csv`. A summary for
 each (model, case, field) is `valence_summary.csv`; the totals for each
 case are `valence_cases.csv`. `share_kept` = beta1 / beta0.
 
@@ -143,7 +143,7 @@ What the results show:
    coefficient stays but the SE grows. For example, gemma-4-12b % bachelor's
    has a share of 0.98, but its SE goes from 0.0025 to 0.0039.
 
-Figure: `figures/f8/method_b/valence_betas.png`. 1 panel for each (case,
+Figure: `research/figures/f8/method_b/valence_betas.png`. 1 panel for each (case,
 field); beta1 against beta0, with the identity line. A hollow marker is a
 row that is not significant in model 1.
 
@@ -192,11 +192,11 @@ The result does not change.
 
 The default outcome (about 80 s, mostly to read the spans):
 
-    .venv-mllmsci-vllm025cu129/bin/python scripts/f8/method_b.py
+    .venv-mllmsci-vllm025cu129/bin/python research/scripts/f8/method_b.py
 
 With an external per-text outcome, for example the R3 readout `c` of F8.3:
 
-    .venv-mllmsci-vllm025cu129/bin/python scripts/f8/method_b.py \
+    .venv-mllmsci-vllm025cu129/bin/python research/scripts/f8/method_b.py \
         --outcome-parquet PATH.parquet --outcome-col c_yes --tag r3_c_yes
 
 The parquet needs the columns `model`, `case`, the outcome column, and

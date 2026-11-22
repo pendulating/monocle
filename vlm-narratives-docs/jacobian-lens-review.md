@@ -4,12 +4,12 @@ Date: 2026-08-31. Scope: how monocle trains, implements, and uses the
 Jacobian lens for causal interpretability of gemma-4-12B-it on the 7
 canonical cases.
 
-Files reviewed: `monocle/jlens_fit.py`, `monocle/jlens_fit_mm.py`,
-`monocle/jlens_fit_ladder.py`, `monocle/jlens_merge_mm.py`,
-`monocle/jlens_read.py`, `monocle/jlens_validate.py`,
-`monocle/jlens_compare.py`, `monocle/jlens_steer.py`,
-`monocle/judgment_trace.py`, `monocle/safety_workspace.py`,
-`monocle/canonical.py`, the vendored `sub/jacobian-lens` package, and the 5
+Files reviewed: `research/monocle/jlens_fit.py`, `research/monocle/jlens_fit_mm.py`,
+`research/monocle/jlens_fit_ladder.py`, `research/monocle/jlens_merge_mm.py`,
+`research/monocle/jlens_read.py`, `research/monocle/jlens_validate.py`,
+`research/monocle/jlens_compare.py`, `research/monocle/jlens_steer.py`,
+`research/monocle/judgment_trace.py`, `research/monocle/safety_workspace.py`,
+`research/monocle/canonical.py`, the vendored `sub/jacobian-lens` package, and the 5
 lens documents in this folder.
 
 ## Summary
@@ -106,7 +106,7 @@ statement. See P5.
 
 | # | File | Issue | Status |
 |---|---|---|---|
-| C1 | `monocle/canonical.py` + `canonical-lens-prompt-path.md` | The docstrings say the criterion demands `interleaved_labels`; `REQUIRED_LAYOUT` says `images_then_labels` and marks the other REJECTED. The doc page carries the stale name throughout. | fixed 2026-09-01; 5 more stale doc spots fixed too |
+| C1 | `research/monocle/canonical.py` + `canonical-lens-prompt-path.md` | The docstrings say the criterion demands `interleaved_labels`; `REQUIRED_LAYOUT` says `images_then_labels` and marks the other REJECTED. The doc page carries the stale name throughout. | fixed 2026-09-01; 5 more stale doc spots fixed too |
 | C2 | `jlens/lens.py` + `jlens_merge_mm.py` | Completed shards save J in fp16; a merge over final files loses precision that a merge over fp32 checkpoints keeps. | fixed 2026-09-01 |
 | C3 | `jlens/lens.py` `transport()` | Moves the 59 MB J from host to GPU on every call; part (a) moves about 4 GB per pair. Cache per device. | fixed 2026-09-01 |
 | C4 | `safety_workspace.py` | The equal-layer assert forbids a mixed lens set, so the 47-layer lens cannot join. Intersect instead. | fixed 2026-09-01 |
@@ -126,8 +126,8 @@ statement. See P5.
 | P2 | Repeat the readout of part (a) through the 47-layer lens. Gives 1-layer resolution and removes the global-attention confound. Needs C4. | done 2026-09-01 — see `workspace-depth-47.md`: the judgment becomes decodable over a ramp L40-45, first at the L41 global-attention layer, with a peak at L45 (a layer inside a run of sliding-attention layers), so the layer-type confound is removed and "L42" was an artifact of the grid spacing |
 | P3 | State the scope of the 0.8 threshold, and compute the narrower last-token-position agreement from `trace.parquet`. | done 2026-09-01 — the narrow readout exceeds the threshold; see Resolutions |
 | P4 | Add a self-agreement column to part (a): depth argmax against the same condition's own final answer. Computable from the saved parquet. | done 2026-09-01 |
-| P5 | Paired production-neutral statistics per layer: bootstrap interval, BH over layers. | done 2026-09-01 — `scripts/answer_depth_stats.py`; see Resolutions |
-| P6 | A lens registry: path, sha256, rules, masks, corpus + hash, n, layers, dim_batch, fit jobs, validation report. | done 2026-09-01 — `scripts/register_lenses.py` + `lens-registry.md` |
+| P5 | Paired production-neutral statistics per layer: bootstrap interval, BH over layers. | done 2026-09-01 — `research/scripts/answer_depth_stats.py`; see Resolutions |
+| P6 | A lens registry: path, sha256, rules, masks, corpus + hash, n, layers, dim_batch, fit jobs, validation report. | done 2026-09-01 — `research/scripts/register_lenses.py` + `lens-registry.md` |
 | P7 | Resolve F3: label the part (b) figures as readouts of representation, not of causal effect, or retire them. | done 2026-09-01 |
 | P8 | Close or reopen the activation-addition question: one weak-coefficient condition at the centered scale, and a pseudo-inverse pre-image condition. | done 2026-09-01 — question CLOSED; see `steering-weak-alpha.md`: both pre-images are null at a weak coefficient, and the cause is structural (the translator reconstructs about 5 percent of the label direction) |
 
@@ -139,7 +139,7 @@ The fixes above ran, and three flaws now have measured answers.
 
 The 0.8 threshold applies to the all-position content readout. The L42
 claim decodes a 2-token label contrast at one position.
-`scripts/lens_agreement_answer.py` measures the agreement for that narrow
+`research/scripts/lens_agreement_answer.py` measures the agreement for that narrow
 readout, across images, at the last token position (mm against wikitext,
 subway_safety):
 
@@ -156,7 +156,7 @@ paper quotes the narrow r.
 
 ### F5 and F6 resolve against the wording "never under neutral"
 
-`scripts/answer_depth_stats.py` (300 pairs, paired, 20000-resample
+`research/scripts/answer_depth_stats.py` (300 pairs, paired, 20000-resample
 bootstrap, BH over layers) gives these results. The production-minus-neutral
 difference at the label position is +0.027 [+0.021, +0.032] in
 p(production label) and +0.47 [+0.41, +0.53] in 4-way agreement at mm L42,
@@ -173,7 +173,7 @@ median columns, not the means, below L36.
 
 ### F1 resolves against a causal reading of the lens depth
 
-The ablation ran (`label-ablation.md`, `monocle/label_ablate.py`, 150
+The ablation ran (`label-ablation.md`, `research/monocle/label_ablate.py`, 150
 pairs, 5 layers, matched controls). Ablation of the rank-5 label subspace
 at L42 changes the judgment by +0.043 logits [+0.018, +0.068] over the
 matched control, on a judgment scale of about 5 logits, and flips 2.0
@@ -238,7 +238,7 @@ gemma-4-12B-it tokenizer:
 
 The words "appealing", "dislike", "neglected", "inviting", "rundown", and
 "shabby" split into 2 or more tokens, so they are not usable. The script
-is `monocle/single_steer.py`. Its `--coverage` mode measures the
+is `research/monocle/single_steer.py`. Its `--coverage` mode measures the
 translator reconstruction error of each case's contrast direction before
 any sweep; the P8 null result was structural, and the new directions must meet
 this criterion first. Results: see `single-image-steering.md`.

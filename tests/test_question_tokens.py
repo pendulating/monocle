@@ -1,10 +1,10 @@
-"""Which word of the question carries it. See monocle/question_tokens.py."""
+"""Which word of the question carries it. See research/monocle/question_tokens.py."""
 import numpy as np
 import pytest
 import torch
 
-from monocle import question_tokens as qt
-from monocle.attn_route import BOI_TOKEN_ID, EOI_TOKEN_ID
+from research.monocle import question_tokens as qt
+from research.monocle.attn_route import BOI_TOKEN_ID, EOI_TOKEN_ID
 
 IMG = 258880
 

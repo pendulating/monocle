@@ -17,7 +17,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import extract, scoring  # noqa: E402
+from research.monocle import extract, scoring  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -213,7 +213,7 @@ class TestAttachGrid:
 # ---------------------------------------------------------------------------
 class TestCliArgparse:
     def test_image_source_and_defaults(self):
-        from monocle import cli
+        from research.monocle import cli
 
         args = cli.build_parser().parse_args(["--image", "x.jpg"])
         # action="append" + nargs="+" -> list of lists
@@ -226,7 +226,7 @@ class TestCliArgparse:
         assert args.faces == cli.DEFAULT_FACES
 
     def test_recording_source_and_faces(self):
-        from monocle import cli
+        from research.monocle import cli
 
         args = cli.build_parser().parse_args(
             ["--recording-id", "W0D0M3OU", "--dataset", "brooklyn_2025_1k",
@@ -308,7 +308,7 @@ class TestLensPatchLogits:
     import, no model."""
 
     def _setup(self):
-        import monocle.jlens_read as jr
+        import research.monocle.jlens_read as jr
 
         torch.manual_seed(0)
         seq, d = 3, 4
@@ -354,7 +354,7 @@ class TestLensPatchLogits:
 # ---------------------------------------------------------------------------
 class TestCliLayerArgs:
     def test_jlens_flags_parse(self):
-        from monocle import cli
+        from research.monocle import cli
 
         args = cli.build_parser().parse_args(
             ["--image", "x.jpg", "--jlens", "x.pt", "--layers", "6,12",
@@ -367,28 +367,28 @@ class TestCliLayerArgs:
         assert cli.parse_layers(args.layers) == [6, 12]
 
     def test_parse_layers_default_and_empty(self):
-        from monocle import cli
+        from research.monocle import cli
 
         assert cli.parse_layers(None) is None
         assert cli.parse_layers("") is None
         assert cli.parse_layers(" 6 , 12 ,24 ") == [6, 12, 24]
 
     def test_gif_without_jlens_errors(self):
-        from monocle import cli
+        from research.monocle import cli
 
         args = cli.build_parser().parse_args(["--image", "x.jpg", "--gif"])
         with pytest.raises(ValueError):
             cli.validate_jlens_args(args)
 
     def test_scrubber_without_jlens_errors(self):
-        from monocle import cli
+        from research.monocle import cli
 
         args = cli.build_parser().parse_args(["--image", "x.jpg", "--scrubber"])
         with pytest.raises(ValueError):
             cli.validate_jlens_args(args)
 
     def test_jlens_without_render_flags_is_valid(self):
-        from monocle import cli
+        from research.monocle import cli
 
         args = cli.build_parser().parse_args(["--image", "x.jpg", "--jlens", "x.pt"])
         # no --gif/--scrubber: nothing to validate, must not raise

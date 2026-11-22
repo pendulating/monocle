@@ -6,8 +6,8 @@ in the vision embedder. See
 [gemma4-12b-architecture.md](gemma4-12b-architecture.md). On this page, Ln
 denotes layer n.
 
-`monocle/patch_attribution.py` scores each image token of a pairwise run.
-`monocle/patch_causal.py` tests whether those scores are correct.
+`research/monocle/patch_attribution.py` scores each image token of a pairwise run.
+`research/monocle/patch_causal.py` tests whether those scores are correct.
 
 Read this page before you read an image-token attribution map. The layer
 result it depends on is in [where-the-judgment-lives.md](where-the-judgment-lives.md).
@@ -370,7 +370,7 @@ correlates with `c` at r about 0.8, and the image tokens it highlights change
 
 ### The recommended figure path
 
-`monocle/causal_maps.py` measures the effect of each image token instead of
+`research/monocle/causal_maps.py` measures the effect of each image token instead of
 predicting it.
 
 1. Use **L20**. The module rejects a layer at or above 30.
@@ -469,14 +469,14 @@ normalizer, and `parts_over_whole` in `map_stats.parquet` reports the sum over
 image tokens against it.
 
 ```bash
-sbatch --time=01:00:00 monocle/monocle.sub monocle.causal_maps \
+sbatch --time=01:00:00 research/monocle/monocle.sub monocle.causal_maps \
     --cases subway_safety --n-images 20 --reference absent --group 2
 ```
 
 Verify the path on 1 image first:
 
 ```bash
-sbatch --time=00:30:00 monocle/monocle.sub monocle.patch_ablate \
+sbatch --time=00:30:00 research/monocle/monocle.sub monocle.patch_ablate \
     --case subway_safety
 ```
 
@@ -502,7 +502,7 @@ the model judges a blurred scene and the run leaves the production path. The
 grouped replacement keeps the production input and costs 1/4 of the GPU time.
 
 ```bash
-sbatch --time=01:00:00 monocle/monocle.sub monocle.causal_maps \
+sbatch --time=01:00:00 research/monocle/monocle.sub monocle.causal_maps \
     --cases subway_safety --n-images 20 --n-donors 3 --layer 20 --group 2
 ```
 
@@ -515,7 +515,7 @@ A grouped replacement is also the additivity test. Run the fine map and the
 grouped map with the same seed, then:
 
 ```bash
-python -m monocle.causal_maps --additivity --cases subway_safety --group 2
+python -m research.monocle.causal_maps --additivity --cases subway_safety --group 2
 ```
 
 It compares each grouped unit against the sum of the 4 fine image tokens it
@@ -535,7 +535,7 @@ decision.
 
 ### Names and re-rendering
 
-`photograph_id()` in `monocle/single.py` names a photograph. A Cyclomedia
+`photograph_id()` in `research/monocle/single.py` names a photograph. A Cyclomedia
 face sits at `.../<unit>/faces/<face>.jpg`, so the file stem is only the face
 letter, and 4 photographs of 4 units all write `B.png`. The unit goes in
 front: `W0E966FV_B`.
@@ -543,7 +543,7 @@ front: `W0E966FV_B`.
 Use `--rerender` to draw the figures again from the parquet, with no GPU:
 
 ```bash
-python -m monocle.causal_maps --rerender --cases subway_safety
+python -m research.monocle.causal_maps --rerender --cases subway_safety
 ```
 
 It rebuilds each name from the path, so it repairs a run made before the
@@ -551,7 +551,7 @@ naming fix without a new measurement. It also removes the panels of the
 previous run, so an old name does not survive a rename.
 
 ```bash
-sbatch --time=03:00:00 monocle/monocle.sub monocle.causal_maps \
+sbatch --time=03:00:00 research/monocle/monocle.sub monocle.causal_maps \
     --cases subway_safety --n-images 20 --n-donors 3 --layer 20
 ```
 
@@ -570,27 +570,27 @@ pytest tests/test_patch_attribution.py tests/test_patch_causal.py \
     tests/test_patch_ablate.py -v
 
 # The figure path, absence reference. Prove it on 1 image first.
-sbatch --time=00:30:00 monocle/monocle.sub monocle.patch_ablate \
+sbatch --time=00:30:00 research/monocle/monocle.sub monocle.patch_ablate \
     --case subway_safety
-sbatch --time=01:00:00 monocle/monocle.sub monocle.causal_maps \
+sbatch --time=01:00:00 research/monocle/monocle.sub monocle.causal_maps \
     --cases subway_safety --n-images 20 --reference absent --group 2
 
 # The donor reference, for the comparison.
-sbatch --time=03:00:00 monocle/monocle.sub monocle.causal_maps \
+sbatch --time=03:00:00 research/monocle/monocle.sub monocle.causal_maps \
     --cases subway_safety --n-images 20 --n-donors 3 --layer 20
 
 # Draw again from the parquet, or ask whether the map adds up. No GPU.
-python -m monocle.causal_maps --rerender --cases subway_safety
-python -m monocle.causal_maps --additivity --cases subway_safety --group 2
+python -m research.monocle.causal_maps --rerender --cases subway_safety
+python -m research.monocle.causal_maps --additivity --cases subway_safety --group 2
 
 # Where the judgment sits at each depth, and what each route carries.
-sbatch monocle/monocle.sub monocle.patch_swap --cases subway_safety
-sbatch monocle/monocle.sub monocle.attn_knockout --cases subway_safety
+sbatch research/monocle/monocle.sub monocle.patch_swap --cases subway_safety
+sbatch research/monocle/monocle.sub monocle.attn_knockout --cases subway_safety
 
 # The 3 diagnostics, in the order to run them
-sbatch monocle/monocle.sub monocle.patch_causal --grad-check --n-pairs 5
-sbatch monocle/monocle.sub monocle.patch_causal --probe-path --n-pairs 4
-sbatch monocle/monocle.sub monocle.patch_causal --n-pairs 50 --pool 3
+sbatch research/monocle/monocle.sub monocle.patch_causal --grad-check --n-pairs 5
+sbatch research/monocle/monocle.sub monocle.patch_causal --probe-path --n-pairs 4
+sbatch research/monocle/monocle.sub monocle.patch_causal --n-pairs 50 --pool 3
 ```
 
 ## Scope

@@ -9,7 +9,7 @@
 # at 100%. Plan: vlm-narratives-docs/robustness-battery-rerun-plan.md.
 #
 # One file holds one rater. The arms come in as --set overrides from
-# scripts/launch_robustness_battery.sh, one submit for each arm. The .hydra
+# research/scripts/launch_robustness_battery.sh, one submit for each arm. The .hydra
 # record of a shard holds only the base overrides, thus read the arm from
 # .hydra/config.yaml (prompt text, layout, temperature), or from the run dir
 # that the launch script names after the arm.

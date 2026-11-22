@@ -10,9 +10,9 @@ tables and numbers from mllmsci, and how CI checks them.
 | Tool | `artificial-aesthetic/paperkit/`, Python 3.11 or later, standard library only |
 | Use | `artificial-aesthetic/README.md` |
 
-**Warning:** `papers/cvpr27_machine-perception-public-spaces/` is an older clone
+**Warning:** `research/papers/cvpr27_machine-perception-public-spaces/` is an older clone
 of the same LaTeX repo. Its last commit is of 2026-10-01. Do not edit the paper
-there. `scripts/curate_notebook_figures.py` still reads it for the
+there. `research/scripts/curate_notebook_figures.py` still reads it for the
 `in_paper_now` column of `figure_index.csv`.
 
 ## The data flow
@@ -90,10 +90,10 @@ and `crossmodel.tau-tract.{min,max}`.
 
 | Item | Change |
 |------|--------|
-| `scripts/f10/hop_steer_table.py` 1.1.0 | A dash in a cell where fewer than 5 images answer yes or no (`MIN_ANSWERED`). This removes the Gemma-4-31B 'ugly' cells, which 2 to 4 images gave |
-| `scripts/f10/hop_names_table.py` 1.0.0 | New. Writes `tab:borough-name` (the 3 planned contrasts of the borough-name question) from `figures/f10/names/names_primary.csv`; a new asset in `manifest/assets.toml` |
-| `notebooks/facct/_rq.py` 1.10.0 | `plot_kinds` draws the percent of answers with the inference (`model_diff`), not spans for each 100 answers, so the figure and the body give the same quantity |
-| `tables_export/build_tables.py` | No caption column (the caption case is out of the paper); a new `cue-categories` table (greenery and lighting against 3 ACS features); "prescriptive" is "evaluative", and `descriptive-prescriptive.tex` is `descriptive-evaluative.tex` |
+| `research/scripts/f10/hop_steer_table.py` 1.1.0 | A dash in a cell where fewer than 5 images answer yes or no (`MIN_ANSWERED`). This removes the Gemma-4-31B 'ugly' cells, which 2 to 4 images gave |
+| `research/scripts/f10/hop_names_table.py` 1.0.0 | New. Writes `tab:borough-name` (the 3 planned contrasts of the borough-name question) from `research/figures/f10/names/names_primary.csv`; a new asset in `manifest/assets.toml` |
+| `research/notebooks/facct/_rq.py` 1.10.0 | `plot_kinds` draws the percent of answers with the inference (`model_diff`), not spans for each 100 answers, so the figure and the body give the same quantity |
+| `research/tables_export/build_tables.py` | No caption column (the caption case is out of the paper); a new `cue-categories` table (greenery and lighting against 3 ACS features); "prescriptive" is "evaluative", and `descriptive-prescriptive.tex` is `descriptive-evaluative.tex` |
 
 The facct tables that `tables_export/` writes are not in the manifest. Copy
 them into `paper/tables/facct/` by hand after a build.
@@ -105,7 +105,7 @@ them into `paper/tables/facct/` by hand after a build.
 | Unused assets | 8 CVPR-era entries left `assets.toml` and the paper: `proxy_overview.*`, `validation-by-proxy-cd.tex`, `cue_words_facility_ladder.png`, the libraries, schools and `subway_safety_win_block.png` word blocks, `rq1_patch_words.pdf` |
 | `positional_bias.tex`, `test-retest.tex` | A forced sync took the current export (the interval in the caption is now $\pm0.005$). Patches drop the 4 rows of the cases that are not in the FAccT paper (libraries, schools, road quality, parks) |
 | `subway_safety_win_block_column.png` | A forced sync took the current render in place of the `stale_pre_looks` copy |
-| `pairwise_ses.pdf` | Now a declared asset (`notebooks/facct/_pairwise_ses.py`) |
+| `pairwise_ses.pdf` | Now a declared asset (`research/notebooks/facct/_pairwise_ses.py`) |
 | `results/f10/*.csv` | 7 result files behind 31 new `\stat` numbers of the body: the probe $R^2$ and gains, the verdict $r$, the steering yes shares, the subjectivity notes, the ICCs, the 'interesting' partial $r$, the New York shares, and the Manhattan $t$ on 'cool' |
 | `paperkit/checks.py` | The `refs` check skips `\input{#1}` inside a macro definition |
 
@@ -136,7 +136,7 @@ Bib entries that nothing cites now: `naikStreetscorePredictingPerceived2014`,
 ## Change of 2026-11-03, night: recurrence in place of the ICC
 
 The body sentence on the stability of objects and standards (the 'cool'
-traces) now gives a simpler measure. `scripts/f10/analyze_argument.py`
+traces) now gives a simpler measure. `research/scripts/f10/analyze_argument.py`
 writes a `recur` column to `argument_repeat.csv`: when 1 repeat of an image
 holds an item, the share of the other 2 repeats that hold it. The `share`
 column is its base rate.
@@ -165,8 +165,8 @@ The row "scene code" is "image, mean patch".
 
 | Item | Change |
 |------|--------|
-| `scripts/f10/phase_layers.py` 1.1.0 | 3 models. Reads the per-layer files of F10.26 (`figures/f10/prompts/t2_*.csv`, prompt `place cool`). The phase `scene` is `image`. A verdict band that no layer reaches is the peak layer with `reached` false (Qwen3.6-27B, r .92 at L60). Gemma-4-31B and Qwen3.5-9B keep their bands |
-| `scripts/f10/plot_layers_tikz.py` 1.0.0 | New. Writes `figures/f10/mechanism/layers_panel.tex`, the `tikzpicture` of the figure, from `phase_layers.csv` and `patch_layer_words.csv` (F10.33b) |
+| `research/scripts/f10/phase_layers.py` 1.1.0 | 3 models. Reads the per-layer files of F10.26 (`research/figures/f10/prompts/t2_*.csv`, prompt `place cool`). The phase `scene` is `image`. A verdict band that no layer reaches is the peak layer with `reached` false (Qwen3.6-27B, r .92 at L60). Gemma-4-31B and Qwen3.5-9B keep their bands |
+| `research/scripts/f10/plot_layers_tikz.py` 1.0.0 | New. Writes `research/figures/f10/mechanism/layers_panel.tex`, the `tikzpicture` of the figure, from `phase_layers.csv` and `patch_layer_words.csv` (F10.33b) |
 | `manifest/assets.toml` | New asset `paper/figures/facct/layers_panel.tex`. The body figure inputs it |
 | Appendix B.1.1 | The figure is gone. The text gives the rules, the Qwen3.5-9B bands, and the reading of the patch strip |
 

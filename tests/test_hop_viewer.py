@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/f10"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from hop_viewer import CONTRAST, IMAGE_MARK, RAW, group_masks, run, run_link, sequence, share, top_words  # noqa: E402
 
 MANIFEST = {"prefix_tokens": ["<s>"], "prefix_ids": [1], "tail_tokens": ["</v>", "Is", " place"], "tail_ids": [3, 4, 6],

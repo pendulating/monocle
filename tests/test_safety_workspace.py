@@ -23,7 +23,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import safety_workspace as sw  # noqa: E402
+from research.monocle import safety_workspace as sw  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -136,7 +136,7 @@ class TestSquareGrid:
 # ---------------------------------------------------------------------------
 class TestLabelCollapse:
     # The registered runs all enable abstention, so the class set is 5-way.
-    # `cfg` now drives which labels exist — see monocle/canonical.py.
+    # `cfg` now drives which labels exist — see research/monocle/canonical.py.
     CFG_ABSTAIN = OmegaConf.create({"prompt": {"structured_output": {
         "enabled": True, "allow_not_sure": True, "not_sure_label": "NotSure"}}})
     CFG_NO_ABSTAIN = OmegaConf.create({"prompt": {"structured_output": {
@@ -495,7 +495,7 @@ class TestPartBGuards:
         text = (maps / "README_DISPOSITION.txt").read_text()
         assert "NOT CAUSAL" in text
         assert "causal-lens-retrospective.md" in text
-        assert "monocle/causal_maps.py" in text
+        assert "research/monocle/causal_maps.py" in text
 
     def test_the_title_stamp(self):
         assert sw.DISPOSITION_TAG == " [disposition]"

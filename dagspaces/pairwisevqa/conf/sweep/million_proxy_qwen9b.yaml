@@ -49,9 +49,9 @@
 # first import of torch and vLLM comes over NFS and costs about 13 minutes.
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_million_battery.sh --dry-run
-#   bash scripts/launch_million_battery.sh --smoke     # 2 shards, 1 case
-#   bash scripts/launch_million_battery.sh
+#   bash research/scripts/launch_million_battery.sh --dry-run
+#   bash research/scripts/launch_million_battery.sh --smoke     # 2 shards, 1 case
+#   bash research/scripts/launch_million_battery.sh
 #
 # ─── When it lands ───────────────────────────────────────────────────────────
 #   python scripts/merge_pairwise_shards.py --sweep-dir <sweep> --out-dir <dir>

@@ -46,7 +46,7 @@ contradicts the decision of 2026-09-02 and the registry. Do not copy it.
 
 ## Phase 0. Pre-flight
 
-- [x] 0.1 Run `python scripts/register_canonical_runs.py verify`. It must
+- [x] 0.1 Run `python research/scripts/register_canonical_runs.py verify`. It must
       report 0 FAIL (last known: OK, 77 runs, 2026-09-04 11:01).
 - [x] 0.2 Revert or correct the layout line in
       `conf/sweep/million_proxy_gemma12b.yaml` so the file says
@@ -99,7 +99,7 @@ change.
 - [x] 2.4 `pairwise_subway_safety_flipped.yaml`: "Which station entrance looks
       less safe?" and the interpretation line "<label> unsafe". The analysis
       negates its scores (`--flip-arms flipped`).
-- [x] 2.5 Check `scripts/register_canonical_runs.py:arm_of` does not read any
+- [x] 2.5 Check `research/scripts/register_canonical_runs.py:arm_of` does not read any
       of the 4 new names as a registered arm. Only `_nocity` and `_matched`
       are suffix arms today. Phase 6 adds the 2 names it needs.
 - [x] 2.6 Wait 2 minutes after the last edit before any launch (NFS stale
@@ -112,7 +112,7 @@ change.
       `max_tokens: 128`, `resume: true`, launcher `slurm_gpu_preempt`,
       `array_parallelism: 1`, the rater's layout from the table above, and
       `pipeline: pairwise_subway_safety_mvp`.
-- [x] 3.2 New script `scripts/launch_robustness_battery.sh`. For each rater and
+- [x] 3.2 New script `research/scripts/launch_robustness_battery.sh`. For each rater and
       each arm it calls `dagspaces.pairwisevqa.submit_shards --sweep
       robustness_1k_<rater> --base-dir multirun/robustness_<stamp>/<rater>/<arm>
       --pairs-dir multirun/pair_tables_1k_of_1m --set <arm overrides>`. It
@@ -161,14 +161,14 @@ Checklist, 1 line for each rater:
 
 ## Phase 5. Tier A analysis and the table
 
-- [x] 5.1 (plus `first_share`, the side bias, which the kappa cannot see) New module `notebooks/cvpr/_robustness.py`, in the style of
+- [x] 5.1 (plus `first_share`, the side bias, which the kappa cannot see) New module `research/notebooks/cvpr/_robustness.py`, in the style of
       `_reliability.py`. For each (rater, arm) it joins the arm to R0 and to
       the registered canonical run on `pair_id`, and reports: linear-weighted
       kappa, raw agreement, sign-flip rate, NotSure rate, Same rate, Spearman.
       The canonical join exists for gemma-4-12b and qwen3.5-9b only; the small
       raters read against R0 alone.
 - [x] 5.2 The flipped arm is negated before the join.
-- [x] 5.3 (plus the abstention and side-bias companion tables) The module writes `notebooks/cvpr/master/outputs/robustness_v1.0.0.tex`
+- [x] 5.3 (plus the abstention and side-bias companion tables) The module writes `research/notebooks/cvpr/master/outputs/robustness_v1.0.0.tex`
       and the long CSV. The table: rows are the arms, columns are the 4 raters,
       the first row is the R0 greedy floor. No temp-0 row.
 - [x] 5.4 (tables/robustness.tex, robustness-abstention.tex, robustness-side.tex; all 3 are input) Copy the generated table to `papers/.../tables/robustness.tex` and
@@ -185,7 +185,7 @@ cut. Gemma needs about 2 h in 1 shard; qwen about 4 h. Use 2 shards each
 not a canonical rater.
 
 - [x] 6.1 (done 2026-09-04; also ARM_CASES and QUESTION_PROBE_ARMS, because a subway-only arm and a reworded question both failed the old gates) Registry: add arms `paraphrase` and `persona` to `ARMS` and
-      `MIN_ROWS` (25,000) in `scripts/register_canonical_runs.py`, and teach
+      `MIN_ROWS` (25,000) in `research/scripts/register_canonical_runs.py`, and teach
       `arm_of` to read them from the prompt name in `.hydra/config.yaml`.
       Add the labels to `_ablations.ARM_LABEL`.
 - [x] 6.2 (launched 2026-09-04 21:24, base multirun/robustness_b_20260904_212400, 8 shards, all 8 COMPLETED by 23:20) Launch the 4 runs from the same launch script with
@@ -195,7 +195,7 @@ not a canonical rater.
 - [x] 6.4 (done 2026-09-04 23:40: 12 roots, 81 runs, verify OK) Register with ALL roots plus the new one and `--force`
       (`register` rebuilds the manifest; a 1-root call erases the rest).
       Then `verify` must stay at 0 FAIL.
-- [x] 6.5 (done 2026-09-04 23:41; `notebooks/cvpr/master/outputs/robustness_estimand_v1.0.0.csv`) Read each arm with `_proxy_arms.py` with `match_arm=` set, so the
+- [x] 6.5 (done 2026-09-04 23:41; `research/notebooks/cvpr/master/outputs/robustness_estimand_v1.0.0.csv`) Read each arm with `_proxy_arms.py` with `match_arm=` set, so the
       canonical control reads the same 25k pairs. Report the v1.2.0 proxies:
       tract median household income, station crime per 100k riders, felonies
       per 100k riders. Report `d_tau` beside `spread_ratio`.

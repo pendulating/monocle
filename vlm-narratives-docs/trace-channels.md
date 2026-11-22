@@ -5,14 +5,14 @@
 
 | Piece | Where |
 |-------|-------|
-| Module | `notebooks/cvpr/_trace_channels.py` |
-| Notebook | `notebooks/cvpr/master/trace_channels.py` |
-| Figures and tables | `notebooks/cvpr/master/figures/trace_channels_*` |
-| Source | The `urban_cues_v2` primary corpus, `data/trace_extractions_v2_gemma12b_by_qwen27b/` (gemma-4-12b traces read by Qwen3.8-27B). Every number on this page comes from the rerun of 2026-09-22 (`scripts/export_trace_figures.py`). | Section 2 reads the 4 version 3 arms (2026-09-30).
+| Module | `research/notebooks/cvpr/_trace_channels.py` |
+| Notebook | `research/notebooks/cvpr/master/trace_channels.py` |
+| Figures and tables | `research/notebooks/cvpr/master/figures/trace_channels_*` |
+| Source | The `urban_cues_v2` primary corpus, `data/trace_extractions_v2_gemma12b_by_qwen27b/` (gemma-4-12b traces read by Qwen3.8-27B). Every number on this page comes from the rerun of 2026-09-22 (`research/scripts/export_trace_figures.py`). | Section 2 reads the 4 version 3 arms (2026-09-30).
 
 ```bash
 .venv-mllmsci-vllm025cu129/bin/marimo edit \
-    notebooks/cvpr/master/trace_channels.py
+    research/notebooks/cvpr/master/trace_channels.py
 ```
 
 **Warning: the abstention and inference rates depend on the extractor.** The
@@ -181,7 +181,7 @@ the notebook, use this command. It reads the 4 arms (about a minute) and it
 writes no figure:
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python scripts/export_trace_figures.py --only channels --latex
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/export_trace_figures.py --only channels --latex
 ```
 
 ### The reading

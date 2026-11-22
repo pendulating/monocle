@@ -4,7 +4,7 @@ from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/f10"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from name_coord_swap import added_targets, clamp_hook, deleted_targets, matched_basis, swapped_targets  # noqa: E402
 
 

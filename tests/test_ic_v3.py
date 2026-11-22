@@ -1,4 +1,4 @@
-"""Unit tests for `notebooks/cvpr/_ic_v3.py`.
+"""Unit tests for `research/notebooks/cvpr/_ic_v3.py`.
 
 These tests build small frames by hand. They read no corpus and need no GPU.
 They cover the lift of question 1, the nesting lookup of question 2, the
@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 import _ic_v3 as I  # noqa: E402
 

@@ -521,7 +521,7 @@ def main(argv: list[str] | None = None) -> int:
     ff = sub.add_parser(
         "filter-facing",
         help="Filter a curated parquet to rows whose face ray intersects coverage. "
-             "Matches the `rays` pattern in dagspaces/artifact_gen/stages/raster.py. "
+             "Matches the `rays` pattern in research/dagspaces/artifact_gen/stages/raster.py. "
              "Off by default — enable this step when sample-images is returning "
              "too many faces pointed away from the building.",
     )

@@ -1,4 +1,4 @@
-# Copy of urban_cues_street_subj_v1 for the read prompt, by scripts/f10/build_cool_schemas.py.
+# Copy of urban_cues_street_subj_v1 for the read prompt, by research/scripts/f10/build_cool_schemas.py.
 # @package extract
 # Urban cue schema for the street case, the subjective prompt (F9, D139 and
 # D140), version 1 (2026-10-30). Accepted by D142; the F9 x2 round uses it.
@@ -30,7 +30,7 @@
 #    start (no verdict), a plan-only chunk (`none`), a trace end (a `yes`
 #    and a `no` for 2 uses, then 2 `graded` drafts), a pros-and-cons answer
 #    (`mixed`), a `yes` with a pro and a con, a `no` with advice, and a
-#    short Llama `no`. Built by `scripts/f9/build_subj_cue_examples.py` (to
+#    short Llama `no`. Built by `research/scripts/f9/build_subj_cue_examples.py` (to
 #    write; the draft came from a scratchpad builder with the span rules of
 #    `build_street_cue_examples.py --version v3`). U+2011 is "-" in the
 #    example texts, as in the x2 inputs.
@@ -63,7 +63,7 @@
 # value list, or an example. Never edit a version in place.
 #
 # Warning: keep `attribute_values` inside `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`. The class `verdict` is new there.
+# `research/notebooks/cvpr/_extractions.py`. The class `verdict` is new there.
 
 name: urban_cues_street
 schema_version: cool-cues-v1

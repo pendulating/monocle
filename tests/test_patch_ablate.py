@@ -1,9 +1,9 @@
-"""Input-level patch ablation. See monocle/patch_ablate.py."""
+"""Input-level patch ablation. See research/monocle/patch_ablate.py."""
 import numpy as np
 import pytest
 import torch
 
-from monocle import patch_ablate as ab
+from research.monocle import patch_ablate as ab
 
 IMG = 258880
 

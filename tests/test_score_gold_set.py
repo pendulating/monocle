@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 spec = importlib.util.spec_from_file_location(
-    "score_gold_set", Path(__file__).resolve().parent.parent / "scripts" / "score_gold_set.py")
+    "score_gold_set", Path(__file__).resolve().parent.parent / "research" / "scripts" / "score_gold_set.py")
 S = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(S)
 

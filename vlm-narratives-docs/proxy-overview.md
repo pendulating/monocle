@@ -1,6 +1,6 @@
 # The proxy overview
 
-`notebooks/cvpr/_proxy_overview.py` and `notebooks/cvpr/master/proxy_overview.py`.
+`research/notebooks/cvpr/_proxy_overview.py` and `research/notebooks/cvpr/master/proxy_overview.py`.
 Added 2026-09-06.
 
 ## What it is
@@ -105,7 +105,7 @@ The module is downstream. It reads:
 
 | Input | Written by |
 |-------|------------|
-| `master/outputs/results_table_<layer>_v1.0.0_long.csv`, 3 layers | `master/results_table.py` or `scripts/export_cvpr_results_table.py` |
+| `master/outputs/results_table_<layer>_v1.0.0_long.csv`, 3 layers | `master/results_table.py` or `research/scripts/export_cvpr_results_table.py` |
 | `master/outputs/proxy_arms_community_district_v1.0.0.csv` | `master/ablations.py` |
 | The canonical run parquets | the registry, for the raw rows |
 | `master/outputs/single_image_read_v1.0.0_long.csv` | `_single_image_read.py` (optional) |
@@ -132,7 +132,7 @@ The paper reads them with `\input{figures/proxy_overview}`,
 
 ## The single-image series
 
-`notebooks/cvpr/_single_image_read.py` puts the white-box reads of
+`research/notebooks/cvpr/_single_image_read.py` puts the white-box reads of
 `pole-projection-proxy.md` on the footing of the master table. For each
 unit the study scored (3 images each; 1,500 restaurants, 3,000 road
 images, every joined unit elsewhere) it takes the mean read, joins the unit
@@ -158,16 +158,16 @@ a sample, thus a polygon here can hold fewer units than the same polygon
 of the master table.
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python notebooks/cvpr/_single_image_read.py
+.venv-mllmsci-vllm025cu129/bin/python research/notebooks/cvpr/_single_image_read.py
 ```
 
 ## Commands
 
 ```bash
 # after the master table and the ablations notebook export
-.venv-mllmsci-vllm025cu129/bin/python notebooks/cvpr/_proxy_overview.py
+.venv-mllmsci-vllm025cu129/bin/python research/notebooks/cvpr/_proxy_overview.py
 # or, for a look first
-.venv-mllmsci-vllm025cu129/bin/marimo edit notebooks/cvpr/master/proxy_overview.py
+.venv-mllmsci-vllm025cu129/bin/marimo edit research/notebooks/cvpr/master/proxy_overview.py
 ```
 
 The command checks the canonical registry against the disk before it reads

@@ -12,7 +12,7 @@ Update the status column of each experiment when its state changes.
 | Abstract deadline | 2026-10-27, 23:59 AoE, on OpenReview |
 | Paper deadline | 2026-11-03, 23:59 AoE |
 | Length | 14 pages without references; 1 more page for the endmatter statements |
-| Paper repo | `artificial-aesthetic/paper` (submodule of `artificial-aesthetic`; see `paper-repo-sync.md`). The clone at `papers/cvpr27_machine-perception-public-spaces` is stale. |
+| Paper repo | `artificial-aesthetic/paper` (submodule of `artificial-aesthetic`; see `paper-repo-sync.md`). The clone at `research/papers/cvpr27_machine-perception-public-spaces` is stale. |
 | Focus cases | restaurants, street photography |
 | New prompts | single-image prompts (F3, F5) |
 | New compute | 1 B300 on g3, account and QoS `nissenbaum` |
@@ -235,31 +235,31 @@ review") and set the goal below.
 | D164 | Ask 53 other adjectives on the 591 images with logprobs (F10.14), to read properties and values with no lens. Take the Gemma margin from the top 2000 logprobs, because the top 20 censors 54% of rows. |
 | D165 | Run 7,092 answers with thinking on, and extract spans with 3 schemas (F10.11). The retry pass does not run. Use the traces for arguments and the reads for the process. |
 | D166 | Report borough stability over 40 random splits, not 1 split (F10.17), because 1 split gave a false negative value for the Bronx. |
-| D167 | Count a refusal as a third outcome: yes, no or unable (F10.23). The first token of the answer sets the outcome. The margin of an `unable` image is empty, because it compares 2 answers that the model did not give. Code: `scripts/f10/hop_outcomes.py`. |
+| D167 | Count a refusal as a third outcome: yes, no or unable (F10.23). The first token of the answer sets the outcome. The margin of an `unable` image is empty, because it compares 2 answers that the model did not give. Code: `research/scripts/f10/hop_outcomes.py`. |
 | D168 | Shorten the methods, results and appendix for the limit of 14 single-column pages (2026-11-01). The author restored the introduction, motivation and related work to `63b8504`, thus those sections keep their full length, and the paper is still over the limit. Keep in the appendix only what supports a claim in the body: the pairwise method and the checks of the pairwise order. Remove the proxy table, integrative complexity, and the perturbation arms of the small models. |
 | D169 | Read 14 prompts, not 3: 7 adjectives x 2 nouns, 3 models, no patches (F10.25, 2026-11-01). The aim is a stronger claim that the results generalize. The 33 new stores are complete and checked (2026-11-02). The analysis of these stores is not done. |
-| D170 | Make 1 summary of each of the 42 stores in 1 pass, and let all later steps read only the summaries (F10.26, 2026-11-02). A summary holds the NTA mean readouts and the residuals at the 6 named positions, the no-image readout, the sense score and the lens margin at the last token. The job loads each shard file 1 time in sequence, with no memory map, because strided memory-map reads broke NFS in F10.25. Code: `scripts/f10/hop_prompts.py summary`. |
+| D170 | Make 1 summary of each of the 42 stores in 1 pass, and let all later steps read only the summaries (F10.26, 2026-11-02). A summary holds the NTA mean readouts and the residuals at the 6 named positions, the no-image readout, the sense score and the lens margin at the last token. The job loads each shard file 1 time in sequence, with no memory map, because strided memory-map reads broke NFS in F10.25. Code: `research/scripts/f10/hop_prompts.py summary`. |
 | D171 | Map a prompt to its store in 1 function, `store_name(model, adjective, noun)`, and read the 8-form answer margin for all 42 prompts. The `cool` prompt of Gemma-4-31B and Qwen3.5-9B reads the `-forms8` answer store. The 4-form margin that F10.24 read stays in the frame as `margin_f1024`, for the reproduction of task 0 only. |
-| D172 | Cache the mean patch at each layer 1 time for each model, from the `cool` store, because the patches do not depend on the prompt (the image comes before the question). Code: `scripts/f10/hop_prompts.py patches`. |
+| D172 | Cache the mean patch at each layer 1 time for each model, from the `cool` store, because the patches do not depend on the prompt (the image comes before the question). Code: `research/scripts/f10/hop_prompts.py patches`. |
 | D173 | Reproduce F10.24 with the new code before any new analysis (task 0 of the plan). The gate passed: 142 of 144 checks on the 3 old prompts in 3 models agree to 1e-8, and the 2 differences (the verdict r of `cool` at the last layer, .001 and .016) come from the 8-form margin. |
-| D174 | Fix the pass rules of the mechanism grid before the run, and count the cells of 42 in which each rule holds. A result generalizes only when it holds in all 42 cells. The rules are in `RULES` of `scripts/f10/hop_prompts.py` and in `figures/f10/prompts/t2_counts.csv`. |
+| D174 | Fix the pass rules of the mechanism grid before the run, and count the cells of 42 in which each rule holds. A result generalizes only when it holds in all 42 cells. The rules are in `RULES` of `research/scripts/f10/hop_prompts.py` and in `research/figures/f10/prompts/t2_counts.csv`. |
 | D175 | Fit the shared aesthetic direction (task 7) as the first singular vector of the unit ridge decoders of the z-scored margins, with the decoders fit in NTA folds. The test is leave-1-prompt-out: the direction of the 13 other prompts, fit in the training fold, predicts the held-out prompt. Report only out-of-fold values. |
 | D176 | Keep the `cool` word lists of F10.17 for the sense band of every prompt, as F10.24 did, so that the band is comparable across prompts. The axis of task 3 is a separate measure: the words at its ends name its sense, and its score is tested against the margin with a Pearson t on NTA means, Holm over 42. |
 | D177 | Run at most 4 CPU jobs at once on g3 for F10.26, with the exclude list of the plan. Three Gemma summaries on 1 node took 24 minutes each, against 9 minutes alone, thus NFS is the limit and more jobs do not help. |
 | D178 | Keep task 7 of F10.26 as a check of F10.27 in the residual, not as a second claim. F10.27 finds the shared direction in the readout; task 7 finds it with ridge decoders on the residual, and the 2 agree. The paper cites F10.27 for the words and task 7 for the decoder cosines and the leave-1-prompt-out R2. |
-| D179 | Run the F10.14 probe query on Qwen3.6-27B with the same 53 words, the same 591 images and top 2000 logprobs, as D164 did for Gemma, so that the place probes cover all 3 models. The 3-model place table comes from `scripts/f10/probe_place.py` on the CPU. It reproduces the F10.18 rows to 0.0 and checks each probe run against the answer store of the same question (r .986 to .998). |
-| D180 | Answer the question "do more Black people mean more ugly" with the partial Spearman rho of E given income, and of E with income given the Black share, on the 18 cells of `ugly`, `nice` and `cool`. Bonferroni over 18 in each family. Report both partials, and never a causal order. Script `scripts/f10/hop_ses_partial.py`. |
-| D181 | Test the transfer of the shared direction across models in the lens-word space, on the 36,490 words that the 3 lens vocabs share. The direction of 2 models is the mean of their unit vectors on the common words. The test layer of the target is its own F10.27 test layer, and the sources do not choose it. Bonferroni over the 14 prompts of the target. Script `scripts/f10/hop_transfer.py`. |
-| D182 | State the 3-image sample as a limit, not as a strength: ICC(1), the Spearman-Brown reliability of the 3-image mean, and the same tests with 1 image for each NTA. Give the reliability-corrected rho as the lower bound of the true gradient. Script `scripts/f10/hop_sample.py`. |
-| D183 | Assess the phase rules of F10.26 task 2 with a sweep of 1 threshold at a time, from the per-layer tables, and report the count of cells at each threshold and the move of the band edges. A rule that holds at 1 threshold only, or for 1 adjective only, is a note and not a claim. Script `scripts/f10/hop_robust.py`. |
-| D184 | Steer with the F10.26 task 7 residual direction at the noun (aesthetic) and at the last token (judgment), with a dose in units of sigma, the std of the image projection on the direction, and a random control at the same dose. The model runs in float32 with 1 forward hook at a time, as `monocle/jlens_steer.py` does. Script `scripts/f10/hop_steer.py`. |
+| D179 | Run the F10.14 probe query on Qwen3.6-27B with the same 53 words, the same 591 images and top 2000 logprobs, as D164 did for Gemma, so that the place probes cover all 3 models. The 3-model place table comes from `research/scripts/f10/probe_place.py` on the CPU. It reproduces the F10.18 rows to 0.0 and checks each probe run against the answer store of the same question (r .986 to .998). |
+| D180 | Answer the question "do more Black people mean more ugly" with the partial Spearman rho of E given income, and of E with income given the Black share, on the 18 cells of `ugly`, `nice` and `cool`. Bonferroni over 18 in each family. Report both partials, and never a causal order. Script `research/scripts/f10/hop_ses_partial.py`. |
+| D181 | Test the transfer of the shared direction across models in the lens-word space, on the 36,490 words that the 3 lens vocabs share. The direction of 2 models is the mean of their unit vectors on the common words. The test layer of the target is its own F10.27 test layer, and the sources do not choose it. Bonferroni over the 14 prompts of the target. Script `research/scripts/f10/hop_transfer.py`. |
+| D182 | State the 3-image sample as a limit, not as a strength: ICC(1), the Spearman-Brown reliability of the 3-image mean, and the same tests with 1 image for each NTA. Give the reliability-corrected rho as the lower bound of the true gradient. Script `research/scripts/f10/hop_sample.py`. |
+| D183 | Assess the phase rules of F10.26 task 2 with a sweep of 1 threshold at a time, from the per-layer tables, and report the count of cells at each threshold and the move of the band edges. A rule that holds at 1 threshold only, or for 1 adjective only, is a note and not a claim. Script `research/scripts/f10/hop_robust.py`. |
+| D184 | Steer with the F10.26 task 7 residual direction at the noun (aesthetic) and at the last token (judgment), with a dose in units of sigma, the std of the image projection on the direction, and a random control at the same dose. The model runs in float32 with 1 forward hook at a time, as `research/monocle/jlens_steer.py` does. Script `research/scripts/f10/hop_steer.py`. |
 | D185 | Sample the extra images from the F4 street sample only: the citywide catalog `/share/ju/cyclomedia/catalog/v1`, seed 20261023, the August to November 2025 epoch, the F6 renderer. Do not use `data/cyclomedia`. The 591 images of F10.26 take ranks 1 to 3 in their NTA. Tables `data/f10/hop_more/images_all.parquet` (10,000) and `images_k10.parquet` (1,970). |
-| D186 | Capture the yes-or-no answer of the 14 prompts on all 10,000 images with a vLLM server, 1 token, the top 2,000 log probabilities, the 8 forms and the floor. Script `scripts/f10/answer_query.py` in `scripts/f4/serve_and_query.sbatch` with `F4_ANSWERS=1`. |
-| D187 | Capture the residuals at 6 positions, the lens readouts at 3 positions and the 8-form margin on 10 images for each NTA with the F10.6 float32 capture, 1 model load for the 14 prompts, shards of 50 with claims. Script `scripts/f10/hop_lean.py`, `scripts/f10/hop_lean.sbatch`. |
+| D186 | Capture the yes-or-no answer of the 14 prompts on all 10,000 images with a vLLM server, 1 token, the top 2,000 log probabilities, the 8 forms and the floor. Script `research/scripts/f10/answer_query.py` in `research/scripts/f4/serve_and_query.sbatch` with `F4_ANSWERS=1`. |
+| D187 | Capture the residuals at 6 positions, the lens readouts at 3 positions and the 8-form margin on 10 images for each NTA with the F10.6 float32 capture, 1 model load for the 14 prompts, shards of 50 with claims. Script `research/scripts/f10/hop_lean.py`, `research/scripts/f10/hop_lean.sbatch`. |
 | D188 | Run the F10.26 to F10.29 summaries and tests again over the new stores and answers, and report them at k = 3, 10 and 50 side by side. The 591-image numbers stay in the paper until a proposal replaces them. |
-| D189 | Run the F10.28 word lists and the F10.29 task-7 directions again from the k = 10 fit, and compare the directions by what they read (the projections of the images), not by the cosine alone. Build the k = 50 SES table in the paper layout in `notebooks/facct/tables/`, not in the paper repo. Propose the paper edits in `f10-manuscript-proposals.md` section 7. |
+| D189 | Run the F10.28 word lists and the F10.29 task-7 directions again from the k = 10 fit, and compare the directions by what they read (the projections of the images), not by the cosine alone. Build the k = 50 SES table in the paper layout in `research/notebooks/facct/tables/`, not in the paper repo. Propose the paper edits in `f10-manuscript-proposals.md` section 7. |
 | D191 | Review the results of the paper against the record pages of 2026-10-29 to 2026-11-03, and put the findings that the paper does not hold into the main narrative: the steering test (F10.29 Q5), the refusal readout (Q4), the third model on the New York probe, the borough order of each standard at 50 images, `ugly` against `pretty` in the residual, the noun, H9 in both forms, and the in-view uncertainty gradient. Record: `f10-manuscript-proposals.md` section 8 (P59 to P67). |
-| D190 | Add and subtract the prompt directions of the 7 adjectives at the noun token pair by pair, and give the cosine of each sum and difference with each single direction as 2 heatmaps for the appendix. Script `scripts/f10/hop_sum_directions.py`. |
+| D190 | Add and subtract the prompt directions of the 7 adjectives at the noun token pair by pair, and give the cosine of each sum and difference with each single direction as 2 heatmaps for the appendix. Script `research/scripts/f10/hop_sum_directions.py`. |
 
 Claude made the design choices of F8 that the user did not set (the cue
 names, the cue form, the models, the R3 answer position of Q36, the word
@@ -306,7 +306,7 @@ concurrent-submission rule (Q14).
 | F5 | Single-image smart-glasses prompts with lens readouts | design in progress | F6, Q36 |
 | F6 | Image validation: the image shows the item, sharp and close | **complete for restaurants** (2026-10-24, D85): v4, 10,000 restaurants (`v4/facade_check_b300/drawn_10000.parquet`); method record `f6-restaurant-image-selection.md` | street photography and caption images: Q39 |
 | F7 | J++ lens fits | no new fit. D146 done: 31B and Qwen3.5-9B, 4 layouts each (`### The J++ replication`) | Q41 |
-| F8 | Evidence that the pixels do not explain: method B, the counterfactual cue, the R3 readout, the lens figure | **done** (2026-10-29): `f8-method-b.md`, `f8-counterfactual-cue.md`, `f8-lens-figure.md`; notebook `notebooks/facct/f8_evidence.py` | |
+| F8 | Evidence that the pixels do not explain: method B, the counterfactual cue, the R3 readout, the lens figure | **done** (2026-10-29): `f8-method-b.md`, `f8-counterfactual-cue.md`, `f8-lens-figure.md`; notebook `research/notebooks/facct/f8_evidence.py` | |
 | F9 | The subjective prompt (H9) | **analysis done** (2026-10-30): `f9-subjective-prompt.md`. The 3 planned figures are done. Open: the precision sheet | the precision sheet is deferred (D145) |
 | F10 | Read and patch of evaluative words (D148, D149, D152 to D158) | all 3 steps done 2026-10-31. Pilot of the hop read done 2026-10-31: the Manhattan - Bronx gap replicates at text positions. The depth store (F10.5) is complete; the marimo notebook comes next. Step 1 holds in float32. Step 2: reads are weak and not specific; 0 of 90 gated area tests pass. Step 3: the removal hypothesis holds on Qwen3.5-9B and fails on Gemma-4-31B | nothing runs. Copy of the figures to the paper repo waits |
 | F11 | Judgment consistency: the divergence of the cue spans, pairwise traces against F9 (D150) | **done** (2026-10-30); H11 rejected | D151, `f11-paradigm-consistency.md` |
@@ -348,7 +348,7 @@ section of `whatami-lens-study.md` first.
 | Unit | DOHMH-inspected restaurant; data `cyclomedia_near_restaurants_facing` |
 | Proxies | inspection score history (headline), last score, grade A rate, outdoor dining (confounder) |
 | Runs | canonical, `noabstain`, `nocity`; trace runs for both raters |
-| Notebooks | `notebooks/cvpr/restaurants/` |
+| Notebooks | `research/notebooks/cvpr/restaurants/` |
 | Page | `restaurant-proxies.md` |
 
 **Caution:** the prompt asks for a preference. The DOHMH record measures food
@@ -389,9 +389,9 @@ prompt, repeats with a seed for each request, on the B300.
 
 | Piece | Path |
 |-------|------|
-| Server and query job | `scripts/whatami/serve_and_query.sbatch`, `scripts/whatami/query.py` |
-| Copy of weights and images to `/scratch` | `scripts/whatami/stage_inputs.sh` |
-| Submit chain | `scripts/whatami/submit_all.sh` |
+| Server and query job | `research/scripts/whatami/serve_and_query.sbatch`, `research/scripts/whatami/query.py` |
+| Copy of weights and images to `/scratch` | `research/scripts/whatami/stage_inputs.sh` |
+| Submit chain | `research/scripts/whatami/submit_all.sh` |
 | Image sample, 1,000 citywide images | `data/whatami/sample_1k.parquet` |
 
 The single-image VQA path of the battery is `dagspaces/vqa`. It runs on the
@@ -419,7 +419,7 @@ This is a list of what is on disk. It is not a choice (Q4).
 | Sampling (gemma) | temperature 1.0, top_p 0.95, top_k 64, `max_tokens` 4,096 |
 | Layout (gemma) | `images_then_labels` |
 | Abstention | `allow_not_sure: true` |
-| Pairs | registry `notebooks/cvpr/canonical_data/trace/canonical/<case>__<model>/pairs.parquet` |
+| Pairs | registry `research/notebooks/cvpr/canonical_data/trace/canonical/<case>__<model>/pairs.parquet` |
 | Extraction | version 2, Qwen3.8-27B, `data/trace_extractions_v2_gemma12b_by_qwen27b/` |
 | Cost on 1 A6000 | 7.2 to 10 h for 11,000 gemma-4-12b rows |
 
@@ -467,13 +467,13 @@ a long trace (`reasoning-trace-analysis.md`).
 
 | Item | Value |
 |------|-------|
-| Images | 1,000 restaurants, a uniform draw from the F6 10,000 (seed 20261023): `data/f4_traces/f4_restaurants_1k.parquet` (`scripts/f4/sample_images.py`) |
+| Images | 1,000 restaurants, a uniform draw from the F6 10,000 (seed 20261023): `data/f4_traces/f4_restaurants_1k.parquet` (`research/scripts/f4/sample_images.py`) |
 | Prompts | `Look and tell me more about this restaurant.` (case `restaurant`); `Look and write an Instagram caption for what's in front of me.` (case `caption`) |
 | Turn | 1 user turn: the image, then the prompt; no system prompt |
 | Models | gemma-4-12b, gemma-4-31b, qwen3.5-9b, qwen3.8-27b (thinking on, D40); llama-3.2-11b, llama-3.2-90b (no thinking, D87) |
 | Answers | 1 for each (image, case, model), seed from the image id; 12,000 in all |
 | `max_tokens` | 4,096 (D89); `finish_reason` = `length` marks a cut trace |
-| Job | `scripts/f4/serve_and_query.sbatch`, chain `scripts/f4/submit_all.sh`; `scripts/whatami/query.py` sends the requests |
+| Job | `research/scripts/f4/serve_and_query.sbatch`, chain `research/scripts/f4/submit_all.sh`; `research/scripts/whatami/query.py` sends the requests |
 | Output | `data/f4_traces/runs/<model>/<case>/responses.parquet` (`reasoning`, `response`, `finish_reason`, token counts) |
 
 Smoke test, 8 images for each prompt (`data/f4_traces/runs-smoke/`), 2026-10-24:
@@ -490,16 +490,16 @@ descriptions, not loops. One of them has no final answer. The Llama models had
 no smoke test; their server setup is the one of the whatami probe.
 
 **Warning:** `/scratch` on g3-compute-17 is shared and can be full (jobs 91678
-to 91680 failed with "No space left on device"). `scripts/whatami/stage_inputs.sh`
+to 91680 failed with "No space left on device"). `research/scripts/whatami/stage_inputs.sh`
 now reads the weights from NFS when the free space is less than the model plus
 20 GB. g3-compute-17 has B200 GPUs; the corpus jobs ran on B300 nodes.
 
 #### Results of the F4 run
 
-The corpus `data/f4_traces/f4_traces_1k.parquet` (`scripts/f4/merge_runs.py`)
+The corpus `data/f4_traces/f4_traces_1k.parquet` (`research/scripts/f4/merge_runs.py`)
 holds 1 row for each answer: 6 models x 2 cases x 1,000 images. The column
 `source_run` names the run of each answer, `max_tokens` its limit, and `cut`
-marks an answer that stopped at the limit. `scripts/f4/check_runs.py` counts
+marks an answer that stopped at the limit. `research/scripts/f4/check_runs.py` counts
 each run.
 
 | Model | Job | Cut (restaurant / caption) | No final answer (restaurant / caption) | Completion tokens p50 (restaurant / caption) |
@@ -570,7 +570,7 @@ closes Q39 for street photography: any random recording passes.
 
 | File | Content |
 |------|---------|
-| `scripts/f4/sample_street_images.py` | the draw and the render |
+| `research/scripts/f4/sample_street_images.py` | the draw and the render |
 | `data/f4_traces/f4_street_1k.parquet` | 985 rows: `image_idx`, `sample_id` (the recording id), `image_path`, `nta2020`, `nta_name`, `borough`, the point, the yaw |
 | `data/f4_traces/street_views/` | the 985 rendered views |
 | `data/f4_traces/runs/<model>/street{,_caption}/` | the answers |
@@ -582,7 +582,7 @@ looks along the street. D116 accepts this, and also a view blocked by a truck.
 
 The chain (jobs 94668 to 94674, 1 job for each model, 1 B300 each, after the
 descriptor job 94638):
-`F4_SAMPLE=data/f4_traces/f4_street_1k.parquet F4_CASES="street street_caption" bash scripts/f4/submit_all.sh`.
+`F4_SAMPLE=data/f4_traces/f4_street_1k.parquet F4_CASES="street street_caption" bash research/scripts/f4/submit_all.sh`.
 
 #### Results of the street run, 2026-10-25
 
@@ -692,9 +692,9 @@ schema, the extractor, and the input are new.
 |------|-------|------|
 | Schema | `urban_cues_single` version `single-v1`. Claude drafted it (D94); the user edited and confirmed it (D99, D100) | `dagspaces/pairwisevqa/conf/extract/urban_cues_single_v1.yaml` |
 | Extractor | DeepSeek-V4-Flash-0731, revision `7872f01b`, 166.9 GB, MIT | `dagspaces/common/conf/model/deepseek-v4-flash/instruct.yaml` |
-| Input | 19,956 texts: 8,000 traces and 11,956 answers. The 44 empty answers are traces cut before the answer | `scripts/f4/build_extract_input.py` writes `data/f4_traces/extract_input/f4_{restaurant,caption}.parquet` |
-| Runner | 1 shard in a plain sbatch job on g3 | `scripts/f4/extract_shard.py`, `scripts/f4/extract.sbatch` |
-| Output | `multirun/f4_extract_dsv4/runs/f4_<case>__<shard>/` | merge with `scripts/merge_trace_extractions.py` |
+| Input | 19,956 texts: 8,000 traces and 11,956 answers. The 44 empty answers are traces cut before the answer | `research/scripts/f4/build_extract_input.py` writes `data/f4_traces/extract_input/f4_{restaurant,caption}.parquet` |
+| Runner | 1 shard in a plain sbatch job on g3 | `research/scripts/f4/extract_shard.py`, `research/scripts/f4/extract.sbatch` |
+| Output | `multirun/f4_extract_dsv4/runs/f4_<case>__<shard>/` | merge with `research/scripts/merge_trace_extractions.py` |
 
 The changes from `urban_cues_v2`:
 
@@ -720,7 +720,7 @@ real answers, not stubs. For example, "Abandoned buffet restaurant with a red
 awning..." holds a judgment. Thus the F4 run sets `min_chars=1` (D98).
 
 Status (2026-10-25, 03:50): **complete**. Array 93150 extracted all 19,956
-texts, and `scripts/f4/merge_extractions.py` wrote
+texts, and `research/scripts/f4/merge_extractions.py` wrote
 `data/f4_traces/extractions/`. See "The full run, 2026-10-25". The weights are at `/share/ju/matt/zoo/models/DeepSeek-V4-Flash-0731`
 (ledger `downloads/DeepSeek-V4-Flash-0731@7872f01.manifest.sha256`).
 
@@ -729,7 +729,7 @@ texts, and `scripts/f4/merge_extractions.py` wrote
 | Smoke job | Failure | Fix |
 |-----------|---------|-----|
 | 92453 | "fp8_ds_mla layout only supports fp8 kv-cache" | `kv_cache_dtype: fp8` in the model config |
-| 92495 | "libcudart_stub.so: undefined symbol: cudaDeviceReset" in `kernel_warmup` | Fix 1 in `scripts/f4/preload_cudart/sitecustomize.py` (`F4X_PRELOAD_CUDART=1`) |
+| 92495 | "libcudart_stub.so: undefined symbol: cudaDeviceReset" in `kernel_warmup` | Fix 1 in `research/scripts/f4/preload_cudart/sitecustomize.py` (`F4X_PRELOAD_CUDART=1`) |
 | 92682 | "cooperative_topk launch failed: no kernel image is available" | Fix 2 in the same file (`F4X_TOPK_FALLBACK=1`) |
 | 92928 | none: the smoke run passed | - |
 
@@ -767,7 +767,7 @@ The smoke result (92928, 50 restaurant texts of the 200 sample):
 
 Merge the full run with:
 
-    .venv-mllmsci-vllm025cu129/bin/python scripts/f4/merge_extractions.py multirun/f4_extract_dsv4/runs
+    .venv-mllmsci-vllm025cu129/bin/python research/scripts/f4/merge_extractions.py multirun/f4_extract_dsv4/runs
 
 #### The full run, 2026-10-25
 
@@ -797,17 +797,17 @@ The merged output is in `data/f4_traces/extractions/`:
 and a Llama answer gives 4.7 to 9.5. Normalize a count by the text length or
 by the number of texts before you compare 2 models.
 
-`VOCABULARY` in `notebooks/cvpr/_extractions.py` is the union of the values
+`VOCABULARY` in `research/notebooks/cvpr/_extractions.py` is the union of the values
 of every version. It holds the 6 single-v1 values, and
 `CLASSES_BY_VERSION["single-v1"]` names the 5 classes.
-`scripts/build_gold_set.py` writes out the v2 values for the v2 gold
+`research/scripts/build_gold_set.py` writes out the v2 values for the v2 gold
 interface, so that interface does not change.
 
 #### The analysis notebook, 2026-10-25
 
-`notebooks/facct/f4_traces.py` is the port of the parent trace notebook
-(`notebooks/cvpr/restaurants/restaurants_traces.py`) to F4. Its helpers are in
-`notebooks/facct/_f4.py`. They reuse the word counts and the log-odds score of
+`research/notebooks/facct/f4_traces.py` is the port of the parent trace notebook
+(`research/notebooks/cvpr/restaurants/restaurants_traces.py`) to F4. Its helpers are in
+`research/notebooks/facct/_f4.py`. They reuse the word counts and the log-odds score of
 `_traces.py`, and the attribute vocabulary of `_extractions.py`.
 
 | Part | Parent | F4 |
@@ -821,9 +821,9 @@ interface, so that interface does not change.
 | Win block, valence check | 4.6, 4.7 | absent: they need 2 images and a winner |
 
 The export button writes all scopes, cases, and models to
-`notebooks/facct/figures/f4/`.
+`research/notebooks/facct/figures/f4/`.
 
-To read the raw rows, use `scripts/f4/build_trace_viewer.py`. It writes
+To read the raw rows, use `research/scripts/f4/build_trace_viewer.py`. It writes
 static HTML pages to `data/f4_traces/viewer/` (20 pages of 50 images, about
 10 MB each, 43 s). Each card is 1 row of the corpus: the embedded image, the
 metadata, the trace, and the answer. The extracted spans show as highlights,
@@ -839,12 +839,12 @@ and the edit distance between NTAs (D101). This section holds the inputs.
 
 | Step | File | Output |
 |------|------|--------|
-| NTA of each restaurant | `scripts/f4/restaurant_nta.py` | `data/f4_traces/f4_restaurants_nta.parquet` |
-| Hashtags by regex (D101) | `scripts/f4/caption_hashtags.py` | `data/f4_traces/captions/f4_caption_hashtags.parquet` |
-| Extraction input | `scripts/f4/build_extract_input.py` (1.1.0) | `data/f4_traces/extract_input/f4_captions.parquet`, 6,000 answers |
-| Schema | `dagspaces/pairwisevqa/conf/extract/caption_options_v3.yaml` (`caption-v3`); examples from `scripts/f4/build_caption_examples.py` | classes `caption` (free `style`) and `hashtags` (`scope`: caption, general) |
-| Job | `sbatch --array=0 --export=ALL,F4X_ARM=captions,F4X_SHARDS=1 scripts/f4/extract.sbatch` | `multirun/f4_captions_dsv4/runs/f4_captions__0000/` |
-| Merge | `scripts/f4/merge_extractions.py multirun/f4_captions_dsv4/runs --cases captions --out data/f4_traces/captions` | `data/f4_traces/captions/f4_captions_extractions.parquet` |
+| NTA of each restaurant | `research/scripts/f4/restaurant_nta.py` | `data/f4_traces/f4_restaurants_nta.parquet` |
+| Hashtags by regex (D101) | `research/scripts/f4/caption_hashtags.py` | `data/f4_traces/captions/f4_caption_hashtags.parquet` |
+| Extraction input | `research/scripts/f4/build_extract_input.py` (1.1.0) | `data/f4_traces/extract_input/f4_captions.parquet`, 6,000 answers |
+| Schema | `dagspaces/pairwisevqa/conf/extract/caption_options_v3.yaml` (`caption-v3`); examples from `research/scripts/f4/build_caption_examples.py` | classes `caption` (free `style`) and `hashtags` (`scope`: caption, general) |
+| Job | `sbatch --array=0 --export=ALL,F4X_ARM=captions,F4X_SHARDS=1 research/scripts/f4/extract.sbatch` | `multirun/f4_captions_dsv4/runs/f4_captions__0000/` |
+| Merge | `research/scripts/f4/merge_extractions.py multirun/f4_captions_dsv4/runs --cases captions --out data/f4_traces/captions` | `data/f4_traces/captions/f4_captions_extractions.parquet` |
 
 The NTA join puts the facade point of each restaurant (`px`, `py` of
 `data/f6_restaurant_depiction/v4/best.parquet`, EPSG:2263) in a 2020 NTA.
@@ -896,10 +896,10 @@ take 20 s on the B300, after an engine start of about 2 minutes.
 | Item | Value |
 |------|-------|
 | Main pass | job 94267, `caption-v3`, 6,000 answers in 25:46 on g3-compute-01; 0 missing, 0 read twice; 13 answers cut at the token limit, all repaired; 99.5% exact |
-| Flags | `scripts/f4/flag_caption_retry.py`: 64 Llama answers with no usable caption; 31 copied an example, 33 offer a caption that the pass missed |
+| Flags | `research/scripts/f4/flag_caption_retry.py`: 64 Llama answers with no usable caption; 31 copied an example, 33 offer a caption that the pass missed |
 | Retry | job 94301, `caption-v3r` (`caption_options_v3r.yaml`, the positive examples in reverse order), 64 answers; 0 copies |
 | Still failed | 20 (llama-3.2-11b 14, llama-3.2-90b 6). Each is 1 fully quoted text, often a description, that the model does not call a caption |
-| Final table | `scripts/f4/combine_caption_retry.py` writes `data/f4_traces/captions/f4_captions_final.parquet`: 30,822 usable captions; columns `pass`, `retry_reason`, `still_failed` |
+| Final table | `research/scripts/f4/combine_caption_retry.py` writes `data/f4_traces/captions/f4_captions_final.parquet`: 30,822 usable captions; columns `pass`, `retry_reason`, `still_failed` |
 
 Usable captions for each model: gemma-4-12b 14,098; gemma-4-31b 7,200;
 qwen3.5-9b 4,839; qwen3.8-27b 2,835; llama-3.2-11b 1,001; llama-3.2-90b 849.
@@ -910,7 +910,7 @@ description with no caption.
 
 #### The NTA measures (D105 to D108), 2026-10-25
 
-`uv run --script scripts/f4/caption_nta_analysis.py` writes
+`uv run --script research/scripts/f4/caption_nta_analysis.py` writes
 `data/f4_traces/captions/nta_analysis/` (the script docstring defines each
 measure). The table gives the mean over the 117 NTAs with 3 or more
 restaurants:
@@ -971,7 +971,7 @@ extractor loop or a real repeat in the text.
 
 #### The caption notebook (`f4_captions.py` 1.0.0, `_f4cap` 1.0.0, 2026-10-28)
 
-`notebooks/facct/f4_captions.py` reads the output of the caption analysis by
+`research/notebooks/facct/f4_captions.py` reads the output of the caption analysis by
 NTA of the data root of `_f4` (the pool by default). It reads the caption,
 hashtag and NTA files from the `inputs` of the analysis manifest, thus the
 same files as the entropies.
@@ -1078,11 +1078,11 @@ plain form), `vibe` (yes, no), `slot` (free, the frame noun or none, D112),
 | File | Use |
 |------|-----|
 | `dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v2.yaml` | the schema (`descriptors-v2`) |
-| `scripts/f4/build_descriptor_examples.py` | builds the 7 examples from F4 texts (`--version`) |
-| `scripts/f4/build_descriptor_input.py` | writes the input: U+2011 becomes "-", with the same length |
-| `scripts/f4/build_descriptor_smoke.py` | the stratified smoke input: 6 texts for each model, case, and field |
-| `scripts/f4/review_descriptor_smoke.py` | prints a review of a smoke run |
-| `scripts/f4/extract.sbatch` | `F4X_ARM=descriptors`; the smoke run also sets `F4X_CASE=descsmoke` |
+| `research/scripts/f4/build_descriptor_examples.py` | builds the 7 examples from F4 texts (`--version`) |
+| `research/scripts/f4/build_descriptor_input.py` | writes the input: U+2011 becomes "-", with the same length |
+| `research/scripts/f4/build_descriptor_smoke.py` | the stratified smoke input: 6 texts for each model, case, and field |
+| `research/scripts/f4/review_descriptor_smoke.py` | prints a review of a smoke run |
+| `research/scripts/f4/extract.sbatch` | `F4X_ARM=descriptors`; the smoke run also sets `F4X_CASE=descsmoke` |
 
 The smoke runs (120 texts, the same texts in both runs; g3-compute-01, about
 3 min each):
@@ -1125,7 +1125,7 @@ plain building phrases ("multi-story brick building", "yellow/tan facade").
 
 The full run is the 4 restaurant tasks (tasks 4 to 7 are the caption case),
 job 94638, started 2026-10-25:
-`sbatch --array=0-3%1 --export=ALL,F4X_ARM=descriptors scripts/f4/extract.sbatch`.
+`sbatch --array=0-3%1 --export=ALL,F4X_ARM=descriptors research/scripts/f4/extract.sbatch`.
 The output is in `multirun/f4_descriptors_dsv4/`.
 
 #### Results of the full restaurant run (job 94638), 2026-10-25
@@ -1155,11 +1155,11 @@ llama-3.2-90b example, not in the text. They are gemma-4-31b 12, gemma-4-12b
 count of quotable spans drops them, but these 20 texts then have about no
 span.
 
-The retry pass (D121): `scripts/f4/flag_descriptor_retry.py` flags a text
+The retry pass (D121): `research/scripts/f4/flag_descriptor_retry.py` flags a text
 with 5 or more example spans that are not in the text (20 texts; every other
 text has 0 to 2, and those still align). Schema `descriptors-v3r` reads the
 20 again (job 94803, `F4X_ARM=descriptors_retry`).
-`scripts/f4/combine_descriptor_retry.py` writes
+`research/scripts/f4/combine_descriptor_retry.py` writes
 `data/f4_traces/descriptors/f4_restaurant_desc_final.parquet`, with the
 columns `pass` (main, retry) and `still_copied`. The analysis reads this file.
 
@@ -1174,9 +1174,9 @@ extractor does not return an empty list.
 
 ### The descriptor notebook, 2026-10-26
 
-The notebook `notebooks/facct/f4_descriptors.py` reads the 2 final tables
+The notebook `research/notebooks/facct/f4_descriptors.py` reads the 2 final tables
 (restaurant v3 + v3r, street v5). The helpers are in
-`notebooks/facct/_f4desc.py` (v1.1.0). Version 1.1.0 reads the street cue
+`research/notebooks/facct/_f4desc.py` (v1.1.0). Version 1.1.0 reads the street cue
 spans (`data/f4_traces/extractions_street/f4_street_extractions.parquet`,
 `street-v2`) and adds section 3.1, the check of D129.
 
@@ -1190,7 +1190,7 @@ spans (`data/f4_traces/extractions_street/f4_street_extractions.parquet`,
 | 6. Vibe and frames | vibe spans for each 100 texts, frame nouns (`slot`), aspect shares |
 | 7. Street | the place against the photo |
 | 8. Quotes | spans of 1 head in context |
-| 9. Export | every case, field, track, and target to `notebooks/facct/figures/f4_descriptors/` (187 files) |
+| 9. Export | every case, field, track, and target to `research/notebooks/facct/figures/f4_descriptors/` (187 files) |
 
 The rules of the count:
 
@@ -1223,7 +1223,7 @@ camera advice, which is most of a street answer.
 | Schema | `dagspaces/pairwisevqa/conf/extract/urban_cues_street_v1.yaml` (`street-v1`) |
 | Classes | the 5 of `single-v1`, same values, and `photo_advice` (kind: position, framing, equipment, timing, effect, other) |
 | New rules | 6: the place, the photo that the model got, and the planned picture are 3 subjects; 7: a described thing of the place inside advice is `visual_evidence`; 8: people inside advice are `person_reference`; 9: skip headings, option labels, goals, and plan notes |
-| Examples | 5 street texts, none in the smoke input; built by `scripts/f4/build_street_cue_examples.py` |
+| Examples | 5 street texts, none in the smoke input; built by `research/scripts/f4/build_street_cue_examples.py` |
 | Input | `f4_street_desc.parquet`, the descriptor input; the offsets match the descriptor run |
 | Arm | `F4X_ARM=cues_street` (`extract_shard.py` 1.5.0) |
 
@@ -1236,7 +1236,7 @@ and "imposing" (in "making the building feel secluded and mysterious", a
 `photo_advice` effect). The user confirmed this border (D126).
 
 Smoke runs on the 60 texts of `f4_streetsmoke_desc` (review:
-`scripts/f4/review_street_cue_smoke.py`):
+`research/scripts/f4/review_street_cue_smoke.py`):
 
 | Run | Job | Time | Spans | Quotable | Empty texts | Photo words in Track C | Place words in Track C |
 |-----|-----|------|-------|----------|-------------|------------------------|------------------------|
@@ -1281,9 +1281,9 @@ A rescued span has `alignment_rescue` = `exact` or `casefold`.
 
 | Schema | Version | File | Examples |
 |--------|---------|------|----------|
-| Cues, restaurant and caption | `single-v2` | `urban_cues_single_v2.yaml` | `scripts/f4/build_single_v2_examples.py`, 7 |
+| Cues, restaurant and caption | `single-v2` | `urban_cues_single_v2.yaml` | `research/scripts/f4/build_single_v2_examples.py`, 7 |
 | Cues, street | `street-v3` | `urban_cues_street_v3.yaml` | `build_street_cue_examples.py --version v3`, 7 |
-| Descriptors, restaurant | `descriptors-v6-restaurant` | `aesthetic_descriptors_restaurant_v6.yaml` | `scripts/f4/build_descriptor_v6_examples.py` |
+| Descriptors, restaurant | `descriptors-v6-restaurant` | `aesthetic_descriptors_restaurant_v6.yaml` | `research/scripts/f4/build_descriptor_v6_examples.py` |
 | Descriptors, street | `descriptors-v6-street` | `aesthetic_descriptors_street_v6.yaml` | the same script |
 | Caption options | `caption-v4` | `caption_options_v4.yaml` | `build_caption_examples.py --version v4` |
 
@@ -1294,16 +1294,16 @@ true. No example text is in a smoke set (`x2_smoke_doc_ids.json`).
 
 | Step | Tool |
 |------|------|
-| Inputs (U+2011 as "-", the `context` column) and smoke sets | `scripts/f4/build_x2_input.py` |
-| Arms `x2_cues`, `x2_cues_street`, `x2_desc_restaurant`, `x2_desc_street`, `x2_captions` | `scripts/f4/extract_shard.py` 1.7.0 |
-| A plan of steps in 1 GPU allocation | `scripts/f4/x2_queue.sbatch`, plans in `scripts/f4/plans/` |
-| Smoke review | `scripts/f4/review_x2_smoke.py` |
-| Merge, with the flags `copy_suspect` and `example_source` | `scripts/f4/merge_extractions.py --schema` (1.2.0) |
+| Inputs (U+2011 as "-", the `context` column) and smoke sets | `research/scripts/f4/build_x2_input.py` |
+| Arms `x2_cues`, `x2_cues_street`, `x2_desc_restaurant`, `x2_desc_street`, `x2_captions` | `research/scripts/f4/extract_shard.py` 1.7.0 |
+| A plan of steps in 1 GPU allocation | `research/scripts/f4/x2_queue.sbatch`, plans in `research/scripts/f4/plans/` |
+| Smoke review | `research/scripts/f4/review_x2_smoke.py` |
+| Merge, with the flags `copy_suspect` and `example_source` | `research/scripts/f4/merge_extractions.py --schema` (1.2.0) |
 
 #### The x2 smoke runs (jobs 98399 and 98574)
 
 The smoke sets: restaurant 50 texts, caption 50, street 70, caption
-answers 46 (`build_x2_input.py`). Review: `scripts/f4/review_x2_smoke.py`.
+answers 46 (`build_x2_input.py`). Review: `research/scripts/f4/review_x2_smoke.py`.
 
 | Arm | Schema | Quotable | Rescued spans | Copy suspects | Loops | Spans in the second half of long texts |
 |-----|--------|----------|---------------|---------------|-------|------------------------------------------|
@@ -1322,7 +1322,7 @@ A copy suspect has the answer of 1 example and few or no spans of its own.
 3 of the 4 caption answers with a copy begin almost as example 2 does, and
 got the answer of example 3. The extractor seems to continue the example
 sequence. A rule cannot stop this (LangExtract issue 209). Thus the x2
-round has a retry pass (`scripts/f4/x2_retry.py`), as in D105, D121 and
+round has a retry pass (`research/scripts/f4/x2_retry.py`), as in D105, D121 and
 D124:
 
 1. A copy suspect has 2 or more spans that equal an example span and are
@@ -1371,10 +1371,10 @@ spans that were not quotable are found again, and the quotable rate of each
 
 #### The x2 full run (job 98574), 2026-10-27
 
-1 queue job ran the whole plan (`scripts/f4/plans/x2_night.txt`) on 1 B300
+1 queue job ran the whole plan (`research/scripts/f4/plans/x2_night.txt`) on 1 B300
 (g3-compute-04), from 00:17 to 05:30 EDT: the 2 descriptor smoke steps, the
 smoke retry, 11 full steps, the retry pass, and the merge
-(`scripts/f4/x2_merge_all.sh`). No step failed. A full step of about 5,000
+(`research/scripts/f4/x2_merge_all.sh`). No step failed. A full step of about 5,000
 texts took 20 to 36 minutes.
 
 The tables are in `data/f4_traces/x2/<arm>/f4_<case>_extractions.parquet`,
@@ -1400,8 +1400,8 @@ Use of the tables:
 
 | Analysis | Tool | Output |
 |----------|------|--------|
-| Track C and Track V (descriptors) | `notebooks/facct/f4_descriptors.py` 1.2.0, `_f4desc.py` 1.2.0 (round `x2` by default) | `notebooks/facct/figures/f4_descriptors_x2/` (280 files) |
-| Caption analysis by NTA | `uv run --script scripts/f4/caption_nta_analysis.py --captions data/f4_traces/x2/captions/f4_captions_x2_extractions.parquet --out data/f4_traces/x2/captions/nta_analysis` (1.2.0) | `data/f4_traces/x2/captions/nta_analysis/` |
+| Track C and Track V (descriptors) | `research/notebooks/facct/f4_descriptors.py` 1.2.0, `_f4desc.py` 1.2.0 (round `x2` by default) | `research/notebooks/facct/figures/f4_descriptors_x2/` (280 files) |
+| Caption analysis by NTA | `uv run --script research/scripts/f4/caption_nta_analysis.py --captions data/f4_traces/x2/captions/f4_captions_x2_extractions.parquet --out data/f4_traces/x2/captions/nta_analysis` (1.2.0) | `data/f4_traces/x2/captions/nta_analysis/` |
 | Cue spans of the caption case | `data/f4_traces/x2/cues/f4_caption_x2_extractions.parquet` | no descriptor run on the caption case (D115) |
 
 Track C on x2:
@@ -1422,8 +1422,8 @@ offline rescue of the round-1 tables (the x2 tables replace them).
 
 | Notebook | Version | Change |
 |----------|---------|--------|
-| `notebooks/facct/f4_traces.py` (the cue spans) | 2.0.0, `_f4.py` 2.0.0 | reads the x2 cue tables; 3 cases (street added, `street_caption` out by D115); `photo_advice` class and its `kind`; drops the copy suspects and the `none` items; new section 4.7, the trace against the answer; export to `figures/f4_x2/` (164 files) |
-| `notebooks/facct/f4_descriptors.py` | 1.3.0, `_f4desc.py` 1.3.0 | x2 is the fixed default (`F4DESC_ROUND=v1` for history); new section 6.1, where the descriptors sit (innermost cue class and inference kind); new section 6.2, the descriptors inside social inferences (wealth, class, demographic, crime, safety); export to `figures/f4_descriptors_x2/` (288 files) |
+| `research/notebooks/facct/f4_traces.py` (the cue spans) | 2.0.0, `_f4.py` 2.0.0 | reads the x2 cue tables; 3 cases (street added, `street_caption` out by D115); `photo_advice` class and its `kind`; drops the copy suspects and the `none` items; new section 4.7, the trace against the answer; export to `figures/f4_x2/` (164 files) |
+| `research/notebooks/facct/f4_descriptors.py` | 1.3.0, `_f4desc.py` 1.3.0 | x2 is the fixed default (`F4DESC_ROUND=v1` for history); new section 6.1, where the descriptors sit (innermost cue class and inference kind); new section 6.2, the descriptors inside social inferences (wealth, class, demographic, crime, safety); export to `figures/f4_descriptors_x2/` (288 files) |
 
 Section 4.7 compares the trace and the final answer of the same answer
 (the 4 thinking models; `_f4.trace_against_answer`). First numbers, for
@@ -1461,7 +1461,7 @@ exclusive words of 2 models. The key does these steps, in this sequence:
 | Step | Example |
 |------|---------|
 | Remove the accents (NFKD) | taquería = taqueria |
-| Put each word in American spelling: the breame 0.1.2 table (1,730 words, Apache-2.0, copied to `notebooks/facct/british_american_spellings.json`), with 7 more forms that the table does not hold (storey, storeys, storeyed, overstorey, greyscale, corbelled, flavourful). A word with a suffix (-ful, -ish, -ness, -ly, -ed, -es, -s, -ing) uses the form of its stem | greyish-blue = grayish blue; single-storey = single story |
+| Put each word in American spelling: the breame 0.1.2 table (1,730 words, Apache-2.0, copied to `research/notebooks/facct/british_american_spellings.json`), with 7 more forms that the table does not hold (storey, storeys, storeyed, overstorey, greyscale, corbelled, flavourful). A word with a suffix (-ful, -ish, -ness, -ly, -ed, -es, -s, -ing) uses the form of its stem | greyish-blue = grayish blue; single-storey = single story |
 | Remove the spaces, hyphens, slashes and other marks | closed-down = closed down; white/grey = white-gray |
 | Remove a final plural "s" when the key has more than 4 letters | great textures = great texture |
 
@@ -1629,7 +1629,7 @@ in pooled mode, all restaurant images of 1 NTA have the same weight.
 | Correction | Bonferroni over every test of test 2, all cases and fields |
 | Sign table | `feature_disagreement`: +1, -1, or 0 (not significant) for each model; `disagree` is true when the signs of the models are not all the same |
 
-The feature table comes from `scripts/f4/nta_acs.py` (1.1.0):
+The feature table comes from `research/scripts/f4/nta_acs.py` (1.1.0):
 
 | Item | Value |
 |------|-------|
@@ -1912,8 +1912,8 @@ R4 give rates over answers.
 
 | ID | Readout | Tool | What the run must give | Set by |
 |----|---------|------|------------------------|--------|
-| R1 | Latent terms at each layer, along the answer | `scripts/whatami/lens_replay.py`, `lens_report.py` | the top tokens at each layer and position, in a form the team can read by hand | the team, after the run (D16) |
-| R3 | A follow-up turn after the free answer, then `c` at the answer position | `monocle/single.py` | a 2-turn prompt: the free answer, then the D18 question; the answer position: Q36 | D18, D26 |
+| R1 | Latent terms at each layer, along the answer | `research/scripts/whatami/lens_replay.py`, `lens_report.py` | the top tokens at each layer and position, in a form the team can read by hand | the team, after the run (D16) |
+| R3 | A follow-up turn after the free answer, then `c` at the answer position | `research/monocle/single.py` | a 2-turn prompt: the free answer, then the D18 question; the answer position: Q36 | D18, D26 |
 | R4 | What the free answer says, read by the extractor | `langextract` stage | the stored free answers | the team, after the run (D19) |
 
 Dropped: R2 (D17), and the projection on the judgment direction of
@@ -1983,16 +1983,16 @@ In F4 it would read its own traces.
 | Case | Proxy | Source | Note |
 |------|-------|--------|------|
 | Restaurants | DOHMH inspection record | `restaurant-proxies.md` | the unit is 1 restaurant |
-| Street photography | median household income, NTA layer (D37) | `notebooks/cvpr/_proxies.py`, `income_by_layer("nta")`; ACS 5-year 2024 table S1901 by tract, `data/demo/ct/ACSST5Y2024.S1901-Data.csv` | the NTA value is a population-weighted mean of the tract medians, not a median of the NTA households |
+| Street photography | median household income, NTA layer (D37) | `research/notebooks/cvpr/_proxies.py`, `income_by_layer("nta")`; ACS 5-year 2024 table S1901 by tract, `data/demo/ct/ACSST5Y2024.S1901-Data.csv` | the NTA value is a population-weighted mean of the tract medians, not a median of the NTA households |
 
 ### Infrastructure that exists
 
 | Piece | Path | State |
 |-------|------|-------|
-| Serve, sample, store the answers on the B300 | `scripts/whatami/serve_and_query.sbatch`, `query.py`, `submit_all.sh` | ran 40,000 answers, 4 models |
-| Replay of the answers through the lenses | `scripts/whatami/lens_replay.py` | done for gemma-4-12b and llama-3.2-11b |
-| Lens fits | `scripts/whatami/lens_fit.py`, `lens_job.sbatch` | gemma-4-12b, llama-3.2-11b done; qwen3.5-9b cancelled; llama-3.2-90b not run |
-| Restaurant images for 1 image at a time | `load_single_rows` in `monocle/single.py`; data `cyclomedia_near_restaurants_facing` | used by the single-image rating path |
+| Serve, sample, store the answers on the B300 | `research/scripts/whatami/serve_and_query.sbatch`, `query.py`, `submit_all.sh` | ran 40,000 answers, 4 models |
+| Replay of the answers through the lenses | `research/scripts/whatami/lens_replay.py` | done for gemma-4-12b and llama-3.2-11b |
+| Lens fits | `research/scripts/whatami/lens_fit.py`, `lens_job.sbatch` | gemma-4-12b, llama-3.2-11b done; qwen3.5-9b cancelled; llama-3.2-90b not run |
+| Restaurant images for 1 image at a time | `load_single_rows` in `research/monocle/single.py`; data `cyclomedia_near_restaurants_facing` | used by the single-image rating path |
 
 **Caution:** on gemma-4-12b the J-lenses read the middle layers worse than the
 logit lens, and below about L24 two J fits do not agree
@@ -2051,11 +2051,11 @@ can show a parked truck, a tree, or the next shop.
 | Pool | score at or above the 0.9 quantile (0.3065): 49,086 images, 7,966 restaurants |
 | Draw | 100 restaurants at random, then 1 image of each at random; seed 20261023 |
 | Sample scores | 0.307 to 0.499 |
-| Builder | `scripts/f6_build_restaurant_depiction_sample.py` |
+| Builder | `research/scripts/f6_build_restaurant_depiction_sample.py` |
 | Sample | `data/f6_restaurant_depiction/` (`sample.parquet`, `tasks.json`, `images/`, `manifest.json`) |
 | Task | the image, the DBA name of the restaurant above it, Pass or Fail, a notes box; the score is not shown |
 | Instructions | Pass: "the image truly depicts a restaurant, in high definition, from close proximity"; Fail: any of the 3 does not hold |
-| Server | `sbatch scripts/label_studio_f6.sub [port]`, port 8927, node lisbeth; job 529976 started 2026-10-23 |
+| Server | `sbatch research/scripts/label_studio_f6.sub [port]`, port 8927, node lisbeth; job 529976 started 2026-10-23 |
 | Project | `F6 restaurant depiction check (100 images)`, id 1, 100 tasks |
 | Database | `data/label_studio_f6/data`, separate from the gold set |
 | Login | the gold-set login, `data/label_studio/credentials.env` |
@@ -2065,7 +2065,7 @@ can show a parked truck, a tree, or the next shop.
 # from a laptop
 ssh -N -L 8927:lisbeth:8927 $USER@<login-host>    # then open http://localhost:8927
 # start the server again (the job ends after 7 days)
-sbatch scripts/label_studio_f6.sub 8927
+sbatch research/scripts/label_studio_f6.sub 8927
 tail -30 data/label_studio_f6/logs/<jobid>.out
 ```
 
@@ -2156,7 +2156,7 @@ The options of the review (the user chooses, Q45 to Q48):
 
 ### Version 2: the storefront view (D50 to D60)
 
-`scripts/f6_select_storefront_views.py`, outputs in
+`research/scripts/f6_select_storefront_views.py`, outputs in
 `data/f6_restaurant_depiction/v2/`.
 
 | Step | Command | Output |
@@ -2228,8 +2228,8 @@ see them, so a model reads the pixels of each best view.
 
 | Step | Script | Output |
 |------|--------|--------|
-| 1. Render the best view of each of the 16,380 restaurants | `scripts/f6_render_best_views.sub` (`f6_select_storefront_views.py render-best`, version 1.2.0) | `v3/views/shard_<k>/`, `v3/views/index_<k>.parquet` |
-| 2. Ask Gemma-4-12B-it the D63 question about each view | `scripts/f6_vlm_facade_check.sub` (`f6_vlm_facade_check.py ask`) | `v3/facade_check/part_<k>.parquet` (answer, lp_yes, lp_no, p_yes) |
+| 1. Render the best view of each of the 16,380 restaurants | `research/scripts/f6_render_best_views.sub` (`f6_select_storefront_views.py render-best`, version 1.2.0) | `v3/views/shard_<k>/`, `v3/views/index_<k>.parquet` |
+| 2. Ask Gemma-4-12B-it the D63 question about each view | `research/scripts/f6_vlm_facade_check.sub` (`f6_vlm_facade_check.py ask`) | `v3/facade_check/part_<k>.parquet` (answer, lp_yes, lp_no, p_yes) |
 | 3. Draw 10,000 restaurants from those with a Yes, seed 20261023 | `f6_vlm_facade_check.py draw --n 10000` | `v3/facade_check/drawn_10000.parquet`, `draw_10000_manifest.json` |
 
 The loop of D63 gives a uniform random set of 10,000 restaurants from those
@@ -2320,7 +2320,7 @@ open rule have no defect. D73 to D84 set the fixes. Version 2.0.0 of
 
 #### Version 2 of the selection (v4), 2026-10-24
 
-Version 2.0.0 of `scripts/f6_select_storefront_views.py` applies D73 to D84.
+Version 2.0.0 of `research/scripts/f6_select_storefront_views.py` applies D73 to D84.
 Outputs are in `data/f6_restaurant_depiction/v4/`. The step `select` writes
 all pairs with their flags; the step `best` applies the limits.
 
@@ -2373,7 +2373,7 @@ DBA name), and the `unit_name` column (the DBA name of the restaurant).
 
 ### The J++ replication (D146, 2026-10-30)
 
-`scripts/rq1/jpp_compare.py` compares the released J++ lenses of Gemma-4-31B-it
+`research/scripts/rq1/jpp_compare.py` compares the released J++ lenses of Gemma-4-31B-it
 and Qwen3.5-9B with the R-lens runs of Gemma-4-12B, on the same 8 images. The
 tags are `jpp31b_*` and `jppq9b_*` in `data/rq1/patch_words/`. Each folder holds
 the GIFs and the `.jlens.parquet` files. Layers pair by relative depth. The 3
@@ -2407,7 +2407,7 @@ hits with the question first.
   have the same prefix, thus they are 1 measurement.
 - The thinking prefix of the template comes after the patches in every layout,
   thus it cannot change a patch read.
-- `monocle/scoring.py` needs `text_of` for a byte-level tokenizer (Qwen). Without
+- `research/monocle/scoring.py` needs `text_of` for a byte-level tokenizer (Qwen). Without
   it, the tokens stay raw (`Ġsedan`), and the mask keeps `Ġ...`.
 
 **The Norwood words.** We first wrote that J++ does not reproduce them. That was
@@ -2471,7 +2471,7 @@ runbook and the docs. Its corrections:
 | The negative term leads at L40 on 81% to 100% of the refused images | Experiment 2 replaces it: for prostitution, intelligence and trust, the lead is 100% in both groups, thus a prompt prior. Race and migration show no association (AUC 0.46, 0.52). Only class holds (AUC 0.73) | `lens-refusal-probe-results.md`, "Experiment 2 in 5 lines" |
 | Latent "Manhattan" 47%, said 2.1% | 47% is on Manhattan images; 2.1% is on all images. On Manhattan images the answers say "Manhattan" 17.5% (advisor count) | `whatami-lens-study.md`, "A latent borough" |
 | Control "Chicago" 33% | That was a tool test on 30 answers. On the full replay: latent Chicago 10.7%, latent Manhattan 8.8% (top 1, late third) | `multirun/whatami/lens_report/gemma-4-12b/logit/place_latent.csv` |
-| `lens_replay.py` replays F4 as it is | No. It reads the whatami prompt, the response only, thinking off, and 4 models | `scripts/whatami/lens_replay.py` |
+| `lens_replay.py` replays F4 as it is | No. It reads the whatami prompt, the response only, thinking off, and 4 models | `research/scripts/whatami/lens_replay.py` |
 | F4 answers are 6 to 10x longer | 5 to 6x | `whatami-probe.md` |
 
 The weak points of the lens as a harm claim:
@@ -2503,8 +2503,8 @@ counterfactual cue, (3) the R3 readout, (4) the lens replay as a figure,
 
 #### Results of F8.1 (2026-10-29)
 
-Record: `f8-method-b.md`. Script: `scripts/f8/method_b.py`. Files:
-`figures/f8/method_b/`. 100 rows: 6 models (responses) and 4 models
+Record: `f8-method-b.md`. Script: `research/scripts/f8/method_b.py`. Files:
+`research/figures/f8/method_b/`. 100 rows: 6 models (responses) and 4 models
 (reasoning), 2 cases, 5 features. Bonferroni over the 100 rows.
 
 | Case | Significant in model 0 | Significant in model 1, same sign | Median share kept |
@@ -2590,7 +2590,7 @@ insensitive.
 | `c_yes` | at the first assistant token: logp(`Yes`) - logp(`No`) |
 | `c_cool` (Q36) | after the assistant prefix `This place is` **(Claude)**: logp(`_cool`) - logp(`_lame`) |
 | `c_yes_i`, `c_cool_i` | the same, but the question ends with the answer form **(Claude)**: ` Answer with one word: yes or no.` and ` Answer with "This place is cool." or "This place is lame."` |
-| How | the offline vLLM engine, `scripts/f8/r3_readout.py`; the script renders the chat with the chat template, because the gemma template removes the empty thought channel from a final assistant message on the server; 1 request with 1 token for each answer word, `allowed_token_ids` forces the word, and the request reads its raw logprob (`logprobs_mode` raw_logprobs) |
+| How | the offline vLLM engine, `research/scripts/f8/r3_readout.py`; the script renders the chat with the chat template, because the gemma template removes the empty thought channel from a final assistant message on the server; 1 request with 1 token for each answer word, `allowed_token_ids` forces the word, and the request reads its raw logprob (`logprobs_mode` raw_logprobs) |
 | Data | (a) the F4 pool, 10,000 images for each focus case, the 4 models of F8.2; (b) the F8.2 answers |
 | Test on (a) | the Spearman correlation over the NTAs (20 images or more) of the NTA mean of `c` with each ACS feature, Bonferroni; and method B (F8.1) with `c` as the outcome |
 | Check on (a) | the Pearson correlation of `c` between each 2 models over the same images |
@@ -2605,9 +2605,9 @@ correction covers all 4 readouts.
 
 #### Results of F8.2 and F8.3 (2026-10-29)
 
-Record: `f8-counterfactual-cue.md`. Files: `figures/f8/cue/`,
-`figures/f8/method_b_r3/`, `data/f8/`. Run all tests again with
-`bash scripts/f8/finalize.sh`.
+Record: `f8-counterfactual-cue.md`. Files: `research/figures/f8/cue/`,
+`research/figures/f8/method_b_r3/`, `data/f8/`. Run all tests again with
+`bash research/scripts/f8/finalize.sh`.
 
 | Result | Value |
 |--------|-------|
@@ -2637,7 +2637,7 @@ compare improbable tokens; use the instructed ones (F8.3).
 
 Record: `f8-lens-figure.md`. Jobs 103148 (smoke, 20 answers) and 103149
 (figure, 200 answers), 7 GPU minutes in total. Figure:
-`figures/f8/lens/lens_rates.png`.
+`research/figures/f8/lens/lens_rates.png`.
 
 | Check | Result |
 |-------|--------|
@@ -2714,10 +2714,10 @@ of the reversed pair (1.4x) is smaller than the gaps of F8.2 (2x to 5x).
 
 | Item | Path |
 |------|------|
-| The arms | `scripts/f8/build_decoupled_sample.py` -> `data/f8/dc_{case}_{arm}.parquet`, `dc_manifest.json` (the ACS values of each name) |
-| The job | `scripts/f8/cue_job.sbatch` with `F8_DESIGN=dc` (phase A only; R3 on the new answers) |
+| The arms | `research/scripts/f8/build_decoupled_sample.py` -> `data/f8/dc_{case}_{arm}.parquet`, `dc_manifest.json` (the ACS values of each name) |
+| The job | `research/scripts/f8/cue_job.sbatch` with `F8_DESIGN=dc` (phase A only; R3 on the new answers) |
 | The answers, the readouts | `data/f8/runs_dc/{model}/`, `data/f8/r3/{model}/dc/` |
-| The tests | `scripts/f8/analyze_decoupled.py` -> `figures/f8/decoupled/` |
+| The tests | `research/scripts/f8/analyze_decoupled.py` -> `research/figures/f8/decoupled/` |
 
 **The results (2026-10-29).** 9 of 32 primary tests are significant. The
 values are in nats; negative means the non-white name gets the higher
@@ -2746,7 +2746,7 @@ judgment.
   significant tests.
 
 The figure is `rq3_decoupled` (`_rq.plot_decoupled`), in
-`notebooks/facct/figures/rq/`.
+`research/notebooks/facct/figures/rq/`.
 
 ### Run status
 
@@ -2759,12 +2759,12 @@ The figure is `rq3_decoupled` (`_rq.plot_decoupled`), in
 | F8.4 | 103148 (smoke), 103149 (figure) | done (2026-10-29); `f8-lens-figure.md` |
 | F8.5 | 104051 (smoke, 4 images), then 104052 gemma-4-12b, 104053 qwen3.5-9b, 104054 gemma-4-31b, 104055 qwen3.8-27b (each after the smoke job) | done (2026-10-29); the results are under F8.5 |
 
-The notebook `notebooks/facct/f8_evidence.py` (helpers in `_f8.py`) shows
-the results of F8.1 to F8.4. It reads the CSV files of `figures/f8/` and
+The notebook `research/notebooks/facct/f8_evidence.py` (helpers in `_f8.py`) shows
+the results of F8.1 to F8.4. It reads the CSV files of `research/figures/f8/` and
 does no test. Its button writes the paper figures to
-`notebooks/facct/figures/f8/`. To open it:
-`.venv-mllmsci-vllm025cu129/bin/marimo edit notebooks/facct/f8_evidence.py`.
-The notebook `notebooks/facct/rq_evidence.py` (helpers in `_rq.py`) sorts
+`research/notebooks/facct/figures/f8/`. To open it:
+`.venv-mllmsci-vllm025cu129/bin/marimo edit research/notebooks/facct/f8_evidence.py`.
+The notebook `research/notebooks/facct/rq_evidence.py` (helpers in `_rq.py`) sorts
 the results under the 3 research questions, for the camera-ready figures
 (`facct-rq-evidence.md`).
 
@@ -2775,7 +2775,7 @@ The figures of both notebooks follow `~/style/proper-plotting.md`:
   `plot-latex-label` and `plot-tags`. Each plot function sets its caption
   with `_f8.describe()`.
 - The font is CMU Serif (Computer Modern Roman, as in the LaTeX paper).
-  `notebooks/cvpr/_style.py` 1.1.0 loads it from TeX Live. This change also
+  `research/notebooks/cvpr/_style.py` 1.1.0 loads it from TeX Live. This change also
   applies to the CVPR notebooks.
 - The colours stay the house palette, not `~/style/colormaps/`.
 
@@ -2785,8 +2785,8 @@ spans of its F4 answer, for 8 images.
 
 | Step | Command or file |
 |------|-----------------|
-| Sample | `F4_DATA=canonical .venv-mllmsci-vllm025cu129/bin/python scripts/rq1/patch_words_sample.py`: 2 images for each (restaurant, street) and (bottom, top fifth of NTA income); `data/rq1/patch_words_sample.parquet`, `patch_words_spans.parquet` |
-| Lens | `monocle/patch_word_gif.py --sample data/rq1/patch_words_sample.parquet` with the `lrp_mm` lens, pool 2 (job 794536) and pool 4 (job 794546) |
+| Sample | `F4_DATA=canonical .venv-mllmsci-vllm025cu129/bin/python research/scripts/rq1/patch_words_sample.py`: 2 images for each (restaurant, street) and (bottom, top fifth of NTA income); `data/rq1/patch_words_sample.parquet`, `patch_words_spans.parquet` |
+| Lens | `research/monocle/patch_word_gif.py --sample data/rq1/patch_words_sample.parquet` with the `lrp_mm` lens, pool 2 (job 794536) and pool 4 (job 794546) |
 | Output | `data/rq1/patch_words/rlens/{photo_id}_{lens_case}[_p2|_p4].jlens.parquet` |
 
 The token of a block is the raw top-1 token (rank 0) of the R-lens (D137,
@@ -2802,7 +2802,7 @@ Check of the draw (2026-10-29): 10 more draws with seeds 1 to 10
 (`patch_words_sample.py --seed N --out data/rq1/seeds/sN`), plus all 24
 street images that pass the span filter (`data/rq1/seeds/street_pool.parquet`).
 The lens read 57 more images (jobs 796498 to 796501). The figures are
-`notebooks/facct/figures/rq/seeds/rq1_patch_words_s01` to `s10`; the words of
+`research/notebooks/facct/figures/rq/seeds/rq1_patch_words_s01` to `s10`; the words of
 all 65 images are in `data/rq1/seeds/all_patch_words.parquet`. The 10 seed
 figures use the raw top-1 rule of 1.7.0. The word table below uses the
 English filter of 1.3.0.
@@ -2843,7 +2843,7 @@ have a font in this list.
 
 **The question first (D138).** With the image first, the patch tokens do
 not depend on the question: a patch reads only the tokens before it
-(`modality-order.md`). `monocle/patch_word_gif.py --layout text_first`
+(`modality-order.md`). `research/monocle/patch_word_gif.py --layout text_first`
 puts the question before the image. The lens prompt is the rating question
 of `monocle.single` ("How appealing is this restaurant to eat at?", "How
 appealing is this block for a street photography photoshoot?"), not the F4
@@ -2851,7 +2851,7 @@ caption prompt.
 
 | Item | Value |
 |------|-------|
-| Job | 805157 (klara, 2 min): `sbatch monocle/monocle_gpu.sub monocle.patch_word_gif --sample data/rq1/patch_words_sample.parquet --pool 4 --top-k 3 --layout text_first --tag rlens_text_first --out data/rq1/patch_words` |
+| Job | 805157 (klara, 2 min): `sbatch research/monocle/monocle_gpu.sub monocle.patch_word_gif --sample data/rq1/patch_words_sample.parquet --pool 4 --top-k 3 --layout text_first --tag rlens_text_first --out data/rq1/patch_words` |
 | Lens files | `data/rq1/patch_words/rlens_text_first/` (the 8 images of the sample) |
 | Loader | `_rq.load_patch_layers(tag="rlens_text_first")`; `_rq.patch_changes(P, base)` gives the share of changed blocks |
 | Figures | `rq1_patch_layers_text_first` (the tokens), `rq1_patch_layers_text_first_diff` (coral: a token that differs from the image-first run) |
@@ -2930,7 +2930,7 @@ Words of the question in the top tokens of layers 30 to 46 (512 blocks):
   Thus these words depend on what comes before the image. Do not present
   them as a stable property of the pixels.
 
-| Figure (`notebooks/facct/figures/rq/`) | Content |
+| Figure (`research/notebooks/facct/figures/rq/`) | Content |
 |----------------------------------------|---------|
 | `rq1_patch_layers_question_first` | the tokens of `question_first` |
 | `rq1_patch_layers_question_first_diff` | the same; coral: differs from `neutral_first` |
@@ -3018,25 +3018,25 @@ Descriptions, with no test:
 
 | # | Step | Check |
 |---|------|-------|
-| 1 | Add `restaurant_subj` and `street_subj` to the prompt map of `scripts/f4/serve_and_query.sbatch` (done). An unknown case now stops with a message. `build_x2_input.py` waits for the extraction | `bash -n`; the old cases give the same prompts |
+| 1 | Add `restaurant_subj` and `street_subj` to the prompt map of `research/scripts/f4/serve_and_query.sbatch` (done). An unknown case now stops with a message. `build_x2_input.py` waits for the extraction | `bash -n`; the old cases give the same prompts |
 | 2 | Write the 2 sample files: the canonical rows plus the b2 rows of each case (`f4_restaurants_1k.parquet` + `b2/f4_restaurants_b2.parquet`; `f4_street_1k.parquet` + `b2/f4_street_b2.parquet`) -> `data/f4_traces/subj/f4_{restaurants,street}_10k.parquet` (done) | 10,000 rows each; `image_idx` and `sample_id` unique; the (`image_idx`, `sample_id`) pairs equal those of `pooled/` (checked) |
 | 3 | Smoke test: 16 images of each case, 6 models (`F4_LIMIT=16 F4_TAG=subj-smoke`, jobs 105039 to 105051, QoS `g3`). Done 2026-10-29: 192 answers, 0 errors, 0 cut, 0 empty responses; every thinking answer has a trace; tokens p50 977 to 1,472 (thinking), 108 to 121 (Llama); the seeds and the sampling equal those of F4 | 0 errors; the cut rate; read 8 answers of each case |
 | 4 | Generate: 1 job for each (model, case), with `F4_SAMPLE=data/f4_traces/subj/f4_<case>_10k.parquet F4_TAG=subj F4_CASES=<case>`, `sbatch --qos=g3` (`--exclude=g3-compute-17` for llama-3.2-90b). Submitted 2026-10-29: jobs 105228 to 105239 (`logs/f4/f9_jobs.txt`). The QoS `g3` lets the 12 jobs run in parallel; a preemption requeues the job, and `query.py` resumes | `check_runs.py --runs data/f4_traces/runs-subj`: 10,000 answers and 0 errors for each run |
 | 4b | Run the cut qwen3.5-9b `restaurant_subj` answers again at 16,384, as D91 and D92 do for F4: `data/f4_traces/subj/f4_qwen9b_restaurant_subj_cut.parquet` (14 images), `F4_TAG=subj-maxtok16384 F4_MAX_TOKENS=16384`, job 105392. No other cut answer runs again. Done: all 14 end with `stop` (tokens p50 2,480), 0 errors | `max_tokens` 16,384 in `run_config.json` (checked) |
-| 4c | Merge the runs into 2 corpora with `scripts/f4/merge_runs.py --runs runs-subj` (restaurant: `--cases restaurant_subj --replace qwen3.5-9b:restaurant_subj:runs-subj-maxtok16384:16384:cut_only`; street: `--set street --cases street_subj`). Done: `data/f4_traces/subj/f9_restaurant_traces.parquet`, `f9_street_traces.parquet`, each with a `_manifest.json` | 60,000 rows each (checked) |
+| 4c | Merge the runs into 2 corpora with `research/scripts/f4/merge_runs.py --runs runs-subj` (restaurant: `--cases restaurant_subj --replace qwen3.5-9b:restaurant_subj:runs-subj-maxtok16384:16384:cut_only`; street: `--set street --cases street_subj`). Done: `data/f4_traces/subj/f9_restaurant_traces.parquet`, `f9_street_traces.parquet`, each with a `_manifest.json` | 60,000 rows each (checked) |
 | 5 | The extraction (D140, D142): `vlm-narratives-docs/f9-extraction-design.md` (a `verdict` class with 5 labels; schemas `urban_cues_single_subj_v1`, `urban_cues_street_subj_v1` and their `r` variants; W&B `F9X2_*`). The new schema reads the F9 answers AND the F4 answers of the same images again, so both prompts share 1 schema (D142). The F4 x2 spans of record stay unchanged and do not enter the F9 test. Done 2026-10-30: smoke job 105550; pass 1 jobs 105565 to 105576 (80 steps, about 6 h 15 min of wall time); pass 2 job 105628 (964 restaurant and 2,876 street copy suspects read again; merge to `data/f4_traces/subj/x2/`) | B10 for all 6 cases: 0 missing; quotable 0.993 or more; copy suspects 0.17% or fewer (checked) |
 | 6 | Merge; compare the span mix of the 2 prompts (done) | a table in the record |
-| 7 | `scripts/f9/analyze_subjective.py` (1.1.0) -> `figures/f9/`: the 60 primary tests, the secondary rows, the descriptions (done) | the record `vlm-narratives-docs/f9-subjective-prompt.md` |
+| 7 | `research/scripts/f9/analyze_subjective.py` (1.1.0) -> `research/figures/f9/`: the 60 primary tests, the secondary rows, the descriptions (done) | the record `vlm-narratives-docs/f9-subjective-prompt.md` |
 
 ### The planned figures
 
 | Figure | Status | Needs the inference valence run |
 |--------|--------|---------------------------------|
-| `trace_ses`: 4 outcomes of the F9 answers against the 5 ACS features, 6 models, NTA and district (`notebooks/facct/_trace_ses.py` 1.2.1) | done: 124 of 480 cells pass; uncertainty leaves out `out_of_view`; see `f9-inference-valence.md` | yes, done: 65,266 spans, retest kappa 0.889 |
-| F9 win block, `visual_evidence` cues (D147) | done: `scripts/f9/export_valence_blocks.py` 1.4.0, with the same negation rule, `notebooks/facct/figures/f9_blocks/` | no |
+| `trace_ses`: 4 outcomes of the F9 answers against the 5 ACS features, 6 models, NTA and district (`research/notebooks/facct/_trace_ses.py` 1.2.1) | done: 124 of 480 cells pass; uncertainty leaves out `out_of_view`; see `f9-inference-valence.md` | yes, done: 65,266 spans, retest kappa 0.889 |
+| F9 win block, `visual_evidence` cues (D147) | done: `research/scripts/f9/export_valence_blocks.py` 1.4.0, with the same negation rule, `research/notebooks/facct/figures/f9_blocks/` | no |
 | F9 win block, inference cues (D147) | done: `export_valence_blocks.py` 1.4.0, `--sources inference`, `figures/f9_blocks/`. The cues mark negation (`not upscale`), see `f9-inference-valence.md` | yes, done |
 
-The F9 win block (D147) copies the layout of `scripts/export_wordblocks.py`:
+The F9 win block (D147) copies the layout of `research/scripts/export_wordblocks.py`:
 cues in order, the green-to-red ramp, 6 photographs above and 6 below. F9 has
 no pairs, thus the block needs a new score:
 
@@ -3106,7 +3106,7 @@ results can be ready on 2026-10-31.
 #### Results of the test (2026-10-30)
 
 The full record is `f9-subjective-prompt.md`; the outputs are in
-`figures/f9/`.
+`research/figures/f9/`.
 
 | Result | Restaurant | Street |
 |--------|------------|--------|
@@ -3166,7 +3166,7 @@ in the question, reads the first answer token, and puts the image after the text
 | Models | gemma-4-12b, gemma-4-31b, qwen3.5-9b, qwen3.8-27b, as F8. The Llama models run on SGLang, and this readout is not tested there |
 | Primary readout | `c_yes_i`: the question plus ` Answer with one word: yes or no.`; at the first assistant token, thinking off: logp(`Yes`) - logp(`No`), in nats |
 | Secondary readout | `c_yes`: the question alone |
-| How | the offline vLLM engine: 1 request for each context, and `logprob_token_ids` gives all the answer words from 1 forward pass. Nothing masks the output, and thinking is off: `scripts/f10/name_swap_readout.py` |
+| How | the offline vLLM engine: 1 request for each context, and `logprob_token_ids` gives all the answer words from 1 forward pass. Nothing masks the output, and thinking is off: `research/scripts/f10/name_swap_readout.py` |
 | Lower case | `c_lc_i`, `c_lc`: the same with `yes` and `no`. A description |
 | Repeat | the first 200 items again, in reverse order: `retest.parquet` |
 
@@ -3225,10 +3225,10 @@ same contrasts on `c_yes`, `c_lc_i` and `c_lc`; the first token of the free answ
 
 | Item | Path |
 |------|------|
-| The sample | `scripts/f10/build_name_sample.py` -> `data/f10/name_items.parquet` |
-| The job | `scripts/f10/name_swap.sbatch` |
+| The sample | `research/scripts/f10/build_name_sample.py` -> `data/f10/name_items.parquet` |
+| The job | `research/scripts/f10/name_swap.sbatch` |
 | The readouts | `data/f10/runs/{model}/` |
-| The tests | `scripts/f10/analyze_names.py` -> `figures/f10/names/` |
+| The tests | `research/scripts/f10/analyze_names.py` -> `research/figures/f10/names/` |
 
 ### F10.1 result (2026-10-30)
 
@@ -3311,7 +3311,7 @@ The design below comes before the first read. The user approved the plan on
 | Layers | primary: L45 on Gemma-4-31B, L24 on Qwen3.5-9B, the layers that named the scene best in `### The J++ replication`. Others are a description: the recipe band |
 | Evaluative words | `good`, `nice`, `yummy`, `stylish`, `cool` (expected sign +); `bad`, `ugly` (-) |
 | Status words | `rich`, `wealthy` (+); `poor`, `homeless` (-). A separate group |
-| Control words | `monocle.probe_words.POOL`, in the space form, the band rule of `scripts/probe_word_test.py`: control words within 1 nat of the mean score of the word, 20 or more |
+| Control words | `monocle.probe_words.POOL`, in the space form, the band rule of `research/scripts/probe_word_test.py`: control words within 1 nat of the mean score of the word, 20 or more |
 | Score | for each image: the mean over the image patches of the lens logit of the word, minus the mean over the control words. This cancels a shift of all logits |
 | Secondary score | `block`: the highest 4 x 4 block of the patch grid (the same sum, for a word in 1 place). The top-3 lists missed `homeless` |
 
@@ -3344,8 +3344,8 @@ for each NTA, thus the NTA test is noisy.
 
 | Item | Path |
 |------|------|
-| The read | `scripts/f10/word_read.py`, `word_read.sbatch` -> `data/f10/reads/{model}/` |
-| The tests | `scripts/f10/analyze_reads.py` -> `figures/f10/reads/` |
+| The read | `research/scripts/f10/word_read.py`, `word_read.sbatch` -> `data/f10/reads/{model}/` |
+| The tests | `research/scripts/f10/analyze_reads.py` -> `research/figures/f10/reads/` |
 
 ### F10.2 result (2026-10-30)
 
@@ -3417,7 +3417,7 @@ patches. The answer of the model to the F9 prompt is a stronger instrument. The
 status words track area income beyond the controls, but we cannot claim that without
 a test set before the data.
 
-**Output:** `figures/f10/reads/`: `reads_validity.csv`, `.png`, `.json`; `reads_ses.csv`,
+**Output:** `research/figures/f10/reads/`: `reads_validity.csv`, `.png`, `.json`; `reads_ses.csv`,
 `.png`, `.json`; `reads_block.csv`; `reads_layers.csv`; `reads_senses.csv`;
 `reads_homeless.csv`. The area figure fills a mark when |tau| exceeds the control
 threshold, thus a filled mark does not mean a gated pass.
@@ -3428,7 +3428,7 @@ The user confirmed this step on 2026-10-30, before step 2. The design below come
 before the first swap result.
 
 The J++ source holds the swap of the authors (`lens_evals/causal_evals/runner.py`).
-`scripts/f10/name_coord_swap.py` copies it. The authors pin the residual to the
+`research/scripts/f10/name_coord_swap.py` copies it. The authors pin the residual to the
 coordinates of a clean pass, and do not swap the running coordinates:
 
     h <- h + V (scale * sigma(c_clean) - pinv(V) h)
@@ -3563,9 +3563,9 @@ the data, thus it is a hypothesis.
 
 ### F10.1 again in float32 (D156)
 
-vLLM cannot run these models in float32 (D154), thus `scripts/f10/name_readout_hf.py`
+vLLM cannot run these models in float32 (D154), thus `research/scripts/f10/name_readout_hf.py`
 reads the same 12,000 items with HF: sdpa, the readouts of F10.1, 6 arms. Output:
-`data/f10/runs-fp32/{model}/`. `scripts/f10/analyze_names.py --runs data/f10/runs-fp32`
+`data/f10/runs-fp32/{model}/`. `research/scripts/f10/analyze_names.py --runs data/f10/runs-fp32`
 applies the same 24 tests. `name_bare` (`manhattan` - `bare`) is a new contrast, in
 `names_contrasts.csv`, and it does not enter the Bonferroni count.
 
@@ -3607,7 +3607,7 @@ remove the article, but on Gemma-4-12B it is not 0 as bfloat16 suggested.
 Gemma-4-12B can move by 0.3 to 0.4 nats. We did not rerun them. This is the deferred
 precision sheet.
 
-**Output:** `figures/f10/names_fp32/`. `figures/f10/names/` now also holds `name_bare`,
+**Output:** `research/figures/f10/names_fp32/`. `research/figures/f10/names/` now also holds `name_bare`,
 and its 24 primary tests did not change.
 
 ### The held-out test of removal (D157)
@@ -3644,8 +3644,8 @@ All other cells are a description.
 
 | Item | Path |
 |------|------|
-| The run | `scripts/f10/name_coord_swap.py --heldout` -> `data/f10/swap-heldout/{model}/` |
-| The tests | `scripts/f10/analyze_heldout.py` -> `figures/f10/heldout/` |
+| The run | `research/scripts/f10/name_coord_swap.py --heldout` -> `data/f10/swap-heldout/{model}/` |
+| The tests | `research/scripts/f10/analyze_heldout.py` -> `research/figures/f10/heldout/` |
 
 ### The held-out result (2026-10-31)
 
@@ -3718,7 +3718,7 @@ effect has the other sign. Thus part of it is a general move to `yes`.
 effect. It is one-way for the swap, and removal explains only a part. On Gemma-4-31B,
 we cannot separate the name from a general effect of any edit.
 
-**Output:** `figures/f10/heldout/`: `heldout_primary.csv`, `heldout_cells.csv`,
+**Output:** `research/figures/f10/heldout/`: `heldout_primary.csv`, `heldout_cells.csv`,
 `heldout_shifts.png`, `.json`.
 
 ### F10.4 The pilot of the hop read (D158)
@@ -3745,7 +3745,7 @@ webs`). This pilot reads the text positions after the image.
 
 | Item | Path |
 |------|------|
-| The read | `scripts/f10/hop_read.py`, `hop_read.sbatch` -> `data/f10/hops/{model}/` |
+| The read | `research/scripts/f10/hop_read.py`, `hop_read.sbatch` -> `data/f10/hops/{model}/` |
 
 ### F10.4 pilot result (2026-10-31)
 
@@ -3810,14 +3810,14 @@ the status of the place at ` cool`, and valence at the final position.
 - **The random split is not 0.** It reaches |r| = 0.38 (Qwen3.5-9B, `open`). Any
   difference of images falls along a few common axes.
 
-**Output:** `figures/f10/hops/`, `hops_replication.csv`, `hops_words.csv`,
+**Output:** `research/figures/f10/hops/`, `hops_replication.csv`, `hops_words.csv`,
 `hops_borough.csv`, `hops_added.csv`, `hops_depth.csv`, `hops_yes_no.csv`.
 
 ### F10.4 the gap at each layer (2026-10-31)
 
 We repeated the read on the same 600 images, and we kept the whole vocabulary at all
 band layers. The rerun equals the first read at the primary layers (maximum gap 0.0).
-Output: `data/f10/hops-depth/`, `data/f10/hops-depth-heldout/`, `figures/f10/hops/hops_layers.csv`.
+Output: `data/f10/hops-depth/`, `data/f10/hops-depth-heldout/`, `research/figures/f10/hops/hops_layers.csv`.
 
 We chose the 50 highest and 50 lowest words at each layer on the pilot images only.
 The share of the top list that keeps its sign on the new images is 0.86 or more in 89
@@ -3855,7 +3855,7 @@ preset test. The analysis goes in a marimo notebook.
 | Item | Value |
 |------|-------|
 | Models, lenses | Gemma-4-31B, Qwen3.5-9B, the released J++ files, float32 |
-| Images | street only, 3 from each NTA of the F9 pool: 591 images, 197 NTAs, seed 20261031. `scripts/f10/build_depth_sample.py` -> `data/f10/hop_depth/images.parquet` |
+| Images | street only, 3 from each NTA of the F9 pool: 591 images, 197 NTAs, seed 20261031. `research/scripts/f10/build_depth_sample.py` -> `data/f10/hop_depth/images.parquet` |
 | Prompt | the image first, then `Is this place cool? Answer with one word: yes or no.` |
 | Layers | each 4th layer from 0: L0 to L56 on Gemma-4-31B (15), L0 to L28 on Qwen3.5-9B (8) |
 | Positions | `after_image`, `first_text` (`Is`), `place`, `after_place` (` cool`), `after_cool` (`?`), `final` |
@@ -3872,8 +3872,8 @@ layer applied to the residual, then the unembedding.
 
 | Item | Path |
 |------|------|
-| The read | `scripts/f10/hop_depth.py`, `hop_depth.sbatch` -> `data/f10/hop_depth/{model}/` |
-| The loader | `scripts/f10/hop_store.py`: `open_store(model)` |
+| The read | `research/scripts/f10/hop_depth.py`, `hop_depth.sbatch` -> `data/f10/hop_depth/{model}/` |
+| The loader | `research/scripts/f10/hop_store.py`: `open_store(model)` |
 
 ### F10.5 store status (2026-10-31)
 
@@ -3913,7 +3913,7 @@ list from the viewer as a result without a test on the store.
 ### F10.6 The read of every token (D161)
 
 F10.5 read 6 tokens that we chose by hand. F10.6 reads the whole prompt, with the same
-images, prompt, layers, lens and float32 path. The script is `scripts/f10/hop_all.py`,
+images, prompt, layers, lens and float32 path. The script is `research/scripts/f10/hop_all.py`,
 and the output is `data/f10/hop_all/{model}/`.
 
 | Part | Gemma-4-31B | Qwen3.5-9B | What the store holds |
@@ -3953,18 +3953,18 @@ The full results are in `f10-judgment-mechanism.md`. Nothing is committed.
 
 | Step | Script | Output | Main result |
 |------|--------|--------|-------------|
-| F10.7 | `analyze_logit.py` | `figures/f10/logit/` | Held-out word lists pass in 367 of 375 and 192 of 192 cells |
-| F10.8 | `hop_sets.py` | `figures/f10/sets/` | Aesthetic pair r 0.755 and 0.715 before the word `cool` |
-| F10.9 | `hop_free.py`, `hop_scene.py`, `hop_patchdepth.py` | `figures/f10/free/` | Mean patch R2 0.820, 0.753. Gain at `cool` 0.124, 0.178 |
-| F10.10 | `hop_borough.py` | `figures/f10/borough/` | The Bronx lists of the paper do not hold on held-out NTAs |
-| F10.11 | `analyze_cool.py` | `figures/f10/reason/` | Criteria R2 0.572, 0.468. Evidence R2 0.192, 0.167 |
-| F10.12 | `hop_link.py` | `figures/f10/link/` | Observation words link in 194 of 375 and 73 of 192 cells |
-| F10.13 | `hop_stage.py` | `figures/f10/stage/` | Onset does not separate stages. `rank_added` does |
-| F10.14 | `analyze_probe.py` | `figures/f10/probe/` | Cool reads as interesting, not ordinary. Values R2 0.924, 0.810 |
-| F10.15 | `hop_axes.py` | `figures/f10/axes/` | Axis 1 at `cool` runs from temperature to social words |
-| F10.16 | `analyze_argument.py` | `figures/f10/reason/argument_*.csv` | The value gives the sign of an object in 18 of 22 and 20 of 25 objects |
-| F10.17 | `hop_sense.py` | `figures/f10/sense/` | Sense score r with traces -0.60, -0.61, and with the margin 0.10, -0.11 |
-| F10.18 | `hop_claim_axis.py` | `figures/f10/axes/axes_claim_words.csv`, `figures/f10/probe/probe_place.csv` | The stark `cool` words of the paper sit on axis 1. `in New York` is correct on 61.6% and 88.5% of images |
+| F10.7 | `analyze_logit.py` | `research/figures/f10/logit/` | Held-out word lists pass in 367 of 375 and 192 of 192 cells |
+| F10.8 | `hop_sets.py` | `research/figures/f10/sets/` | Aesthetic pair r 0.755 and 0.715 before the word `cool` |
+| F10.9 | `hop_free.py`, `hop_scene.py`, `hop_patchdepth.py` | `research/figures/f10/free/` | Mean patch R2 0.820, 0.753. Gain at `cool` 0.124, 0.178 |
+| F10.10 | `hop_borough.py` | `research/figures/f10/borough/` | The Bronx lists of the paper do not hold on held-out NTAs |
+| F10.11 | `analyze_cool.py` | `research/figures/f10/reason/` | Criteria R2 0.572, 0.468. Evidence R2 0.192, 0.167 |
+| F10.12 | `hop_link.py` | `research/figures/f10/link/` | Observation words link in 194 of 375 and 73 of 192 cells |
+| F10.13 | `hop_stage.py` | `research/figures/f10/stage/` | Onset does not separate stages. `rank_added` does |
+| F10.14 | `analyze_probe.py` | `research/figures/f10/probe/` | Cool reads as interesting, not ordinary. Values R2 0.924, 0.810 |
+| F10.15 | `hop_axes.py` | `research/figures/f10/axes/` | Axis 1 at `cool` runs from temperature to social words |
+| F10.16 | `analyze_argument.py` | `research/figures/f10/reason/argument_*.csv` | The value gives the sign of an object in 18 of 22 and 20 of 25 objects |
+| F10.17 | `hop_sense.py` | `research/figures/f10/sense/` | Sense score r with traces -0.60, -0.61, and with the margin 0.10, -0.11 |
+| F10.18 | `hop_claim_axis.py` | `research/figures/f10/axes/axes_claim_words.csv`, `research/figures/f10/probe/probe_place.csv` | The stark `cool` words of the paper sit on axis 1. `in New York` is correct on 61.6% and 88.5% of images |
 
 Failed jobs, all repaired: 111865 (empty control pool), 111880 (signal 53 on
 g3-compute-16), and the first `hop_borough` and `hop_stage` runs (paper layers absent on
@@ -3977,14 +3977,14 @@ The plan is `f10-14-prompt-analysis-plan.md`. Nothing is committed.
 
 | Step | Command | Output | Time |
 |------|---------|--------|------|
-| Summaries | `sbatch scripts/f10/hop_prompts_summary.sbatch` (array 0-41, 2 to 4 at a time) | `data/f10/prompts/{store}/` | 9 min for a Gemma store alone, 24 min with 3 on 1 node; 4 min for Qwen3.5-9B; 15 min for Qwen3.6-27B |
-| Mean patches | `sbatch scripts/f10/hop_prompts_patches.sbatch` (array 0-2) | `data/f10/prompts/{model}-patches/mean_patch.npy` | 15, 23, 50 min |
-| Task 0 | `sbatch scripts/f10/hop_prompts_task0.sbatch` | `figures/f10/prompts/t0_reproduction.csv` | 8 min |
-| Analysis | `sbatch scripts/f10/hop_prompts_analyze.sbatch` | `figures/f10/prompts/t*.csv` | 70 min |
-| Words and figures | `sbatch scripts/f10/hop_prompts_words.sbatch` | `t7_words.csv`, `t7_lens_check.csv`, 4 figures | 10 min |
+| Summaries | `sbatch research/scripts/f10/hop_prompts_summary.sbatch` (array 0-41, 2 to 4 at a time) | `data/f10/prompts/{store}/` | 9 min for a Gemma store alone, 24 min with 3 on 1 node; 4 min for Qwen3.5-9B; 15 min for Qwen3.6-27B |
+| Mean patches | `sbatch research/scripts/f10/hop_prompts_patches.sbatch` (array 0-2) | `data/f10/prompts/{model}-patches/mean_patch.npy` | 15, 23, 50 min |
+| Task 0 | `sbatch research/scripts/f10/hop_prompts_task0.sbatch` | `research/figures/f10/prompts/t0_reproduction.csv` | 8 min |
+| Analysis | `sbatch research/scripts/f10/hop_prompts_analyze.sbatch` | `research/figures/f10/prompts/t*.csv` | 70 min |
+| Words and figures | `sbatch research/scripts/f10/hop_prompts_words.sbatch` | `t7_words.csv`, `t7_lens_check.csv`, 4 figures | 10 min |
 | Tests | `pytest tests/test_hop_prompts.py` | 14 tests | |
-| Qwen3.6-27B probes | `sbatch --qos=g3 --job-name=f1014-qwen3.6-27b --export=ALL,F4_MODEL=qwen3.6-27b,F4_PROBE=1,F4_PROBE_TOP=2000,F4_SAMPLE=data/f10/hop_depth/images.parquet scripts/f4/serve_and_query.sbatch` (1 GPU, with the exclude list) | `data/f10/hop_probe/qwen3.6-27b/probes.jsonl` (31,323 rows) | 35 min of queries, over 2 preemptions |
-| Place tables | `python scripts/f10/probe_place.py`, then `python scripts/f10/hop_prompts.py probes` | `figures/f10/probe/probe_place.csv`, `probe_check.csv`, `figures/f10/prompts/t8_place_probes.csv` | 1 min |
+| Qwen3.6-27B probes | `sbatch --qos=g3 --job-name=f1014-qwen3.6-27b --export=ALL,F4_MODEL=qwen3.6-27b,F4_PROBE=1,F4_PROBE_TOP=2000,F4_SAMPLE=data/f10/hop_depth/images.parquet research/scripts/f4/serve_and_query.sbatch` (1 GPU, with the exclude list) | `data/f10/hop_probe/qwen3.6-27b/probes.jsonl` (31,323 rows) | 35 min of queries, over 2 preemptions |
+| Place tables | `python research/scripts/f10/probe_place.py`, then `python research/scripts/f10/hop_prompts.py probes` | `research/figures/f10/probe/probe_place.csv`, `probe_check.csv`, `research/figures/f10/prompts/t8_place_probes.csv` | 1 min |
 
 | Task | Main result |
 |------|-------------|
@@ -4042,8 +4042,8 @@ float32 result`.
 
 | Item | Path |
 |------|------|
-| The tests | `scripts/f10/analyze_swap.py` -> `figures/f10/swap/` |
-| The job | `scripts/f10/name_coord_swap.sbatch` |
+| The tests | `research/scripts/f10/analyze_swap.py` -> `research/figures/f10/swap/` |
+| The job | `research/scripts/f10/name_coord_swap.sbatch` |
 | The readouts | `data/f10/swap/{model}/` |
 | The `in Bronx` arm of the text swap | `data/f10/runs-bare/{model}/` |
 
@@ -4051,19 +4051,19 @@ float32 result`.
 
 The report is `f10-29-seven-questions.md`. Questions 1 to 4 and 6 ran on the CPU of the session
 node from the F10.26 summaries and the F10.27 directions. Questions 5 and 7 run on 1 GPU for each
-model (`scripts/f10/hop_steer.sbatch`, jobs 118269 to 118271 for the `words` and the first `run` stage;
+model (`research/scripts/f10/hop_steer.sbatch`, jobs 118269 to 118271 for the `words` and the first `run` stage;
 118287 and 118288 for the 197-image run of Gemma and Qwen3.6-27B; 118355 to 118357 for the 4-layer
 dose run, `F10_STAGES=dose`). Nothing is committed.
 
 | Step | Command | Output | Time |
 |------|---------|--------|------|
-| Q1 partial test | `python scripts/f10/hop_ses_partial.py` | `figures/f10/hierarchy/ses_partial.csv` | 1 min |
-| Q2 transfer | `python scripts/f10/hop_transfer.py` | `figures/f10/transfer/` | 5 min |
-| Q3 sample | `python scripts/f10/hop_sample.py` | `figures/f10/sample/` | 1 min |
-| Q4 refusals | `python scripts/f10/hop_aware.py` | `figures/f10/aware/` | 3 min |
-| Q6 sweep | `python scripts/f10/hop_robust.py` | `figures/f10/robust/` | 1 min |
-| Q5 and Q7 directions | `python scripts/f10/hop_steer.py dirs --model {model}` | `data/f10/steer/{model}/dirs.npz` | 1 min each |
-| Q5 and Q7 GPU | `sbatch --export=ALL,F10_MODEL={model} --job-name=f1029-{model} scripts/f10/hop_steer.sbatch` | `data/f10/steer/{model}/margins-*.parquet`, `generations.parquet`, `words.parquet` | see below |
+| Q1 partial test | `python research/scripts/f10/hop_ses_partial.py` | `research/figures/f10/hierarchy/ses_partial.csv` | 1 min |
+| Q2 transfer | `python research/scripts/f10/hop_transfer.py` | `research/figures/f10/transfer/` | 5 min |
+| Q3 sample | `python research/scripts/f10/hop_sample.py` | `research/figures/f10/sample/` | 1 min |
+| Q4 refusals | `python research/scripts/f10/hop_aware.py` | `research/figures/f10/aware/` | 3 min |
+| Q6 sweep | `python research/scripts/f10/hop_robust.py` | `research/figures/f10/robust/` | 1 min |
+| Q5 and Q7 directions | `python research/scripts/f10/hop_steer.py dirs --model {model}` | `data/f10/steer/{model}/dirs.npz` | 1 min each |
+| Q5 and Q7 GPU | `sbatch --export=ALL,F10_MODEL={model} --job-name=f1029-{model} research/scripts/f10/hop_steer.sbatch` | `data/f10/steer/{model}/margins-*.parquet`, `generations.parquet`, `words.parquet` | see below |
 
 | Question | Main result |
 |----------|-------------|
@@ -4082,14 +4082,14 @@ same catalog, seed, renderer and epoch). 2 captures run overnight on 1 GPU each:
 
 | Capture | Images | Jobs | Script |
 |---------|--------|------|--------|
-| Answers, 14 prompts, vLLM | 10,000 (50 for each NTA) | 118501 qwen3.5-9b, 118502 gemma-4-31b, 118503 qwen3.6-27b | `scripts/f4/serve_and_query.sbatch` with `F4_ANSWERS=1` |
-| Lean capture, 14 prompts, HF float32 | 1,970 (10 for each NTA) | 118504 and 118505 gemma-4-31b, 118506, 118507 and 118597 qwen3.6-27b, 118508 and 118598 qwen3.5-9b | `scripts/f10/hop_lean.sbatch` |
-| The k = 10 summaries | 42 stores | 118875, 118944 (CPU arrays) | `scripts/f10/hop_more_summary.sbatch` |
+| Answers, 14 prompts, vLLM | 10,000 (50 for each NTA) | 118501 qwen3.5-9b, 118502 gemma-4-31b, 118503 qwen3.6-27b | `research/scripts/f4/serve_and_query.sbatch` with `F4_ANSWERS=1` |
+| Lean capture, 14 prompts, HF float32 | 1,970 (10 for each NTA) | 118504 and 118505 gemma-4-31b, 118506, 118507 and 118597 qwen3.6-27b, 118508 and 118598 qwen3.5-9b | `research/scripts/f10/hop_lean.sbatch` |
+| The k = 10 summaries | 42 stores | 118875, 118944 (CPU arrays) | `research/scripts/f10/hop_more_summary.sbatch` |
 
 **Status (2026-11-03, 04:30):** both captures are complete and verified (D185 to D187). The tests
-of D188 ran on the session node: `scripts/f10/hop_more_answers.py` (k = 3, 10, 50 from the
-answers) and `scripts/f10/hop_more_readouts.py` (`agree`, `transfer`, `ses`, `fit` on the k = 10
-summaries). Tables in `figures/f10/more/`.
+of D188 ran on the session node: `research/scripts/f10/hop_more_answers.py` (k = 3, 10, 50 from the
+answers) and `research/scripts/f10/hop_more_readouts.py` (`agree`, `transfer`, `ses`, `fit` on the k = 10
+summaries). Tables in `research/figures/f10/more/`.
 
 | Result | k = 3 | k = 50 (answers) or k = 10 (readouts) |
 |--------|-------|------|
@@ -4104,7 +4104,7 @@ summaries). Tables in `figures/f10/more/`.
 
 **Status (2026-11-03, 11:00):** D189 done (job 120293, CPU array; `hop_more_readouts.py` stages
 `words`, `dirs`, `project`). The paper proposals are P51 to P58 in `f10-manuscript-proposals.md`
-section 7, with the k = 50 table `notebooks/facct/tables/f10_prompt_ses_k50.tex`. On the user's
+section 7, with the k = 50 table `research/notebooks/facct/tables/f10_prompt_ses_k50.tex`. On the user's
 request, the proposals (all but P54) went into the paper: `artificial-aesthetic/paper` at
 `3b28f30`, `artificial-aesthetic` at `f926a3d`, both pushed. The mllmsci docs and scripts of
 F10.30 are not committed (`scripts/*` and `notebooks/*` are in the working-tree `.gitignore`).
@@ -4115,7 +4115,7 @@ cues"), and the word lists of the shared direction (`fig:shared-direction-words`
 `app:direction-words`, with the full word description. The main text keeps a short form of "The
 readout orders words". The paper is 34 pages.
 
-**Cue block for the side figure (2026-11-03, paper at `e8e472c`):** `scripts/f9/export_valence_blocks.py` 1.6.0
+**Cue block for the side figure (2026-11-03, paper at `e8e472c`):** `research/scripts/f9/export_valence_blocks.py` 1.6.0
 has a `PAPER` setting for the inference block: 150 of the 300 cues, 19 pt type on an 11-inch canvas,
 4 photographs in each row (6 before), the caption says "150 of the 300 cues". The column block and
 the visual-evidence blocks do not change. The side figure sits 2 paragraphs before "The traces order
@@ -4123,7 +4123,7 @@ cues" in the source, so that it lands on the same page. The Overleaf pull of the
 teaser figure, thus the block is Figure 4 and the appendix figures carry B numbers.
 
 **P54 applied (2026-11-03, paper at `0f4223e`):** the Manhattan sentence of section 4.2 uses the Welch t of
-the 50-image NTA means of E (`figures/f10/more/manhattan.csv`): `cool` 9.9, 14.2, 10.1; `ordinary` -5.3,
+the 50-image NTA means of E (`research/figures/f10/more/manhattan.csv`): `cool` 9.9, 14.2, 10.1; `ordinary` -5.3,
 -10.6, -8.6; `urban` 6.5, 11.5, 11.9; all 9 pass Bonferroni.
 
 
@@ -4141,8 +4141,8 @@ The paper held F10.26 to F10.34 but not the steering test of F10.29 question 5, 
 refusal readout of question 4, the borough order of each standard, the noun result,
 the third model on the New York probe, and the standardized form of H9. All of them
 are in the paper now; see `f10-manuscript-proposals.md` section 8. The borough order
-comes from a new stage of `scripts/f10/hop_more_answers.py` (`--borough`,
-`figures/f10/more/borough_order.csv`, `borough_tests.csv`) at 50 images for each NTA,
+comes from a new stage of `research/scripts/f10/hop_more_answers.py` (`--borough`,
+`research/figures/f10/more/borough_order.csv`, `borough_tests.csv`) at 50 images for each NTA,
 so that it rests on the same 9,850 images as the Manhattan sentence.
 
 | Adjective | First (of 6 cells) | Last | Cells where the first borough differs from the rest |
@@ -4152,7 +4152,7 @@ so that it rests on the same 9,850 images as the Manhattan sentence.
 | `ugly` | Bronx (5), Brooklyn (1) | Staten Island (6) | 5 |
 
 The steering table of the paper (`tab:steering-dose`) comes from
-`scripts/f10/hop_steer_table.py`, which reads `figures/f10/steer/dose.csv`.
+`research/scripts/f10/hop_steer_table.py`, which reads `research/figures/f10/steer/dose.csv`.
 
 **Teaser 2.0.0 (2026-11-03):** the teaser figure now shows 5 innocuous scenes with the answer no,
 the severe words of the no end at L16 (sewage, slaughter, stench, criminal, filth) and the up
@@ -4279,7 +4279,7 @@ unit, the same smoothing and the same bootstrap.
 | R1 | the 2 pairwise extractors (Qwen3.8-27B, Gemma-4-31B) on the same traces | the extractor noise, within the pairwise schema | `data/trace_extractions_v2_*` | CPU |
 | R2 | F4 against F9 on the same images, with the same extractor and schema | the effect of a change of prompt, description against judgment | the x2 files of the F9 step 5 | CPU |
 | R3 | the 1,000 pairwise repeats against their first answers | the retest noise of the model | the pairwise files | CPU |
-| R4 | DeepSeek-V4-Flash reads pairwise traces of each (model, case) with `urban_cues_v2` | the extractor effect between the 2 paradigms, on the same texts | `scripts/f4/build_f11_input.py`, arm `f11_pw_cues` | B300; see the changes above |
+| R4 | DeepSeek-V4-Flash reads pairwise traces of each (model, case) with `urban_cues_v2` | the extractor effect between the 2 paradigms, on the same texts | `research/scripts/f4/build_f11_input.py`, arm `f11_pw_cues` | B300; see the changes above |
 
 The rule, set before the run: H11 holds for a (model, case, unit) when the
 95% interval of the paradigm JS overlaps the interval of the extractor
@@ -4318,11 +4318,11 @@ low rho can come from the view, not from the standard.
 | # | Step | Status |
 |---|------|--------|
 | 0 | The run configurations, the extraction inputs, the crosswalk, the U3 floor | done |
-| 1 | `notebooks/facct/_paradigm_kl.py`: load all the arms into 1 frame | done |
+| 1 | `research/notebooks/facct/_paradigm_kl.py`: load all the arms into 1 frame | done |
 | 2 | U1 to U4, the measure, R0 to R3, the bootstrap | done |
 | 3 | U5 and the place-level Spearman | done |
 | 4 | R4 | done: shard 0 (job 106921) |
-| 5 | The notebook `notebooks/facct/f11_paradigms.py`, the figures in `notebooks/facct/figures/f11/`, the record `f11-paradigm-consistency.md` | done |
+| 5 | The notebook `research/notebooks/facct/f11_paradigms.py`, the figures in `research/notebooks/facct/figures/f11/`, the record `f11-paradigm-consistency.md` | done |
 
 ## Open questions
 
@@ -4410,7 +4410,7 @@ replace `Give me a cool social media caption for this photo.`?
 Q30. Does the caption prompt of D14 end with a period?
 
 Q31. R3: which answer words does `c` compare? Each must be 1 token, and the 2
-must not share a token (`monocle/labels.py`).
+must not share a token (`research/monocle/labels.py`).
 
 
 Q32. Which text does the caption experiment (F3) use:

@@ -83,7 +83,7 @@ pipeline:
 
 # Warning: check a new label set before you use it. A label that is not 1
 # token fails silently.
-#   python -m monocle.labels Safe Dangerous
+#   python -m research.monocle.labels Safe Dangerous
 #
 # Smoke test:
 #   python -m dagspaces.vqa.cli -m \

@@ -16,7 +16,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import patch_causal as pc  # noqa: E402
+from research.monocle import patch_causal as pc  # noqa: E402
 
 
 def raster_pid(n_rows: int, n_cols: int, n_slots: int) -> torch.Tensor:

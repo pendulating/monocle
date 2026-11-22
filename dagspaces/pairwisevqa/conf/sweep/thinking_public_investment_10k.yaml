@@ -40,7 +40,7 @@
 #
 # Warning: these runs are NOT canonical. The model string is
 # `gemma-4-12b/instruct_thinking`, not `.../instruct`, and the sweep name is not
-# in CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
+# in CANONICAL_SWEEPS, so `research/notebooks/cvpr/_provenance.py` drops them. That is
 # correct: a thinking run uses different sampling, so its labels are not
 # comparable with the greedy battery.
 #

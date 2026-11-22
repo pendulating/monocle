@@ -128,7 +128,7 @@ def _compute_bearing(face: pl.Expr, recorder_dir: pl.Expr) -> pl.Expr:
 
     The earlier implementation added `recorder_direction` (the *vehicle*
     heading, which is a different column than camera yaw — see
-    `dagspaces/urbanroamvqa/graph/STREETSMART_API_REFERENCE.md`) to the face
+    `research/dagspaces/urbanroamvqa/graph/STREETSMART_API_REFERENCE.md`) to the face
     offset. That treated the cube as vehicle-relative and produced bearings
     that were wrong by the vehicle heading — most visible when the van
     drove opposite directions on the same street and the F face supposedly

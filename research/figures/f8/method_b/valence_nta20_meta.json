@@ -1,0 +1,61 @@
+{
+ "script": "research/scripts/f8/method_b.py",
+ "version": "1.0.0",
+ "tag": "valence_nta20",
+ "outcome_parquet": null,
+ "outcome_col": "net valence (section 4.12)",
+ "cases": [
+  "restaurant",
+  "street"
+ ],
+ "min_cuisine": 100,
+ "min_nta_images": 20,
+ "alpha": 0.05,
+ "tests": 100,
+ "seconds": 75.5,
+ "grade_levels": {
+  "A": 7617,
+  "pending": 1088,
+  "B": 915,
+  "C": 377,
+  "missing": 3
+ },
+ "grade_rules": {
+  "closest to capture": 9997,
+  "no graded inspection": 3
+ },
+ "grade_gap_days_median": 105.0,
+ "cuisine_levels": 27,
+ "nta_level_checks": [
+  {
+   "model": "gemma-4-12b",
+   "case": "restaurant",
+   "field": "response",
+   "feature": "pct_white_nh",
+   "ntas": 159,
+   "spearman_rho_nta": 0.7442773081645089,
+   "p": 2.5474048510326035e-29,
+   "ols_slope_nta_per_sd": 0.019036158645231473
+  },
+  {
+   "model": "gemma-4-12b",
+   "case": "restaurant",
+   "field": "response",
+   "feature": "pct_bachelors",
+   "ntas": 159,
+   "spearman_rho_nta": 0.7170791494131291,
+   "p": 2.1474668293864476e-26,
+   "ols_slope_nta_per_sd": 0.01861609001637626
+  },
+  {
+   "model": "qwen3.8-27b",
+   "case": "restaurant",
+   "field": "response",
+   "feature": "pct_white_nh",
+   "ntas": 159,
+   "spearman_rho_nta": 0.6662013234761793,
+   "p": 9.451116308367519e-22,
+   "ols_slope_nta_per_sd": 0.012636276636825953
+  }
+ ]
+}

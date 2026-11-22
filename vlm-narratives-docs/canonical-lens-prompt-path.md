@@ -1,6 +1,6 @@
 # The canonical prompt path for the lens study
 
-`monocle/canonical.py` builds the forward pass that the Jacobian lens reads. It
+`research/monocle/canonical.py` builds the forward pass that the Jacobian lens reads. It
 makes the lens read the same prompt the CVPR battery ran.
 
 The model this path drives is described in [gemma4-12b-architecture.md](gemma4-12b-architecture.md).
@@ -37,7 +37,7 @@ prompt. Re-run them on this path before you cite them.
 
 Every string that reaches the model comes from
 `dagspaces/pairwisevqa/stages/pairwise_vqa.py` and
-`dagspaces/common/vllm_inference.py`. `monocle/canonical.py` holds no prompt
+`dagspaces/common/vllm_inference.py`. `research/monocle/canonical.py` holds no prompt
 text of its own, except the 2 contrast templates below. Thus the prompt cannot
 drift away from the battery.
 
@@ -167,9 +167,9 @@ it wherever the numbers appear.
 
 | Module | Change |
 |---|---|
-| `monocle/safety_workspace.py` | `--case` / `--kind`; pairs, prompts, and labels all come from the registry |
-| `monocle/jlens_steer.py` | the same; `--parquet` and `--prompt-yaml` are gone |
-| `monocle/answer_tokens.py` | the open-vocabulary answer readout — see [answer-token-readout.md](answer-token-readout.md) |
+| `research/monocle/safety_workspace.py` | `--case` / `--kind`; pairs, prompts, and labels all come from the registry |
+| `research/monocle/jlens_steer.py` | the same; `--parquet` and `--prompt-yaml` are gone |
+| `research/monocle/answer_tokens.py` | the open-vocabulary answer readout — see [answer-token-readout.md](answer-token-readout.md) |
 
 ## Commands
 
@@ -178,7 +178,7 @@ it wherever the numbers appear.
 pytest tests/test_canonical_prompt.py -v
 
 # GPU smoke on the rebuilt path
-sbatch monocle/monocle.sub monocle.safety_workspace --smoke \
+sbatch research/monocle/monocle.sub monocle.safety_workspace --smoke \
     --case subway_safety --kind proxy
 ```
 

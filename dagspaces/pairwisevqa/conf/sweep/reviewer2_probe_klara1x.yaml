@@ -6,7 +6,7 @@
 # safety judgments track tract income + per-capita crime while small models
 # are near-noise. Each probe arm below perturbs prompt wording or image
 # presentation; the paired per-pair comparison against the production 100k
-# parquets (scripts/pairwise_reviewer2_baselines.py) shows whether per-pair
+# parquets (research/scripts/pairwise_reviewer2_baselines.py) shows whether per-pair
 # behavior persists. Arms are passed on the CLI so this one file serves every
 # axis. Production settings held fixed unless the arm perturbs them:
 # allow_not_sure=true, thinking off, max_tokens=128, counterbalance balanced.

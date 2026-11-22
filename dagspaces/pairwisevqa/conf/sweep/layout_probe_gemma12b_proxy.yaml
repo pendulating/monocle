@@ -53,7 +53,7 @@
 # | Label agreement         | high, pair by pair, between the arms   |
 #
 # Warning: these runs are NOT canonical. The sweep name is not in
-# CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them.
+# CANONICAL_SWEEPS, so `research/notebooks/cvpr/_provenance.py` drops them.
 
 sampling_params_vqa:
   max_tokens: 128

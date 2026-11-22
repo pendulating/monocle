@@ -1,10 +1,10 @@
-"""What is in the squares? See monocle/cell_statistics.py."""
+"""What is in the squares? See research/monocle/cell_statistics.py."""
 import numpy as np
 import pandas as pd
 import pytest
 from PIL import Image
 
-from monocle import cell_statistics as cs
+from research.monocle import cell_statistics as cs
 
 
 class TestCellBoxes:

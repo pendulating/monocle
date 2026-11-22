@@ -1,7 +1,7 @@
 # The answer-word projection against the unit proxies
 
 Date: 2026-09-03. Model: gemma-4-12b, the canonical pairwise runs
-(`notebooks/cvpr/canonical_data/proxy/canonical/<case>__gemma-4-12b`).
+(`research/notebooks/cvpr/canonical_data/proxy/canonical/<case>__gemma-4-12b`).
 
 The single-image activation-addition work (`steer-coord.md`) reads out the
 judgment at the last token position as a projection on a vector from the
@@ -23,8 +23,8 @@ paper validates.
 The answer-word vectors come from `monocle.pole_sample` (16 calibration
 images per case). `monocle.pole_score` scores the sampled images in batches
 of 8 (one forward pass, no padding, about 0.4 to 1.3 s per image).
-`scripts/pole_score_sample.py` samples the units and images, and
-`scripts/pole_score_join.py` runs the join and the bootstrap (400
+`research/scripts/pole_score_sample.py` samples the units and images, and
+`research/scripts/pole_score_join.py` runs the join and the bootstrap (400
 resamples over units, the CVPR seed).
 
 ## The sample
@@ -112,14 +112,14 @@ cases, not in the single-image prompt template.
 ## Repeat
 
 ```bash
-sbatch monocle/monocle.sub monocle.pole_sample --case <case>          # pole vectors, 60 eval images
-cd notebooks/cvpr && ../../.venv-3.12/bin/python ../../scripts/pole_score_sample.py
-sbatch monocle/monocle.sub monocle.pole_score --case <case> --shard <i> --n-shards <n>
-.venv-3.12/bin/python scripts/pole_score_join.py --cases all
-.venv-3.12/bin/python scripts/pole_score_figure.py
+sbatch research/monocle/monocle.sub monocle.pole_sample --case <case>          # pole vectors, 60 eval images
+cd research/notebooks/cvpr && ../../.venv-3.12/bin/python ../../scripts/pole_score_sample.py
+sbatch research/monocle/monocle.sub monocle.pole_score --case <case> --shard <i> --n-shards <n>
+.venv-3.12/bin/python research/scripts/pole_score_join.py --cases all
+.venv-3.12/bin/python research/scripts/pole_score_figure.py
 ```
 
-Warning: run the sampler from `notebooks/cvpr`, it imports
+Warning: run the sampler from `research/notebooks/cvpr`, it imports
 `_unit_validation` by path. Delete a shard from a test run before the
 join: the join globs every `scores_shard*.parquet` in the case directory.
 

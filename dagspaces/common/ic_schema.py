@@ -418,7 +418,7 @@ def render_examples(examples: Sequence[Dict[str, Any]]) -> str:
 
 
 def load_examples(path: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Read the examples that `scripts/build_ic_examples.py` wrote.
+    """Read the examples that `research/scripts/build_ic_examples.py` wrote.
 
     Warning: the file is JSON, not YAML. A YAML block scalar folds a long line
     and strips trailing space, thus a span that looks correct in the editor
@@ -430,7 +430,7 @@ def load_examples(path: Optional[str] = None) -> List[Dict[str, Any]]:
         path = os.path.join(os.path.dirname(__file__), f"ic_examples_{SCHEMA_VERSION}.json")
     if not os.path.exists(path):
         raise FileNotFoundError(
-            f"no example file at {path}. Run scripts/build_ic_examples.py"
+            f"no example file at {path}. Run research/scripts/build_ic_examples.py"
         )
     with open(path) as handle:
         payload = json.load(handle)

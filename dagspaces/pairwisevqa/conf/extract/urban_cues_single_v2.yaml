@@ -24,7 +24,7 @@
 # b. 7 short examples, 1 for each input shape: a restaurant trace start, a
 #    plan-only chunk (`none`), a middle chunk of a trace, a caption trace, a
 #    restaurant answer, a caption answer (a list of captions), and a short
-#    Llama answer. Build them with `scripts/f4/build_single_v2_examples.py`.
+#    Llama answer. Build them with `research/scripts/f4/build_single_v2_examples.py`.
 # c. Chunks of 6,000 characters with 600 characters of context
 #    (`context_window_chars`). A loop now loses at most 1 chunk, and
 #    `max_tokens` is 6,144 for each chunk.
@@ -42,14 +42,14 @@
 #    text word for word, the backend finds it again (advisor finding 2).
 #
 # The input is `data/f4_traces/extract_input/f4_<case>_x2.parquet`
-# (`scripts/f4/build_x2_input.py`): U+2011 is "-", and the offsets match the
+# (`research/scripts/f4/build_x2_input.py`): U+2011 is "-", and the offsets match the
 # other x2 runs.
 #
 # Warning: raise `schema_version` when you change a class, an attribute, a
 # value list, or an example. Never edit a version in place.
 #
 # Warning: keep `attribute_values` inside `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`.
+# `research/notebooks/cvpr/_extractions.py`.
 
 name: urban_cues_single
 schema_version: single-v2

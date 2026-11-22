@@ -1,7 +1,7 @@
 # The steering coordinate: what the pseudo-inverse steering direction is, and is not
 
-Date: 2026-09-01. Method: `monocle/steer_coord.py`. Report:
-`scripts/steer_coord_report.py`. Output: `outputs/_monocle/steer_coord/`.
+Date: 2026-09-01. Method: `research/monocle/steer_coord.py`. Report:
+`research/scripts/steer_coord_report.py`. Output: `outputs/_monocle/steer_coord/`.
 
 The single-image steering study (`single-image-steering.md`) showed that
 ``v_l = pinv(J_l) d`` moves the model's own judgment when we add it at
@@ -131,9 +131,9 @@ criterion and the same control, gives the comparison.
 
 ## Part 2: the principal judgment direction as a steering condition (2026-09-01, evening)
 
-Methods: `scripts/steer_axis_cpu.py` (step 1, CPU) and the new
-``--arms`` option of `monocle/single_steer.py` (step 2, GPU). Report:
-`scripts/steer_axis_report.py`. Output: `outputs/_monocle/single_steer_axis/`.
+Methods: `research/scripts/steer_axis_cpu.py` (step 1, CPU) and the new
+``--arms`` option of `research/monocle/single_steer.py` (step 2, GPU). Report:
+`research/scripts/steer_axis_report.py`. Output: `outputs/_monocle/single_steer_axis/`.
 
 ### Step 1: the principal direction on the recorded hidden states
 
@@ -227,11 +227,11 @@ lands on such a direction is the open question.
 
 ## Part 3: generation, the gradient, one direction or seven, and the image-token maps (2026-09-01, night)
 
-Methods: `monocle/steer_generate.py`, `monocle/grad_align.py`,
-`scripts/steer_axes_cos.py`, `scripts/steer_patch_figures.py`, and the
-`grad` condition of `monocle/single_steer.py`. Reports:
-`scripts/steer_generate_report.py`, `scripts/grad_align_report.py`,
-`scripts/steer_axis_report.py --root outputs/_monocle/single_steer_grad`.
+Methods: `research/monocle/steer_generate.py`, `research/monocle/grad_align.py`,
+`research/scripts/steer_axes_cos.py`, `research/scripts/steer_patch_figures.py`, and the
+`grad` condition of `research/monocle/single_steer.py`. Reports:
+`research/scripts/steer_generate_report.py`, `research/scripts/grad_align_report.py`,
+`research/scripts/steer_axis_report.py --root outputs/_monocle/single_steer_grad`.
 
 ### Generation: the flip persists, and the format persists under the principal direction
 
@@ -338,7 +338,7 @@ statistics. The principal direction is not an image statistic.
 
 ### The image-token maps, redrawn
 
-`scripts/steer_patch_figures.py` draws the `causal_maps` figure for 4
+`research/scripts/steer_patch_figures.py` draws the `causal_maps` figure for 4
 maps of each image at layer 41, all in logits: the measured
 token-ablation map, the principal-direction map (hidden-state change
 along the principal direction times the principal-direction gain), the
@@ -423,7 +423,7 @@ methods, all on the same 60 evaluation images per case:
 | grouped ablation | `patch_group` | 2 x 2, 4 x 4 and 8 x 8 blocks at the production budget |
 
 and one readout, the per-token gradient (`patch_grads`), scored by
-`scripts/patch_grads_report.py`.
+`research/scripts/patch_grads_report.py`.
 
 ### The coefficient of a uniform activation addition
 
@@ -762,7 +762,7 @@ gradient cosine only.
 
 ### How the 256 image tokens compose the sum
 
-`scripts/cell_composition_report.py` measures the per-token distribution
+`research/scripts/cell_composition_report.py` measures the per-token distribution
 of 2 quantities per image, medians over the 60 images and 7 cases
 (`outputs/_monocle/cell_composition/`, figure `figures/rank_share.png`):
 
@@ -794,8 +794,8 @@ against the CVPR unit-level ground-truth variables, is in
 | `outputs/_monocle/causal12b/` | the 12B under the causal image mask: `patch_budget`, `patch_grads` (7 cases), `patch_axis_mean`, `single_steer_axis` (3 cases), `causal_mask_report.parquet` |
 | `outputs/_monocle/self12b/` | the same under the self mask; `mask_check.json` is the proof of the mode; `self_mask_report.parquet` |
 | `outputs/_monocle/e4b/` | gemma-4-E4B: `patch_grads`, `patch_axis_mean` (7 cases), `single_steer_axis` (3 cases) |
-| `monocle/mask_check.py` | the substitution check of a mask mode, 1 image |
-| `scripts/causal_mask_report.py` | a masked run against the trained run (`--root`, `--label`) |
+| `research/monocle/mask_check.py` | the substitution check of a mask mode, 1 image |
+| `research/scripts/causal_mask_report.py` | a masked run against the trained run (`--root`, `--label`) |
 
 ## Files (part 5)
 
@@ -807,7 +807,7 @@ against the CVPR unit-level ground-truth variables, is in
 | `outputs/_monocle/patch_budget/<case>/` | token-ablation maps at 70, 140 and 280 tokens; `figures/budget_<case>.png` |
 | `outputs/_monocle/patch_group/<case>/` | 2x2, 4x4, 8x8 block ablation at 280; `figures/group_<case>.png` |
 | `outputs/_monocle/patch_grads/<case>/` | per-token gradients and hidden states, layers 12 to 22; `figures/cells_*.png` |
-| `scripts/patch_*_report.py`, `scripts/patch_grads_figures.py` | the reports and figures |
+| `scripts/patch_*_report.py`, `research/scripts/patch_grads_figures.py` | the reports and figures |
 
 ## Pitfalls
 
@@ -863,17 +863,17 @@ against the CVPR unit-level ground-truth variables, is in
 ## How to repeat
 
 ```bash
-sbatch --time=00:30:00 monocle/monocle.sub monocle.steer_coord --smoke
-sbatch --time=01:30:00 monocle/monocle.sub monocle.steer_coord \
+sbatch --time=00:30:00 research/monocle/monocle.sub monocle.steer_coord --smoke
+sbatch --time=01:30:00 research/monocle/monocle.sub monocle.steer_coord \
     --case restaurants --n-images 60 --batch 12
-python scripts/steer_coord_report.py --cases all --figures
-python scripts/steer_axis_cpu.py --cases all
-sbatch --time=01:30:00 monocle/monocle.sub monocle.single_steer \
+python research/scripts/steer_coord_report.py --cases all --figures
+python research/scripts/steer_axis_cpu.py --cases all
+sbatch --time=01:30:00 research/monocle/monocle.sub monocle.single_steer \
     --case restaurants --n-images 60 --pullback pinv --layers 41,42,44,45 \
     --alphas=-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.25,1.5,1.75,2 \
     --arms signal,control,axis,control_raw \
     --out-dir outputs/_monocle/single_steer_axis
-python scripts/steer_axis_report.py --cases all
+python research/scripts/steer_axis_report.py --cases all
 ```
 
 ## Related
@@ -887,16 +887,16 @@ python scripts/steer_axis_report.py --cases all
 
 ```bash
 # prove the mask mode, then the battery behind it (afterok)
-sbatch monocle/monocle.sub monocle.mask_check --case restaurants --out outputs/_monocle/self12b/mask_check.json
-sbatch monocle/monocle.sub monocle.patch_budget --case <case> --budgets 280 --image-mask self --out-dir outputs/_monocle/self12b/patch_budget
-sbatch monocle/monocle.sub monocle.patch_grads --case <case> --image-mask self --out-dir outputs/_monocle/self12b/patch_grads
-sbatch monocle/monocle.sub monocle.single_steer --case <case> --positions patches --scale centered_mean \
+sbatch research/monocle/monocle.sub monocle.mask_check --case restaurants --out outputs/_monocle/self12b/mask_check.json
+sbatch research/monocle/monocle.sub monocle.patch_budget --case <case> --budgets 280 --image-mask self --out-dir outputs/_monocle/self12b/patch_budget
+sbatch research/monocle/monocle.sub monocle.patch_grads --case <case> --image-mask self --out-dir outputs/_monocle/self12b/patch_grads
+sbatch research/monocle/monocle.sub monocle.single_steer --case <case> --positions patches --scale centered_mean \
   --arms axis,control_raw --layers 8,12,16,20,22,26,30 --alphas=-2,-1,-0.5,-0.25,0,0.25,0.5,1,2 \
   --image-mask self --out-dir outputs/_monocle/self12b/patch_axis_mean
 # --image-mask causal repeats the causal battery under outputs/_monocle/causal12b
 # E4B: add --model-dir /share/ju/matt/zoo/models/Gemma-4-E4B-it --no-lens
-.venv-3.12/bin/python scripts/causal_mask_report.py --root outputs/_monocle/self12b --label self --cases all
-.venv-3.12/bin/python scripts/patch_grads_report.py --cases all --grads-root outputs/_monocle/self12b/patch_grads \
+.venv-3.12/bin/python research/scripts/causal_mask_report.py --root outputs/_monocle/self12b --label self --cases all
+.venv-3.12/bin/python research/scripts/patch_grads_report.py --cases all --grads-root outputs/_monocle/self12b/patch_grads \
   --vecs-root outputs/_monocle/self12b/patch_axis_mean --removal-root outputs/_monocle/self12b/patch_budget --removal-kind delta
 ```
 
@@ -904,43 +904,43 @@ sbatch monocle/monocle.sub monocle.single_steer --case <case> --positions patche
 
 ```bash
 # uniform patch sweep at the mean scale (GPU, one job per case)
-sbatch --time=01:30:00 monocle/monocle.sub monocle.single_steer --case restaurants \
+sbatch --time=01:30:00 research/monocle/monocle.sub monocle.single_steer --case restaurants \
     --n-images 60 --pullback pinv --positions patches --scale centered_mean \
     --layers 8,12,16,20,22,26,30 --alphas=-2,-1,-0.5,-0.25,0,0.25,0.5,1,2 \
     --arms axis,control_raw,signal,control --out-dir outputs/_monocle/patch_axis_mean
 # per-cell injection, budget maps, grouped removal, patch gradients
-sbatch --time=04:30:00 monocle/monocle.sub monocle.patch_steer --case restaurants --layers 16,22
-sbatch --time=02:30:00 monocle/monocle.sub monocle.patch_budget --case restaurants --budgets 70,140,280
-sbatch --time=01:30:00 monocle/monocle.sub monocle.patch_group --case restaurants --groups 2,4,8
-sbatch --time=01:00:00 monocle/monocle.sub monocle.patch_grads --case restaurants
+sbatch --time=04:30:00 research/monocle/monocle.sub monocle.patch_steer --case restaurants --layers 16,22
+sbatch --time=02:30:00 research/monocle/monocle.sub monocle.patch_budget --case restaurants --budgets 70,140,280
+sbatch --time=01:30:00 research/monocle/monocle.sub monocle.patch_group --case restaurants --groups 2,4,8
+sbatch --time=01:00:00 research/monocle/monocle.sub monocle.patch_grads --case restaurants
 # reports and figures (CPU)
-.venv-3.12/bin/python scripts/steer_axis_figure.py --root outputs/_monocle/patch_axis_mean
-.venv-3.12/bin/python scripts/patch_steer_report.py --cases all
-.venv-3.12/bin/python scripts/patch_budget_report.py --cases all
-.venv-3.12/bin/python scripts/patch_group_report.py --cases all
-.venv-3.12/bin/python scripts/patch_grads_report.py --cases all
-.venv-3.12/bin/python scripts/patch_grads_figures.py --cases all --layer 22
+.venv-3.12/bin/python research/scripts/steer_axis_figure.py --root outputs/_monocle/patch_axis_mean
+.venv-3.12/bin/python research/scripts/patch_steer_report.py --cases all
+.venv-3.12/bin/python research/scripts/patch_budget_report.py --cases all
+.venv-3.12/bin/python research/scripts/patch_group_report.py --cases all
+.venv-3.12/bin/python research/scripts/patch_grads_report.py --cases all
+.venv-3.12/bin/python research/scripts/patch_grads_figures.py --cases all --layer 22
 ```
 
 ### Part 3
 
 ```bash
 # generation, the gradient, and the gradient arm (GPU, one job per case)
-sbatch --time=01:30:00 monocle/monocle.sub monocle.steer_generate --case restaurants
-sbatch --time=00:40:00 monocle/monocle.sub monocle.grad_align --case restaurants
-sbatch --time=02:00:00 monocle/monocle.sub monocle.single_steer --case restaurants \
+sbatch --time=01:30:00 research/monocle/monocle.sub monocle.steer_generate --case restaurants
+sbatch --time=00:40:00 research/monocle/monocle.sub monocle.grad_align --case restaurants
+sbatch --time=02:00:00 research/monocle/monocle.sub monocle.single_steer --case restaurants \
     --arms axis,grad --grad-vectors outputs/_monocle/grad_align/restaurants/grad_dirs.npz \
     --out-dir outputs/_monocle/single_steer_grad
 # the fine grid
-sbatch --time=00:30:00 monocle/monocle.sub monocle.single_steer --case restaurants \
+sbatch --time=00:30:00 research/monocle/monocle.sub monocle.single_steer --case restaurants \
     --arms grad --grad-vectors outputs/_monocle/grad_align/restaurants/grad_dirs.npz \
     --alphas=-0.15,-0.1,-0.05,-0.02,-0.01,0,0.01,0.02,0.05,0.1,0.15 \
     --out-dir outputs/_monocle/single_steer_grad_fine
 # reports and figures (CPU)
-.venv-3.12/bin/python scripts/steer_generate_report.py --cases all
-.venv-3.12/bin/python scripts/grad_align_report.py
-.venv-3.12/bin/python scripts/steer_axis_report.py --root outputs/_monocle/single_steer_grad --cases all
-.venv-3.12/bin/python scripts/steer_axes_cos.py
-.venv-3.12/bin/python scripts/steer_axis_figure.py
-.venv-3.12/bin/python scripts/steer_patch_figures.py --cases all
+.venv-3.12/bin/python research/scripts/steer_generate_report.py --cases all
+.venv-3.12/bin/python research/scripts/grad_align_report.py
+.venv-3.12/bin/python research/scripts/steer_axis_report.py --root outputs/_monocle/single_steer_grad --cases all
+.venv-3.12/bin/python research/scripts/steer_axes_cos.py
+.venv-3.12/bin/python research/scripts/steer_axis_figure.py
+.venv-3.12/bin/python research/scripts/steer_patch_figures.py --cases all
 ```

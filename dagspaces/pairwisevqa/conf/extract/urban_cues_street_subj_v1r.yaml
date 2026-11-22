@@ -1,6 +1,6 @@
 # @package extract
 # street-subj-v1r (F9, draft): the RETRY pass of `urban_cues_street_subj_v1.yaml`, written with
-# the rule of `scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
+# the rule of `research/scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
 # reverse order, and each `none` example stays at its place. It reads only the
 # texts that got a copy of an example in the first pass.
 name: urban_cues_street

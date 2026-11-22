@@ -12,7 +12,7 @@ words.
 
 ## The method
 
-`monocle/patch_caption.py` cuts a square out of the photograph and asks the
+`research/monocle/patch_caption.py` cuts a square out of the photograph and asks the
 model to name its content. The model describes the crop in a new context. It
 does not know the judgment, the causal role, or the case.
 
@@ -32,7 +32,7 @@ result. Read the table below before you read any number on this page.
 
 The fitted ablation predictor is a ridge regression from gradient-times-input
 (`g * h`) at layer 20 to the token-ablation effect
-(`scripts/k1_export_reader_cells.py`, which calls `fp.predict`). The
+(`research/scripts/k1_export_reader_cells.py`, which calls `fp.predict`). The
 `shared` mode fits on the other cases, so the fit did not include this case.
 
 The 2 stores agree at a median r of 0.164, and they name the same most
@@ -42,7 +42,7 @@ measurement.
 ## Finding 1: the predictor's negative extreme elicits disorder words
 
 Share of crops whose caption holds a word from `LEXICON_V1`
-(`scripts/disorder_rubric.py`). 60 photographs for each case.
+(`research/scripts/disorder_rubric.py`). 60 photographs for each case.
 
 **These crops come from the predicted map of the fitted ablation predictor**,
 not from the token-ablation map. We checked it. The `neg` token of this
@@ -90,7 +90,7 @@ random crops and almost no extremes. The test accounts for that, and the
 excess above it is the result.
 
 **Warning:** these numbers are exploratory. We wrote the word list while we
-read the same captions. `scripts/disorder_rubric.py` freezes a blind scoring
+read the same captions. `research/scripts/disorder_rubric.py` freezes a blind scoring
 rule for the confirmatory sample at seed 20260827.
 
 ## Finding 2: the negative tails coincide, the most negative image token does not
@@ -98,7 +98,7 @@ rule for the confirmatory sample at seed 20260827.
 `causal_maps --question-case` measures the 256-token map of one photograph
 under each of the 7 questions. The hidden state at the image tokens does not
 depend on the question, so only the gradient can make the maps differ.
-`scripts/xq_pole_coincidence.py` scores it.
+`research/scripts/xq_pole_coincidence.py` scores it.
 
 30 photographs from the `street_photography` sample, all 7 questions.
 
@@ -432,9 +432,9 @@ is small.
 | Step | Tool |
 |---|---|
 | the regression inputs of the held-out photographs | `monocle.input_gate --save-acts 20 --truth-from ...` |
-| the predictor's map | `scripts/k1_export_reader_cells.py --pred-root` |
+| the predictor's map | `research/scripts/k1_export_reader_cells.py --pred-root` |
 | the crops and the captions | `monocle.patch_caption --maps reader_cells_fresh/...` |
-| the report | `scripts/reader_fresh_report.py` |
+| the report | `research/scripts/reader_fresh_report.py` |
 
 ## Open questions
 
@@ -444,7 +444,7 @@ Findings 5 and 6 close 3 rows of this table. The remaining rows:
 |---|---|
 | is the predictor's token causal by another measurement? | ablate the predictor's token and read the logit difference, then compare it with the measured minimum |
 | what does the ridge regression measure, if not the ablation effect? | the predictor's weights against a content measurement of the same crops |
-| the rare-event class (a firearm) | 1 event in 4700 captions, and it sits on a crop with no measurable ablation effect. See the protocol in `scripts/disorder_rubric.py` |
+| the rare-event class (a firearm) | 1 event in 4700 captions, and it sits on a crop with no measurable ablation effect. See the protocol in `research/scripts/disorder_rubric.py` |
 
 ## 2 defects this line of work found
 
@@ -468,9 +468,9 @@ job in the window wrote a rank there.
 
 | Item | State |
 |---|---|
-| the defect | `monocle/transfer_k1.py`, 2026-08-25 20:45 to 22:00 |
+| the defect | `research/monocle/transfer_k1.py`, 2026-08-25 20:45 to 22:00 |
 | the fix | keep the map type in `whole_map` before the rename |
-| the repair | `scripts/repair_caption_values.py` |
+| the repair | `research/scripts/repair_caption_values.py` |
 | stores repaired | 12 of 25; the other 13 predate the defect |
 | the check | the rank order agrees at r = 1.0000 for all 12 |
 

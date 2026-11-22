@@ -1,6 +1,6 @@
 # @package extract
 # descriptors-v6-streetr (D130): the RETRY pass of `aesthetic_descriptors_street_v6.yaml`, written by
-# `scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
+# `research/scripts/f4/x2_retry.py schemas`. The same text; the positive examples are in
 # reverse order, and each `none` example stays at its place. It reads only the
 # texts that got a copy of an example in the first pass.
 name: aesthetic_descriptors

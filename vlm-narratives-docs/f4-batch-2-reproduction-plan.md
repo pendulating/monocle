@@ -59,10 +59,10 @@ weight.
 | Context | `MAX_TOKENS` + 4,096; Mllama: `MAX_TOKENS` + 8,192 (1 image is 6,429 prompt tokens) | `serve_and_query.sbatch` |
 | Thinking models | vLLM 0.25, reasoning parsers `gemma4` and `qwen3`, `enable_thinking: true` | D87 |
 | Llama models | SGLang, venv `whatami-sglang0522-cu130`, `--attention-backend flashinfer`, no `--chat-template` | D87 |
-| Seed | `request_seed(sample_id, repeat)` in `scripts/whatami/query.py`, the same for each model | D88 |
+| Seed | `request_seed(sample_id, repeat)` in `research/scripts/whatami/query.py`, the same for each model | D88 |
 | Cut answers | Keep them. Only qwen3.5-9b `restaurant` gets a rerun of its cut answers at 16,384 | D91, D92 |
 | Street view | the F6 renderer: pitch +10, 70 degrees, 1024 px; the CSCL bearing plus or minus 90 degrees | D118 |
-| Extraction | the x2 arms of `scripts/f4/extract_shard.py`, then the retry pass with the `<schema>r.yaml` files | D130 |
+| Extraction | the x2 arms of `research/scripts/f4/extract_shard.py`, then the retry pass with the `<schema>r.yaml` files | D130 |
 
 Sampling (D35, from the model card of each model):
 
@@ -103,17 +103,17 @@ A default path overwrites a canonical file.
 
 | # | File | Change | Check |
 |---|------|--------|-------|
-| A1 | new `scripts/f4/sample_images_nta.py` | The stratified restaurant draw of section 1. Arguments: `--total 10000`, `--keep data/f4_traces/f4_restaurants_1k.parquet`, `--seed 20261027`, `--idx-offset 1000`, `--out`. Pool: the "Yes" rows of `facade_check_b300/part_*.parquet`, joined to `best.parquet` on `uid` only (`camis`, `dba`, `borough`, `px`, `py`; for 17 restaurants the checked view is a neighbor recording of the best one, as in the F6 draw), then to the NTA polygons (`data/geo/nynta2020_26b/nynta2020.shp`, "within", EPSG:2263). Write only the new rows, with the columns of `sample_images.py` plus `NTA2020`, `nta_capacity`, `nta_n` (the allocation). Use 1 seeded generator for the extra +1 NTAs and 1 for the draw | 9,000 rows; `image_idx` 1000 to 9999; 0 `uid` in common with `--keep`; the new rows plus the kept rows give 10,000, and each NTA count equals `nta_n`; each `image_path` exists |
-| A2 | `scripts/f4/sample_street_images.py` | Add `--total N`: in place of `--per`, give each NTA `N // 197` and then 1 more to `N % 197` NTAs at random. Add `--exclude-sample PATH` (write only the rows that are not in that file) and `--idx-offset`. **Warning:** draw the +1 NTAs from a second generator, for example `np.random.default_rng([seed, 1])`. Do not use `rng` before `_key`. Otherwise the rank changes | With `--total 985 --seed 20261023`, the draw equals the 985 canonical recordings. With `--total 10000`, all 985 canonical recordings are in the first 5 of their NTA |
-| A3 | `scripts/f4/merge_runs.py` | Add `--sample PATH`, `--runs FOLDER` (default `runs`), `--cases ...`, and `--replace MODEL:CASE:FOLDER:MAX_TOKENS:MODE` (more than 1 is permitted). When `--runs` is not `runs`, use only the `--replace` items, not `REPLACE` | `merge_runs.py --out data/f4_traces/b2/check_traces.parquet` gives a file equal to `f4_traces_1k.parquet` |
-| A4 | `scripts/f4/restaurant_nta.py` | Add `--images PATH` (default `IMAGES`). Join `best.parquet` on `uid` only (see A1), and read only the columns that the script writes | The default run gives the canonical table |
-| A5 | `scripts/f4/build_x2_input.py` | Add `--in-dir` (default `IN`), `--suffix` (default `x2`), and `--no-smoke`. Write `f4_<case>_<suffix>.parquet` and `f4_captions_<suffix>.parquet` in `extract_input/`. `--no-smoke` skips all smoke code. That code reads old v1 files | `--in-dir data/f4_traces/b2/extract_input --suffix b2x2 --no-smoke` writes 4 files and no smoke file |
-| A6 | `scripts/f4/extract_shard.py` | Add `restaurant_b2x2`, `caption_b2x2` to `x2_cues`; `street_b2x2` to `x2_cues_street` and `x2_desc_street`; `restaurant_b2x2` to `x2_desc_restaurant`; `captions_b2x2` to `x2_captions`; `b2x2r_<arm>` to each `x2r_*` arm | `extract_shard.py --arm x2_cues --case restaurant_b2x2 --shard 0 --shards 18 --base-dir data/f4_traces/b2/dry --dry-run` composes |
-| A7 | `scripts/f4/x2_retry.py` | Add the b2 case names to `ARMS`. Add `b2x2r` to the `--prefix` choices | An import of `ARMS` shows the b2 cases. Do not run `flag` on `multirun/f4x2` as a test: it writes the canonical retry inputs again |
-| A8 | `scripts/f4/x2_merge_all.sh` | Read `R`, `OUT`, and a case suffix `SFX` from the env (`F4X2_ROOT`, `F4X2_OUT`, `F4X2_SFX`), with the current values as the defaults. Use `<case>_${SFX}` in the case lists | `bash -n`; the default values give the canonical paths |
-| A9 | `scripts/f4/caption_hashtags.py`, `scripts/f4/caption_nta_analysis.py` | Add `--traces` to the first; add `--hashtags` and `--ntas` to the second | The defaults give the canonical files |
-| A10 | new `scripts/f4/pool_batches.py` | Write the pooled files (Part C), with the weight columns of section 1. `--expect 0` skips the count checks (tests only) | See Part C |
-| A11 | `notebooks/facct/_f4.py` 2.1.0, `notebooks/facct/_f4desc.py` 1.5.0, both notebooks | `F4_DATA=pooled` gives `data/f4_traces/pooled/`, and the figures go to `figures/f4_x2_pooled`, `figures/f4_descriptors_x2_pooled`. In pooled mode, the rate functions of `_f4` (`text_totals`, `class_rates`, `attribute_rates`, `risk_panel`, `trace_against_answer`) weight each restaurant and caption text; `use_weights(False)` turns this off. The word contrasts, `coverage`, and all of `_f4desc` stay unweighted: each model answers the same images, thus a weight does not change a comparison of models | `uvx marimo check`; the default mode gives the canonical figures |
+| A1 | new `research/scripts/f4/sample_images_nta.py` | The stratified restaurant draw of section 1. Arguments: `--total 10000`, `--keep data/f4_traces/f4_restaurants_1k.parquet`, `--seed 20261027`, `--idx-offset 1000`, `--out`. Pool: the "Yes" rows of `facade_check_b300/part_*.parquet`, joined to `best.parquet` on `uid` only (`camis`, `dba`, `borough`, `px`, `py`; for 17 restaurants the checked view is a neighbor recording of the best one, as in the F6 draw), then to the NTA polygons (`data/geo/nynta2020_26b/nynta2020.shp`, "within", EPSG:2263). Write only the new rows, with the columns of `sample_images.py` plus `NTA2020`, `nta_capacity`, `nta_n` (the allocation). Use 1 seeded generator for the extra +1 NTAs and 1 for the draw | 9,000 rows; `image_idx` 1000 to 9999; 0 `uid` in common with `--keep`; the new rows plus the kept rows give 10,000, and each NTA count equals `nta_n`; each `image_path` exists |
+| A2 | `research/scripts/f4/sample_street_images.py` | Add `--total N`: in place of `--per`, give each NTA `N // 197` and then 1 more to `N % 197` NTAs at random. Add `--exclude-sample PATH` (write only the rows that are not in that file) and `--idx-offset`. **Warning:** draw the +1 NTAs from a second generator, for example `np.random.default_rng([seed, 1])`. Do not use `rng` before `_key`. Otherwise the rank changes | With `--total 985 --seed 20261023`, the draw equals the 985 canonical recordings. With `--total 10000`, all 985 canonical recordings are in the first 5 of their NTA |
+| A3 | `research/scripts/f4/merge_runs.py` | Add `--sample PATH`, `--runs FOLDER` (default `runs`), `--cases ...`, and `--replace MODEL:CASE:FOLDER:MAX_TOKENS:MODE` (more than 1 is permitted). When `--runs` is not `runs`, use only the `--replace` items, not `REPLACE` | `merge_runs.py --out data/f4_traces/b2/check_traces.parquet` gives a file equal to `f4_traces_1k.parquet` |
+| A4 | `research/scripts/f4/restaurant_nta.py` | Add `--images PATH` (default `IMAGES`). Join `best.parquet` on `uid` only (see A1), and read only the columns that the script writes | The default run gives the canonical table |
+| A5 | `research/scripts/f4/build_x2_input.py` | Add `--in-dir` (default `IN`), `--suffix` (default `x2`), and `--no-smoke`. Write `f4_<case>_<suffix>.parquet` and `f4_captions_<suffix>.parquet` in `extract_input/`. `--no-smoke` skips all smoke code. That code reads old v1 files | `--in-dir data/f4_traces/b2/extract_input --suffix b2x2 --no-smoke` writes 4 files and no smoke file |
+| A6 | `research/scripts/f4/extract_shard.py` | Add `restaurant_b2x2`, `caption_b2x2` to `x2_cues`; `street_b2x2` to `x2_cues_street` and `x2_desc_street`; `restaurant_b2x2` to `x2_desc_restaurant`; `captions_b2x2` to `x2_captions`; `b2x2r_<arm>` to each `x2r_*` arm | `extract_shard.py --arm x2_cues --case restaurant_b2x2 --shard 0 --shards 18 --base-dir data/f4_traces/b2/dry --dry-run` composes |
+| A7 | `research/scripts/f4/x2_retry.py` | Add the b2 case names to `ARMS`. Add `b2x2r` to the `--prefix` choices | An import of `ARMS` shows the b2 cases. Do not run `flag` on `multirun/f4x2` as a test: it writes the canonical retry inputs again |
+| A8 | `research/scripts/f4/x2_merge_all.sh` | Read `R`, `OUT`, and a case suffix `SFX` from the env (`F4X2_ROOT`, `F4X2_OUT`, `F4X2_SFX`), with the current values as the defaults. Use `<case>_${SFX}` in the case lists | `bash -n`; the default values give the canonical paths |
+| A9 | `research/scripts/f4/caption_hashtags.py`, `research/scripts/f4/caption_nta_analysis.py` | Add `--traces` to the first; add `--hashtags` and `--ntas` to the second | The defaults give the canonical files |
+| A10 | new `research/scripts/f4/pool_batches.py` | Write the pooled files (Part C), with the weight columns of section 1. `--expect 0` skips the count checks (tests only) | See Part C |
+| A11 | `research/notebooks/facct/_f4.py` 2.1.0, `research/notebooks/facct/_f4desc.py` 1.5.0, both notebooks | `F4_DATA=pooled` gives `data/f4_traces/pooled/`, and the figures go to `figures/f4_x2_pooled`, `figures/f4_descriptors_x2_pooled`. In pooled mode, the rate functions of `_f4` (`text_totals`, `class_rates`, `attribute_rates`, `risk_panel`, `trace_against_answer`) weight each restaurant and caption text; `use_weights(False)` turns this off. The word contrasts, `coverage`, and all of `_f4desc` stay unweighted: each model answers the same images, thus a weight does not change a comparison of models | `uvx marimo check`; the default mode gives the canonical figures |
 
 Do not change the schema YAML files, `serve_and_query.sbatch`,
 `x2_queue.sbatch`, `langextract_backend.py`, or `merge_extractions.py`. The
@@ -140,9 +140,9 @@ borough mix moves away from Manhattan: Manhattan 36.7% (canonical) to 25.9%
 14.4%; Staten Island 2.7% to 4.0%.
 
 ```bash
-$PY scripts/f4/sample_images_nta.py --total 10000 --keep data/f4_traces/f4_restaurants_1k.parquet \
+$PY research/scripts/f4/sample_images_nta.py --total 10000 --keep data/f4_traces/f4_restaurants_1k.parquet \
     --seed 20261027 --idx-offset 1000 --out data/f4_traces/b2/f4_restaurants_b2.parquet
-$PY scripts/f4/restaurant_nta.py --images data/f4_traces/b2/f4_restaurants_b2.parquet \
+$PY research/scripts/f4/restaurant_nta.py --images data/f4_traces/b2/f4_restaurants_b2.parquet \
     --out data/f4_traces/b2/f4_restaurants_b2_nta.parquet
 ```
 
@@ -170,7 +170,7 @@ The render took about 75 min. Python holds the progress lines in a buffer
 when it writes to a file, thus the log shows them late.
 
 ```bash
-$PY scripts/f4/sample_street_images.py --total 10000 --seed 20261023 \
+$PY research/scripts/f4/sample_street_images.py --total 10000 --seed 20261023 \
     --exclude-sample data/f4_traces/f4_street_1k.parquet --idx-offset 1000 \
     --out data/f4_traces/b2/f4_street_b2.parquet
 ```
@@ -213,9 +213,9 @@ Submit the 2 chains. Each chain holds 1 job for each model, linked with
 
 ```bash
 F4_SAMPLE=data/f4_traces/b2/f4_restaurants_b2.parquet F4_TAG=b2 F4_CASES="restaurant caption" \
-    bash scripts/f4/submit_all.sh
+    bash research/scripts/f4/submit_all.sh
 F4_SAMPLE=data/f4_traces/b2/f4_street_b2.parquet F4_TAG=b2 F4_CASES="street" \
-    bash scripts/f4/submit_all.sh
+    bash research/scripts/f4/submit_all.sh
 ```
 
 The answers go to `data/f4_traces/runs-b2/<model>/<case>/responses.parquet`.
@@ -224,10 +224,10 @@ The answers go to `data/f4_traces/runs-b2/<model>/<case>/responses.parquet`.
 A job has a 12-hour limit. The llama-3.2-90b restaurant and caption job
 needs about 7.5 h. A job that ends with `TIMEOUT` does not requeue. Submit
 that model again with the same env (for example
-`... bash scripts/f4/submit_all.sh llama-3.2-90b`). `query.py` sends only the
+`... bash research/scripts/f4/submit_all.sh llama-3.2-90b`). `query.py` sends only the
 images that are not in `responses.jsonl`.
 
-Check with `$PY scripts/f4/check_runs.py --runs data/f4_traces/runs-b2`. Each
+Check with `$PY research/scripts/f4/check_runs.py --runs data/f4_traces/runs-b2`. Each
 run must hold all of its images and 0 errors. The canonical rates (per 1,000
 restaurant images, per 985 street views) are below. Batch 2 has 9 times more
 images, thus expect about 9 times these counts:
@@ -270,7 +270,7 @@ s.filter(pl.col("image_idx").is_in(cut.implode())).write_parquet("data/f4_traces
 print(len(cut), "cut answers")
 EOF
 F4_SAMPLE=data/f4_traces/b2/f4_qwen9b_restaurant_cut_b2.parquet F4_TAG=b2-maxtok16384 \
-    F4_MAX_TOKENS=16384 F4_CASES=restaurant bash scripts/f4/submit_all.sh qwen3.5-9b
+    F4_MAX_TOKENS=16384 F4_CASES=restaurant bash research/scripts/f4/submit_all.sh qwen3.5-9b
 ```
 
 Expected: about 1,400 cut answers (canonical: 15.6%). After the rerun, about
@@ -285,10 +285,10 @@ columns to the types of the base run: the B4 rerun stored `prompt_tokens` as
 float, because its `responses.jsonl` held 4 error rows.
 
 ```bash
-$PY scripts/f4/merge_runs.py --sample data/f4_traces/b2/f4_restaurants_b2.parquet --runs runs-b2 \
+$PY research/scripts/f4/merge_runs.py --sample data/f4_traces/b2/f4_restaurants_b2.parquet --runs runs-b2 \
     --replace qwen3.5-9b:restaurant:runs-b2-maxtok16384:16384:cut_only \
     --out data/f4_traces/b2/f4_traces_b2.parquet
-$PY scripts/f4/merge_runs.py --set street --cases street --sample data/f4_traces/b2/f4_street_b2.parquet \
+$PY research/scripts/f4/merge_runs.py --set street --cases street --sample data/f4_traces/b2/f4_street_b2.parquet \
     --runs runs-b2 --out data/f4_traces/b2/f4_street_traces_b2.parquet
 ```
 
@@ -304,11 +304,11 @@ street 90,054, captions 53,992. Each `doc_id` is unique.
 **Warning:** Give `--out-dir`. The default folder holds the canonical inputs.
 
 ```bash
-$PY scripts/f4/build_extract_input.py --src data/f4_traces/b2/f4_traces_b2.parquet \
+$PY research/scripts/f4/build_extract_input.py --src data/f4_traces/b2/f4_traces_b2.parquet \
     --out-dir data/f4_traces/b2/extract_input
-$PY scripts/f4/build_extract_input.py --src data/f4_traces/b2/f4_street_traces_b2.parquet \
+$PY research/scripts/f4/build_extract_input.py --src data/f4_traces/b2/f4_street_traces_b2.parquet \
     --out-dir data/f4_traces/b2/extract_input
-$PY scripts/f4/build_x2_input.py --in-dir data/f4_traces/b2/extract_input --suffix b2x2 --no-smoke
+$PY research/scripts/f4/build_x2_input.py --in-dir data/f4_traces/b2/extract_input --suffix b2x2 --no-smoke
 ```
 
 The last command writes `data/f4_traces/extract_input/f4_{restaurant,caption,street}_b2x2.parquet`
@@ -342,7 +342,7 @@ Each step reads about 5,000 texts (canonical: 20 to 36 min), thus 18 shards
 for each case of 90,000 texts and 11 for the 54,000 captions:
 
 ```bash
-P1=scripts/f4/plans/b2_x2_pass1.txt
+P1=research/scripts/f4/plans/b2_x2_pass1.txt
 {
   echo "# F4 batch 2, pass 1: the x2 arms (D130 configuration), about 5,000 texts in each step."
   for spec in "x2_cues restaurant_b2x2 18" "x2_cues_street street_b2x2 18" \
@@ -355,17 +355,17 @@ P1=scripts/f4/plans/b2_x2_pass1.txt
 grep -vc '^#' $P1   # 101 steps
 ```
 
-Write `scripts/f4/plans/b2_x2_pass2.txt`:
+Write `research/scripts/f4/plans/b2_x2_pass2.txt`:
 
 ```text
 # F4 batch 2, pass 2: flag the copy suspects, read them again with the examples in reverse order, merge.
-run .venv-mllmsci-vllm025cu129/bin/python scripts/f4/x2_retry.py flag --root multirun/f4x2_b2 --prefix b2x2r
+run .venv-mllmsci-vllm025cu129/bin/python research/scripts/f4/x2_retry.py flag --root multirun/f4x2_b2 --prefix b2x2r
 x2r_cues b2x2r_x2_cues 0 1 multirun/f4x2_b2/x2r_cues
 x2r_cues_street b2x2r_x2_cues_street 0 1 multirun/f4x2_b2/x2r_cues_street
 x2r_desc_restaurant b2x2r_x2_desc_restaurant 0 1 multirun/f4x2_b2/x2r_desc_restaurant
 x2r_desc_street b2x2r_x2_desc_street 0 1 multirun/f4x2_b2/x2r_desc_street
 x2r_captions b2x2r_x2_captions 0 1 multirun/f4x2_b2/x2r_captions
-run F4X2_ROOT=multirun/f4x2_b2 F4X2_OUT=data/f4_traces/b2/x2 F4X2_SFX=b2x2 bash scripts/f4/x2_merge_all.sh
+run F4X2_ROOT=multirun/f4x2_b2 F4X2_OUT=data/f4_traces/b2/x2 F4X2_SFX=b2x2 bash research/scripts/f4/x2_merge_all.sh
 ```
 
 The canonical retry read about 1% of the texts. Thus each retry step of
@@ -389,9 +389,9 @@ job skips each step that has `X2_DONE`, and a step that a job stops resumes
 from its last chunk of 250 rows.
 
 ```bash
-S="sbatch --parsable --exclude=g3-compute-17 --export=ALL,F4X2_PLAN=scripts/f4/plans/b2_x2_pass1.txt"
-J=$($S scripts/f4/x2_queue.sbatch); echo $J
-for k in 2 3 4 5; do J=$($S --dependency=afterany:$J scripts/f4/x2_queue.sbatch); echo $J; done
+S="sbatch --parsable --exclude=g3-compute-17 --export=ALL,F4X2_PLAN=research/scripts/f4/plans/b2_x2_pass1.txt"
+J=$($S research/scripts/f4/x2_queue.sbatch); echo $J
+for k in 2 3 4 5; do J=$($S --dependency=afterany:$J research/scripts/f4/x2_queue.sbatch); echo $J; done
 ```
 
 When a job ends the whole plan, cancel the jobs of the chain that wait. The
@@ -419,7 +419,7 @@ If a step failed, read its log, correct the cause, and submit pass 1 again.
 It runs only the steps without `X2_DONE`. Then submit pass 2 (about 1 to 2 h):
 
 ```bash
-sbatch --exclude=g3-compute-17 --export=ALL,F4X2_PLAN=scripts/f4/plans/b2_x2_pass2.txt scripts/f4/x2_queue.sbatch
+sbatch --exclude=g3-compute-17 --export=ALL,F4X2_PLAN=research/scripts/f4/plans/b2_x2_pass2.txt research/scripts/f4/x2_queue.sbatch
 ```
 
 ### B10. Check the extraction
@@ -496,7 +496,7 @@ case) in both batches:
 
 - the cut rate and the no-answer rate (B3 table);
 - the median completion tokens;
-- the rate of each cue class per 100 answers (`notebooks/facct/f4_traces.py`, section 4.7).
+- the rate of each cue class per 100 answers (`research/notebooks/facct/f4_traces.py`, section 4.7).
 
 For the restaurant case, compare inside the NTAs that both batches cover,
 or use the weight of section 1. The 2 restaurant draws have different
@@ -510,7 +510,7 @@ Each (model, case) has 10,000 answers, and each text has its extractions.
 The captions table has 9,996 to 10,000 images for each model: an empty
 caption answer has no text to extract.
 
-`scripts/f4/pool_batches.py` (A10) writes `data/f4_traces/pooled/`. Each
+`research/scripts/f4/pool_batches.py` (A10) writes `data/f4_traces/pooled/`. Each
 pooled file has the relative path of its canonical file, thus the notebooks
 need only a new root. The script concatenates these pairs:
 
@@ -556,9 +556,9 @@ x 10^10 pairs for the group of all models.
 
 | Analysis | Command |
 |----------|---------|
-| Traces | `uvx marimo edit notebooks/facct/f4_traces.py` |
-| Descriptors | `uvx marimo edit notebooks/facct/f4_descriptors.py` |
-| Caption NTA | `uv run --script scripts/f4/caption_nta_analysis.py --captions data/f4_traces/pooled/x2/captions/f4_captions_x2_extractions.parquet --hashtags data/f4_traces/pooled/captions/f4_caption_hashtags.parquet --ntas data/f4_traces/pooled/f4_restaurants_nta.parquet --out data/f4_traces/pooled/captions/nta_analysis` |
+| Traces | `uvx marimo edit research/notebooks/facct/f4_traces.py` |
+| Descriptors | `uvx marimo edit research/notebooks/facct/f4_descriptors.py` |
+| Caption NTA | `uv run --script research/scripts/f4/caption_nta_analysis.py --captions data/f4_traces/pooled/x2/captions/f4_captions_x2_extractions.parquet --hashtags data/f4_traces/pooled/captions/f4_caption_hashtags.parquet --ntas data/f4_traces/pooled/f4_restaurants_nta.parquet --out data/f4_traces/pooled/captions/nta_analysis` |
 
 The NTA tests of the traces notebook (section 4.10) need the pool. On the
 pool, `min_images` is 20 by default. Read the test-1 `within`
@@ -598,7 +598,7 @@ llama-3.2-90b) are on the preemptible QoS `g3` with no dependency.
 
 ```bash
 F4_SAMPLE=data/f4_traces/b2/f4_street_b2.parquet F4_TAG=b2 F4_CASES="street_caption" \
-    bash scripts/f4/submit_all.sh
+    bash research/scripts/f4/submit_all.sh
 ```
 
 The answers go to `data/f4_traces/runs-b2/<model>/street_caption/`. Check with
@@ -609,13 +609,13 @@ The answers go to `data/f4_traces/runs-b2/<model>/street_caption/`. Check with
 **Status: input done; pass 1 submitted on 2026-10-28 (job 102427, QoS `g3`).**
 
 ```bash
-$PY scripts/f4/build_extract_input.py --src data/f4_traces/f4_street_traces_1k.parquet \
+$PY research/scripts/f4/build_extract_input.py --src data/f4_traces/f4_street_traces_1k.parquet \
     --out-dir data/f4_traces/street_captions/extract_input
-$PY scripts/f4/build_x2_input.py --in-dir data/f4_traces/street_captions/extract_input --suffix x2 --street-captions
-$PY scripts/f4/caption_hashtags.py --case street_caption --traces data/f4_traces/f4_street_traces_1k.parquet \
+$PY research/scripts/f4/build_x2_input.py --in-dir data/f4_traces/street_captions/extract_input --suffix x2 --street-captions
+$PY research/scripts/f4/caption_hashtags.py --case street_caption --traces data/f4_traces/f4_street_traces_1k.parquet \
     --out data/f4_traces/street_captions/f4_street_caption_hashtags.parquet
-sbatch --qos=g3 --exclude=g3-compute-17 --export=ALL,F4X2_PLAN=scripts/f4/plans/sc_x2_pass1_canonical.txt \
-    scripts/f4/x2_queue.sbatch
+sbatch --qos=g3 --exclude=g3-compute-17 --export=ALL,F4X2_PLAN=research/scripts/f4/plans/sc_x2_pass1_canonical.txt \
+    research/scripts/f4/x2_queue.sbatch
 ```
 
 The input holds 5,909 answers (1 empty answer dropped). The hashtags: 55,315
@@ -637,7 +637,7 @@ in 5,910 answers; llama-3.2-90b writes a hashtag in 506 of 985 answers.
    `f4_street_traces_b2.parquet`; its `street` rows do not change):
 
    ```bash
-   $PY scripts/f4/merge_runs.py --set street --cases street street_caption \
+   $PY research/scripts/f4/merge_runs.py --set street --cases street street_caption \
        --sample data/f4_traces/b2/f4_street_b2.parquet --runs runs-b2 \
        --out data/f4_traces/b2/f4_street_traces_b2.parquet
    ```
@@ -645,16 +645,16 @@ in 5,910 answers; llama-3.2-90b writes a hashtag in 506 of 985 answers.
 2. Build the input and the hashtags:
 
    ```bash
-   $PY scripts/f4/build_extract_input.py --src data/f4_traces/b2/f4_street_traces_b2.parquet \
+   $PY research/scripts/f4/build_extract_input.py --src data/f4_traces/b2/f4_street_traces_b2.parquet \
        --out-dir data/f4_traces/b2/street_captions/extract_input
-   $PY scripts/f4/build_x2_input.py --in-dir data/f4_traces/b2/street_captions/extract_input \
+   $PY research/scripts/f4/build_x2_input.py --in-dir data/f4_traces/b2/street_captions/extract_input \
        --suffix b2x2 --street-captions
-   $PY scripts/f4/caption_hashtags.py --case street_caption --traces data/f4_traces/b2/f4_street_traces_b2.parquet \
+   $PY research/scripts/f4/caption_hashtags.py --case street_caption --traces data/f4_traces/b2/f4_street_traces_b2.parquet \
        --out data/f4_traces/b2/f4_street_caption_hashtags_b2.parquet
    ```
 
 3. Pass 1 of batch 2: about 54,000 answers, 11 steps (plan
-   `scripts/f4/plans/sc_x2_pass1_b2.txt`, lines
+   `research/scripts/f4/plans/sc_x2_pass1_b2.txt`, lines
    `x2_captions street_captions_b2x2 <i> 11 multirun/f4x2_sc/x2_captions`).
    Split it into part plans for parallel `g3` jobs, as in B8.
 
@@ -683,16 +683,16 @@ if this is acceptable.
 After every pass-1 step of D2 and D3 has `X2_DONE`:
 
 ```bash
-$PY scripts/f4/x2_retry.py flag --root multirun/f4x2_sc --prefix scx2r
+$PY research/scripts/f4/x2_retry.py flag --root multirun/f4x2_sc --prefix scx2r
 # 1 retry step: x2r_captions scx2r_x2_captions 0 1 multirun/f4x2_sc/x2r_captions
-$PY scripts/f4/merge_extractions.py multirun/f4x2_sc/x2_captions/runs --retry-runs multirun/f4x2_sc/x2r_captions/runs \
+$PY research/scripts/f4/merge_extractions.py multirun/f4x2_sc/x2_captions/runs --retry-runs multirun/f4x2_sc/x2r_captions/runs \
     --schema dagspaces/pairwisevqa/conf/extract/caption_options_v4.yaml --cases street_captions_x2 \
     --out data/f4_traces/x2/street_captions
-$PY scripts/f4/merge_extractions.py multirun/f4x2_sc/x2_captions/runs --retry-runs multirun/f4x2_sc/x2r_captions/runs \
+$PY research/scripts/f4/merge_extractions.py multirun/f4x2_sc/x2_captions/runs --retry-runs multirun/f4x2_sc/x2r_captions/runs \
     --schema dagspaces/pairwisevqa/conf/extract/caption_options_v4.yaml --cases street_captions_b2x2 \
     --out data/f4_traces/b2/x2/street_captions
-$PY scripts/f4/pool_batches.py
-uv run --script scripts/f4/caption_nta_analysis.py \
+$PY research/scripts/f4/pool_batches.py
+uv run --script research/scripts/f4/caption_nta_analysis.py \
     --captions data/f4_traces/pooled/x2/street_captions/f4_street_captions_x2_extractions.parquet \
     --hashtags data/f4_traces/pooled/street_captions/f4_street_caption_hashtags.parquet \
     --ntas data/f4_traces/pooled/f4_street_1k.parquet --out data/f4_traces/pooled/street_captions/nta_analysis
@@ -764,7 +764,7 @@ outputs need a few GB of disk (canonical: about 0.5 GB).
 | `data/f4_traces/b2/f4_traces_b2.parquet`, `f4_street_traces_b2.parquet` | the batch 2 corpora |
 | `data/f4_traces/b2/extract_input/` | the batch 2 extraction inputs (before x2) |
 | `data/f4_traces/extract_input/f4_*_b2x2.parquet`, `f4_b2x2r_*.parquet` | the x2 inputs and the retry inputs |
-| `scripts/f4/plans/b2_x2_pass1.txt`, `b2_x2_pass2.txt` | the queue plans |
+| `research/scripts/f4/plans/b2_x2_pass1.txt`, `b2_x2_pass2.txt` | the queue plans |
 | `multirun/f4x2_b2/` | the extraction runs |
 | `data/f4_traces/b2/x2/<arm>/` | the merged batch 2 extractions |
 | `data/f4_traces/pooled/` | the pool of the 2 batches |

@@ -62,7 +62,7 @@ Result, 18 images, 2 x 2 cells: the order holds at every k from 1 to 32, and
 the 2 targeted arms sit 2.3 to 4.4 random spreads apart.
 
 ```bash
-sbatch monocle/monocle.sub monocle.deletion_curve \
+sbatch research/monocle/monocle.sub monocle.deletion_curve \
     --cases subway_safety --n-images 20 --group 2
 ```
 
@@ -102,7 +102,7 @@ now agree.
 on disk, and they are smaller.
 
 ```bash
-sbatch monocle/monocle.sub monocle.content_transfer \
+sbatch research/monocle/monocle.sub monocle.content_transfer \
     --n-images 20 --n-sources 9 --ks 8
 ```
 
@@ -134,7 +134,7 @@ values above come from the parquet, and the control is CLEANER than the older
 table claimed.
 
 ```bash
-sbatch monocle/monocle.sub monocle.prompt_specificity --n-images 12
+sbatch research/monocle/monocle.sub monocle.prompt_specificity --n-images 12
 ```
 
 ### 6. What is in the square?
@@ -144,7 +144,7 @@ saturation, and height in frame all read |r| under 0.06 within an image. The
 `col` control, which must be 0, is the LARGEST of them at 0.048.
 
 ```bash
-python -m monocle.cell_statistics --maps <maps.parquet> --stats <map_stats.parquet>
+python -m research.monocle.cell_statistics --maps <maps.parquet> --stats <map_stats.parquet>
 ```
 
 ## The 2 methods that disagree
@@ -302,7 +302,7 @@ Read the medians and the paired test. Read the captions for colour, not for a
 word list.
 
 ```bash
-sbatch monocle/monocle.sub monocle.caption_loop --n-images 20 --group 2 --k 16
+sbatch research/monocle/monocle.sub monocle.caption_loop --n-images 20 --group 2 --k 16
 ```
 
 **Warning:** the model is describing a photograph with 48 of 64 cells removed,
@@ -327,7 +327,7 @@ well: the worst is 9.97e-04 1-sided and 1.99e-03 2-sided. **58 photographs of
 question gives the SMALLEST effects of the 4.
 
 ```bash
-sbatch monocle/monocle.sub monocle.deletion_curve \
+sbatch research/monocle/monocle.sub monocle.deletion_curve \
     --cases road_quality parks_plazas restaurants --n-images 16 --ks 1 4 16
 ```
 
@@ -364,7 +364,7 @@ answer position takes over. No word holds much; the largest is 0.19 against a
 whole-question 0.61.
 
 ```bash
-sbatch monocle/monocle.sub monocle.question_tokens \
+sbatch research/monocle/monocle.sub monocle.question_tokens \
     --cases subway_safety --n-images 6 --layers 22 25 27 29 31 33
 ```
 

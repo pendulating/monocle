@@ -22,7 +22,7 @@ Run on a GPU node under .venv-nightly (vLLM >= 0.23 for gemma-12b):
       --result-parquet multirun/2026-06-29_URBANPAIRVQA/14-37-17/0/outputs/pairwise/subway_safety_mvp_20260629_143729.parquet \\
       --outdir outputs/gepa_pairwise/subway_gemma12b_smoke
 
-See scripts/gepa_pairwise_subway.sub for the sbatch wrapper.
+See research/scripts/gepa_pairwise_subway.sub for the sbatch wrapper.
 """
 from __future__ import annotations
 

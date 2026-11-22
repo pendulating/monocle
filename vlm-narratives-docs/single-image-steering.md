@@ -1,6 +1,6 @@
 # Activation addition through the Jacobian lens in the single-image prompt template
 
-Date: 2026-09-01. Script: `monocle/single_steer.py`. This study restates
+Date: 2026-09-01. Script: `research/monocle/single_steer.py`. This study restates
 the causal activation-addition question, at the user's direction: single-image
 evaluations, with one single-token antonym pair per case. The pairwise prompt
 template stays for the census-variable validation results only.
@@ -284,10 +284,10 @@ this one.
 ## How to repeat
 
 ```bash
-sbatch --time=00:40:00 monocle/monocle.sub monocle.single_steer --smoke
-sbatch --time=03:00:00 monocle/monocle.sub monocle.single_steer --coverage \
+sbatch --time=00:40:00 research/monocle/monocle.sub monocle.single_steer --smoke
+sbatch --time=03:00:00 research/monocle/monocle.sub monocle.single_steer --coverage \
     --layers 24,36,40,41,42,43,44,45,46
-sbatch --time=06:00:00 monocle/monocle.sub monocle.single_steer \
+sbatch --time=06:00:00 research/monocle/monocle.sub monocle.single_steer \
     --case subway_safety --n-images 60 --pullback pinv
 ```
 

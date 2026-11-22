@@ -33,7 +33,7 @@ layers](https://www.lesswrong.com/posts/nv8oedrnLXKRzNEL9/r-lens-making-j-lens-m
 
 The architecture is in
 [gemma4-12b-architecture.md](gemma4-12b-architecture.md). The fit we run today
-is `monocle/jlens_fit.py` and `monocle/jlens_fit_mm.py`. The result this page
+is `research/monocle/jlens_fit.py` and `research/monocle/jlens_fit_mm.py`. The result this page
 tries to recover is in [patch-attribution.md](patch-attribution.md).
 
 ## What R-lens changes
@@ -140,7 +140,7 @@ version.
 
 ## The code change
 
-One new module, `monocle/rlens_rules.py`. It is a context manager. It patches
+One new module, `research/monocle/rlens_rules.py`. It is a context manager. It patches
 4 forward passes so that the value stays bit-identical and only the backward
 differs.
 
@@ -249,7 +249,7 @@ we stop there.
 
 ### Stage 1 result, 2026-08-23
 
-`monocle/rlens_rules.py` holds the rules, and `--rules lrp` turns them on in
+`research/monocle/rlens_rules.py` holds the rules, and `--rules lrp` turns them on in
 both fitters. An R fit writes to its own directory, so it can never overwrite
 a J shard. `tests/test_rlens_rules.py` holds 52 tests that need no GPU.
 
@@ -475,7 +475,7 @@ medians fell to -0.06 to +0.06.
 
 Top-50 image tokens by absolute causal effect, mean over the 6 source-target
 image pairs that pass `MIN_GAP`, `sign / r`. Jobs 478063 and 478064.
-`python -m monocle.lens_bias --verify` reproduces every cell of this table.
+`python -m research.monocle.lens_bias --verify` reproduces every cell of this table.
 
 | Layer | taylor `<g, dh>` | R `lens_delta` | J `lens_delta` |
 |---|---|---|---|
@@ -585,7 +585,7 @@ That is the readout task this page keeps the R-lens for.
 
 The design is paired. Only the lens changes: 7 cases, 60 photographs, the 8
 fitted layers, the same seed and the same token-ablation map.
-`monocle.causal_words` writes the words and `scripts/rlens_word_report.py`
+`monocle.causal_words` writes the words and `research/scripts/rlens_word_report.py`
 scores 3 layers. The J condition at layers 12, 18 and 24 repeats the 2026-07
 run, which checks the scorer.
 

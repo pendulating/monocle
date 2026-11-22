@@ -15,7 +15,7 @@ import pytest
 from omegaconf import OmegaConf
 from PIL import Image
 
-from dagspaces.urbanroamvqa.graph.street_graph import (
+from research.dagspaces.urbanroamvqa.graph.street_graph import (
     FACE_BEARING_DEG,
     HORIZONTAL_FACES,
     Neighbor,
@@ -24,7 +24,7 @@ from dagspaces.urbanroamvqa.graph.street_graph import (
     _face_for_bearing,
     _normalize_bearing,
 )
-from dagspaces.urbanroamvqa.stages.roaming_vqa import (
+from research.dagspaces.urbanroamvqa.stages.roaming_vqa import (
     RoamingStepper,
     WalkState,
     WalkStep,
@@ -416,7 +416,7 @@ class TestGraphDiagnostics:
     """Tests for compute_graph_diagnostics."""
 
     def test_single_component_triangle(self):
-        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+        from research.dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
 
         diag = compute_graph_diagnostics(_make_simple_graph())
         assert diag["graph/n_nodes"] == 3
@@ -425,7 +425,7 @@ class TestGraphDiagnostics:
         assert diag["graph/n_isolated"] == 0
 
     def test_linear_chain_dead_ends(self):
-        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+        from research.dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
 
         diag = compute_graph_diagnostics(_build_linear_graph(5))
         assert diag["graph/n_dead_ends"] == 2
@@ -433,7 +433,7 @@ class TestGraphDiagnostics:
         assert diag["graph/n_components"] == 1
 
     def test_disconnected_components_detected(self):
-        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+        from research.dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
 
         adjacency = {
             "A": [Neighbor(recording_id="B", distance_m=10.0, bearing_deg=0.0)],
@@ -737,7 +737,7 @@ class TestValidateConfig:
     # Import lazily to avoid heavy import at module load
     @staticmethod
     def _validate(cfg):
-        from dagspaces.urbanroamvqa.orchestrator import _validate_config
+        from research.dagspaces.urbanroamvqa.orchestrator import _validate_config
         _validate_config(cfg)
 
     def _make_valid_cfg(self, tmp_parquet: str) -> "OmegaConf":
@@ -947,7 +947,7 @@ def _create_dummy_images(tmp_path: Path, graph: StreetGraph, faces=("F", "R", "B
 
 def test_smoke_skip_inference(tmp_path):
     """Full walk execution using skip_inference=True (deterministic debug mode)."""
-    from dagspaces.urbanroamvqa.stages.roaming_vqa import run_roaming_vqa_stage
+    from research.dagspaces.urbanroamvqa.stages.roaming_vqa import run_roaming_vqa_stage
 
     n_nodes = 5
     n_walks = 2
@@ -1039,7 +1039,7 @@ def test_smoke_skip_inference(tmp_path):
 
 def test_smoke_empty_seeds(tmp_path):
     """Running with zero seeds produces an empty trace DataFrame with correct columns."""
-    from dagspaces.urbanroamvqa.stages.roaming_vqa import run_roaming_vqa_stage
+    from research.dagspaces.urbanroamvqa.stages.roaming_vqa import run_roaming_vqa_stage
 
     graph = _build_linear_graph(3)
     image_root = _create_dummy_images(tmp_path, graph)
@@ -1078,7 +1078,7 @@ def test_smoke_empty_seeds(tmp_path):
 )
 def test_column_normalization_real_data():
     """Column aliases (lat, lon, yawDegrees) are normalized in build_street_graph."""
-    from dagspaces.urbanroamvqa.graph.builder import build_street_graph
+    from research.dagspaces.urbanroamvqa.graph.builder import build_street_graph
 
     parquet = "data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
     df = pd.read_parquet(parquet)
@@ -1257,7 +1257,7 @@ def _make_osm_like_grid(n: int = 3, spacing_deg: float = 0.001):
     """Build an n x n grid MultiGraph mimicking osmnx output: nodes carry
     x/y (lon/lat) attrs, edges carry length in meters."""
     import networkx as nx
-    from dagspaces.urbanroamvqa.graph.board_builder import _haversine_m
+    from research.dagspaces.urbanroamvqa.graph.board_builder import _haversine_m
 
     G = nx.MultiGraph()
     for r in range(n):
@@ -1283,7 +1283,7 @@ class TestBoardDiscretize:
 
     def test_board_is_connected_and_uniform(self):
         import networkx as nx
-        from dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
 
         G = _make_osm_like_grid(3)  # edges ~85-111m
         board = _discretize_edges(G, spacing_m=30.0)
@@ -1296,7 +1296,7 @@ class TestBoardDiscretize:
         assert all(10.0 <= d <= 60.0 for d in dists)
 
     def test_all_nodes_have_coords(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
 
         board = _discretize_edges(_make_osm_like_grid(2), spacing_m=30.0)
         for _, data in board.nodes(data=True):
@@ -1308,7 +1308,7 @@ class TestBoardDiscretize:
         the 2026-06-09 Manhattan build: 53% flipped edges -> 2.4km 'steps')."""
         import networkx as nx
         from shapely.geometry import LineString
-        from dagspaces.urbanroamvqa.graph.board_builder import (
+        from research.dagspaces.urbanroamvqa.graph.board_builder import (
             _discretize_edges,
             _haversine_m,
         )
@@ -1331,12 +1331,12 @@ class TestBoardAttach:
     """Tests for board_builder._attach_recordings."""
 
     def _board(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _discretize_edges
 
         return _discretize_edges(_make_osm_like_grid(3), spacing_m=30.0)
 
     def test_unique_assignment_at_exact_positions(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
 
         board = self._board()
         nodes = list(board.nodes)
@@ -1350,7 +1350,7 @@ class TestBoardAttach:
         assert len(set(assigned.values())) == len(assigned)
 
     def test_far_recordings_not_assigned(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
 
         board = self._board()
         lats = np.array([41.0])  # ~100km away
@@ -1359,7 +1359,7 @@ class TestBoardAttach:
         assert assigned == {}
 
     def test_each_recording_used_at_most_once(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _attach_recordings
 
         board = self._board()
         nodes = list(board.nodes)
@@ -1388,7 +1388,7 @@ class TestBoardContract:
         return board
 
     def test_contraction_reconnects_with_summed_distance(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
 
         board = self._chain_board()
         n = _contract_imageless(board, assigned={"a": 0, "b": 1}, max_contracted_edge_m=100.0)
@@ -1398,7 +1398,7 @@ class TestBoardContract:
         assert board["a"]["b"]["dist"] == pytest.approx(20.0)
 
     def test_contraction_respects_max_edge_length(self):
-        from dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
 
         board = self._chain_board()
         _contract_imageless(board, assigned={"a": 0, "b": 1}, max_contracted_edge_m=15.0)
@@ -1407,7 +1407,7 @@ class TestBoardContract:
 
     def test_imageless_chain_collapses(self):
         import networkx as nx
-        from dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
+        from research.dagspaces.urbanroamvqa.graph.board_builder import _contract_imageless
 
         board = nx.Graph()
         chain = ["a", "x1", "x2", "x3", "b"]
@@ -1517,7 +1517,7 @@ class TestBuildBoardGraphEndToEnd:
     """Full build_board_graph run against a synthetic OSM backbone."""
 
     def _build(self, tmp_path, monkeypatch, precomputed_path=None):
-        import dagspaces.urbanroamvqa.graph.board_builder as bb
+        import research.dagspaces.urbanroamvqa.graph.board_builder as bb
 
         G = _make_osm_like_grid(4)
         monkeypatch.setattr(bb, "_load_osm_backbone", lambda cfg: G)
@@ -1548,7 +1548,7 @@ class TestBuildBoardGraphEndToEnd:
         return bb.build_board_graph(parquet, cfg)
 
     def test_single_connected_component_keyed_by_recording_id(self, tmp_path, monkeypatch):
-        from dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
+        from research.dagspaces.urbanroamvqa.graph.street_graph import compute_graph_diagnostics
 
         graph = self._build(tmp_path, monkeypatch)
         # All 16 junction recordings survive; imageless interior nodes contracted

@@ -1,4 +1,4 @@
-"""Tests for scripts/pairwise_vqa_difference_report.py.
+"""Tests for research/scripts/pairwise_vqa_difference_report.py.
 
 Covers the statistical core (orientation sign, repeat collapse, planted
 effect vs null), the group-resolution paths (surfaced pair metadata vs
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "scripts"))
 
 import pairwise_vqa_difference_report as diff  # noqa: E402
 

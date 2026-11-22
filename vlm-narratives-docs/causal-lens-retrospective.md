@@ -272,9 +272,9 @@ The method costs 1 backward pass. The recipe:
 6. The strongest ranks name the tokens that hold the judgment up. The weakest
    name the tokens that push it down.
 
-`monocle/input_gate.py` runs steps 1 to 4 and writes the maps.
-`scripts/k1_layer_profile.py --pool` runs steps 5 and 6 and scores them.
-`scripts/plot_reader_sheet.py` draws the result on the photograph.
+`research/monocle/input_gate.py` runs steps 1 to 4 and writes the maps.
+`research/scripts/k1_layer_profile.py --pool` runs steps 5 and 6 and scores them.
+`research/scripts/plot_reader_sheet.py` draws the result on the photograph.
 
 **Warning: use the method only where it is tested.** It passes on restaurants
 and on libraries. It fails on subway safety. Before you trust it on a new
@@ -700,7 +700,7 @@ edge density and the token-ablation test swaps its 2 directed conditions, so
 the separation flips sign exactly. Thus the strength of a baseline is `|z|`,
 never the signed z.
 
-We corrected the baseline-threshold script (`scripts/null_bar.py`) to read
+We corrected the baseline-threshold script (`research/scripts/null_bar.py`) to read
 `|z|`. The threshold did not move at any k, so no earlier number changed.
 
 ## The statistical-power test
@@ -732,7 +732,7 @@ signed-rank test for each method, and a Benjamini-Hochberg step over the
 methods. The threshold is chosen inside each bootstrap sample, so the interval
 carries the noise of the choice.
 
-`scripts/deletion_auc.py` holds this analysis.
+`research/scripts/deletion_auc.py` holds this analysis.
 
 ## The corrected result: nothing passes
 
@@ -760,7 +760,7 @@ more than the corners. So an attribution method can score above chance while
 it carries no information about the photograph.
 
 We built the position-only map: the mean measured effect at each block, taken
-over the other 19 images, and applied unchanged. `scripts/position_prior.py`
+over the other 19 images, and applied unchanged. `research/scripts/position_prior.py`
 holds it.
 
 | Test | The position-only map | The best fitted additive regression |
@@ -781,7 +781,7 @@ extreme blocks. **The prior does not explain the one pass.**
 A lens, an Rlens, a mean gradient and a gradient-times-input map are all
 linear in the image-token hidden state. A ridge regression fitted on the
 measured ablation effects sets the upper bound for all of them.
-`scripts/linear_probe.py` holds it. The folds split by image, so a training
+`research/scripts/linear_probe.py` holds it. The folds split by image, so a training
 token and a test token never share a photograph.
 
 | Ablation unit | Held-out r | Shuffled control |
@@ -852,7 +852,7 @@ disagree, and our rule requires both, so it does not pass.
 
 ## A set-aware search, because the additive family is exhausted
 
-`monocle/mask_search.py` learns a mask over the 64 blocks. The mask blends each
+`research/monocle/mask_search.py` learns a mask over the 64 blocks. The mask blends each
 image-token hidden state toward the mean image-token hidden state of the same
 image, so the sequence keeps its length and the whole path stays
 differentiable.
@@ -880,7 +880,7 @@ set-ablation test now scores the ranking.
 
 ## A map fitted on sets, not on singletons
 
-`monocle/subset_map.py` ablates M random sets of blocks for each image and
+`research/monocle/subset_map.py` ablates M random sets of blocks for each image and
 regresses the change in `c` on the block indicators. The fit is the best
 additive summary of the joint effect, in the least squares sense over the
 sampled sets, and it is a Banzhaf-style value.
@@ -981,7 +981,7 @@ question stays open, and it is the question that a user of a lens asks:
 
 > Show me the image region that matters most.
 
-`scripts/top_cell_hit.py` scores it. For each photograph, it tests if the
+`research/scripts/top_cell_hit.py` scores it. For each photograph, it tests if the
 method ranks the measured strongest block first out of 64 blocks. Chance is
 1 in 64, or 0.016.
 
@@ -1196,7 +1196,7 @@ This sets the threshold for every earlier result:
 - The set test at k=16 and k=32 asks for a much larger joint effect, and the
   measured upper bound itself fails the baseline threshold there.
 
-`monocle/subset_map.py` measures the same quantity a second way. It ablates
+`research/monocle/subset_map.py` measures the same quantity a second way. It ablates
 512 random block sets for each photograph and fits a ridge regression of the
 effect on the block indicators. The held-out R2 of that fit is the additive
 share:
@@ -1256,7 +1256,7 @@ measured effect of each:
 
 `z` is positive when the method orders the 2 extremes correctly. The upper
 bound puts the token-ablation map in place of the method.
-`scripts/k1_separation.py` runs it, and `tests/test_k1_separation.py` covers
+`research/scripts/k1_separation.py` runs it, and `tests/test_k1_separation.py` covers
 it.
 
 **Warning: this upper bound scores the map against itself.** It is the full
@@ -1382,7 +1382,7 @@ that recovers an image token must do so early.
 A single layer that passes could be the layer that we selected by chance. So
 we take the mean rank of each token over all 9 layers, and we run 1 test for
 each case and each method. We use ranks, not values, because the scale of a
-method changes with depth. `scripts/k1_layer_profile.py --pool` runs it.
+method changes with depth. `research/scripts/k1_layer_profile.py --pool` runs it.
 
 The correction is a Benjamini-Hochberg step over all 15 tests, and a pass
 needs q below 0.05 and a bootstrap interval that excludes 0.
@@ -1519,7 +1519,7 @@ prior. The cause is real, and it is distributed over many tokens.
 ## Integrated gradients: it does not beat a plain gradient
 
 A gradient is a first-order estimate, and the judgment saturates, so a path
-integral should do better. `monocle/residual_ig.py` runs it in the residual
+integral should do better. `research/monocle/residual_ig.py` runs it in the residual
 stream: it moves each image-token hidden state from the mean over image tokens to its own value in `steps`
 stages, and it sums the gradient along the path.
 
@@ -1589,8 +1589,8 @@ only `gxa` does.
 A saliency map gives a location. A logit lens should give a word. So we decoded the lens
 words at the 2 extreme tokens of the token-ablation map, and at 12 random image tokens of the same
 photograph. The photograph is thus held constant, and only the causal role
-changes. `monocle/causal_words.py` runs it, and
-`scripts/causal_word_report.py` scores it.
+changes. `research/monocle/causal_words.py` runs it, and
+`research/scripts/causal_word_report.py` scores it.
 
 **A causal image token does carry different words than a random image token.** At layer
 18, over 60 photographs, the divergence between the extreme-token words and the random
@@ -1638,7 +1638,7 @@ decode it. The R-lens exists to close that gap, so we ran the paired design.
 
 Only the lens changes. Same 60 photographs, same seed, same token-ablation map,
 the 8 fitted layers, and all 7 cases. `monocle.causal_words` writes the words
-and `scripts/rlens_word_report.py` scores them. The Jacobian-lens condition at layers 12, 18 and
+and `research/scripts/rlens_word_report.py` scores them. The Jacobian-lens condition at layers 12, 18 and
 24 repeats the 2026-07 run, which checks the scoring script.
 
 **The extreme tokens still do not differ from each other, under either lens, at any layer.**
@@ -1838,7 +1838,7 @@ leave-1-out mean, so no photograph contributes to its own prior. Subtract it
 from the token-ablation map, and only the part specific to this photograph remains.
 The strict variant also subtracts the attribution method's own prior.
 
-`scripts/k1_position_control.py` runs all 3 variants beside the
+`research/scripts/k1_position_control.py` runs all 3 variants beside the
 cross-question control. There are 45 tests (3 cases x 5 conditions x 3 variants)
 and 1 BH correction over all of them.
 
@@ -1866,7 +1866,7 @@ internal check. The control has an effect, and gradient-times-input attribution 
 ## The predictor ranks the top image tokens; it does not reproduce the full map
 
 The 1-token separation uses 2 image tokens of 256. A full map that a person can use
-must agree over the whole grid. `scripts/k1_rank_agreement.py` measures that
+must agree over the whole grid. `research/scripts/k1_rank_agreement.py` measures that
 directly: the rank correlation between the pooled attribution and the token-ablation
 map, within each photograph, with the cross-question control beside it.
 
@@ -1953,7 +1953,7 @@ of it. The mean is over ranks, so no wording sets the scale.
 own-question side and kept the other-judgment side at 1 wording. That difference
 alone can raise a gain, because 2 maps have less noise than 1. The correct form
 gives both sides the same number of wordings and shows the whole curve.
-`scripts/k1_wording_ensemble.py` does that.
+`research/scripts/k1_wording_ensemble.py` does that.
 
 | Case | Wordings | Own judgment | Other judgment | Gain | 95% interval |
 |---|---|---|---|---|---|
@@ -2021,7 +2021,7 @@ pixels of 1 image patch of photograph A, paste them into photograph B at the sam
 coordinates, and measure `c` of B. Nothing is removed, so the edit changes content
 and only content.
 
-`monocle/transfer_k1.py` runs it at k=1. Each target takes 3 sources. From
+`research/monocle/transfer_k1.py` runs it at k=1. Each target takes 3 sources. From
 each source it takes the map's highest image token, its lowest image token, and 8 arbitrary
 image tokens. The statistic is `separation = dc_pos - dc_neg`, paired inside a
 (target, source) pair, so the paste area and the paste distance match.
@@ -2142,7 +2142,7 @@ tokens over the same 60 photographs.
 The predictor gets the sign right on about 63 photographs of every 100. A
 user with 1 photograph needs to know which kind they hold. A useful score must
 use only what the attribution method gives, because the user does not have the
-token-ablation map. `scripts/k1_confidence.py` tests 3.
+token-ablation map. `research/scripts/k1_confidence.py` tests 3.
 
 | Score | What it counts |
 |---|---|
@@ -2207,7 +2207,7 @@ The Jacobian-lens readout of a causal image token gives token fragments like
 `gautam` and `ghaz`. No attribution method can say what the token depicts.
 Thus we asked the model instead. We crop the image patch out of the
 photograph, keep 1 ring of neighbour patches for legibility, and ask the model
-to name the things it sees. `monocle/patch_caption.py` runs this.
+to name the things it sees. `research/monocle/patch_caption.py` runs this.
 
 Each photograph gives 6 crops: 1 at the map's highest image token (the top
 token), 1 at its lowest (the bottom token), and 4 arbitrary image tokens. The
@@ -2359,7 +2359,7 @@ what opposes it. A figure should mark the top image token.
 
 Every number in this experiment is scored against the token-ablation map. The
 map is the ground truth of the whole study, and no one measured it twice
-before. `monocle/truth_retest.py` measures it again on 12 photographs of each
+before. `research/monocle/truth_retest.py` measures it again on 12 photographs of each
 case and compares the 2 measurements.
 
 ### At the same batch size the map is exact
@@ -2469,12 +2469,12 @@ The run: 60 photographs per case at seed 20260821, the same 9 layers, group
 1, and the matched wrong-question control. We fit no mean gradient for a new
 case, so the `meang_own` and `meangp_own` conditions stay empty. The main
 method `gxa` needs no fit, and the position control comes from the
-leave-one-out prior in `scripts/k1_position_control.py`, which the stack of
+leave-one-out prior in `research/scripts/k1_position_control.py`, which the stack of
 token-ablation maps itself gives.
 
 ### The line, fitted and locked before the new maps
 
-`scripts/k1_locality_predict.py --fit-only` fits 1 line. Its 2 columns are
+`research/scripts/k1_locality_predict.py --fit-only` fits 1 line. Its 2 columns are
 the median top-1 share of a case and the pooled `gxa` gain of the same case.
 
 | Case | top-1 share | pooled gain | the line |
@@ -2498,7 +2498,7 @@ of the question, so it cannot gain under the wrong-question control. But it
 can still explain the raw separation, and an attribution method that finds
 only edges does not attribute the judgment.
 
-`scripts/k1_image_stats.py` makes the picture square at 896 pixels, the same
+`research/scripts/k1_image_stats.py` makes the picture square at 896 pixels, the same
 step the model takes, and splits it into the same 16 by 16 grid. Each image
 token gets 7 numbers: brightness, contrast within the token, edge energy,
 colour saturation, the row, the column, and the distance from the middle.
@@ -2542,7 +2542,7 @@ shares only `sep_z` with it.
 
 ## The sign split: both ends carry the gain
 
-The separation adds a high half and a low half. `scripts/k1_sign_and_flip.py`
+The separation adds a high half and a low half. `research/scripts/k1_sign_and_flip.py`
 scores each half on its own, against the average image token of the same
 photograph.
 
@@ -2634,7 +2634,7 @@ still fails, so the control still discriminates.
 
 ### The 2 maps are not the same map
 
-`scripts/hole_vs_content_map.py` compares them token by token, inside each
+`research/scripts/hole_vs_content_map.py` compares them token by token, inside each
 photograph.
 
 | Case | n | Pearson r | Spearman | Same top token | Same bottom token |
@@ -2647,7 +2647,7 @@ chance and far below agreement. The 2 references make different maps.
 
 ### And the predictor predicts the part they do not share
 
-`scripts/k1_hole_content_residual.py` fits 1 regression of the content map on
+`research/scripts/k1_hole_content_residual.py` fits 1 regression of the content map on
 the ablation-effect map for each photograph, keeps the residual, and scores
 the predictor again.
 
@@ -2871,7 +2871,7 @@ The crop captions show that a causal image token holds the judged object.
 They do not show that the model can name that image token as its reason. So
 we asked the model.
 
-`monocle/self_report.py` runs 3 steps for each photograph. It asks the case
+`research/monocle/self_report.py` runs 3 steps for each photograph. It asks the case
 question and records the answer. It then asks a follow-up question with the
 same picture: name the one thing you can see that most caused that answer.
 It then captions the image token that gradient-times-input attribution
@@ -3048,7 +3048,7 @@ criterion today.
 of 1 on each. A ridge regression learns the weights instead, and its result
 shows what the whole linear family can reach.
 
-`scripts/k1_fitted_probe.py` fits it. The rules:
+`research/scripts/k1_fitted_probe.py` fits it. The rules:
 
 - The split groups by photograph. All 256 image tokens of a photograph go to
   the train side or to the test side together. A split over image tokens
@@ -3314,7 +3314,7 @@ model is high.
 The statistic under test is the gain. The own features and the wrong-question
 features both carry the mean map. A correct null model thus gives a gain of 0.
 
-`scripts/k1_null_gain.py` measures it. It uses 20 shuffles over 20
+`research/scripts/k1_null_gain.py` measures it. It uses 20 shuffles over 20
 photographs, and it reads each case's ridge strength from the run on disk.
 
 | Case | Layer | Null model on `real` | Null model on the gain |
@@ -3436,7 +3436,7 @@ We fit on all 60 photographs of the source case and score all 60 of the
 target case. The 2 cases share no photograph, so no photograph is on both
 sides. The control is the target's own wrong-question features.
 
-`scripts/k1_probe_transfer.py` builds the 5 by 5 matrix at layer 20. Each
+`research/scripts/k1_probe_transfer.py` builds the 5 by 5 matrix at layer 20. Each
 case keeps the ridge strength that its own probe chose.
 
 | Fit on \ Score on | restaurants | libraries | subway | schools | street |
@@ -3585,7 +3585,7 @@ The predictor is `sum_d w_d * g_d * h_d`. That is gradient-times-input
 attribution with the residual-stream basis rescaled by `w`. The fit adds no
 new mechanism. It only says which of the 3840 dimensions to use.
 
-`scripts/k1_reader_anatomy.py` and `scripts/k1_reader_dims.py` ask what `w`
+`research/scripts/k1_reader_anatomy.py` and `research/scripts/k1_reader_dims.py` ask what `w`
 does. Warning: both fit and score on the same 60 photographs, so their
 numbers describe the shape of the weight and not how well it generalizes.
 
@@ -3671,7 +3671,7 @@ description replaces it.
 
 The transfer matrix is pairwise. This is the pooled form. We put the 420
 photographs of the 7 cases into 1 ridge regression and hold out either 1
-photograph or 1 whole case. `scripts/k1_probe_shared.py` runs both.
+photograph or 1 whole case. `research/scripts/k1_probe_shared.py` runs both.
 
 | Split | What the fit never saw |
 |---|---|
@@ -3757,7 +3757,7 @@ random image token.
 The predictor names other image tokens, so the test runs again. This time we
 add the oracle: the share of photographs where some single image token
 changes the answer. Without it a low rate looks like a weak predictor when it
-may be a hard ceiling. `scripts/k1_reader_flip.py` measures all 3.
+may be a hard ceiling. `research/scripts/k1_reader_flip.py` measures all 3.
 
 | Case | Predictor | Random token | **Oracle** | Share of the ceiling |
 |---|---|---|---|---|
@@ -3806,7 +3806,7 @@ gradient-times-input attribution and it covered the 4 cases that method
 could read.
 
 This run uses the shared fitted weight, which never saw the target case. It
-covers all 7. `scripts/k1_target_words.py` holds each word list, and every
+covers all 7. `research/scripts/k1_target_words.py` holds each word list, and every
 list comes from the question and not from the words we saw.
 
 | Case | End | Names the judged object | A random crop | Paired | q |

@@ -1,4 +1,4 @@
-"""Tests for the lens scoring metric (monocle/lens_bias.py).
+"""Tests for the lens scoring metric (research/monocle/lens_bias.py).
 
 The metric decides the ladder, so it must be exact. `--verify` reproduces the
 stage-4 table from the real parquets; these tests cover the mechanics.
@@ -16,7 +16,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import lens_bias as lb  # noqa: E402
+from research.monocle import lens_bias as lb  # noqa: E402
 
 RNG = np.random.default_rng(777)
 

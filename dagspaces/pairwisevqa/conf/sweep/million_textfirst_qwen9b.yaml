@@ -41,8 +41,8 @@
 # | Chunk               | 1,024 rows — what a preemption loses                |
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_textfirst_battery.sh --dry-run
-#   bash scripts/launch_textfirst_battery.sh
+#   bash research/scripts/launch_textfirst_battery.sh --dry-run
+#   bash research/scripts/launch_textfirst_battery.sh
 
 sampling_params_vqa:
   max_tokens: 128

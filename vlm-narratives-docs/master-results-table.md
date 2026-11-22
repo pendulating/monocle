@@ -1,7 +1,7 @@
 # The master results table
 
-`notebooks/cvpr/_results_table.py`, `notebooks/cvpr/master/results_table.py`,
-and `scripts/export_cvpr_results_table.py`.
+`research/notebooks/cvpr/_results_table.py`, `research/notebooks/cvpr/master/results_table.py`,
+and `research/scripts/export_cvpr_results_table.py`.
 
 ## What it is
 
@@ -66,7 +66,7 @@ module refuses a list longer than `MAX_PROXIES`.
 ## Run it
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python scripts/export_cvpr_results_table.py
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/export_cvpr_results_table.py
 ```
 
 The script refuses when a case export is older than the registry. Pass

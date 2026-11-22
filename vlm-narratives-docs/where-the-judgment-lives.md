@@ -4,8 +4,8 @@ The judgment does not stay at the image tokens. It moves through 3 position
 groups, and a method that reads the wrong position group at the wrong layer
 measures nothing.
 
-This page is the result of `monocle/patch_swap.py` and
-`monocle/attn_knockout.py`. The method is in
+This page is the result of `research/monocle/patch_swap.py` and
+`research/monocle/attn_knockout.py`. The method is in
 [patch-attribution.md](patch-attribution.md) and the prompt path is in
 [single-image-lens-path.md](single-image-lens-path.md).
 
@@ -60,7 +60,7 @@ share. The transfer is a split between position groups, not a complete move.
 
 ### Which word (2026-08-23)
 
-`monocle/question_tokens.py` patches 1 question token at a time. Unlike the
+`research/monocle/question_tokens.py` patches 1 question token at a time. Unlike the
 image tokens, the question tokens are additive: the 66 single-token patching
 effects sum to 1.02 of the whole-question patching effect at L33.
 

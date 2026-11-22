@@ -1,4 +1,4 @@
-"""Tests for the corpus-faithfulness ladder (monocle/jlens_fit_ladder.py).
+"""Tests for the corpus-faithfulness ladder (research/monocle/jlens_fit_ladder.py).
 
 These run on CPU and need no gemma weights. They check the EXPERIMENTAL
 DESIGN, not the fit: one rung must move exactly one axis, and the held-out
@@ -16,7 +16,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import jlens_fit_ladder as ld  # noqa: E402
+from research.monocle import jlens_fit_ladder as ld  # noqa: E402
 
 AXES = ("prompt", "target", "images")
 
@@ -94,9 +94,9 @@ class TestHoldOut:
     def test_heldout_skips_the_reserve(self, monkeypatch):
         pool = [{"path": f"/img/{i}.jpg", "image_id": str(i)}
                 for i in range(100)]
-        fake = type(sys)("monocle.single")
+        fake = type(sys)("research.monocle.single")
         fake.load_single_rows = lambda n, case, **kw: pool[:n]
-        monkeypatch.setitem(sys.modules, "monocle.single", fake)
+        monkeypatch.setitem(sys.modules, "research.monocle.single", fake)
 
         rows = ld.heldout_rows("subway_safety", 20, reserve=32)
         assert len(rows) == 20
@@ -111,7 +111,7 @@ class TestHoldOut:
         # `from monocle import single` reads the package ATTRIBUTE, so a patch
         # of sys.modules is ignored once monocle.single is imported. Patch the
         # function on the real module, which every import path then sees.
-        monkeypatch.setattr("monocle.single.load_single_rows",
+        monkeypatch.setattr("research.monocle.single.load_single_rows",
                             lambda n, case, **kw: [{"path": "a"}] * 5)
         with pytest.raises(RuntimeError, match="no held-out image"):
             ld.heldout_rows("subway_safety", 20, reserve=32)

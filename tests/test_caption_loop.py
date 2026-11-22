@@ -1,8 +1,8 @@
-"""The caption loop. See monocle/caption_loop.py."""
+"""The caption loop. See research/monocle/caption_loop.py."""
 import numpy as np
 import pytest
 
-from monocle import caption_loop as cl
+from research.monocle import caption_loop as cl
 
 
 class TestKeepOnly:

@@ -114,7 +114,7 @@ Each dagspace has its own CLI entry point:
 - `python -m dagspaces.vqa.cli` — Visual Question Answering
 - `python -m dagspaces.ocr.cli` — OCR / text spotting
 - `python -m dagspaces.pairwisevqa.cli` — Pairwise comparison VQA
-- `python -m dagspaces.urbanroamvqa.cli` — Multi-step street traversal VQA
+- `python -m research.dagspaces.urbanroamvqa.cli` — Multi-step street traversal VQA
 - `python -m dagspaces.embed.cli` — Embedding inference
 - `python -m dagspaces.speech.cli` — Speech recognition over video clips
 
@@ -126,16 +126,19 @@ All accept Hydra overrides: `model.batch_size=32 runtime.debug=true data.parquet
 
 ### Dagspaces
 
-Six independent pipeline systems under `dagspaces/`, each following the same structure:
+The framework has five pipeline systems under `dagspaces/`. Each has the same structure:
 
 | Dagspace | Purpose |
 |----------|---------|
 | `vqa` | Multimodal VQA inference (prompt + images → answers) |
 | `ocr` | Text spotting with bounding boxes, automatic tiling for large images |
 | `pairwisevqa` | Pairwise relative comparison of image pairs |
-| `urbanroamvqa` | Multi-step street traversal VQA |
 | `embed` | Embedding inference |
 | `speech` | Speech recognition over video clips (ffmpeg audio isolation + granite-speech via vLLM, JU partition) |
+
+The experimental dagspaces are in `research/dagspaces/`: `urbanroamvqa`,
+`urbanvit`, `opf_vision_labels` and `artifact_gen`. They import the framework,
+but the framework does not import them.
 
 Each dagspace contains:
 - `cli.py` — Entry point; cleans SLURM env vars before Hydra init
@@ -231,8 +234,13 @@ resume chunks.
 ## File Locations
 
 - `<output_root>/pipeline_manifest.json` — The orchestrator writes it in each run. It holds the stage results and the metadata. Git ignores it.
-- `notebooks/` — Analysis notebooks (prompt optimization, OCR verification)
-- `scripts/` — Dataset creation and utility scripts
+- `scripts/` — The generic tools of the framework (venv build, scratch mirrors, image packs, shard merge) and the data scripts that phase 2 moves to `sv/`.
+- `research/` — The research code. The framework does not import it. Run its code from the repo root, because the editable install maps only `dagspaces`.
+  - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`.
+  - `research/notebooks/` — The analysis notebooks (cvpr, facct).
+  - `research/scripts/` — The experiment scripts (f4 to f10, batteries, exports).
+  - `research/figures/`, `research/tables_export/` — The outputs of the notebooks and the scripts.
+  - `research/papers/`, `research/notes/` — The paper drafts and the research notes.
 - `docs/` — The framework guides (user guide, config guide, custom stages). They are stale: they describe `dagspaces/uair` and Ray Data. Phase 5 of `vlm-narratives-docs/repo-cleanup-plan.md` writes them again.
 - `vlm-narratives-docs/archive/documentation/` — Old development history (phase reports, implementation notes). Read it only for history.
 - `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)

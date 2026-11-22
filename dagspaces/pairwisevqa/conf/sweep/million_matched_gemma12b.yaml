@@ -46,8 +46,8 @@
 # same slice of the same prebuilt table.
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_matched_battery.sh --dry-run
-#   bash scripts/launch_matched_battery.sh
+#   bash research/scripts/launch_matched_battery.sh --dry-run
+#   bash research/scripts/launch_matched_battery.sh
 
 sampling_params_vqa:
   max_tokens: 128

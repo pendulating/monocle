@@ -1,4 +1,4 @@
-"""LRP rules for the lens backward pass. See monocle/rlens_rules.py.
+"""LRP rules for the lens backward pass. See research/monocle/rlens_rules.py.
 
 The rules must keep the forward value EXACT and change the backward. Every
 test here holds one half of that contract. No gemma weights are needed: the
@@ -8,7 +8,7 @@ import pytest
 import torch
 from torch import nn
 
-from monocle import rlens_rules as rr
+from research.monocle import rlens_rules as rr
 
 
 def plain_norm(self, hidden_states):

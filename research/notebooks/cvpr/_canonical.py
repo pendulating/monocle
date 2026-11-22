@@ -1,0 +1,224 @@
+"""The canonical run registry — the single ground truth for every CVPR figure.
+
+A notebook must NOT choose its own runs. The battery has run 3 times with 3
+different prompts, and W&B holds all of them, thus a notebook that queries the
+network can silently read a run that answers a question the paper no longer
+asks. This module reads `canonical_data/manifest.json` instead, which names
+exactly 1 run for each cell of the grid:
+
+    kind   x  arm  x  case  x  model
+    proxy    canonical   7        2   -> the label-only runs behind the results table
+    trace    canonical   7        2   -> the thinking runs behind the word figures
+    proxy    noabstain   7        2   -> the forced-choice ablation
+    proxy    nocity      7        2   -> the ablation with no place name
+
+The ARM says which prompt a run used. Every arm runs the same 2 model strings,
+thus a notebook that asks only for `kind="proxy"` gets 3 arms at once. Ask for
+the arm you want: `runs(kind="proxy", arm="canonical")` for a paper number, and
+`arm="nocity"` or `arm="noabstain"` for an ablation.
+
+`research/scripts/register_canonical_runs.py` writes the registry and the symlinks under
+`canonical_data/`. That tool also verifies them, and every export script calls
+`verify_or_raise()` here before it writes a file.
+
+To move the paper to a new battery:
+
+1. Run the new sweeps.
+2. `python research/scripts/register_canonical_runs.py register --stage-root '<glob>'`
+3. `python research/scripts/register_canonical_runs.py verify`
+4. Run the export scripts again.
+
+Nothing else selects a run. A notebook that needs the old behaviour can ask
+`_provenance.discover_runs(..., source="wandb")`, but no paper figure may.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence
+
+__version__ = "1.0.0"
+
+HERE = Path(__file__).resolve().parent
+REGISTRY_DIR = HERE / "canonical_data"
+MANIFEST = REGISTRY_DIR / "manifest.json"
+SCHEMA = 2
+
+# The environment variable that turns the guard off. It exists for a debug
+# session only. A paper figure must never run with it set.
+ALLOW_UNVERIFIED = os.environ.get("CVPR_ALLOW_UNVERIFIED") == "1"
+
+
+@dataclass
+class CanonicalRun:
+    """One registered run. The fields mirror the manifest."""
+
+    kind: str
+    arm: str              # canonical, noabstain, nocity
+    case: str
+    model: str            # short name, e.g. gemma-4-12b
+    model_config: str     # the Hydra model string, e.g. gemma-4-12b/instruct
+    sweep: str
+    pipeline: str
+    stage_dir: str
+    results_path: str
+    pairs_path: str
+    created_at: str
+    rows: int = 0
+    trace_rows: int = 0
+    not_sure_rate: float = float("nan")
+    question: str = ""
+    image_layout: str = ""
+    results_bytes: int = 0
+    results_sha256: str = ""
+    problems: List[str] = field(default_factory=list)
+    link: str = ""
+
+    @property
+    def link_dir(self) -> Path:
+        return REGISTRY_DIR / self.link
+
+    @property
+    def results_link(self) -> str:
+        """The path a notebook should read: the symlink, not the target.
+
+        Read through the link and the provenance of a figure names the
+        registry. Read the target and it names a run directory, which tells a
+        reader nothing about whether that run is the canonical one.
+        """
+        return str(self.link_dir / "results.parquet")
+
+    @property
+    def pairs_link(self) -> str:
+        return str(self.link_dir / "pairs.parquet")
+
+    @property
+    def run_id(self) -> str:
+        """A stable id that stands where a W&B id used to stand.
+
+        The arm is part of the id. Without it a `nocity` run and a canonical
+        run of the same cell carry the SAME id, and a provenance table cannot
+        say which one a figure read.
+        """
+        return f"canon:{self.kind}:{self.arm}:{self.case}:{self.model}"
+
+
+def load(path: Optional[Path] = None) -> Dict[str, Any]:
+    """Read the manifest. Raises when it is absent or holds another schema."""
+    p = Path(path or MANIFEST)
+    if not p.exists():
+        raise FileNotFoundError(
+            f"no canonical registry at {p}.\n"
+            f"Run: python research/scripts/register_canonical_runs.py register")
+    blob = json.loads(p.read_text())
+    if blob.get("schema") != SCHEMA:
+        raise ValueError(
+            f"registry schema {blob.get('schema')} != {SCHEMA}; "
+            f"update _canonical.py or register again")
+    return blob
+
+
+def runs(kind: Optional[str] = None,
+         case: Optional[str] = None,
+         model: Optional[str] = None,
+         arm: Optional[str] = "canonical") -> List[CanonicalRun]:
+    """Return the registered runs, filtered.
+
+    Args:
+        kind: `proxy`, `trace`, or None for both.
+        case: A SUBSTRING of the case name, which is what the notebooks pass.
+            `parks` thus matches `parks_plazas`, and an empty string matches
+            every case.
+        model: The short model name.
+        arm: `canonical` (the default), `noabstain`, `nocity`, or None for
+            every arm. The default is `canonical` on purpose: a caller that
+            does not know about arms must not get an ablation run.
+
+    Warning: pass `arm=None` only when you mean to read arms together. Mixed
+    arms in one table give a number that no prompt produced.
+    """
+    out: List[CanonicalRun] = []
+    for rec in load()["runs"]:
+        rec = dict(rec)
+        rec.setdefault("arm", "canonical")
+        r = CanonicalRun(**{k: v for k, v in rec.items()
+                            if k in CanonicalRun.__dataclass_fields__})
+        if kind and r.kind != kind:
+            continue
+        if arm and r.arm != arm:
+            continue
+        if case and case.lower() not in r.case.lower():
+            continue
+        if model and r.model != model:
+            continue
+        out.append(r)
+    out.sort(key=lambda r: (r.kind, r.arm, r.case, r.model))
+    return out
+
+
+def arms() -> List[str]:
+    """The arms the registry holds, `canonical` first."""
+    have = sorted({r.get("arm", "canonical") for r in load()["runs"]})
+    return sorted(have, key=lambda a: (a != "canonical", a))
+
+
+def verify_or_raise(quick: bool = True) -> None:
+    """Stop unless every registered file is on disk and unchanged.
+
+    This is the gate. An export script calls it BEFORE it writes anything, so a
+    stale or broken registry cannot reach the paper.
+
+    `quick=True` tests that each link resolves and that the size matches, which
+    costs milliseconds. `quick=False` hashes each file again.
+    """
+    if ALLOW_UNVERIFIED:
+        print("[canonical] WARNING: CVPR_ALLOW_UNVERIFIED=1, the gate is off")
+        return
+    blob = load()
+    problems: List[str] = []
+    for rec in blob["runs"]:
+        tag = (f"{rec['kind']}/{rec.get('arm', 'canonical')}"
+               f"/{rec['case']}/{rec['model']}")
+        link = REGISTRY_DIR / rec["link"] / "results.parquet"
+        if not link.exists():
+            problems.append(f"{tag}: the link does not resolve")
+            continue
+        target = Path(os.path.realpath(link))
+        if str(target) != rec["results_path"]:
+            problems.append(f"{tag}: the link moved to {target}")
+        elif target.stat().st_size != rec["results_bytes"]:
+            problems.append(f"{tag}: the file changed size")
+    if not quick:
+        import subprocess
+        rc = subprocess.call([
+            "python", str(HERE.parents[2] / "research" / "scripts" / "register_canonical_runs.py"),
+            "verify"])
+        if rc != 0:
+            problems.append("the full verify failed; see the output above")
+    if problems:
+        raise RuntimeError(
+            "the canonical registry does not match the disk:\n  "
+            + "\n  ".join(problems)
+            + "\nRegister again: python research/scripts/register_canonical_runs.py register")
+
+
+def summary() -> str:
+    """A 1-line description for a figure caption or a log."""
+    blob = load()
+    return (f"canonical registry of {blob['generated_at']} "
+            f"({len(blob['runs'])} runs, commit {blob.get('git_commit', '')[:12]})")
+
+
+def provenance_rows() -> List[Dict[str, Any]]:
+    """The registry as plain rows, for a provenance table in an export."""
+    return [
+        {"kind": r.kind, "arm": r.arm, "case": r.case, "model": r.model_config,
+         "sweep": r.sweep, "rows": r.rows, "not_sure_rate": r.not_sure_rate,
+         "image_layout": r.image_layout, "question": r.question,
+         "results_path": r.results_path, "sha256": r.results_sha256,
+         "problems": "; ".join(r.problems)}
+        for r in runs(arm=None)
+    ]

@@ -73,9 +73,9 @@ The qwen half changed for 1 reason.
 ## How to launch
 
 ```bash
-bash scripts/launch_looks_battery.sh --smoke     # 16 pairs, schools, each sweep
-bash scripts/launch_looks_battery.sh --dry-run   # print the commands
-bash scripts/launch_looks_battery.sh             # start all 4 sweeps
+bash research/scripts/launch_looks_battery.sh --smoke     # 16 pairs, schools, each sweep
+bash research/scripts/launch_looks_battery.sh --dry-run   # print the commands
+bash research/scripts/launch_looks_battery.sh             # start all 4 sweeps
 ```
 
 The script starts each sweep with `nohup`, because the submitit launcher waits

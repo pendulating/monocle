@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle.causal_maps import case_dir_for  # noqa: E402
+from research.monocle.causal_maps import case_dir_for  # noqa: E402
 
 
 class TestFillerKindInTheName(unittest.TestCase):

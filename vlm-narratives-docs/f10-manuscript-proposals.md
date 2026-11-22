@@ -12,8 +12,8 @@ voice, in quoted blocks or LaTeX blocks.
 |------|-------|
 | Files read in full | `sec/0_abstract.tex`, `1_intro.tex`, `2_rw.tex`, `3_methods.tex`, `4_results.tex`, `5_discussion.tex`, `A_addtl-methods.tex`, `B_addtl-results.tex` |
 | Records read | `facct-claim-map.md`, `f10-analysis-walkthrough.md`, `f10-judgment-mechanism.md` (the report), `neuronpedia-viewer.md`, `lens-registry.md`, `facct-runbook.md` F7 and F10.6 to F10.18 |
-| Code read | `monocle/jlens_read.py`, `scripts/f10/hop_all.py`, the header of `scripts/f10/hop_depth.py` |
-| Data read | `figures/f10/borough/borough_words.csv`, `figures/f10/stage/stage_words.csv`, `figures/f10/probe/probe_borough.csv`, `probe_place.csv`, `figures/f10/sense/sense_links.csv`, `figures/f10/mechanism/phase_layers.csv`, `mech_borough_layers.png`, `data/f10/hop_depth/images.parquet` |
+| Code read | `research/monocle/jlens_read.py`, `research/scripts/f10/hop_all.py`, the header of `research/scripts/f10/hop_depth.py` |
+| Data read | `research/figures/f10/borough/borough_words.csv`, `research/figures/f10/stage/stage_words.csv`, `research/figures/f10/probe/probe_borough.csv`, `probe_place.csv`, `research/figures/f10/sense/sense_links.csv`, `research/figures/f10/mechanism/phase_layers.csv`, `mech_borough_layers.png`, `data/f10/hop_depth/images.parquet` |
 | Literature | Gurnee et al., "Verbalizable Representations Form a Global Workspace", Transformer Circuits, 2026 (the first third of the page); Ayonrinde and Lindsey, "J++ Lens", LessWrong, 2026 (title and the summary in the runbook F7; the page did not render) |
 | Value pairs | A pair such as .82, .75 gives Gemma-4-31B, then Qwen3.5-9B |
 
@@ -59,7 +59,7 @@ P2 and P3. Other items of section 3 are open.
 
 ### 2.1 What the code computes
 
-The chain, from `scripts/f10/hop_all.py` and `monocle/jlens_read.py`:
+The chain, from `research/scripts/f10/hop_all.py` and `research/monocle/jlens_read.py`:
 
 | Step | Code | Object |
 |------|------|--------|
@@ -196,7 +196,7 @@ Source: `hop_all.py:219-227` (`text_reads.npy`); report section "2 estimands".
 Current: "Answer in one word: yes or no."
 Proposed: "Answer with one word: yes or no."
 
-Source: `scripts/f10/hop_depth.py:55`.
+Source: `research/scripts/f10/hop_depth.py:55`.
 
 **P4** `3_methods.tex:86`, after the C5 sentence | add | claims 1, 4 | confidence: high
 
@@ -362,7 +362,7 @@ The two map references are unresolved. The probe is the direct measure:
 
 **Update (2026-11-02):** Qwen3.6-27B now has the same probe. See P45 for the 3-model sentence.
 
-Source: `figures/f10/probe/probe_place.csv` rows `in New York`. **Note:** this is a forced one-word probe, not the accuracy of a stated location in free text (claim map, "No result exists for").
+Source: `research/figures/f10/probe/probe_place.csv` rows `in New York`. **Note:** this is a forced one-word probe, not the accuracy of a stated location in free text (claim map, "No result exists for").
 
 ### Results, claims 3 and 4
 
@@ -458,7 +458,7 @@ finding; we report it and do not smooth it.
 Written against `artificial-aesthetic/paper` at `6de388d`. Line numbers are from that commit.
 Each item gives the site, the text now, the proposed text and the result that supports it.
 The proposed text is in the author's voice. The support is in `f10-judgment-mechanism.md`,
-section "14 prompts: results (F10.26)", and in `figures/f10/prompts/`. A cell is 1 prompt in 1
+section "14 prompts: results (F10.26)", and in `research/figures/f10/prompts/`. A cell is 1 prompt in 1
 model, of 42.
 
 **P35** `sec/4_results.tex:6` | change | claim 1 | confidence: high
@@ -567,7 +567,7 @@ The Qwen3.6-27B probe run exists now. The gradient is the same in all 3 models:
 
 > Gemma-4-31B answers yes on 61.6\% of images, Qwen3.5-9B on 88.5\% and Qwen3.6-27B on 88.8\%, with a steep gradient from Manhattan (83.3\%, 94.8\%, 94.8\%) to Staten Island (20.8\%, 72.9\%, 70.8\%).
 
-Source: `figures/f10/probe/probe_place.csv` rows `in New York`. The larger Qwen is not more accurate than the small one: Queens .870 against .831, Staten Island .708 against .729.
+Source: `research/figures/f10/probe/probe_place.csv` rows `in New York`. The larger Qwen is not more accurate than the small one: Queens .870 against .831, Staten Island .708 against .729.
 
 ## 6. F10.29: seven questions (2026-11-02)
 
@@ -577,31 +577,31 @@ Source: `f10-29-seven-questions.md`. Questions 5 and 7 (steering, other tokens) 
 
 > The Black share of an NTA carries no gradient of its own. Given median household income, the partial rank correlation of the expected answer with the Black share is zero in all 18 cells of `ugly`, `nice` and `cool` (median |rho| .02, no cell passes Bonferroni), while income given the Black share passes in 17 of 18 (median |rho| .31).
 
-Source: `figures/f10/hierarchy/ses_partial.csv`. **Do not write** that income causes the judgment, or that the model reads income. The test says that 1 gradient carries the other.
+Source: `research/figures/f10/hierarchy/ses_partial.csv`. **Do not write** that income causes the judgment, or that the model reads income. The test says that 1 gradient carries the other.
 
 **P47** `4_results.tex`, the shared-direction paragraph of section 4.2 | add | claim 4 | confidence: high
 
 > The direction is shared across models and not only across prompts. The mean of the directions of two models, on the 36,490 lens words that all three share, predicts the NTA-level answers of the third model on its own 14 prompts: all 14 pass for Qwen3.5-9B, 11 for Qwen3.6-27B and 6 for Gemma-4-31B (Bonferroni), with the sign reversed for `ugly` in all three. For `nice` and `pretty` the transferred direction reaches the model's own leave-one-prompt-out ceiling.
 
-Source: `figures/f10/transfer/transfer_test_layer.csv`.
+Source: `research/figures/f10/transfer/transfer_test_layer.csv`.
 
 **P48** `3_methods.tex`, the sample paragraph, or the limits | add | all claims | confidence: high
 
 > Three images per NTA give a noisy NTA score: the NTA explains a median 19% of the image-level variance (ICC(1)), and the three-image mean has a Spearman-Brown reliability of .42. The gradients we report rest on the 197 NTAs, not on the three images: with one image per NTA, the income test passes in 1 cell of 38, against 25 with three. The noise attenuates the measured gradients; the median |rho| with income is .33 measured and .50 after the reliability correction.
 
-Source: `figures/f10/sample/summary.csv`, `cells.csv`. **Do not write** "even a small sample reveals the bias".
+Source: `research/figures/f10/sample/summary.csv`, `cells.csv`. **Do not write** "even a small sample reveals the bias".
 
 **P49** `3_methods.tex:79`, the phase rules | replace the fixed layers with a sentence on the thresholds | claim 1 | confidence: high
 
 > The scene code, the step at the adjective and the verdict hold over a wide range of thresholds (R2 .30 to .70: 42 to 33 of 42 cells; gain .02 to .08: 41 to 37; verdict r .85 to .92: 41 of 42, .95: 34). The layer of each band moves by one saved layer when the threshold moves by .05. The temperature sense of `cool` on its first axis is a property of that word and of layers 12 to 32 (6 of 42 at every threshold).
 
-Source: `figures/f10/robust/sweep.csv`, `band_edges.csv`. The Figure 1(b) bands should carry the threshold in the caption.
+Source: `research/figures/f10/robust/sweep.csv`, `band_edges.csv`. The Figure 1(b) bands should carry the threshold in the caption.
 
 **P50** `4_results.tex`, the Gemma refusal note | add | claim 3 | confidence: moderate
 
 > Gemma-4-31B declines the verdict on `ugly` for 97% of images and on `nice` for 50%, with the first token "Subjective", "Beauty" or "Unable", and it declines least in Manhattan (32% on `nice`, against 59% to 60% in Brooklyn and the Bronx). At the last token, the lens words `subjective`, `opinion` and `beauty` rise with the refusal share across NTAs (r .4 to .7). The refusal marks the task as contestable; it does not show awareness of harm, which no prompt asks about.
 
-Source: `figures/f10/aware/unable_share.csv`, `refusal_words_by_layer.csv`.
+Source: `research/figures/f10/aware/unable_share.csv`, `refusal_words_by_layer.csv`.
 
 ### Edits that F10.29 does not support
 
@@ -642,7 +642,7 @@ Proposed:
 
 > The J-space and the traces of the one-word prompts carry the same gradient across the 197 neighborhoods. We score the answer to each of the 14 prompts as the expected answer $E=P(\text{yes})-P(\text{no})$, which places an answer that is neither yes nor no between the two, and relate its neighborhood mean over 50 images to four ACS features (Spearman $\rho$, Bonferroni over 188 tests; \autoref{tab:prompt-ses} in the appendix). On the aesthetic prompts ('cool', 'nice', 'pretty', 'fancy'), $E$ rises with median income in all 24 pairs of model and prompt ($\rho$ from $.29$ to $.68$), with the share of White residents in 24, and with the share of college graduates in 23. 'Ugly' reverses in 5 of 6 pairs (income $\rho$ from $-.59$ to $-.42$; the sixth is Gemma-4-31B on 'place', which declines the verdict on 97\% of images), and 'ordinary' and 'urban' pass in none. Where Gemma-4-31B declines to answer, it declines more often in poorer neighborhoods ($\rho$ with income $-.45$ and $-.53$ for 'nice', $-.42$ for 'ugly' on 'scene'). The shared direction and the net valence of the cited evidence follow the answers (income $\rho=.32$ and $.25$ for each; Bonferroni over 20 tests). Every correlation of an aesthetic answer with the share of Black residents is negative ($\rho$ from $-.40$ to $-.14$; 14 of 24 pass), but with median income held fixed, the share of Black residents relates to none of the 18 answers to 'cool', 'nice', and 'ugly' (partial $\rho$ from $-.12$ to $.13$), while income, with the share of Black residents held fixed, relates to 17 (median $|\rho|=.44$; Bonferroni over 18).
 
-Support: `figures/f10/more/ses.csv` (k = 50: 120 of 188 tests pass, against 81 at k = 3),
+Support: `research/figures/f10/more/ses.csv` (k = 50: 120 of 188 tests pass, against 81 at k = 3),
 `partial.csv`. The sentence on the shared direction and the evidence keeps the 591-image numbers,
 because those measures are lens and trace measures (see P56). **Do not write** that the Black
 share "carries no gradient" or that "none passes": at 50 images it passes on its own in 14 cells.
@@ -657,11 +657,11 @@ Proposed:
 
 > Each neighborhood mean takes 50 images, and has a median reliability of $.90$ (ICC(1) $.15$; Spearman--Brown). With the first three images of each neighborhood, the 591 images of the lens analyses, the reliability is $.39$, the median income $|\rho|$ is $.33$, and the same correlations rise to $.50$ after correction for the reliability; at 50 images the measured value is $.47$. The table at three images is in the supplement.
 
-The table: `notebooks/facct/tables/f10_prompt_ses_k50.tex` holds `tab:prompt-ses` at k = 50, in
+The table: `research/notebooks/facct/tables/f10_prompt_ses_k50.tex` holds `tab:prompt-ses` at k = 50, in
 the same layout (120 of 188 tests pass). `paperkit` can copy it over `tables/facct/prompt-ses.tex`.
 Keep the k = 3 table as `tables/facct/prompt-ses-k3.tex` in the supplement, or drop it.
 
-Support: `figures/f10/more/reliability.csv`, `ses.csv`, `summary.json`.
+Support: `research/figures/f10/more/reliability.csv`, `ses.csv`, `summary.json`.
 
 **P53** `sec/A_addtl-methods.tex:200`, the reliability paragraph | replace | all claims | confidence: high
 
@@ -671,7 +671,7 @@ Proposed:
 
 > We take ICC(1) of $E$ over the images of each NTA (one-way ANOVA), and the reliability of the mean of $k$ images by the Spearman--Brown rule. ICC(1) is $.15$ to $.19$ (median over the 14 prompts, each model) whether an NTA holds 3, 10 or 50 images; the reliability of the mean is $.39$, $.67$ and $.90$. The corrected $\rho$ is the measured $\rho$ divided by the square root of that reliability; it assumes that the ACS feature has no noise.
 
-Support: `figures/f10/more/reliability.csv`.
+Support: `research/figures/f10/more/reliability.csv`.
 
 **P54** `sec/4_results.tex:162`, the Manhattan sentence | optional | claim 4 | confidence: moderate
 
@@ -681,7 +681,7 @@ At k = 50, with $E$ as the score (not the margin), the Welch $t$ of the NTA mean
 
 > Relative to the other boroughs, Manhattan's neighborhoods sit higher on 'cool' ($t=9.9$, $14.2$, $10.1$) and lower on 'ordinary' ($-5.3$, $-10.6$, $-8.6$); all six differences pass Bonferroni correction over the nine tests ($p<.001$), as do the three on 'urban'.
 
-Otherwise leave the sentence. Support: `figures/f10/more/manhattan.csv`.
+Otherwise leave the sentence. Support: `research/figures/f10/more/manhattan.csv`.
 
 **P55** `sec/4_results.tex`, the shared-direction paragraph of section 4.2 (the text of P47) | add 1 sentence | claim 4 | confidence: high
 
@@ -689,7 +689,7 @@ Proposed, after the transfer sentence of P47:
 
 > The transfer also holds on held-out images: with the neighborhood means of ten new images per NTA as the target, the transferred direction passes for 9, 14 and 14 of the 14 prompts (Gemma-4-31B, Qwen3.5-9B, Qwen3.6-27B), against 6, 14 and 11 on the three images it was fit on.
 
-Support: `figures/f10/more/transfer/transfer_test_layer.csv`, variant `main`. The source
+Support: `research/figures/f10/more/transfer/transfer_test_layer.csv`, variant `main`. The source
 directions are the 591-image fits; the target NTA means are from the 10-image summaries, of which
 7 of 10 images are new.
 
@@ -699,7 +699,7 @@ Proposed:
 
 > The shared direction and the net valence of the cited evidence follow the answers (income $\rho=.32$ and $.25$ for each; Bonferroni over 20 tests), and the direction keeps its gradient on ten new images per neighborhood ($\rho=.41$ and $.25$).
 
-Support: `figures/f10/more/ses_readout.csv`. Qwen3.6-27B gives $.20$ there and does not pass
+Support: `research/figures/f10/more/ses_readout.csv`. Qwen3.6-27B gives $.20$ there and does not pass
 (Bonferroni over 12). The lens gradient is smaller than the answer gradient at the same k; do not
 write that they are equal.
 
@@ -721,7 +721,7 @@ Quoted words to keep or drop, by their rank at k = 3 and at k = 10:
 | Qwen3.5-9B | exquisite (3, 2), majestic (4, 3), elegant (5, 5), queen (7, 4), stunning (1, 14); abuses (15, 9), slaughter (11, 10), `hitam` (12, 12) | regal (10, 21); warehouses (3, 39), unemployed (20, 31), dumpsters (8, 21), replace with `abusive` or `industriale` |
 | Qwen3.6-27B | exquisite (3, 1), elegant (12, 4), beautifully (5, 7), stunning (7, 9); dumpster (1, 1), gang (8, 12), thugs (7, 16), job (2, 19) | splendid (28, 41); factory (15, 89), warehouses (13, 59), replace with `stripper` or `makeshift` |
 
-Support: `figures/f10/more/words.csv`, `words_agree.csv`. The figure itself stays on the
+Support: `research/figures/f10/more/words.csv`, `words_agree.csv`. The figure itself stays on the
 591-image direction. `hitam` holds its rank in both fits.
 
 **P58** `sec/3_methods.tex`, the sample sentence of the F10 analyses, or `sec/A_addtl-methods.tex`, lane B of the flow chart | add 1 sentence | all claims | confidence: high
@@ -758,7 +758,7 @@ results that the paper did not hold, and 1 caveat that the review page
 | P60. The refusals name the task as a matter of taste, and the last-token readout says `subjective`, `opinion`, `matter` on `nice` and `beauty`, `unable`, `cannot` on `ugly`; the 4 thinking models take no side in 40% to 85% of the judgment answers | `f10-29-seven-questions.md` question 4; `f9-subjective-prompt.md` section 4.7 | Section 4.1, the paragraph "The standard sets the sign of an object", after the doubt sentence | applied |
 | P61. The refusal share of `nice` falls with the White share (-.47, -.51) and rises with the Black share (.31, .32) at 50 images; Manhattan has the fewest refusals | `f10-30-more-images.md` | Section 4.2, the ACS paragraph, the refusal sentence | applied |
 | P62. Qwen3.6-27B on the "in New York" probe: .888, Manhattan .948, Staten Island .708 (P45) | `f10-judgment-mechanism.md` task 5 | Section 4.3, the "in New York" sentence, now 3 models | applied |
-| P63. Each standard ranks the boroughs in its own order at 50 images: Manhattan first on `cool`, `fancy`, `urban` (18 of 18), Staten Island first on `nice`, `pretty`, `ordinary` (18 of 18), the Bronx first on `ugly` (5 of 6) and last on `nice`, `pretty`, `fancy` (18 of 18) | new stage `hop_more_answers.py --borough`, `figures/f10/more/borough_order.csv` | Section 4.2, after the Manhattan sentence; new Appendix B subsection `app:borough-order` with `tab:borough-order` | applied |
+| P63. Each standard ranks the boroughs in its own order at 50 images: Manhattan first on `cool`, `fancy`, `urban` (18 of 18), Staten Island first on `nice`, `pretty`, `ordinary` (18 of 18), the Bronx first on `ugly` (5 of 6) and last on `nice`, `pretty`, `fancy` (18 of 18) | new stage `hop_more_answers.py --borough`, `research/figures/f10/more/borough_order.csv` | Section 4.2, after the Manhattan sentence; new Appendix B subsection `app:borough-order` with `tab:borough-order` | applied |
 | P64. `ugly` mirrors `pretty` in the answers (r -.86, -.88, -.91) but not in the residual (cosine -.09, -.37, -.60), because `ugly` + `urban` lands near minus `pretty` | `f10-judgment-mechanism.md` task 4; `f10-34-sum-directions.md` | Section 4.1, the pair sentence of "One aesthetic direction" | applied |
 | P65. The noun changes the level of the answer, not the order: `cool` yes share .38 to .72 (Gemma), .92 to .39 (Qwen3.6-27B); NTA means agree at r .61 to .99, Manhattan sign the same in 21 of 21 | `f10-judgment-mechanism.md` task 6 | Section 4.2, after the borough order | applied |
 | P66. H9 in both forms: raw 34 of 60 (pre-registered), standardized 23 of 60, about 1.4 times against 4; the descriptive net valence is exactly 0 for 65% to 86% of restaurant answers | `f9-subjective-prompt.md` section 4.4; `f9-h9-review.md` sections 3.1 and 3.5 | Section 4.3, the H9 sentence; Appendix B `app:desc-presc` paragraph before `tab:h9-summary` (the schema note) | applied |
@@ -790,9 +790,9 @@ result sentence in the main text and puts the mechanics and the numbers in the a
 A10 followed on the user's choice, in the same session.
 
 New assets in `manifest/assets.toml`: `paper/tables/facct/steering-dose.tex`
-(`scripts/f10/hop_steer_table.py`), `paper/tables/facct/borough-order.tex`
-(`scripts/f10/hop_more_answers.py --borough`), `paper/figures/facct/trace_ses.pdf`
-(`notebooks/facct/_trace_ses.py`).
+(`research/scripts/f10/hop_steer_table.py`), `paper/tables/facct/borough-order.tex`
+(`research/scripts/f10/hop_more_answers.py --borough`), `paper/figures/facct/trace_ses.pdf`
+(`research/notebooks/facct/_trace_ses.py`).
 
 ## Related
 

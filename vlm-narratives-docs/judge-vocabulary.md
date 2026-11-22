@@ -88,11 +88,11 @@ qwen `socioeconomic status` in schools, gemma `quaint` in street photography).
 
 ## The files
 
-Module: `notebooks/cvpr/_judge_vocab.py`. Notebook:
-`notebooks/cvpr/master/judge_vocabulary.py`. Headless export:
-`scripts/export_judge_vocab.py`. Tests: `tests/test_judge_vocab.py`.
+Module: `research/notebooks/cvpr/_judge_vocab.py`. Notebook:
+`research/notebooks/cvpr/master/judge_vocabulary.py`. Headless export:
+`research/scripts/export_judge_vocab.py`. Tests: `tests/test_judge_vocab.py`.
 
-All outputs are in `notebooks/cvpr/master/outputs/judge_vocab/`:
+All outputs are in `research/notebooks/cvpr/master/outputs/judge_vocab/`:
 
 | File | Label | Holds |
 |------|-------|-------|

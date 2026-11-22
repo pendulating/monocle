@@ -44,9 +44,9 @@
 # | Chunk               | 1,024 rows — what a preemption loses                |
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_noabstain_battery.sh --dry-run
-#   bash scripts/launch_noabstain_battery.sh --smoke
-#   bash scripts/launch_noabstain_battery.sh
+#   bash research/scripts/launch_noabstain_battery.sh --dry-run
+#   bash research/scripts/launch_noabstain_battery.sh --smoke
+#   bash research/scripts/launch_noabstain_battery.sh
 
 sampling_params_vqa:
   max_tokens: 128

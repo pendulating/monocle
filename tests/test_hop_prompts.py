@@ -1,4 +1,4 @@
-"""Tests of the value functions of scripts/f10/hop_prompts.py (F10.26)."""
+"""Tests of the value functions of research/scripts/f10/hop_prompts.py (F10.26)."""
 import sys
 from pathlib import Path
 
@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/f10"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 import hop_prompts as hp  # noqa: E402
 
 

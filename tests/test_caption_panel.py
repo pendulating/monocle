@@ -1,9 +1,9 @@
-"""The 3-column caption figure. See monocle/caption_panel.py."""
+"""The 3-column caption figure. See research/monocle/caption_panel.py."""
 import numpy as np
 import pytest
 from PIL import Image, ImageDraw
 
-from monocle import caption_panel as cp
+from research.monocle import caption_panel as cp
 
 
 def photo(side=64, seed=0):
@@ -232,42 +232,42 @@ class TestGroupScaling:
     """`k` must follow the grid, or cell size and kept area move together."""
 
     def test_a_quarter_is_a_quarter_at_every_group(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         for g in (1, 2, 4):
             assert cl.k_for(g, 0.25) / cl.cells_for(g) == pytest.approx(0.25)
 
     def test_the_cell_count_falls_with_the_square_of_the_group(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         assert [cl.cells_for(g) for g in (1, 2, 4, 8, 16)] == \
             [256, 64, 16, 4, 1]
 
     def test_a_fixed_k_means_different_areas(self):
         """This is the trap the fraction exists to avoid."""
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         assert cl.k_for(2, 0.25, fixed=16) == 16      # a quarter of 64
         assert cl.k_for(4, 0.25, fixed=16) == 16      # ALL of 16
 
     def test_it_refuses_a_k_larger_than_the_grid(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         with pytest.raises(ValueError, match="more than the 16 cells"):
             cl.k_for(4, 0.25, fixed=17)
 
     def test_it_refuses_a_group_that_does_not_divide(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         with pytest.raises(ValueError, match="does not divide"):
             cl.cells_for(3)
 
     def test_a_coarse_grid_still_keeps_one_cell(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         assert cl.k_for(8, 0.25) == 1
 
     def test_it_refuses_a_fraction_outside_the_range(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         for bad in (0.0, 1.0, -0.5, 2.0):
             with pytest.raises(ValueError, match="keep-fraction"):
                 cl.k_for(2, bad)
 
     def test_a_fixed_k_cannot_serve_several_groups(self):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         with pytest.raises(SystemExit, match="cannot serve several groups"):
             cl.main(["--group", "1", "2", "--k", "8"])

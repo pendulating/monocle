@@ -2,7 +2,7 @@
 
 Date: 2026-09-01. Review item P1 (see
 [jacobian-lens-review.md](jacobian-lens-review.md), flaw F1). Tool:
-`monocle/label_ablate.py`. Jobs: 80050 (smoke), 80080 (full run).
+`research/monocle/label_ablate.py`. Jobs: 80050 (smoke), 80080 (full run).
 
 ## The question
 
@@ -120,7 +120,7 @@ survive):
 
 | Item | Path |
 |---|---|
-| tool | `monocle/label_ablate.py` |
+| tool | `research/monocle/label_ablate.py` |
 | CPU tests | `tests/test_label_ablate.py` (13 pass) |
 | long frame | `outputs/_monocle/label_ablate/ablate.parquet` |
 | summary | `outputs/_monocle/label_ablate/summary.json` |

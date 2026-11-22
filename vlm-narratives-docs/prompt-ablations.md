@@ -67,9 +67,9 @@ prompt effect.
 
 | Module | What it gives |
 |--------|---------------|
-| `notebooks/cvpr/_ablations.py` | the join, the statistics, the display table |
-| `notebooks/cvpr/master/ablations.py` | sections 1 to 4, and the CSV export |
-| `scripts/export_cvpr_ablations.py` | the same export, from a command |
+| `research/notebooks/cvpr/_ablations.py` | the join, the statistics, the display table |
+| `research/notebooks/cvpr/master/ablations.py` | sections 1 to 4, and the CSV export |
+| `research/scripts/export_cvpr_ablations.py` | the same export, from a command |
 
 ```python
 import _ablations as A
@@ -80,7 +80,7 @@ A.to_display(A.all_arms())         # the on-screen table
 
 The export button of the ablations notebook, or the script, writes
 `ablations_v*.csv` and `ablation_abstention_flow_v*.csv` to
-`notebooks/cvpr/master/outputs/`. The master table in `results_table.py`
+`research/notebooks/cvpr/master/outputs/`. The master table in `results_table.py`
 holds the canonical arm alone since 2026-09-04, so the paper presents the
 ablations apart from it.
 
@@ -152,7 +152,7 @@ the layout as well as the named change. Both re-ran on 2026-09-02:
 | Layout | `interleaved_labels` | `text_first_interleaved` (prompt, "Image A:", A, "Image B:", B) |
 | Pairs | `multirun/pair_tables_100k_of_1m` | the same |
 | Shards | 5 for each case, 35 jobs | 5 for each case, 35 jobs |
-| Launch | `bash scripts/launch_ablation_rerun_gemma.sh` | the same script |
+| Launch | `bash research/scripts/launch_ablation_rerun_gemma.sh` | the same script |
 | Merge target | `multirun/nocity_merged_il` | `multirun/textfirst_merged_il` |
 | Arrays | 200662 | 200680 |
 | Finished | 2026-09-02 18:43, 35 of 35 | 2026-09-02 18:58, 35 of 35 |
@@ -244,7 +244,7 @@ change alone.
 |------|-------|
 | Sweep | `million_matched_gemma12b` |
 | Pipelines | `pairwise_<case>_mvp_matched`, which inherit the base case and override nothing |
-| Launch | `bash scripts/launch_matched_battery.sh` |
+| Launch | `bash research/scripts/launch_matched_battery.sh` |
 | Shards | 5 for each case, 35 jobs, `slurm_gpu_preempt`, 480 min |
 | Launched | 2026-09-02 00:06, array 135242, `multirun/matched_battery_20260902_000637` |
 | Finished | 2026-09-02 11:45, 35 of 35 shards COMPLETED, none lost |

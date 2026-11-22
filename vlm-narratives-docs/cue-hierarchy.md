@@ -5,14 +5,14 @@ chain-link fence cost a school what it costs a subway entrance?
 
 | Piece | Where |
 |-------|-------|
-| Module | `notebooks/cvpr/_cues_across.py` |
-| Notebook | `notebooks/cvpr/master/cue_hierarchy.py` |
-| Figures and tables | `notebooks/cvpr/master/figures/cue_hierarchy_*` |
-| Source | The `urban_cues_v2` primary corpus, `data/trace_extractions_v2_gemma12b_by_qwen27b/` (gemma-4-12b traces read by Qwen3.8-27B). The headline numbers come from the rerun of 2026-09-22 (`scripts/export_trace_figures.py`); a number marked v1 is from the 2026-08-28 corpus. |
+| Module | `research/notebooks/cvpr/_cues_across.py` |
+| Notebook | `research/notebooks/cvpr/master/cue_hierarchy.py` |
+| Figures and tables | `research/notebooks/cvpr/master/figures/cue_hierarchy_*` |
+| Source | The `urban_cues_v2` primary corpus, `data/trace_extractions_v2_gemma12b_by_qwen27b/` (gemma-4-12b traces read by Qwen3.8-27B). The headline numbers come from the rerun of 2026-09-22 (`research/scripts/export_trace_figures.py`); a number marked v1 is from the 2026-08-28 corpus. |
 
 ```bash
 .venv-mllmsci-vllm025cu129/bin/marimo edit \
-    notebooks/cvpr/master/cue_hierarchy.py
+    research/notebooks/cvpr/master/cue_hierarchy.py
 ```
 
 **Note: `visual_evidence` is the class that holds when the extractor
@@ -378,7 +378,7 @@ python -m dagspaces.pairwisevqa.cli -m pipeline=extract_traces \
     trace_extract.results_path=<the registered results.parquet> \
     trace_extract.shard_count=8 trace_extract.shard_index=0,1,2,3,4,5,6,7 \
     hydra.launcher.array_parallelism=8
-python scripts/merge_trace_extractions.py
+python research/scripts/merge_trace_extractions.py
 ```
 
 1 case costs about **7 GPU-hours**, and sharding buys wall clock, not GPU
@@ -397,7 +397,7 @@ for n in $SWEEP/[0-9]*; do
 done
 ```
 
-`scripts/merge_trace_extractions.py` takes several sweep directories, thus a
+`research/scripts/merge_trace_extractions.py` takes several sweep directories, thus a
 re-run in its own sweep merges with the first one.
 
 See `vlm-narratives-docs/langextract-trace-extraction.md` for the throughput

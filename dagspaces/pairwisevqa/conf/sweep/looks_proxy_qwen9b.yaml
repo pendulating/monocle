@@ -13,7 +13,7 @@
 #
 # ─── What it produces ────────────────────────────────────────────────────────
 # 1 greedy, label-only run for each of the 7 cases. These are the runs that
-# `notebooks/cvpr/<case>/<case>_validation.py` reads. The companion rater is
+# `research/notebooks/cvpr/<case>/<case>_validation.py` reads. The companion rater is
 # `looks_proxy_gemma12b.yaml`; launch both and pool the parquets after.
 #
 # ┌─ WHY THE 2 RATERS DO NOT SHARE 1 SWEEP ────────────────────────────────────┐
@@ -56,7 +56,7 @@
 #   ... pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16
 #
 # ─── After the runs land ─────────────────────────────────────────────────────
-# `notebooks/cvpr/_provenance.py` keeps 2 gates: `CANONICAL_SWEEPS`, which now
+# `research/notebooks/cvpr/_provenance.py` keeps 2 gates: `CANONICAL_SWEEPS`, which now
 # holds this sweep name, and `CONSOLIDATION_DATE`. Raise that date to the
 # launch date, or the notebooks mix these runs with the old-wording runs.
 #

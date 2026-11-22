@@ -1,4 +1,4 @@
-"""Unit tests for the extraction analysis module, `notebooks/cvpr/_extractions.py`.
+"""Unit tests for the extraction analysis module, `research/notebooks/cvpr/_extractions.py`.
 
 These tests build a small frame by hand. They read no parquet and need no GPU.
 They cover the parts where a quiet error changes a number in the paper: the
@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 import _extractions as X  # noqa: E402
 

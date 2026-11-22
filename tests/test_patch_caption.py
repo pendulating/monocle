@@ -12,7 +12,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import patch_caption as pcap  # noqa: E402
+from research.monocle import patch_caption as pcap  # noqa: E402
 
 
 def test_a_middle_cell_gives_a_full_window():

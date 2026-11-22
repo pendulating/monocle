@@ -41,7 +41,7 @@
 #    the photograph that the model got (image_artifact), and the picture that
 #    the user will take (photo_advice).
 # 4. The examples are street texts, none from the smoke input. Build them
-#    with `scripts/f4/build_street_cue_examples.py`; its `--check` compares
+#    with `research/scripts/f4/build_street_cue_examples.py`; its `--check` compares
 #    them with the `target` of the `descriptors-v5` spans.
 #
 # The input is the descriptor input (`f4_street_desc.parquet`, U+2011 is
@@ -51,7 +51,7 @@
 # value list, or an example. Never edit a version in place.
 #
 # Warning: keep `attribute_values` inside `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`.
+# `research/notebooks/cvpr/_extractions.py`.
 
 name: urban_cues_street
 schema_version: street-v2

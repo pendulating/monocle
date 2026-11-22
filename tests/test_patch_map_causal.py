@@ -1,10 +1,10 @@
-"""The causal patch map. See monocle/patch_map_causal.py."""
+"""The causal patch map. See research/monocle/patch_map_causal.py."""
 import numpy as np
 import pandas as pd
 import pytest
 import torch
 
-from monocle import patch_map_causal as pm
+from research.monocle import patch_map_causal as pm
 
 
 class TestBatchPatcher:
@@ -203,7 +203,7 @@ class TestContract:
 
 
 # ---------------------------------------------------------------------------
-# The lens arms. See monocle/patch_map_causal.py lens_maps.
+# The lens arms. See research/monocle/patch_map_causal.py lens_maps.
 # ---------------------------------------------------------------------------
 class FakeLens:
     """Transport is a scale, so a readout is easy to predict by hand."""

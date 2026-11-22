@@ -1,6 +1,6 @@
 # The last-token readout
 
-`monocle/answer_tokens.py` decodes the token distribution at the last token
+`research/monocle/answer_tokens.py` decodes the token distribution at the last token
 position, at every layer, over the whole vocabulary.
 
     logits_l[answer] = unembed( J_l @ h_l[answer] )   for the fitted layers
@@ -81,7 +81,7 @@ shard rebuilds it, which took 20 minutes on a contended node.
 ```bash
 pytest tests/test_answer_tokens.py -v
 
-sbatch --time=8:00:00 monocle/monocle.sub monocle.answer_tokens \
+sbatch --time=8:00:00 research/monocle/monocle.sub monocle.answer_tokens \
     --n-pairs 1000 --out-dir outputs/_monocle/answer_tokens
 ```
 

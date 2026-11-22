@@ -3,11 +3,11 @@
 An independent methods review of the test of H9 (2026-10-30). The claims
 under review are in `f9-subjective-prompt.md`, sections 1 and 4. The plan
 is in `facct-runbook.md`, section F9, "The tests, set before the run". The
-code is `scripts/f9/analyze_subjective.py` (1.1.0) with
-`scripts/f8/method_b.py`.
+code is `research/scripts/f9/analyze_subjective.py` (1.1.0) with
+`research/scripts/f8/method_b.py`.
 
 Every number in this review comes from a check that ran on
-`figures/f9/pairs.parquet` and the CSV outputs, unless the row says
+`research/figures/f9/pairs.parquet` and the CSV outputs, unless the row says
 "reasoning only". The checks did not change any file and did not submit a
 job.
 
@@ -127,7 +127,7 @@ are not 6 independent replications.
 
 ### 3.5 The F4 side under the new schema (D142)
 
-The method B record (`figures/f8/method_b/valence_fits.csv`) fits the
+The method B record (`research/figures/f8/method_b/valence_fits.csv`) fits the
 same F4 outcome under the x2 schema of record. On the same images:
 
 | Model, restaurant, % white | F4 slope, new schema | F4 slope, x2 schema | Ratio |
@@ -204,10 +204,10 @@ to 7 are edits to the text and the record.
 ## 6. The checks that ran
 
 All checks used `.venv-mllmsci-vllm025cu129/bin/python` and read
-`figures/f9/pairs.parquet`, the CSV outputs, `figures/f8/method_b/valence_fits.csv`,
+`research/figures/f9/pairs.parquet`, the CSV outputs, `research/figures/f8/method_b/valence_fits.csv`,
 `data/f4_traces/pooled/f4_restaurants_nta.parquet`, and 1 merged span file.
-The functions came from `scripts/f9/analyze_subjective.py` and
-`scripts/f8/method_b.py`.
+The functions came from `research/scripts/f9/analyze_subjective.py` and
+`research/scripts/f8/method_b.py`.
 
 | Check | Method |
 |-------|--------|

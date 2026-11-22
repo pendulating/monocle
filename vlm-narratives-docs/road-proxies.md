@@ -2,11 +2,11 @@
 
 Date: 2026-08-31. This is upgrade U5 of the validation-by-proxy road.
 
-New module: `notebooks/cvpr/_proxies_road.py`. New export:
-`notebooks/cvpr/road/outputs/road_quality_proxy_v1.2.0.parquet`. New cache:
+New module: `research/notebooks/cvpr/_proxies_road.py`. New export:
+`research/notebooks/cvpr/road/outputs/road_quality_proxy_v1.2.0.parquet`. New cache:
 `data/external/nyc_street_centerline/`.
 
-`notebooks/cvpr/_proxies.py` does not change. The old builders stay where they
+`research/notebooks/cvpr/_proxies.py` does not change. The old builders stay where they
 are, thus every published number is still reproducible.
 
 ## The 3 problems
@@ -305,9 +305,9 @@ write it.
 
 | File | Role |
 |------|------|
-| `notebooks/cvpr/_proxies_road.py` | The corrected builders and the export helpers |
-| `notebooks/cvpr/road/road_quality_validation.py` | Section 6, and the export cell |
-| `notebooks/cvpr/road/recipe.json` | 7 sources: 2 more proxies, and the denominator |
-| `notebooks/cvpr/road/outputs/road_quality_proxy_v1.2.0.parquet` | The export |
-| `notebooks/cvpr/road/outputs/road_quality_denominator_comparison_v1.2.0.parquet` | Old against new |
+| `research/notebooks/cvpr/_proxies_road.py` | The corrected builders and the export helpers |
+| `research/notebooks/cvpr/road/road_quality_validation.py` | Section 6, and the export cell |
+| `research/notebooks/cvpr/road/recipe.json` | 7 sources: 2 more proxies, and the denominator |
+| `research/notebooks/cvpr/road/outputs/road_quality_proxy_v1.2.0.parquet` | The export |
+| `research/notebooks/cvpr/road/outputs/road_quality_denominator_comparison_v1.2.0.parquet` | Old against new |
 | `data/external/nyc_street_centerline/` | The centerline pull and the miles cache |

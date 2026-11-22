@@ -35,8 +35,8 @@ recordings. Thus U1 to U4 compare distributions, not the same images.
 
 ## 2. The method
 
-The code is `notebooks/facct/_paradigm_kl.py` (1.3.0). The notebook is
-`notebooks/facct/f11_paradigms.py`. The output is in `data/f11/`.
+The code is `research/notebooks/facct/_paradigm_kl.py` (1.3.0). The notebook is
+`research/notebooks/facct/f11_paradigms.py`. The output is in `data/f11/`.
 
 | Item | Value |
 |------|-------|
@@ -186,19 +186,19 @@ the extractor. It is smaller than the change from description to judgment.
 | `data/f11/f11_cues.parquet` | the U3 cues of each cell: counts, net valence, JS, `sign_flip` |
 | `data/f11/f11_arms.parquet` | the texts, spans, words and shares of each arm |
 | `data/f11/f11_places_{gemma12b,qwen9b}.parquet` | 1 row for each F9 restaurant |
-| `data/f4_traces/extract_input/f4_f11pw.parquet` | the R4 input: 4,000 traces (`scripts/f4/build_f11_input.py`) |
+| `data/f4_traces/extract_input/f4_f11pw.parquet` | the R4 input: 4,000 traces (`research/scripts/f4/build_f11_input.py`) |
 | `multirun/f4_f11_pw_cues_dsv4/` | the R4 spans (`extract.sbatch`, arm `f11_pw_cues`) |
-| `notebooks/facct/figures/f11/` | `f11_divergence`, `f11_cues`, `f11_places` |
+| `research/notebooks/facct/figures/f11/` | `f11_divergence`, `f11_cues`, `f11_places` |
 
 To run it again:
 
 ```bash
-.venv-vllm025cu129/bin/python notebooks/facct/_paradigm_kl.py      # about 10 min
-.venv-vllm025cu129/bin/python notebooks/facct/f11_paradigms.py --write
+.venv-vllm025cu129/bin/python research/notebooks/facct/_paradigm_kl.py      # about 10 min
+.venv-vllm025cu129/bin/python research/notebooks/facct/f11_paradigms.py --write
 ```
 
 To run R4 (1 shard is 250 traces of each cell, about 20 min on 1 B300):
 
 ```bash
-sbatch --array=0-3%1 --export=ALL,F4X_ARM=f11_pw_cues,F4X_CASE=f11pw,F4X_SHARDS=4 scripts/f4/extract.sbatch
+sbatch --array=0-3%1 --export=ALL,F4X_ARM=f11_pw_cues,F4X_CASE=f11pw,F4X_SHARDS=4 research/scripts/f4/extract.sbatch
 ```

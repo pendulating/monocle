@@ -1,6 +1,6 @@
 # The parks and plazas proxies, version 1.2.0
 
-`notebooks/cvpr/_proxies_parks.py`, `parks/parks_validation.py`,
+`research/notebooks/cvpr/_proxies_parks.py`, `parks/parks_validation.py`,
 `plazas/plazas_validation.py`. Exports: `*_proxy_v1.2.0.parquet`,
 `*_unit_correlations_v1.2.0.parquet`, `*_correlations_v1.2.0.parquet`,
 `*_provenance_v1.2.0.csv`.

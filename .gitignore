@@ -235,7 +235,7 @@ data/
 .slurm_jobs/
 .serena/
 .vault/
-notebooks/**/results/
+research/notebooks/**/results/
 
 # Model weights / checkpoints
 *.pt
@@ -258,14 +258,14 @@ vault/urban-visual-analytics
 # `papers/uair_brief` ARE submodules, thus name only the other 2 here. A git
 # add of a plain nested repository writes a gitlink that no clone can resolve.
 sub/jacobian-lens/
-papers/cvpr27_machine-perception-public-spaces/
+research/papers/cvpr27_machine-perception-public-spaces/
 artificial-aesthetic/
 # Reports that a notebook writes again. `think10k_reasoning_reports.zip` alone
 # holds 160 MB.
 *.zip
 # Map exports and data caches that a notebook writes again.
-notebooks/**/cache/
-notebooks/**/*_map.html
+research/notebooks/**/cache/
+research/notebooks/**/*_map.html
 
 # Trashbot annotator local toolchain (see tools/trashbot_annotator/setup_env.sh)
 # Ignore the vendored trees and build outputs. Keep patches/ and tests/
@@ -281,65 +281,74 @@ tools/trashbot_annotator/logs/
 tools/trashbot_annotator/core
 tools/trashbot_annotator/core.*
 
-# The phrase caches of notebooks/cvpr/_words_across.py. A phrase cache is
+# The phrase caches of research/notebooks/cvpr/_words_across.py. A phrase cache is
 # about 900 kB, against 30 kB for a word cache, and the word caches are tracked.
-notebooks/cvpr/.trace_cache/phrase_*.json
-# Data outputs that notebooks/ and scripts/ write. Git tracks the source
+research/notebooks/cvpr/.trace_cache/phrase_*.json
+# Data outputs that research/notebooks/ and scripts/ write. Git tracks the source
 # files there (.py, .sh, .sbatch, .sub, .ipynb, .md, .tex, .tsx).
 # Files that git already tracks stay tracked.
-notebooks/**/*.parquet
-notebooks/**/*.csv
-notebooks/**/*.png
-notebooks/**/*.pdf
-notebooks/**/*.json
-notebooks/**/*.jsonl
-notebooks/**/*.txt
-notebooks/**/*.html
-notebooks/**/*.out
-notebooks/**/*.err
-notebooks/**/*.bak
+research/notebooks/**/*.parquet
+research/notebooks/**/*.csv
+research/notebooks/**/*.png
+research/notebooks/**/*.pdf
+research/notebooks/**/*.json
+research/notebooks/**/*.jsonl
+research/notebooks/**/*.txt
+research/notebooks/**/*.html
+research/notebooks/**/*.out
+research/notebooks/**/*.err
+research/notebooks/**/*.bak
 scripts/**/*.parquet
+research/scripts/**/*.parquet
 scripts/**/*.csv
+research/scripts/**/*.csv
 scripts/**/*.png
+research/scripts/**/*.png
 scripts/**/*.pdf
+research/scripts/**/*.pdf
 scripts/**/*.json
+research/scripts/**/*.json
 scripts/**/*.jsonl
+research/scripts/**/*.jsonl
 scripts/**/*.txt
+research/scripts/**/*.txt
 scripts/**/*.out
+research/scripts/**/*.out
 scripts/**/*.err
+research/scripts/**/*.err
 # The canonical_data entries are symlinks to the merged runs, and the
 # manifest names them. Track them.
-!notebooks/cvpr/canonical_data/**
-notebooks/cvpr/canonical_data/**/*.bak
-# The word caches of notebooks/cvpr/_words_across.py are tracked. The phrase
+!research/notebooks/cvpr/canonical_data/**
+research/notebooks/cvpr/canonical_data/**/*.bak
+# The word caches of research/notebooks/cvpr/_words_across.py are tracked. The phrase
 # caches are not (see the rule above).
-!notebooks/cvpr/.trace_cache/*.json
-notebooks/cvpr/.trace_cache/phrase_*.json
-# Large figure data. Git tracks the small figure files in figures/.
-figures/**/*.npz
-figures/**/*.npy
-figures/**/*.parquet
-figures/**/*.pt
+!research/notebooks/cvpr/.trace_cache/*.json
+research/notebooks/cvpr/.trace_cache/phrase_*.json
+# Large figure data. Git tracks the small figure files in research/figures/.
+research/figures/**/*.npz
+research/figures/**/*.npy
+research/figures/**/*.parquet
+research/figures/**/*.pt
 # Figure files of 1 MB or more. The producer scripts write them again.
-figures/f10/mechanism/rank_cells.csv
-figures/f10/sets/sets_cells.csv
-figures/f10/steer_patches/patch_steer_matrix.pdf
-figures/f10/steer_patches/patch_steer_matrix.png
-figures/f10/compare/sets/sets_cells.csv
-figures/f10/borough/borough_sets.csv
-figures/f10/stage/stage_partial.csv
-figures/f10/steer_patches/teaser_rows.pdf
-figures/f10/compare/borough/borough_sets.csv
-figures/f10/steer_patches/teaser_rows.png
-figures/f10/compare/stage/stage_partial.csv
-figures/f10/reason/reason_sets.csv
-figures/f10/borough/borough_words.csv
-figures/f10/mechanism/severe_sheet_Brooklyn.png
-figures/f10/mechanism/severe_sheet_Manhattan.png
-figures/f10/mechanism/severe_sheet_Staten_Island.png
-figures/f10/mechanism/severe_sheet_Bronx.png
-figures/f10/mechanism/severe_sheet_Queens.png
-figures/f10/adjectives/q4_borough_top_words.csv
+research/figures/f10/mechanism/rank_cells.csv
+research/figures/f10/sets/sets_cells.csv
+research/figures/f10/steer_patches/patch_steer_matrix.pdf
+research/figures/f10/steer_patches/patch_steer_matrix.png
+research/figures/f10/compare/sets/sets_cells.csv
+research/figures/f10/borough/borough_sets.csv
+research/figures/f10/stage/stage_partial.csv
+research/figures/f10/steer_patches/teaser_rows.pdf
+research/figures/f10/compare/borough/borough_sets.csv
+research/figures/f10/steer_patches/teaser_rows.png
+research/figures/f10/compare/stage/stage_partial.csv
+research/figures/f10/reason/reason_sets.csv
+research/figures/f10/borough/borough_words.csv
+research/figures/f10/mechanism/severe_sheet_Brooklyn.png
+research/figures/f10/mechanism/severe_sheet_Manhattan.png
+research/figures/f10/mechanism/severe_sheet_Staten_Island.png
+research/figures/f10/mechanism/severe_sheet_Bronx.png
+research/figures/f10/mechanism/severe_sheet_Queens.png
+research/figures/f10/adjectives/q4_borough_top_words.csv
 .overlays/*
 flash-attention/*
 

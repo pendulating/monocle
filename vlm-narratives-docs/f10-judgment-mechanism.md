@@ -69,7 +69,7 @@ adds 0.12 to 0.18.
 **Result of the null:** The plan said that no unique margin information before the answer
 is a useful null. The null fails. The gain is small before `cool` and clear at `cool`.
 
-See `figures/f10/mechanism/mech_gain.png`.
+See `research/figures/f10/mechanism/mech_gain.png`.
 
 ### Patches at each depth (F10.9c)
 
@@ -149,7 +149,7 @@ verdict. An image can take the social sense and still get a "no".
 score is only a readable measure of it. The temperature end may also hold a low-signal
 image, with no street content for the social sense.
 
-See `figures/f10/mechanism/mech_sense.png`.
+See `research/figures/f10/mechanism/mech_sense.png`.
 
 ## Question 3: aesthetic properties (F10.14, F10.8)
 
@@ -231,7 +231,7 @@ leads (0.164), and comfort, edge, heritage and beauty follow (0.088 to 0.096). E
 mostly conditional, and it is a persona argument ("if you like urban grit"). Edge does
 not raise the margin.
 
-See `figures/f10/mechanism/mech_values.png`.
+See `research/figures/f10/mechanism/mech_values.png`.
 
 ### The 2 models take a different route
 
@@ -297,7 +297,7 @@ The value gives the sign of an object. Each cell gives the share of spans for co
 Thus repeats of 1 image agree on what they see more than on the standard that they use.
 Value and object each carry the sign, and together they give AUC 0.92.
 
-See `figures/f10/mechanism/mech_objects.png`.
+See `research/figures/f10/mechanism/mech_objects.png`.
 
 ### Reads and arguments (F10.12)
 
@@ -328,7 +328,7 @@ Named pairs also link. The table gives the largest r over all cells, Gemma then 
 **Limit:** The image holds both the read and the argument. A link shows shared content,
 not a cause.
 
-See `figures/f10/link/link_observation.png`.
+See `research/figures/f10/link/link_observation.png`.
 
 ## Boroughs (F10.10, F10.14, F10.15, F10.17)
 
@@ -392,7 +392,7 @@ Lists that hold in both halves include:
 | Gemma Brooklyn `?` L44 | bourgeois, gauche, hipster, arbitrage |
 | Qwen Brooklyn `cool` L20 to L24 | neighborhood, barrio, unemployment, landlords, homeless |
 
-See `figures/f10/mechanism/mech_borough.png` and `figures/f10/probe/probe_borough.png`.
+See `research/figures/f10/mechanism/mech_borough.png` and `research/figures/f10/probe/probe_borough.png`.
 
 ### Paper words on the sense axis (F10.18)
 
@@ -416,15 +416,15 @@ All 591 images are in New York City. Thus the `in New York` probe measures accur
 | Qwen3.6-27B | 0.888 | 0.948 | 0.918 | 0.901 | 0.870 | 0.708 |
 
 **Update (2026-11-02):** the Qwen3.6-27B row comes from a new probe run (F10.26, task 5). The script
-`scripts/f10/probe_place.py` makes this table for 3 models on the CPU, and it reproduces the rows of
+`research/scripts/f10/probe_place.py` makes this table for 3 models on the CPU, and it reproduces the rows of
 `hop_claim_axis.py` to 0.0. It also checks each probe run against the answer store of the same question
-(`figures/f10/probe/probe_check.csv`): r .986 to .998 for `cool` and `urban` in all 3 models.
+(`research/figures/f10/probe/probe_check.csv`): r .986 to .998 for `cool` and `urban` in all 3 models.
 
 ## Layers of each phase (F10.20)
 
-`scripts/f10/phase_layers.py` gives the bands of the prompt figure, panel (b). Each band
+`research/scripts/f10/phase_layers.py` gives the bands of the prompt figure, panel (b). Each band
 is the first unbroken run of saved layers that passes a fixed rule. The output is
-`figures/f10/mechanism/phase_layers.csv`.
+`research/figures/f10/mechanism/phase_layers.csv`.
 
 | Phase | Token | Rule | Gemma | Qwen |
 |-------|-------|------|-------|------|
@@ -459,7 +459,7 @@ embedded conception. It is not a reason to cut those words.
 
 ### Words by estimand (F10.21)
 
-`scripts/f10/plot_ranks.py` ranks each store word with an image and with no image. The
+`research/scripts/f10/plot_ranks.py` ranks each store word with an image and with no image. The
 table counts words of Gemma-4-31B in the top 100. `rank_cells.csv` holds all words.
 
 | Cell | Embedded (top 100 in both) | Raised by the image (no-image rank past 1,000) | Lowered (the reverse) |
@@ -481,12 +481,12 @@ strata, and the mean contrast C3 is an unbiased estimate of each borough mean.
 | Selection | C3 picks the top words of 54,000. The sample design does not remove this selection effect |
 | "No other borough" at `place` | Still wrong. Queens and Staten Island also show words in many languages |
 
-`scripts/f10/plot_borough_layers.py` draws the C3 lists of `cool`, with no split
+`research/scripts/f10/plot_borough_layers.py` draws the C3 lists of `cool`, with no split
 and no test.
 
 ## Three models (F10.19)
 
-`scripts/f10/hop_compare.py` compares Gemma-4-31B, Qwen3.5-9B and Qwen3.6-27B. Gemma-4-31B and
+`research/scripts/f10/hop_compare.py` compares Gemma-4-31B, Qwen3.5-9B and Qwen3.6-27B. Gemma-4-31B and
 Qwen3.6-27B are close in parameter size, and the 2 Qwen models are close in family. Value triples
 below give G-Q27, G-Q9, Q27-Q9.
 
@@ -542,8 +542,8 @@ Each array task of `hop_all.sbatch` is 1 worker. Many workers can fill 1 store.
 
 | Part | Rule |
 |------|------|
-| Priority worker | `sbatch --clusters=g3 --qos=nissenbaum --array=0-5%1 scripts/f10/hop_all.sbatch`. This QoS has 1 GPU |
-| Preemptible workers | `sbatch --clusters=g3 --qos=g3 --array=6-23 scripts/f10/hop_all.sbatch`. A requeue resumes |
+| Priority worker | `sbatch --clusters=g3 --qos=nissenbaum --array=0-5%1 research/scripts/f10/hop_all.sbatch`. This QoS has 1 GPU |
+| Preemptible workers | `sbatch --clusters=g3 --qos=g3 --array=6-23 research/scripts/f10/hop_all.sbatch`. A requeue resumes |
 | Claims | `claims/shard-*` holds the job id. A requeued job takes its claim again. A claim is free after 30 minutes |
 | Done | The answers file of a shard is the last write |
 
@@ -576,7 +576,7 @@ The non-answers are refusals, not a fault. The texts are `Subjective`, `Unable t
 | Lowest, middle, highest third of the `cool` margin | .39, .71, .40 |
 
 Borough against answer kind: chi-square p = 1e-07. A refusal is a third outcome: yes, no or unable
-(`scripts/f10/hop_outcomes.py`, `figures/f10/outcomes/`). Read the `nice` margin of Gemma-4-31B
+(`research/scripts/f10/hop_outcomes.py`, `research/figures/f10/outcomes/`). Read the `nice` margin of Gemma-4-31B
 only on the 296 yes or no images. On those images, r with the
 `cool` margin is .81.
 
@@ -595,8 +595,8 @@ not hold `Subject`, `Unable`, `No` or `Whether`, thus the readout cannot test th
 
 ## Models and adjectives together (F10.24)
 
-Two analyses read all 9 pairs. Code: `scripts/f10/hop_models.py`, `scripts/f10/hop_adjectives.py`.
-Tables: `figures/f10/models/`, `figures/f10/adjectives/`. Value triples give Gemma-4-31B,
+Two analyses read all 9 pairs. Code: `research/scripts/f10/hop_models.py`, `research/scripts/f10/hop_adjectives.py`.
+Tables: `research/figures/f10/models/`, `research/figures/f10/adjectives/`. Value triples give Gemma-4-31B,
 Qwen3.5-9B, Qwen3.6-27B unless a row says otherwise.
 
 ### What holds in all 3 models
@@ -692,9 +692,9 @@ F10.23, because the older items left the file. `F10_ADJ` and `F10_NOUN` run 1 pr
 
 ```bash
 EX=g3-compute-16,g3-compute-10,g3-compute-03,g3-compute-04,g3-compute-02
-sbatch --clusters=g3 --qos=nissenbaum --exclude=$EX --array=0-32%1 --job-name=f108p scripts/f10/hop_all.sbatch
-sbatch --clusters=g3 --qos=g3 --exclude=$EX --array=33-131%16 --job-name=f108w scripts/f10/hop_all.sbatch
-sbatch --clusters=g3 --qos=g3 --exclude=$EX --dependency=afterany:<p>:<w> --array=0-32%12 --job-name=f108l scripts/f10/hop_logit.sbatch
+sbatch --clusters=g3 --qos=nissenbaum --exclude=$EX --array=0-32%1 --job-name=f108p research/scripts/f10/hop_all.sbatch
+sbatch --clusters=g3 --qos=g3 --exclude=$EX --array=33-131%16 --job-name=f108w research/scripts/f10/hop_all.sbatch
+sbatch --clusters=g3 --qos=g3 --exclude=$EX --dependency=afterany:<p>:<w> --array=0-32%12 --job-name=f108l research/scripts/f10/hop_logit.sbatch
 ```
 
 `outputs/f10_check/check_14.py` checks the 33 read stores and the 33 answer stores.
@@ -737,7 +737,7 @@ take it. After the requeue, 4 of 21 tasks ran again in the first 10 minutes.
 ## 14 prompts: results (F10.26)
 
 This section reads the 42 stores of F10.25: 7 adjectives x 2 nouns x 3 models (2026-11-02).
-Code: `scripts/f10/hop_prompts.py`. Tables and figures: `figures/f10/prompts/`. Summaries:
+Code: `research/scripts/f10/hop_prompts.py`. Tables and figures: `research/figures/f10/prompts/`. Summaries:
 `data/f10/prompts/`. The plan is in `f10-14-prompt-analysis-plan.md`. A cell is 1 prompt in 1
 model, thus 42 cells. A result generalizes only when it holds in all 42 cells. Value triples give
 Gemma-4-31B, Qwen3.5-9B, Qwen3.6-27B. Mid depth is the saved layer nearest to relative depth .5:
@@ -991,7 +991,7 @@ are not advice to cut. See [The sample design and the borough lists](#the-sample
 
 | Step | Script | Method |
 |------|--------|--------|
-| F10.7 | `scripts/f10/hop_logit.py`, `analyze_logit.py` | Margin at each cell, held-out word lists |
+| F10.7 | `research/scripts/f10/hop_logit.py`, `analyze_logit.py` | Margin at each cell, held-out word lists |
 | F10.8 | `hop_sets.py` | Word sets against matched controls, on z-scored logits |
 | F10.9 | `hop_free.py`, `hop_scene.py`, `hop_patchdepth.py` | Ridge decoders, nested gain, second-order RSA |
 | F10.10 | `hop_borough.py` | Held-out borough lists, audit of paper claims |
@@ -1025,9 +1025,9 @@ liberal, because folds share training images.
 - The object list in F10.16 and the adjective list in F10.14 are hand lists.
 - Holm cell counts in the held-out borough test use 1 split. Only the stability values
   use 40 splits.
-- `figures/f10/free/free_gain.png` shows the gain over the 4 by 4 grid. Use
+- `research/figures/f10/free/free_gain.png` shows the gain over the 4 by 4 grid. Use
   `mech_gain.png`, which shows the gain over the mean patch.
-- Older heatmaps in `figures/f10/sets/` and `figures/f10/logit/` keep faint grid lines.
+- Older heatmaps in `research/figures/f10/sets/` and `research/figures/f10/logit/` keep faint grid lines.
   The code is fixed, and a rerun removes them.
 - NRC lexicon terms apply to the language set. We did not check them in detail.
 

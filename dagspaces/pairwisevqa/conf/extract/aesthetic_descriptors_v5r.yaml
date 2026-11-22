@@ -64,7 +64,7 @@
 #   llama-3.2-90b example moves to the 3rd place.
 # - The extractor wrote "-" for the non-breaking hyphen (U+2011) of the
 #   qwen3.8-27b texts, thus 11 spans did not align. The input
-#   (`scripts/f4/build_descriptor_input.py`) and the example texts now hold
+#   (`research/scripts/f4/build_descriptor_input.py`) and the example texts now hold
 #   "-". The length of each text does not change, thus the offsets stay valid.
 # - Rule 1: keep the quote marks inside a span ('"foodie" vibes') and the
 #   plural as written. Version 1 dropped both in about 6 spans.
@@ -104,7 +104,7 @@
 # (the caption-v3 lesson: the last example must not be the empty one).
 #
 # Every `extraction_text` appears in its own `text` word for word.
-# `scripts/f4/build_descriptor_examples.py` builds each span as a slice of
+# `research/scripts/f4/build_descriptor_examples.py` builds each span as a slice of
 # its text and prints the examples block. Change an example there.
 #
 # Warning: raise `schema_version` when you change the class, an attribute, a

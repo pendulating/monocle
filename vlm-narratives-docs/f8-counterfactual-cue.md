@@ -29,13 +29,13 @@ answers thus comes from the name.
 
 | Script | What it does |
 |--------|--------------|
-| `scripts/f8/build_cue_sample.py` | the 2 arms of each image: `data/f8/cue_{case}_{arm}.parquet`; the image list of the pool: `data/f8/images_all.parquet` |
-| `scripts/whatami/query.py --prompt-column prompt` | the generation; each row has its own prompt |
-| `scripts/f8/build_r3_items.py` | the items of the R3 readout (F4 canonical, F4 batch 2, cue); a cut answer is not an item |
-| `scripts/f8/r3_readout.py` | the R3 readout with the offline engine |
-| `scripts/f8/cue_job.sbatch` | phase A: the server, the 4 arm runs, then R3 on the F4 canonical and the cue answers; phase B: R3 on F4 batch 2 |
-| `scripts/f8/submit_all.sh` | phase A for the 4 models, then phase B |
-| `scripts/f8/analyze_cue.py` | the tests of the runbook; `figures/f8/cue/` |
+| `research/scripts/f8/build_cue_sample.py` | the 2 arms of each image: `data/f8/cue_{case}_{arm}.parquet`; the image list of the pool: `data/f8/images_all.parquet` |
+| `research/scripts/whatami/query.py --prompt-column prompt` | the generation; each row has its own prompt |
+| `research/scripts/f8/build_r3_items.py` | the items of the R3 readout (F4 canonical, F4 batch 2, cue); a cut answer is not an item |
+| `research/scripts/f8/r3_readout.py` | the R3 readout with the offline engine |
+| `research/scripts/f8/cue_job.sbatch` | phase A: the server, the 4 arm runs, then R3 on the F4 canonical and the cue answers; phase B: R3 on F4 batch 2 |
+| `research/scripts/f8/submit_all.sh` | phase A for the 4 models, then phase B |
+| `research/scripts/f8/analyze_cue.py` | the tests of the runbook; `research/figures/f8/cue/` |
 
 ### Why the R3 readout does not use the server
 
@@ -80,7 +80,7 @@ Bonferroni correction covers all 4 readouts (32 tests).
 | 103182 to 103185 | the 4 models, B | done |
 
 All jobs ran on 1 B300 (g3, QoS `nissenbaum`) between 04:10 and 11:05 UTC
-on 2026-10-29. `bash scripts/f8/finalize.sh` runs all the tests again.
+on 2026-10-29. `bash research/scripts/f8/finalize.sh` runs all the tests again.
 
 ## Results of F8.2: the cue
 
@@ -101,7 +101,7 @@ on 2026-10-29. `bash scripts/f8/finalize.sh` runs all the tests again.
 
 ### The primary tests (32, Bonferroni)
 
-`figures/f8/cue/cue_primary.csv`, `cue_primary.png`. The value is the mean
+`research/figures/f8/cue/cue_primary.csv`, `cue_primary.png`. The value is the mean
 of rich minus poor over the image pairs. **Bold**: Bonferroni p < 0.05.
 
 | Case, readout | gemma-4-12b | gemma-4-31b | qwen3.5-9b | qwen3.8-27b |
@@ -141,7 +141,7 @@ of rich minus poor over the image pairs. **Bold**: Bonferroni p < 0.05.
 
 ### The secondary tests (64, Bonferroni)
 
-`figures/f8/cue/cue_words.csv`, `cue_words.png`. 11 of 64 are significant.
+`research/figures/f8/cue/cue_words.csv`, `cue_words.png`. 11 of 64 are significant.
 
 | Model | Case, field | List | Rich arm | Poor arm |
 |-------|-------------|------|----------|----------|
@@ -191,7 +191,7 @@ and the model judges the image against it. The data do not test this.
 
 ### The NTA test (160 tests, Bonferroni)
 
-`figures/f8/cue/r3_nta_spearman.csv`. NTAs with 20 images or more (159
+`research/figures/f8/cue/r3_nta_spearman.csv`. NTAs with 20 images or more (159
 restaurant NTAs, 158 for qwen3.8-27b; 197 street NTAs). 71 of 160 tests are significant.
 
 | Case | `c_yes` | `c_cool` | `c_yes_i` | `c_cool_i` |
@@ -210,7 +210,7 @@ The NTA mean of `c_cool_i` against the NTA features, restaurants:
 
 ### Method B with the R3 readout as the outcome
 
-`figures/f8/method_b_r3/`. The F8.1 controls (restaurants: cuisine, DOHMH
+`research/figures/f8/method_b_r3/`. The F8.1 controls (restaurants: cuisine, DOHMH
 grade, borough; street: borough), errors clustered by NTA, Bonferroni over
 the 40 rows of each readout.
 

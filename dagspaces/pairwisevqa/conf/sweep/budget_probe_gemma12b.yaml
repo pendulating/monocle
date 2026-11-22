@@ -57,7 +57,7 @@
 # see the detail can still guess the same side. Read the traces of the winner
 # in thinking mode before you flip the battery.
 #
-# Warning: these runs are NOT canonical. `notebooks/cvpr/_provenance.py` drops
+# Warning: these runs are NOT canonical. `research/notebooks/cvpr/_provenance.py` drops
 # this sweep name.
 
 model:

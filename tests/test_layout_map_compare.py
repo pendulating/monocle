@@ -21,7 +21,7 @@ if str(REPO) not in sys.path:
 
 # `scripts/` is not a package, so load the module from its path.
 _spec = importlib.util.spec_from_file_location(
-    "layout_map_compare", REPO / "scripts/layout_map_compare.py")
+    "layout_map_compare", REPO / "research/scripts/layout_map_compare.py")
 lmc = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(lmc)
 
@@ -36,9 +36,9 @@ class TestMapDir(unittest.TestCase):
         This test is the only thing that holds the 2 together.
         """
         try:
-            from monocle.causal_maps import case_dir_for
+            from research.monocle.causal_maps import case_dir_for
         except Exception as exc:  # torch is absent on a CPU-only checkout
-            self.skipTest(f"monocle.causal_maps did not import: {exc}")
+            self.skipTest(f"research.monocle.causal_maps did not import: {exc}")
         root = Path("/r")
         for case in ("subway_safety", "libraries"):
             for arm, (layout, kind) in lmc.ARMS.items():

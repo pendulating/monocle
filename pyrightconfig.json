@@ -3,10 +3,8 @@
     "dagspaces",
     "scripts",
     "tests",
-    "monocle",
+    "research",
     "tools",
-    "utils",
-    "notebooks",
     "viz"
   ],
   "exclude": [

@@ -1,4 +1,4 @@
-"""Unit tests for the camera-face module, `notebooks/cvpr/_faces.py`.
+"""Unit tests for the camera-face module, `research/notebooks/cvpr/_faces.py`.
 
 These tests build a small frame by hand. They read no parquet and need no GPU.
 They cover the places where a quiet error changes a number in the paper:
@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 import _faces as FX  # noqa: E402
 
@@ -299,7 +299,7 @@ def test_the_ordinal_map_matches_provenance():
 def test_the_face_bearings_match_the_street_graph():
     repo = Path(__file__).resolve().parent.parent
     sys.path.insert(0, str(repo))
-    from dagspaces.urbanroamvqa.graph.street_graph import FACE_BEARING_DEG
+    from research.dagspaces.urbanroamvqa.graph.street_graph import FACE_BEARING_DEG
 
     assert FX.FACE_BEARING_DEG == FACE_BEARING_DEG
 

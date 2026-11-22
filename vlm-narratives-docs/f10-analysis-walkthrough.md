@@ -63,7 +63,7 @@ The full tables are in the section "Models and adjectives together (F10.24)" of 
 
 ## What F10.26 changes
 
-F10.26 reads 14 prompts (7 adjectives x 2 nouns) in the 3 models, 42 cells. A result generalizes only when it holds in all 42 cells. Tables: `figures/f10/prompts/`.
+F10.26 reads 14 prompts (7 adjectives x 2 nouns) in the 3 models, 42 cells. A result generalizes only when it holds in all 42 cells. Tables: `research/figures/f10/prompts/`.
 
 | Claim | Effect of 14 prompts |
 |---|---|

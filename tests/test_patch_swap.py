@@ -1,10 +1,10 @@
-"""The residual-stream swap. See monocle/patch_swap.py."""
+"""The residual-stream swap. See research/monocle/patch_swap.py."""
 import numpy as np
 import pandas as pd
 import pytest
 import torch
 
-from monocle import patch_swap as ps
+from research.monocle import patch_swap as ps
 
 
 class TestPatcher:

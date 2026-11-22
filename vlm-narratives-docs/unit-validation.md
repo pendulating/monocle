@@ -1,7 +1,7 @@
 # Validation by proxy at the unit layer
 
-`notebooks/cvpr/_unit_validation.py`, section 1b of
-`notebooks/cvpr/master/results_table.py`.
+`research/notebooks/cvpr/_unit_validation.py`, section 1b of
+`research/notebooks/cvpr/master/results_table.py`.
 
 ## Why the unit layer is the headline
 
@@ -219,7 +219,7 @@ raters takes about 2.5 minutes.
 
 ## The outputs
 
-`export()` writes to `notebooks/cvpr/master/outputs/`:
+`export()` writes to `research/notebooks/cvpr/master/outputs/`:
 
 | File | Holds |
 |------|-------|

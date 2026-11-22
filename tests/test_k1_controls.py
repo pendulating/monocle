@@ -13,12 +13,12 @@ import pytest
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "scripts"))
+sys.path.insert(0, str(REPO / "research" / "scripts"))
 
 
 def load(name: str):
     spec = importlib.util.spec_from_file_location(
-        name, REPO / "scripts" / f"{name}.py")
+        name, REPO / "research" / "scripts" / f"{name}.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod

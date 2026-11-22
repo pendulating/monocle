@@ -14,7 +14,7 @@ show why. Do not use a rate on this page as evidence of bias by itself.
 | Model | gemma-4-31b, HF transformers 5.13, bf16, `Gemma4ForConditionalGeneration`, 60 blocks |
 | Weights | `/share/ju/matt/zoo/models/Gemma-4-31B-it` (a `/scratch` copy in the job) |
 | Answers | the stored F4 restaurant answers, `data/f4_traces/pooled/f4_traces_1k.parquet`, `model == 'gemma-4-31b'`, `case == 'restaurant'`, not cut |
-| Lens | the plain logit lens: final norm, then the LM head, then the final logit softcap (30.0); the `logit` lens of `scripts/whatami/lens_replay.py` |
+| Lens | the plain logit lens: final norm, then the LM head, then the final logit softcap (30.0); the `logit` lens of `research/scripts/whatami/lens_replay.py` |
 | Layers | all 60 block outputs (the storage was small, thus no subset) |
 | Positions | each position that predicts a completion token: the reasoning, the response and the 5 delimiters |
 | Stored | for each (answer, position, layer): the top 5 token ids and log-probs, the rank and log-prob of the written token; for each position: the field |
@@ -190,23 +190,23 @@ positions.
 
 | Path | Content |
 |------|---------|
-| `scripts/f8/lens_replay_f4.py` | the selection and the replay |
-| `scripts/f8/lens_job.sbatch` | the GPU job (the environment block of `scripts/whatami/lens_job.sbatch`) |
-| `scripts/f8/lens_figure.py` | the rates, the CSV files and the figures |
+| `research/scripts/f8/lens_replay_f4.py` | the selection and the replay |
+| `research/scripts/f8/lens_job.sbatch` | the GPU job (the environment block of `research/scripts/whatami/lens_job.sbatch`) |
+| `research/scripts/f8/lens_figure.py` | the rates, the CSV files and the figures |
 | `multirun/f8/lens/selection.parquet` | the 200 images |
 | `multirun/f8/lens/smoke/`, `multirun/f8/lens/figure/` | the replay (`part-*.parquet`), `answers.parquet` (the checks for each answer), `run_config.json`; the figure run is 300 MB |
-| `figures/f8/lens/lens_rates.png` | the figure, 1-token forms |
-| `figures/f8/lens/lens_rates_first.png` | the figure with the first tokens of the 9 multi-token words |
-| `figures/f8/lens/lens_rates.csv` | all the measures for each layer; lists `upscale+first` etc. and `city:<name>` are also in it |
-| `figures/f8/lens/lens_bands.csv` | the rates for each band, with the bootstrap intervals |
-| `figures/f8/lens/lens_top1_bands.csv` | the 20 most frequent top 1 tokens in each band, for each group |
-| `figures/f8/lens/list_tokens.csv` | the tokens of each list |
-| `figures/f8/lens/said_answers.csv` | the share of answers that say a list word (whole word, F8.2 match) |
-| `figures/f8/lens/smoke/` | the same outputs for the 20 smoke answers (a test of the tool) |
+| `research/figures/f8/lens/lens_rates.png` | the figure, 1-token forms |
+| `research/figures/f8/lens/lens_rates_first.png` | the figure with the first tokens of the 9 multi-token words |
+| `research/figures/f8/lens/lens_rates.csv` | all the measures for each layer; lists `upscale+first` etc. and `city:<name>` are also in it |
+| `research/figures/f8/lens/lens_bands.csv` | the rates for each band, with the bootstrap intervals |
+| `research/figures/f8/lens/lens_top1_bands.csv` | the 20 most frequent top 1 tokens in each band, for each group |
+| `research/figures/f8/lens/list_tokens.csv` | the tokens of each list |
+| `research/figures/f8/lens/said_answers.csv` | the share of answers that say a list word (whole word, F8.2 match) |
+| `research/figures/f8/lens/smoke/` | the same outputs for the 20 smoke answers (a test of the tool) |
 
 To run again:
 
 ```bash
-sbatch --export=ALL,F8_ARGS="--run figure" scripts/f8/lens_job.sbatch
-.venv-mllmsci-vllm025cu129/bin/python scripts/f8/lens_figure.py --run figure
+sbatch --export=ALL,F8_ARGS="--run figure" research/scripts/f8/lens_job.sbatch
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/f8/lens_figure.py --run figure
 ```

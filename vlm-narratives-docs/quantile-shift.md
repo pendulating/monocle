@@ -1,7 +1,7 @@
 # The quantile shift of a prompt arm
 
-`notebooks/cvpr/_quantile_shift.py`, section 3 of
-`notebooks/cvpr/master/ablations.py`.
+`research/notebooks/cvpr/_quantile_shift.py`, section 3 of
+`research/notebooks/cvpr/master/ablations.py`.
 
 ## Why a mean cannot read this arm
 
@@ -124,10 +124,10 @@ the spread even when the ranking does not change. See
 ## Run it
 
 ```bash
-uv run marimo edit notebooks/cvpr/master/ablations.py
+uv run marimo edit research/notebooks/cvpr/master/ablations.py
 # or, from a command
-python scripts/export_cvpr_ablations.py
+python research/scripts/export_cvpr_ablations.py
 ```
 
 Section 3 builds the table, the skipped list, and the 2 figures. The export
-button writes them under `notebooks/cvpr/master/outputs/`.
+button writes them under `research/notebooks/cvpr/master/outputs/`.

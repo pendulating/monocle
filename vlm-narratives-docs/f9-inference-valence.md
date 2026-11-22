@@ -11,8 +11,8 @@ needs a valence, thus a second pass labels these spans.
 
 ## The pass
 
-`scripts/f9/label_inference_valence.py` 1.0.0, with
-`scripts/f9/label_inference_valence.sbatch`.
+`research/scripts/f9/label_inference_valence.py` 1.0.0, with
+`research/scripts/f9/label_inference_valence.sbatch`.
 
 | Item | Value |
 |------|-------|
@@ -73,7 +73,7 @@ dining experience" is `neutral`. No human annotation exists for this pass.
 
 ## `trace_ses`
 
-`notebooks/facct/_trace_ses.py` 1.2.1. It uses the 6 F4 models and 2 layers
+`research/notebooks/facct/_trace_ses.py` 1.2.1. It uses the 6 F4 models and 2 layers
 (NTA, community district), with the test of `facct-pairwise-ses.md`. The rows,
 top to bottom: net valence, social net valence, location inference,
 uncertainty in view. Bonferroni counts 480 tests.
@@ -121,13 +121,13 @@ the street panel of this row as a null result, because it has low power.
 
 | File | Content |
 |------|---------|
-| `notebooks/facct/figures/trace_ses/trace_ses.png`, `.pdf`, `.json` | the figure and its sidecar |
-| `notebooks/facct/figures/trace_ses/trace_ses_cells.csv` | 600 cells, with the 120 cells of `uncertainty_all` |
+| `research/notebooks/facct/figures/trace_ses/trace_ses.png`, `.pdf`, `.json` | the figure and its sidecar |
+| `research/notebooks/facct/figures/trace_ses/trace_ses_cells.csv` | 600 cells, with the 120 cells of `uncertainty_all` |
 
 ## The F9 win blocks (D147)
 
-`scripts/f9/export_valence_blocks.py` 1.4.0 writes the blocks to
-`notebooks/facct/figures/f9_blocks/`. The cue is a term (a word, or 2 adjacent
+`research/scripts/f9/export_valence_blocks.py` 1.4.0 writes the blocks to
+`research/notebooks/facct/figures/f9_blocks/`. The cue is a term (a word, or 2 adjacent
 content words). The colour is the net valence of the spans with the term. Each
 text gives 1 vote.
 

@@ -15,15 +15,15 @@ database. The page shows a saved run when no inference host serves the model.
 | Source, pinned at `e2573d3` | `/scratch/$USER/neuronpedia/src` | Node-local. |
 | Postgres 16 with pgvector | `/scratch/$USER/neuronpedia/pgdata` | From the wheel `pgserver`. Port 55432, 127.0.0.1 only. |
 | Webapp | port 3001, 127.0.0.1 only | `next dev`. Telemetry off. Vercel analytics off by default. |
-| Gate | port 3000, all interfaces | `scripts/f10/neuronpedia_gate.py`. Accepts `unicorn-login-04` (128.84.96.23) and 127.0.0.1 only. |
-| Runs | `data/f10/hop_all/viewer/` | From `scripts/f10/hop_viewer.py`. |
+| Gate | port 3000, all interfaces | `research/scripts/f10/neuronpedia_gate.py`. Accepts `unicorn-login-04` (128.84.96.23) and 127.0.0.1 only. |
+| Runs | `data/f10/hop_all/viewer/` | From `research/scripts/f10/hop_viewer.py`. |
 
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
-| `sbatch scripts/f10/hop_viewer.sbatch` | Write the runs from the store. About 1,200 files, CPU only. |
-| `bash scripts/f10/neuronpedia_up.sh` | Install if necessary, load the runs, start the server on this node. |
+| `sbatch research/scripts/f10/hop_viewer.sbatch` | Write the runs from the store. About 1,200 files, CPU only. |
+| `bash research/scripts/f10/neuronpedia_up.sh` | Install if necessary, load the runs, start the server on this node. |
 | `pytest tests/test_hop_viewer.py -v` | Test the export. |
 
 To open the viewer from a laptop, forward the port through the login node:
@@ -91,4 +91,4 @@ a new export, run `neuronpedia_up.sh`, and do not copy the files only.
 - The labels of the `LOGIT_LENS` column now say `Contrast`.
 - `.env.localhost` uses port 55432 and lists our 3 models (`gemma-4-31b`, `qwen3.5-9b`, `qwen3.6-27b`) as J++ models. Qwen3.6-27B joined on 2026-11-02; see [neuronpedia-public-release.md](neuronpedia-public-release.md).
 
-A static copy of the share pages, for reviewers, comes from `scripts/f10/share_static/`. See [neuronpedia-public-release.md](neuronpedia-public-release.md), section 8.
+A static copy of the share pages, for reviewers, comes from `research/scripts/f10/share_static/`. See [neuronpedia-public-release.md](neuronpedia-public-release.md), section 8.

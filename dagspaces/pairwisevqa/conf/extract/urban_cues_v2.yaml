@@ -26,7 +26,7 @@
 # reaches every output row, and 2 versions must never pool.
 #
 # Warning: keep `attribute_values` in step with `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
+# `research/notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
 # that the 2 agree.
 #
 # See `vlm-narratives-docs/langextract-trace-extraction.md`.

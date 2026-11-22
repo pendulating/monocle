@@ -52,8 +52,8 @@ answers are useful.
 |---|---|
 | prompt | `dagspaces/vqa/conf/prompt/rating_3point.yaml` |
 | pipeline | `dagspaces/vqa/conf/pipeline/vqa_cyclomedia_rating.yaml` |
-| lens module | `monocle/single.py` |
-| label rule | `monocle/labels.py` |
+| lens module | `research/monocle/single.py` |
+| label rule | `research/monocle/labels.py` |
 | forced answer prefix | `{\n  "answer": "` — the same as the pairwise path |
 | layout | the image first, then the question |
 
@@ -64,7 +64,7 @@ between the run and the lens.
 ## The labels
 
 The lens reads one position. Thus a label must be 1 token, and 2 labels must
-not share a token. `monocle/labels.py` holds the rule and raises when a label
+not share a token. `research/monocle/labels.py` holds the rule and raises when a label
 breaks it. A broken label fails silently: the readout returns the logit of a
 shared prefix, which carries no judgment.
 
@@ -116,10 +116,10 @@ the sample.
 pytest tests/test_single.py tests/test_labels.py -v
 
 # Check a new label set BEFORE you use it.
-python -m monocle.labels Safe Neutral Dangerous
+python -m research.monocle.labels Safe Neutral Dangerous
 
 # Prove the path end to end on the GPU.
-sbatch monocle/monocle.sub monocle.single --case subway_safety --n-images 6
+sbatch research/monocle/monocle.sub monocle.single --case subway_safety --n-images 6
 
 # The production run.
 python -m dagspaces.vqa.cli -m pipeline=vqa_cyclomedia_rating \

@@ -40,7 +40,7 @@ carry no vintage in any NYC source, thus they drop out.
 | Path | Content |
 |------|---------|
 | `data/geo/nyc_buildings.parquet` | 1,082,872 footprints, pulled 2026-04-12 |
-| `notebooks/cvpr/.proxy_cache/building_year_by_bin.parquet` | the slim BIN-to-year table |
+| `research/notebooks/cvpr/.proxy_cache/building_year_by_bin.parquet` | the slim BIN-to-year table |
 
 Get the footprints again with `python data/geo/download_nyc_buildings.py`. The
 source writes `0` for an unknown year, and `_proxies` drops it: a 0 that
@@ -49,7 +49,7 @@ times, and the module keeps the largest.
 
 ## The code
 
-`notebooks/cvpr/_proxies.py`, the vintage section:
+`research/notebooks/cvpr/_proxies.py`, the vintage section:
 
 | Function | Purpose |
 |----------|---------|
@@ -61,14 +61,14 @@ times, and the module keeps the largest.
 | `vintage_coverage(facilities, vintage)` | The hit rate for each facility type |
 
 Each case notebook adds its vintage rows to `proxy_agg`, and
-`scripts/export_cvpr_results_table.py` puts them in the table. Run the 4 case
+`research/scripts/export_cvpr_results_table.py` puts them in the table. Run the 4 case
 notebooks before the export script, or gate 2 stops it.
 
 ```bash
 for nb in libraries schools parks plazas; do
-  .venv-nightly/bin/python notebooks/cvpr/$nb/${nb}_validation.py
+  .venv-nightly/bin/python research/notebooks/cvpr/$nb/${nb}_validation.py
 done
-.venv-mllmsci-vllm025cu129/bin/python scripts/export_cvpr_results_table.py
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/export_cvpr_results_table.py
 ```
 
 ## What the first run found

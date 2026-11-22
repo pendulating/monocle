@@ -45,19 +45,19 @@ x2 spans of record (`data/f4_traces/x2/`) do not enter the F9 test.
 
 | Item | Value |
 |------|-------|
-| Extractor | DeepSeek-V4-Flash with langextract, on 1 B300 for each job (`scripts/f4/x2_queue.sbatch`) |
+| Extractor | DeepSeek-V4-Flash with langextract, on 1 B300 for each job (`research/scripts/f4/x2_queue.sbatch`) |
 | Arms | `x2_cues_subj`, `x2_cues_street_subj`; retry arms `x2r_cues_subj`, `x2r_cues_street_subj` |
 | W&B | `F9X2_CUES_SUBJ`, `F9X2_CUES_STREET_SUBJ`, and the `_RETRY` experiments |
 | Inputs | F9: `extract_input/f4_{restaurant,street}_subj_x2.parquet` (100,000 texts each). F4: `f4_{case}_x2.parquet` and `f4_{case}_b2x2.parquet` |
 | Smoke | job 105550: PASS for both arms (`f9-extraction-design.md`, section 6.4) |
 | Pass 1 | 80 steps in 12 parts, jobs 105565 to 105576 (`logs/f4/f9x2_pass1_jobs.txt`) |
-| Pass 2 | `scripts/f4/plans/subj_pass2.txt`: flag the copy suspects, retry them, merge to `data/f4_traces/subj/x2/` |
+| Pass 2 | `research/scripts/f4/plans/subj_pass2.txt`: flag the copy suspects, retry them, merge to `data/f4_traces/subj/x2/` |
 | Empty response | qwen3.8-27b restaurant 8826: the response text is the draft from its trace (`response_from_trace`, D142 Q5) |
 
 ### 2.1 The verdict of 1 text
 
 The analysis gives 1 label to each text from its quotable `verdict` spans
-in text order (`text_verdict` in `scripts/f9/analyze_subjective.py`):
+in text order (`text_verdict` in `research/scripts/f9/analyze_subjective.py`):
 
 | Spans | Label |
 |-------|-------|
@@ -76,8 +76,8 @@ verdict is a description only; the test does not use it.
 
 | Script | Output |
 |--------|--------|
-| `scripts/f9/analyze_subjective.py` | `figures/f9/`: `h9_primary.csv`, `h9_reasoning.csv`, `verdict_fits.csv`, `span_mix.csv`, `verdict_shares.csv`, `verdict_agreement.csv`, `nta_spearman.csv`, `verdict_by_nta.csv`, `verdict_nta_spearman.csv`, `coverage.csv`, `entered.csv`, `meta.json`, `pairs.parquet`, `text_verdicts.parquet`; figures `f9_gradients`, `f9_verdicts`, `f9_span_mix` (PDF, PNG, caption JSON) |
-| `scripts/f9/compare_f4_schema.py` | `figures/f9/f4_schema_compare.json` (section 6.2 of the design) |
+| `research/scripts/f9/analyze_subjective.py` | `research/figures/f9/`: `h9_primary.csv`, `h9_reasoning.csv`, `verdict_fits.csv`, `span_mix.csv`, `verdict_shares.csv`, `verdict_agreement.csv`, `nta_spearman.csv`, `verdict_by_nta.csv`, `verdict_nta_spearman.csv`, `coverage.csv`, `entered.csv`, `meta.json`, `pairs.parquet`, `text_verdicts.parquet`; figures `f9_gradients`, `f9_verdicts`, `f9_span_mix` (PDF, PNG, caption JSON) |
+| `research/scripts/f9/compare_f4_schema.py` | `research/figures/f9/f4_schema_compare.json` (section 6.2 of the design) |
 
 ## 4. Results (2026-10-30)
 
@@ -259,16 +259,16 @@ counts rise. In both cases the F9 spans carry a valence far more often
 
 ## 5. The accuracy of the extraction
 
-Notebook `notebooks/facct/f9_extraction_accuracy.py`, helper
-`notebooks/facct/_xacc.py` (1.0.0). `python notebooks/facct/_xacc.py build`
-(about 2.5 minutes, 8 GB) writes the tables to `figures/f9/xacc/` and draws
+Notebook `research/notebooks/facct/f9_extraction_accuracy.py`, helper
+`research/notebooks/facct/_xacc.py` (1.0.0). `python research/notebooks/facct/_xacc.py build`
+(about 2.5 minutes, 8 GB) writes the tables to `research/figures/f9/xacc/` and draws
 the label samples into `data/f9_xacc/` (seed 20261030; `--redraw` draws
 them again).
 
 | Level | Source | Status (2026-10-30) |
 |-------|--------|---------------------|
 | 1. Grounding | the aligner, every span | done: 89.5% to 99.8% of the spans of each class are verbatim; 98.6% or more are quotable |
-| 1b. Verbatim precision and recall | `python notebooks/facct/_xacc.py verbatim` writes `verbatim_summary.csv` (1.1.0, 2026-11-02) | done: precision (the share of the spans that are verbatim) 96.3% over 6,637,869 spans, 94.4% to 98.1% by (case, prompt, field); recall at the text level (texts with 1 or more verbatim span) 99.5% over 399,657 texts, lowest cell 96.4% (street, F9, reasoning); the weakest class is `photo_advice` at 93.7%. The paper reads these as `\stat{xacc.*}` through `results/facct/f9_xacc_verbatim.csv` |
+| 1b. Verbatim precision and recall | `python research/notebooks/facct/_xacc.py verbatim` writes `verbatim_summary.csv` (1.1.0, 2026-11-02) | done: precision (the share of the spans that are verbatim) 96.3% over 6,637,869 spans, 94.4% to 98.1% by (case, prompt, field); recall at the text level (texts with 1 or more verbatim span) 99.5% over 399,657 texts, lowest cell 96.4% (street, F9, reasoning); the weakest class is `photo_advice` at 93.7%. The paper reads these as `\stat{xacc.*}` through `results/facct/f9_xacc_verbatim.csv` |
 | Coverage | the spans against the text lengths | done: the spans cover 29% to 56% of a reasoning trace and 64% to 92% of a response; the span density in the last tenth of a long trace is 47% to 72% of its peak |
 | Performance | the logs and `sacct` | done: 428,987 prompts, 31.8 GPU hours in `generate`, 3.7 prompts per second on 1 B300, 19 preemptions |
 | 2. Class precision | a person labels 30 random spans of each of 34 strata (case x prompt x class, `visual_evidence` by valence) | the sheet is drawn (`data/f9_xacc/precision_sheet.csv`); no label yet |

@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import transfer_k1 as tk  # noqa: E402
+from research.monocle import transfer_k1 as tk  # noqa: E402
 
 
 def write_maps(tmp_path: Path, with_layers: bool) -> Path:

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/f10"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from hop_all import claim  # noqa: E402
 from hop_logit import js_divergence, kl_divergence, pooled_margin, softcap  # noqa: E402
 

@@ -12,7 +12,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import attn_route as ar  # noqa: E402
+from research.monocle import attn_route as ar  # noqa: E402
 
 
 class TestGroups:

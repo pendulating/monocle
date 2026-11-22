@@ -25,7 +25,7 @@ Sections 2 to 6 hold the facts and the post-acceptance plan.
 | The patch top words | `data/f10/hop_all/{model}/patches/ids-*.npy` | about 530 MB for each model | Optional |
 | The patch residuals | `data/f10/hop_all/{model}/patches/*.npy` | 47 GB for each model | Do not publish. Give them on request |
 | The lenses | `outputs/_monocle/jlens/jpp/{model}/lens.pt` | 6.8 GB (Gemma-4-31B) and 2.1 GB (Qwen3.5-9B) | Neuronpedia's public J++ lenses. Do not host them again. Cite the Hugging Face file and give the sha256 |
-| The code | `scripts/f10/` (78 files), `monocle/jlens_read.py`, `tests/test_hop_*.py` | code | |
+| The code | `research/scripts/f10/` (78 files), `research/monocle/jlens_read.py`, `tests/test_hop_*.py` | code | |
 
 A viewer run is small and the store parts behind it are small. The patch
 residuals are the only large part, and the viewer does not show them.
@@ -95,7 +95,7 @@ One public repository, for example `urban-aesthetics-lens`. It holds:
 | `neuronpedia/` | A git submodule at `e2573d3`, plus `patches/*.patch` for the 2 local changes (the column label "Contrast"; the 2 model ids). No fork of the full history is necessary |
 | `viewer/` | `docker-compose.yml` with Postgres 16 + pgvector and the webapp; `load_shares.py` (from `neuronpedia_load.py`); a `Makefile` with `make up` that seeds the rows and starts the viewer with no inference host |
 | `export/` | `hop_viewer.py`, `hop_store.py` and `tests/test_hop_viewer.py`, so that a reader can make the runs again from the store parts |
-| `read/` | `hop_all.py`, `hop_depth.py` and `monocle/jlens_read.py`, so that a reader with a GPU can make the store parts again from the model and the lens |
+| `read/` | `hop_all.py`, `hop_depth.py` and `research/monocle/jlens_read.py`, so that a reader with a GPU can make the store parts again from the model and the lens |
 | `analysis/` | The scripts of F10.7 to F10.24 that write the numbers of the paper, and the paperkit numbers file |
 | `MANIFEST.json` | sha256 of every data file, the model ids and revisions, the lens file names on Hugging Face and their sha256, the prompt, the layers, the dtype, the seed, and the command that wrote each file |
 | `verify.py` | Downloads the Zenodo record, checks every sha256, makes the runs again from the store parts, and compares them with the published runs byte for byte |
@@ -267,7 +267,7 @@ argument, so the check works during review and after.
 The viewer export is clean. A grep for our logins, names, institution,
 cluster paths and host names over the 1,797 run files, `shares.json` and
 `index.html` found only the vocabulary word "unicorn" in the lens readouts.
-The store manifests are clean. The 4 scripts of `scripts/f10/` that hold
+The store manifests are clean. The 4 scripts of `research/scripts/f10/` that hold
 `/share/ju/matt/zoo/models/...` paths must point at the Hugging Face model ids
 in the release. The release archive must also omit `neuronpedia_gate.py`, the
 SLURM scripts, `server.env`, and the git history. Run the same grep over the
@@ -293,7 +293,7 @@ GitHub repository public. The paper cites the DOI.
 ## 8. The static share site (built 2026-11-02)
 
 The user asked for share pages of the readouts that the paper reports, with the Neuronpedia
-interface, for a few reviewers. `scripts/f10/share_static/` builds them.
+interface, for a few reviewers. `research/scripts/f10/share_static/` builds them.
 
 | File | Purpose |
 |------|---------|
@@ -327,11 +327,11 @@ does not work. Steer, Swap, Send and "Load Oracle Lens" (Qwen3.6-27B) show "unav
 **To add runs.** `--all` builds every run of the viewer folder (1,797 pages, about 780 MB).
 
 ```
-python scripts/f10/share_static/share_static.py            # the zip
-python scripts/f10/share_static/share_static.py --base-path /artificial-aesthetic \
+python research/scripts/f10/share_static/share_static.py            # the zip
+python research/scripts/f10/share_static/share_static.py --base-path /artificial-aesthetic \
   --dest artificial-aesthetic/site/jlens-share --no-zip    # the GitHub Pages copy
 PLAYWRIGHT_BROWSERS_PATH=/scratch/$USER/neuronpedia-static/pw-browsers \
-  /scratch/$USER/neuronpedia-static/pwvenv/bin/python scripts/f10/share_static/check_static.py
+  /scratch/$USER/neuronpedia-static/pwvenv/bin/python research/scripts/f10/share_static/check_static.py
 ```
 
 ## 9. The GitHub Pages hookup (2026-11-03)
@@ -345,7 +345,7 @@ The site is live at `https://mfranchi.net/artificial-aesthetic/`. The live check
 | The site folder | `artificial-aesthetic/site/jlens-share/` (127 files, 21 MB in git) | The static export, built for the path `/artificial-aesthetic`. A `.nojekyll` file is in it. Do not edit it |
 | The workflow | `artificial-aesthetic/.github/workflows/pages.yml` | On a push to `main` that touches the folder, it checks the sha256 of each run file against `MANIFEST.json`, then uploads the folder with `actions/upload-pages-artifact` and deploys it with `actions/deploy-pages`. It does not build |
 | The Pages setting | Repository settings, Pages | Source "GitHub Actions" (set with the API on 2026-11-03). HTTPS enforced |
-| The build command | mllmsci | `python scripts/f10/share_static/share_static.py --base-path /artificial-aesthetic --dest artificial-aesthetic/site/jlens-share --no-zip` |
+| The build command | mllmsci | `python research/scripts/f10/share_static/share_static.py --base-path /artificial-aesthetic --dest artificial-aesthetic/site/jlens-share --no-zip` |
 
 **The base path.** A project site serves under `/<repository>/`, so the build takes
 `--base-path`. The flag sets `basePath` and `assetPrefix` in `next.config.js`, prefixes the run

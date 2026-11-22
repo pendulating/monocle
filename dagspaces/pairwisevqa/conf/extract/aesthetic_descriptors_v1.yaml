@@ -36,7 +36,7 @@
 # (the caption-v3 lesson: the last example must not be the empty one).
 #
 # Every `extraction_text` appears in its own `text` word for word.
-# `scripts/f4/build_descriptor_examples.py` builds each span as a slice of
+# `research/scripts/f4/build_descriptor_examples.py` builds each span as a slice of
 # its text and prints the examples block. Change an example there.
 #
 # Warning: raise `schema_version` when you change the class, an attribute, a

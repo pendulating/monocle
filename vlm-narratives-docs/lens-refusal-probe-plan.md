@@ -56,7 +56,7 @@ prompt template asks for it.
 
 ## Step 0: the tokenizer (done)
 
-`monocle/token_check.py` prints the 4 surface forms of a word under the
+`research/monocle/token_check.py` prints the 4 surface forms of a word under the
 scorer's own call. The scorer reads the bare form, because the label follows
 a quote in the JSON answer. Many target concepts are one token only with a
 leading space.
@@ -102,7 +102,7 @@ Three fits, in parallel on klara, then 1 gate:
 | B | the reference scale | WikiText, the paper's recipe | 1,000 | 8 (6..46) | about 8 current fits; the smoke run measures it |
 | C | the estimand of the question readout | 128 Cyclomedia images, sources = the text positions after the image, under the single-image prompt | 128 | 47 | the `mm_all47` fit again, 16 GPU-hours in 16 shards, 1 hour of wall time; needs a source-position option in `jlens_fit_mm.py` |
 
-The gate is the 0.8 threshold of `monocle/judgment_trace.py`, at the
+The gate is the 0.8 threshold of `research/monocle/judgment_trace.py`, at the
 question positions, on held-out images that no fit saw.
 
 | Result | Interpretation | Consequence |
@@ -111,7 +111,7 @@ question positions, on held-out images that no fit saw.
 | The 2 halves of A disagree as much as the cross-corpus pair | scale | Use B. Refit C at the same scale before the token readout. |
 | C agrees with B above the threshold at the question positions | both lenses decode the model | The question-token readout is valid, and it gives the words that activation patching cannot. |
 
-The smoke run: `sbatch monocle/monocle.sub monocle.jlens_fit --smoke
+The smoke run: `sbatch research/monocle/monocle.sub monocle.jlens_fit --smoke
 --n-prompts 1000`. It times 1 prompt at each `dim_batch` and prints the
 estimate for 1,000 prompts. The 1k corpus is on disk.
 
@@ -125,8 +125,8 @@ The launches (2026-09-06):
 | Fit | Where | Jobs | Command |
 |-----|-------|------|---------|
 | A | klara, `monocle.sub` with `--time=03:00:00` | 8, `jlensA-h<half>s<shard>` | `monocle.jlens_fit --corpus <half> --n-prompts 128 --shard i/4 --dim-batch 8 --out-dir outputs/_monocle/jlens/varA/half<h>` |
-| B | the `gpu` partition, `monocle/jlens_fit_text_preempt.sub` | 16, `jlensB-s<shard>` | `--shard i/16 --n-prompts 1000 --dim-batch 8 --out-dir outputs/_monocle/jlens/wikitext1k` |
-| C | the `gpu` partition, `monocle/jlens_fit_preempt.sub` | 16, `jlensC-s<shard>` | `--shard i/16 --all-layers --sources text_after --context-kind cases --dim-batch 4 --n-images 128 --out-dir outputs/_monocle/jlens/mm_textafter` |
+| B | the `gpu` partition, `research/monocle/jlens_fit_text_preempt.sub` | 16, `jlensB-s<shard>` | `--shard i/16 --n-prompts 1000 --dim-batch 8 --out-dir outputs/_monocle/jlens/wikitext1k` |
+| C | the `gpu` partition, `research/monocle/jlens_fit_preempt.sub` | 16, `jlensC-s<shard>` | `--shard i/16 --all-layers --sources text_after --context-kind cases --dim-batch 4 --n-images 128 --out-dir outputs/_monocle/jlens/mm_textafter` |
 
 Half 0 is `corpus_wikitext_1k.json` prompts 0 to 127 (`--n-prompts 128`
 takes the first 128). Half 1 is `corpus_wikitext_1k_128to256.json`, the
@@ -137,17 +137,17 @@ had 319 tokens with 57 source positions after the image. The C fitter option
 `--sources text_after` sets the sources to every position after the last
 image token, minus the final one. The option `--context-kind cases` rotates
 the 7 single-image case prompts by global image index. The gate is
-`monocle/lens_gate.py`. It compares every lens pair on 24 held-out images
+`research/monocle/lens_gate.py`. It compares every lens pair on 24 held-out images
 (entries 128 onward of `mm/fit_images.json`), at the image, question, and
 last token positions. It reports the logit-difference Pearson against the
 0.8 threshold, the full-vocabulary Pearson, and the top-10 overlap. Merge
 each fit with `jlens_fit.py --merge
 <out-dir>/shard*of<n>.pt --out-dir <out-dir>`, then register it with
-`scripts/register_lenses.py`.
+`research/scripts/register_lenses.py`.
 
 ### Gate check 1, 2026-09-06: scale is not the cause
 
-Job 510477, `monocle/lens_gate.py`, 24 held-out images, the 4 lenses on
+Job 510477, `research/monocle/lens_gate.py`, 24 held-out images, the 4 lenses on
 disk (wikitext, mm, varA_half0, varA_half1). The logit-difference Pearson at
 the question positions, median over images:
 
@@ -311,7 +311,7 @@ decoded.
 | Item | Source | State |
 |------|--------|-------|
 | Images | The Cyclomedia catalog, `data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet`, with the tract key | on disk; the image pack serves the files (`runtime.image_pack`) |
-| Sample | 600 images per contrast task, stratified over the ground-truth deciles of the tract, 1 image per tract | to write, `scripts/probe_sample.py` |
+| Sample | 600 images per contrast task, stratified over the ground-truth deciles of the tract, 1 image per tract | to write, `research/scripts/probe_sample.py` |
 | Income | `data/demo/ct/ACSST5Y2024.S1901-Data.csv` | on disk |
 | Race, foreign-born | ACS 5-year 2024 tables B03002 and B05002, tract level | to pull; the same route as S1901 |
 | Homelessness | 311 complaints, the 2 complaint types, 2024-01 to 2026-06, Socrata | to pull with the SODA keys in `.env`, never committed |
@@ -320,19 +320,19 @@ decoded.
 ## The experiments
 
 The sequence of experiments runs on klara (partition pierson, 8xA6000,
-`.venv-nightly`), with `sbatch monocle/monocle.sub <module> ...`. Each step
+`.venv-nightly`), with `sbatch research/monocle/monocle.sub <module> ...`. Each step
 has a go criterion; a step that fails its criterion stops the sequence.
 
 | Step | What | Output | Go criterion |
 |------|------|--------|--------------|
 | E0 | The prompt template on 16 images per contrast task, batched at 8 with identical prompt lengths | top-5 tokens, `c`, hidden states at layers 41-45 | the answer-word ids are one token each; the batch asserts no padding |
 | E1 | Refusal survey: 600 images per contrast task | refusal share, the refusal forms, `c` and the hidden states for every image | the class task refuses under 10%; at least 1 sensitive task refuses on 20% to 80% |
-| E1b | Per-image-token word readout: `monocle/jlens_read.py` on the E1 images at layers 36 to 44, top-k words per image token, and the rank of each task's answer word per image token | word clouds; the image tokens where a task's answer word enters the top-k; the scene words of refused against answered images | report; the image-token hidden state does not depend on the question, thus this describes the scene and not the inference |
+| E1b | Per-image-token word readout: `research/monocle/jlens_read.py` on the E1 images at layers 36 to 44, top-k words per image token, and the rank of each task's answer word per image token | word clouds; the image tokens where a task's answer word enters the top-k; the scene words of refused against answered images | report; the image-token hidden state does not depend on the question, thus this describes the scene and not the inference |
 | E2 | Logit-difference directions: `d` from 16 calibration images that answer, pulled back through `mm_all47` at layers 41-45 | `v_l` per contrast task, and the lens readout of every E1 image | the lens readout and `c` agree on the answered images at Spearman 0.5 or more |
 | E3 | The divergence test of H1 | Spearman of the lens readout with the tract ground-truth variable, on answered and on refused images, with a 400-resample bootstrap over tracts | H1 holds when the refused-image interval covers the answered-image value and excludes 0 |
 | E4 | Activation addition (H2): `v_42` at the last token position on refused images, coefficient window as in `single-image-steering.md`, random pseudo-inverse control | share of refusals that turn into an answer word at each coefficient; control share | the steering vector flips more than 50% of refused images at a coefficient where the control flips under 20% |
 | E5 | Loading (H3): the 7 case directions against the 5 contrast-task directions at layer 42 | cosine matrix; per-image correlation of the case readout with the task readout on the same images | report; no go criterion, this is the finding |
-| E5b | Question-token activation patching (`monocle/question_tokens.py`) on refused images: patch 1 question word between 2 images at layers 23 to 41 and measure the change of `c` and of the lens readout | a (word, layer) grid of the fraction of the effect recovered; which word carries the refusal and which the judgment | report; the null control at the positions before the image must give 0 |
+| E5b | Question-token activation patching (`research/monocle/question_tokens.py`) on refused images: patch 1 question word between 2 images at layers 23 to 41 and measure the change of `c` and of the lens readout | a (word, layer) grid of the fraction of the effect recovered; which word carries the refusal and which the judgment | report; the null control at the positions before the image must give 0 |
 | E5c | Question-token readout, only when step 1 passes its gate: the words at the question positions over layers 23 to 31 with the lens the gate chose | the words the information flow carries, per image | report |
 | E6 | Localization, only for a contrast task that passes E3: token-ablation maps for the lens readout | 256-token maps | report; gradient-based attribution maps are known to fail (`steer-coord.md`, part 6) |
 
@@ -397,17 +397,17 @@ model's tokens, not our labels of anyone.
 
 | File | Purpose |
 |------|---------|
-| `monocle/probe_frame.py` | The contrast-task pairs, questions, the `Answer:` template, the space-form token ids, the abstention id |
-| `scripts/probe_data.py` | The tract join of the catalog and the tract ground-truth variables (income, crime, 311 homelessness, ACS when a key exists) |
-| `scripts/probe_sample.py` | The stratified image sample, 600 for each contrast task, in 1 pooled table |
-| `monocle/probe_score.py` | E0 and E1: batched prefill, top-5 tokens, `c`, hidden states at layers 41 to 45 |
-| `monocle/probe_vectors.py` | E2: the logit-difference directions under lenses C and 47, and the lens readouts |
-| `scripts/probe_divergence.py` | E3: the split statistic with the bootstrap; selects the primary readout on the answered images |
-| `monocle/probe_steer.py` | E4: activation addition on refused images, the steering vector against a random pseudo-inverse control |
-| `scripts/probe_loading.py` | E5: the cosine matrix and the per-image correlations with the case readouts |
-| `monocle/probe_scrape.py`, `scripts/probe_scrape_summary.py` | E1b and E5c: the words at the image tokens, the question tokens, and the last token position; the label ranks |
-| `monocle/probe_ranks.py` | The label-rank trajectory at the last token position over the whole refusal survey |
-| `notebooks/probe/` | The marimo notebooks (`probe_explorer.py`, `probe_interventions.py`, `_probe.py`) |
+| `research/monocle/probe_frame.py` | The contrast-task pairs, questions, the `Answer:` template, the space-form token ids, the abstention id |
+| `research/scripts/probe_data.py` | The tract join of the catalog and the tract ground-truth variables (income, crime, 311 homelessness, ACS when a key exists) |
+| `research/scripts/probe_sample.py` | The stratified image sample, 600 for each contrast task, in 1 pooled table |
+| `research/monocle/probe_score.py` | E0 and E1: batched prefill, top-5 tokens, `c`, hidden states at layers 41 to 45 |
+| `research/monocle/probe_vectors.py` | E2: the logit-difference directions under lenses C and 47, and the lens readouts |
+| `research/scripts/probe_divergence.py` | E3: the split statistic with the bootstrap; selects the primary readout on the answered images |
+| `research/monocle/probe_steer.py` | E4: activation addition on refused images, the steering vector against a random pseudo-inverse control |
+| `research/scripts/probe_loading.py` | E5: the cosine matrix and the per-image correlations with the case readouts |
+| `research/monocle/probe_scrape.py`, `research/scripts/probe_scrape_summary.py` | E1b and E5c: the words at the image tokens, the question tokens, and the last token position; the label ranks |
+| `research/monocle/probe_ranks.py` | The label-rank trajectory at the last token position over the whole refusal survey |
+| `research/notebooks/probe/` | The marimo notebooks (`probe_explorer.py`, `probe_interventions.py`, `_probe.py`) |
 
 ## Related
 
@@ -416,4 +416,4 @@ model's tokens, not our labels of anyone.
 - `pole-projection-proxy.md`: the readout, and why a single answer-word
   direction is not a polarity readout.
 - `proxy-overview.md`: the figure that shows the schools split.
-- `monocle/token_check.py`: step 0.
+- `research/monocle/token_check.py`: step 0.

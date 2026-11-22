@@ -1,4 +1,4 @@
-"""Unit tests for `notebooks/cvpr/_ic_metadata.py`.
+"""Unit tests for `research/notebooks/cvpr/_ic_metadata.py`.
 
 These tests build small frames by hand. They read no corpus, no results
 parquet, and no proxy. They cover the image join (the swap), the
@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 import _ic_metadata as M  # noqa: E402
 

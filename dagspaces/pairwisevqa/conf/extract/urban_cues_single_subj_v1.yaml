@@ -30,7 +30,7 @@
 #    kinds of diner), a clear `yes`, a graded answer (`mixed`, a
 #    conditional `yes`, then `graded`), a Llama answer that sees no
 #    restaurant (`not_applicable`), and a short Llama `no`. Built by
-#    `scripts/f9/build_subj_cue_examples.py` (to write; the draft came from
+#    `research/scripts/f9/build_subj_cue_examples.py` (to write; the draft came from
 #    a scratchpad builder with the same span rules as
 #    `build_single_v2_examples.py`). U+2011 is "-" in the example texts, as
 #    in the x2 inputs.
@@ -53,7 +53,7 @@
 # value list, or an example. Never edit a version in place.
 #
 # Warning: keep `attribute_values` inside `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`. The class `verdict` is new there.
+# `research/notebooks/cvpr/_extractions.py`. The class `verdict` is new there.
 
 name: urban_cues_single
 schema_version: single-subj-v1

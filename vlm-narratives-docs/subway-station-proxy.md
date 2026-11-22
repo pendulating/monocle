@@ -1,8 +1,8 @@
 # The subway station proxy
 
-`notebooks/cvpr/_proxies_subway.py`, notebook version 1.2.0 of
-`notebooks/cvpr/subway/subway_safety_validation.py`, and the subway rows of
-`notebooks/cvpr/_unit_validation.py`.
+`research/notebooks/cvpr/_proxies_subway.py`, notebook version 1.2.0 of
+`research/notebooks/cvpr/subway/subway_safety_validation.py`, and the subway rows of
+`research/notebooks/cvpr/_unit_validation.py`.
 
 ## The construct
 

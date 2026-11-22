@@ -8,7 +8,7 @@
 # The stage's _canonicalize_label only normalizes surface forms and
 # _invert_label only un-does the A/B presentation swap — neither performs
 # semantic inversion. "More" here means MORE UNSAFE. The comparison script
-# (scripts/pairwise_reviewer2_baselines.py --flip-arms flipped) negates
+# (research/scripts/pairwise_reviewer2_baselines.py --flip-arms flipped) negates
 # relative_score (MuchLess<->MuchMore, Less<->More; Same/NotSure fixed) before
 # comparing against the production baseline. Do NOT fold this arm's raw labels
 # into any safety-direction aggregation.

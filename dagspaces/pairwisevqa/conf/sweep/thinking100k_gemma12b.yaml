@@ -30,7 +30,7 @@
 #       --parallel 128 \
 #       --set runtime.image_pack=/share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack
 #
-# `scripts/launch_thinking100k.sh` holds that command for both raters.
+# `research/scripts/launch_thinking100k.sh` holds that command for both raters.
 #
 # ─── Cost ────────────────────────────────────────────────────────────────────
 # A thinking row costs 2.4 to 3.3 s on an A6000 (11,000 rows took 7.2 to 10 h

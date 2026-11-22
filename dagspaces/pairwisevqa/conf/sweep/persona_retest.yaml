@@ -23,7 +23,7 @@
 #       pipeline=pairwise_road_quality_mvp
 #
 # Then feed BOTH stage dirs to the analyzer:
-#   python scripts/pairwise_persona_probe.py <probe_stage_dir> --retest <retest_stage_dir>
+#   python research/scripts/pairwise_persona_probe.py <probe_stage_dir> --retest <retest_stage_dir>
 
 sampling_params_vqa:
   max_tokens: 128

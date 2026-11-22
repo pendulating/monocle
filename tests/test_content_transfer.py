@@ -1,9 +1,9 @@
-"""The content transfer test. See monocle/content_transfer.py."""
+"""The content transfer test. See research/monocle/content_transfer.py."""
 import numpy as np
 import pandas as pd
 import pytest
 
-from monocle import content_transfer as ct
+from research.monocle import content_transfer as ct
 
 
 class TestTransferSets:

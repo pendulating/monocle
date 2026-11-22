@@ -67,16 +67,16 @@ the Experiment 2 section at the end.
 
 | Notebook | Content |
 |----------|---------|
-| `notebooks/probe/probe_explorer.py` | the experiment switch, the top-token count, the readout histograms, the ranked images (contact sheets of the images the readout puts nearest to each label, with a refused-only switch and an own-sample switch), the readout against the ground-truth variable, the group strip of Experiment 2, and the E3 and E5 tables |
-| `notebooks/probe/probe_interventions.py` | the experiment switch, the E4 plots of the output share against the coefficient for the selected activation-addition runs, the scrape tables (image-token words, question words, label ranks), and the rank trajectory |
-| `notebooks/probe/_probe.py` | the shared loaders and the experiment switch (`set_round`, `active_round`, `round_meta`) |
+| `research/notebooks/probe/probe_explorer.py` | the experiment switch, the top-token count, the readout histograms, the ranked images (contact sheets of the images the readout puts nearest to each label, with a refused-only switch and an own-sample switch), the readout against the ground-truth variable, the group strip of Experiment 2, and the E3 and E5 tables |
+| `research/notebooks/probe/probe_interventions.py` | the experiment switch, the E4 plots of the output share against the coefficient for the selected activation-addition runs, the scrape tables (image-token words, question words, label ranks), and the rank trajectory |
+| `research/notebooks/probe/_probe.py` | the shared loaders and the experiment switch (`set_round`, `active_round`, `round_meta`) |
 
 The `Round` (experiment) dropdown of each notebook selects Experiment 1
 (`outputs/_monocle/probe/`) or Experiment 2 (`outputs/_monocle/probe_nta/`).
 Experiment 2 is the default. The environment variable `PROBE_ROUND` (the
 experiment number) sets the first experiment of a headless run.
 
-Run with `.venv-mllmsci-vllm025cu129/bin/python -m marimo edit notebooks/probe/probe_explorer.py`.
+Run with `.venv-mllmsci-vllm025cu129/bin/python -m marimo edit research/notebooks/probe/probe_explorer.py`.
 
 Warning: the contact sheets are for analysis inside the team. The report
 gives tract-level numbers and activation-addition rates alone, and no
@@ -94,18 +94,18 @@ per-image attribute.
 | Race, migration | ACS B03002 and B05002, pulled 2026-09-07 with the key; 2,243 of 2,325 tracts and 2,952 of the 2,989 images have a share (the empty tracts have population 0). The race and migration samples stratify on income, because the sample predates the pull. |
 
 The 311 complaint type `Homeless Encampment` no longer exists; the city
-renamed it `Encampment`. `scripts/probe_data.py` pulls both names that
+renamed it `Encampment`. `research/scripts/probe_data.py` pulls both names that
 remain.
 
 Warning: `sample/images.parquet` still holds empty share columns. The
 E3 script joins the shares from `data/tract_proxies.parquet` on `geoid`.
-A new sample with `scripts/probe_sample.py` would stratify race and
+A new sample with `research/scripts/probe_sample.py` would stratify race and
 migration on their own ground-truth variable, but it would change the
 image set and invalidate E1 to E5 for those tasks.
 
 ## The prompt template (E0)
 
-The prompt template is in `monocle/probe_frame.py`. It has one user turn,
+The prompt template is in `research/monocle/probe_frame.py`. It has one user turn,
 the image first, then:
 
 ```
@@ -483,7 +483,7 @@ chose at each position group applies: `mm` at the image tokens, C at the
 question tokens and the last token position, with B (`wikitext1k`) beside
 C. The top-k tokens pass the word-cloud token filter. Files:
 `outputs/_monocle/probe/scrape/<probe>/{tokens,label_ranks}.parquet`,
-`scrape.md`, `scrape_summary.json` (`scripts/probe_scrape_summary.py`).
+`scrape.md`, `scrape_summary.json` (`research/scripts/probe_scrape_summary.py`).
 
 ### The label ranks at the last token position
 
@@ -526,9 +526,9 @@ answered.
 
 ### The trajectory over the whole E1 image set
 
-`monocle/probe_ranks.py` reads the same ranks on every image of the
+`research/monocle/probe_ranks.py` reads the same ranks on every image of the
 census (`outputs/_monocle/probe/ranks/`, `trajectory.md` from
-`scripts/probe_ranks_summary.py`). The table gives the share of images
+`research/scripts/probe_ranks_summary.py`). The table gives the share of images
 where the negative-valence term ranks above the positive-valence term at
 the last token position:
 
@@ -659,7 +659,7 @@ a white van), and the rank correlations were small. Experiment 2 changes
 | crime | lawful | murder | Does this block look lawful or murder territory? | murder, felony assault, robbery, rape for each 1,000 since 2022 (murder) |
 | trust | trustworthy | dishonest | Do the people on this block look trustworthy or dishonest? | ACS median income, a stand-in (trustworthy) |
 
-The ground-truth variables come from `scripts/probe_nta_data.py`. They
+The ground-truth variables come from `research/scripts/probe_nta_data.py`. They
 are population-weighted means of the tract values over each NTA, and a
 210,153-row NYPD select pull from 2022 on
 (`data/external/nypd_complaints_select_2022plus/`). Two limits apply.
@@ -790,12 +790,12 @@ model held that judgment about the image.
 
 | File | Purpose |
 |------|---------|
-| `scripts/probe_nta_data.py` | the NTA ground-truth table and the NYPD select pull |
-| `scripts/probe_sample_nta.py` | the top-10 and bottom-10 sample |
-| `scripts/probe_group_test.py` | E3 as an extreme-groups AUC with the cluster bootstrap and the density match |
-| `monocle/probe_frame.py` | the 10 contrast tasks |
+| `research/scripts/probe_nta_data.py` | the NTA ground-truth table and the NYPD select pull |
+| `research/scripts/probe_sample_nta.py` | the top-10 and bottom-10 sample |
+| `research/scripts/probe_group_test.py` | E3 as an extreme-groups AUC with the cluster bootstrap and the density match |
+| `research/monocle/probe_frame.py` | the 10 contrast tasks |
 | `outputs/_monocle/probe_nta/` | `data/`, `sample/`, `e0/`, `scores/` (+ `census_own_draw.csv`), `vectors/`, `group_test/`, `steer/`, `scrape/`, `ranks/`, `jobs.txt`, `PROGRESS.md` |
-| `notebooks/probe/` | the experiment switch (`PROBE_ROUND`, default `round2`) |
+| `research/notebooks/probe/` | the experiment switch (`PROBE_ROUND`, default `round2`) |
 
 ## The base-model condition: does post-training make the refusal? (2026-09-07)
 
@@ -944,10 +944,10 @@ failed prompt template.
 
 | File | Purpose |
 |------|---------|
-| `monocle/probe_frame.py` (`render_raw`) | the completion-style prompt template |
-| `monocle/probe_ranks.py --lens none --frame raw\|chat` | the logit-lens rank analysis |
-| `scripts/probe_base_reads.py` | ranks -> `vectors/<probe>/reads.parquet` and `census_own_draw.csv` |
-| `scripts/probe_group_test.py --root <arm>` | the extreme-groups AUC per condition |
+| `research/monocle/probe_frame.py` (`render_raw`) | the completion-style prompt template |
+| `research/monocle/probe_ranks.py --lens none --frame raw\|chat` | the logit-lens rank analysis |
+| `research/scripts/probe_base_reads.py` | ranks -> `vectors/<probe>/reads.parquet` and `census_own_draw.csv` |
+| `research/scripts/probe_group_test.py --root <arm>` | the extreme-groups AUC per condition |
 | `outputs/_monocle/probe_base/{base_raw,it_raw,it_chat}/` | `ranks/`, `vectors/`, `group_test/`, `smoke/` |
 | `outputs/_monocle/probe_base/chain.log` | the 3 census and AUC tables |
 | `outputs/_monocle/probe_base/base_on_refused.md` | the base-model AUC on the IT-refused subset |
@@ -1137,8 +1137,8 @@ distribution.
 
 | File | Purpose |
 |------|---------|
-| `monocle/probe_words.py` | the word list, the 2 prompt templates, the per-image log p and rank tables |
-| `scripts/probe_word_test.py --arm <arm> [--prior-arm <closed arm>]` | the 3-criterion word test, `word_test/{word_test.csv,word_test.md,summary.json}` |
+| `research/monocle/probe_words.py` | the word list, the 2 prompt templates, the per-image log p and rank tables |
+| `research/scripts/probe_word_test.py --arm <arm> [--prior-arm <closed arm>]` | the 3-criterion word test, `word_test/{word_test.csv,word_test.md,summary.json}` |
 | `outputs/_monocle/probe_words/{it_open,it_closed,base_open,base_closed}/` | 4 shards each, 11,603 images by 7 layers |
 | `outputs/_monocle/probe_words/{submit_census.sh,chain.sh,chain.log,jobs.txt}` | the launch and the analysis chain |
 
@@ -1154,7 +1154,7 @@ words again.
 
 | Item | Value |
 |------|-------|
-| Sampler | `scripts/probe_sample_nta.py --match-density 0.3 --top-pool 50` |
+| Sampler | `research/scripts/probe_sample_nta.py --match-density 0.3 --top-pool 50` |
 | Rule | iterate over the 50 highest NTAs on the census variable from the extreme inward; take the nearest unused NTA among the 50 lowest within 0.3 of its log density; stop at 10 pairs |
 | Housing census variable | `homeless_per_capita` (`--proxy housing=homeless_per_capita`); homeless per km² is itself a density measure and matched 2 pairs only |
 | Images | 60 per NTA, 3,553 in the pooled sample, 42 NTAs |
@@ -1253,8 +1253,8 @@ samples.
 
 | File | Purpose |
 |------|---------|
-| `scripts/probe_sample_nta.py --match-density --top-pool --proxy --out` | the density-matched sampler (`pick_matched`) |
-| `scripts/probe_word_test.py --root --images` | the word test on another root and sample |
+| `research/scripts/probe_sample_nta.py --match-density --top-pool --proxy --out` | the density-matched sampler (`pick_matched`) |
+| `research/scripts/probe_word_test.py --root --images` | the word test on another root and sample |
 | `outputs/_monocle/probe_words_dm/sample/{images.parquet,summary.json}` | the matched sample |
 | `outputs/_monocle/probe_words_dm/<arm>/word_test/word_test.md` | the 4 conditions' tables |
 
@@ -1348,9 +1348,9 @@ of `ghetto` and `poor`. At the last token position with the logit lens,
 so across images only 3 terms can move a word's AUC between the 2
 layers: the unnormalized logit (direct logit attribution) `rd`, the
 per-image RMSNorm scale `rms`, or the per-image normalizer `lse`.
-`monocle/probe_lastblock.py` records all 3 at layers 46 and 47 as 3
+`research/monocle/probe_lastblock.py` records all 3 at layers 46 and 47 as 3
 pseudo-conditions in the Experiment 3 format, and
-`scripts/probe_lastblock_test.py` tests each with the same 3 criteria.
+`research/scripts/probe_lastblock_test.py` tests each with the same 3 criteria.
 The identity `rd / rms = logit` holds to a relative error of 0.3% (bf16).
 Root: `outputs/_monocle/probe_lastblock/{it,base}/` (4 shards each on
 the Experiment 3 sample, 11,603 images).
@@ -1466,8 +1466,8 @@ decodable.
 
 | File | Purpose |
 |------|---------|
-| `monocle/probe_lastblock.py --template chat\|raw` | the 3-term single-word logit-lens analysis at layers 46 and 47 (`lp/`, `lg/`, `rd/` pseudo-conditions + `scalars_shard*`) |
-| `scripts/probe_lastblock_test.py --root <it\|base>` | the word test on each term, the scalars by sample, the gap table |
+| `research/monocle/probe_lastblock.py --template chat\|raw` | the 3-term single-word logit-lens analysis at layers 46 and 47 (`lp/`, `lg/`, `rd/` pseudo-conditions + `scalars_shard*`) |
+| `research/scripts/probe_lastblock_test.py --root <it\|base>` | the word test on each term, the scalars by sample, the gap table |
 | `outputs/_monocle/probe_lastblock/{it,base}/lastblock_test/` | `lastblock_test.md`, `word_stats.csv`, `scalars.csv`, `erase.csv` |
 | `outputs/_monocle/probe_lastblock/{submit_census.sh,chain.sh,chain.log,jobs.txt}` | the launch |
 
@@ -1475,7 +1475,7 @@ decodable.
 
 The Experiment 3 tables rest on the 10 highest and 10 lowest NTAs per
 sample. This run samples every residential NTA at 500 images each
-(98,331 images, 2,254 tracts; `scripts/probe_sample_all.py`). It tests
+(98,331 images, 2,254 tracts; `research/scripts/probe_sample_all.py`). It tests
 each word as a correlation across neighborhoods instead of an
 extreme-groups comparison. Conditions: `it_open`, `base_open`,
 `it_closed` (the control for the prompt-induced prior); layers 24, 30,
@@ -1631,8 +1631,8 @@ level of the scene it names.
 
 | File | Purpose |
 |------|---------|
-| `scripts/probe_sample_all.py --per-nta 500 --out ...` | the all-NTA sample |
-| `scripts/probe_word_dose.py --arm <arm> [--prior-arm] [--root --images]` | the all-neighborhood correlation test, `dose_test/{dose.csv,dose.md,summary.json}` |
+| `research/scripts/probe_sample_all.py --per-nta 500 --out ...` | the all-NTA sample |
+| `research/scripts/probe_word_dose.py --arm <arm> [--prior-arm] [--root --images]` | the all-neighborhood correlation test, `dose_test/{dose.csv,dose.md,summary.json}` |
 | `outputs/_monocle/probe_words_all/{sample,it_open,base_open,it_closed}/` | the sample and the 3 conditions (12 shards each) |
 | `outputs/_monocle/probe_words_all/{submit_census.sh,chain.sh,chain.log,jobs.txt}` | the launch |
 
@@ -1652,7 +1652,7 @@ tokens.
 | Sample | the all-NTA sample, 197 NTAs x 500 images, open-ended prompt, 12 shards each |
 | Layers | 6, 12, 18, 24, 30, 36, 42, and 47 with no lens |
 | Image-token readout | the mean over the 256 image tokens of `log p(word)`; the rank is the rank in that mean (`monocle.probe_words --positions patches`) |
-| Score | `scripts/probe_word_dose.py --root outputs/_monocle/probe_words_early --arm <arm> --layers 6,12,18,24,30,36,42,47 --report-layers 6,12,18,24,30` |
+| Score | `research/scripts/probe_word_dose.py --root outputs/_monocle/probe_words_early --arm <arm> --layers 6,12,18,24,30,36,42,47 --report-layers 6,12,18,24,30` |
 | Launch | `outputs/_monocle/probe_words_early/{submit_fits.sh,submit_merge.sh,merge.sub,submit_reads.sh,jobs.txt}` |
 
 Status: DONE 2026-09-16. All 4 conditions are complete (48 shards, 197
@@ -1731,8 +1731,8 @@ the layer (IT model 0.048, base model 0.053). For each word we computed
 the direct logit attribution of each term: the unnormalized logit of the
 word from that term alone, through the final norm weight and the
 unembedding. Sample: the Experiment 2 samples of each contrast task, 1,200
-images each. Code: `monocle/probe_lastblock_parts.py` and
-`scripts/probe_lastblock_parts_test.py`. Output:
+images each. Code: `research/monocle/probe_lastblock_parts.py` and
+`research/scripts/probe_lastblock_parts_test.py`. Output:
 `outputs/_monocle/probe_lastblock_parts/{it,base}/parts_test/parts_test.md`.
 
 Median norms at the last token position (IT model / base model): `h46`
@@ -1796,7 +1796,7 @@ The question: are the Experiment 2 associations of `housing_type`,
 Experiment 3, one wealth axis under different words, or separate
 associations? We re-estimated each association controlling for the wealth
 readout (the class logit difference `lp_rich - lp_poor` at the same
-layer). Code: `scripts/probe_cross_read.py`. Output:
+layer). Code: `research/scripts/probe_cross_read.py`. Output:
 `outputs/_monocle/probe_cross_read/cross_read.md`.
 
 Part A, the contrast tasks. On the sample of each task, the AUC of the
@@ -1875,8 +1875,8 @@ targets (`black`, `white`, `dark`, `bright`, `gray`, `grey`, `brown`,
 capitalized forms), so that the race term `Black` has colour terms
 beside it under the same threshold. Sample: the 197-NTA sample of the
 all-neighborhood analysis, last token position, open-ended prompt.
-Luminance per image: `scripts/probe_image_luma.py` (98,331 images).
-Code: `scripts/probe_black_control.py`. Output:
+Luminance per image: `research/scripts/probe_image_luma.py` (98,331 images).
+Code: `research/scripts/probe_black_control.py`. Output:
 `outputs/_monocle/probe_black_control/black_control/black_control.md`.
 
 Base model, partial Spearman with the Black share over 197 NTAs

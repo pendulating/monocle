@@ -1,4 +1,4 @@
-"""Tests of the OLS with clustered standard errors of `scripts/f8/method_b.py` (F8.1)."""
+"""Tests of the OLS with clustered standard errors of `research/scripts/f8/method_b.py` (F8.1)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "f8"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research" / "scripts" / "f8"))
 
 import method_b as M  # noqa: E402
 

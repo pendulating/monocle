@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/f10"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from build_depth_sample import stratified  # noqa: E402
 from hop_depth import locate  # noqa: E402
 

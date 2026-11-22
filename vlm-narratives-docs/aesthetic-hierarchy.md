@@ -9,14 +9,14 @@ This report asks the opposite question over all 7 cases at once.
 
 | Piece | Where |
 |-------|-------|
-| Module | `notebooks/cvpr/_words_across.py` |
-| Notebook | `notebooks/cvpr/master/aesthetic_hierarchy.py` |
-| Figures and tables | `notebooks/cvpr/master/figures/aesthetic_hierarchy_*` |
+| Module | `research/notebooks/cvpr/_words_across.py` |
+| Notebook | `research/notebooks/cvpr/master/aesthetic_hierarchy.py` |
+| Figures and tables | `research/notebooks/cvpr/master/figures/aesthetic_hierarchy_*` |
 | Source | The 14 registered `trace` runs (`_canonical.py`) |
 
 ```bash
 .venv-mllmsci-vllm025cu129/bin/marimo edit \
-    notebooks/cvpr/master/aesthetic_hierarchy.py
+    research/notebooks/cvpr/master/aesthetic_hierarchy.py
 ```
 
 ## Read this after `cue-hierarchy.md`

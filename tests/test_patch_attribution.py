@@ -18,8 +18,8 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import canonical  # noqa: E402
-from monocle import patch_attribution as pa  # noqa: E402
+from research.monocle import canonical  # noqa: E402
+from research.monocle import patch_attribution as pa  # noqa: E402
 
 LABELS = {"MuchLess": 100, "Less": 7, "Same": 8, "More": 9, "MuchMore": 100,
           "NotSure": 42}

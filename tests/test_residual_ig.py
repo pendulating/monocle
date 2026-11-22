@@ -11,7 +11,7 @@ REPO = Path(__file__).resolve().parent.parent
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle.residual_ig import SlotWriter  # noqa: E402
+from research.monocle.residual_ig import SlotWriter  # noqa: E402
 
 
 class TestSlotWriter:

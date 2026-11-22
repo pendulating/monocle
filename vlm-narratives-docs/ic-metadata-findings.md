@@ -10,11 +10,11 @@ the images of each pair and to the proxy arm.
 
 | Piece | Where |
 |-------|-------|
-| Module | `notebooks/cvpr/_ic_metadata.py` |
-| Notebook, questions 1 and 2 | `notebooks/cvpr/master/aesthetic_consistency.py` |
-| Notebook, question 3 | `notebooks/cvpr/master/reasoning_vs_proxy.py` |
+| Module | `research/notebooks/cvpr/_ic_metadata.py` |
+| Notebook, questions 1 and 2 | `research/notebooks/cvpr/master/aesthetic_consistency.py` |
+| Notebook, question 3 | `research/notebooks/cvpr/master/reasoning_vs_proxy.py` |
 | Tests | `tests/test_ic_metadata.py` (10 tests, synthetic frames) |
-| Tables and figures | `notebooks/cvpr/master/outputs/explore/` |
+| Tables and figures | `research/notebooks/cvpr/master/outputs/explore/` |
 
 ### The figure captions
 

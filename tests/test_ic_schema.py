@@ -111,7 +111,7 @@ class TestExamples:
         try:
             return S.load_examples()
         except FileNotFoundError:
-            pytest.skip("run scripts/build_ic_examples.py first")
+            pytest.skip("run research/scripts/build_ic_examples.py first")
 
     def test_every_span_of_every_example_is_exact(self):
         """An example span that no search finds teaches a shape we cannot use."""

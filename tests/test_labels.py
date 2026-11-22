@@ -1,7 +1,7 @@
-"""The label token contract. See monocle/labels.py."""
+"""The label token contract. See research/monocle/labels.py."""
 import pytest
 
-from monocle import labels as lb
+from research.monocle import labels as lb
 
 
 class StubTokenizer:

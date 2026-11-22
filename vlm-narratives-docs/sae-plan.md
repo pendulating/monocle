@@ -1,6 +1,6 @@
 # Sparse autoencoder latents: a research and experiment plan
 
-Written 2026-09-08. Status: stage 1 DONE 2026-09-09 (48 shards, checked by `monocle/sae_check.py`); stage 2 trained 2026-09-15/16 (recipes v1 and v2, 42 SAEs; criterion G1 (reconstruction fidelity) passes; criterion G2 (stability across seeds), as written, fails for every SAE, see the stage-2 record and the proposed shared-latent rule; a decision is open).
+Written 2026-09-08. Status: stage 1 DONE 2026-09-09 (48 shards, checked by `research/monocle/sae_check.py`); stage 2 trained 2026-09-15/16 (recipes v1 and v2, 42 SAEs; criterion G1 (reconstruction fidelity) passes; criterion G2 (stability across seeds), as written, fails for every SAE, see the stage-2 record and the proposed shared-latent rule; a decision is open).
 
 ## The question
 
@@ -96,14 +96,14 @@ questions, at layers 42 and 46, one row per image and prompt template.
 | Time, measured on the pilot run | 0.20 s per image-token pass (2 layers stored), 0.13 s per last-token pass |
 | GPU-hours per model | about 16 |
 | Jobs | 24 shards per model, 150-minute limit, about 80 minutes each |
-| Module | `monocle/sae_extract.py`; the split in `scripts/sae_sample_split.py` (`outputs/_monocle/sae/sample/images.parquet`, 59,100 train / 39,231 held out) |
+| Module | `research/monocle/sae_extract.py`; the split in `research/scripts/sae_sample_split.py` (`outputs/_monocle/sae/sample/images.parquet`, 59,100 train / 39,231 held out) |
 | Pilot check | 256 image tokens, contiguous; image-token norm median 259, one coordinate at 286 (the massive activation); a last-token file per prompt template and layer |
 
 ### Stage 2: training (GPU)
 
 Eight SAEs per model (P22, P40, A42, A46, 2 seeds each) plus the 16k
-dictionary-size check. Module: `monocle/sae_train.py`; criteria:
-`scripts/sae_gates.py` -> `outputs/_monocle/sae/gates.md`. Measured on
+dictionary-size check. Module: `research/monocle/sae_train.py`; criteria:
+`research/scripts/sae_gates.py` -> `outputs/_monocle/sae/gates.md`. Measured on
 the pilot run: 0.15 s per step on an image-token SAE with the IO, thus
 an image-token SAE trains in about 20 minutes, not 3 hours; a last-token
 SAE in about 8 minutes. The mean-centered residual stream has a mean
@@ -195,7 +195,7 @@ latent of seed 2 at decoder cosine similarity above 0.7. The matched
 set is the set of shared latents. We measure it over the latents that
 fire on more than 1 in 10,000 validation vectors, with the
 activation-correlation match beside the cosine match
-(`monocle/sae_seedmatch.py`): a correlated pair with an unrelated
+(`research/monocle/sae_seedmatch.py`): a correlated pair with an unrelated
 decoder direction is a shared condition, not a shared latent.
 
 ### Stage 3: the latent catalogue (CPU, then GPU for the crops)
@@ -203,7 +203,7 @@ decoder direction is a shared condition, not a shared latent.
 For every shared latent: the activation rate, the mean activation, the
 64 top-activating image tokens with their image and grid position, and
 the per-NTA mean activation over the 197 NTAs. The top image tokens
-become crops (in the `monocle/caption_panel.py` style) for viewing. The
+become crops (in the `research/monocle/caption_panel.py` style) for viewing. The
 model itself names each latent from its top crops, as a first label,
 not as evidence.
 
@@ -322,8 +322,8 @@ instead of it.
 
 | Path | Content |
 |------|---------|
-| `monocle/sae_extract.py` | stage 1 |
-| `monocle/sae_train.py` | stage 2, the BatchTopK SAE |
+| `research/monocle/sae_extract.py` | stage 1 |
+| `research/monocle/sae_train.py` | stage 2, the BatchTopK SAE |
 | `monocle/sae_census.py`, `scripts/sae_select.py` | stages 3 and 4 (the latent catalogue and the selection) |
 | `monocle/sae_steer.py`, `monocle/sae_writers.py` | stages 5 and 6 |
 | `outputs/_monocle/sae/<ckpt>/<dict>/` | weights, metrics, catalogue, crops |

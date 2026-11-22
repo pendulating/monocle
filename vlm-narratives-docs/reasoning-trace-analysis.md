@@ -16,7 +16,7 @@ room for one. Thus trace work needs its own sweep.
 
 **Warning:** a thinking run uses different sampling, so its labels are not
 comparable with the battery. Do not pool the two. `_provenance.py` drops a
-thinking run on purpose, and `notebooks/cvpr/_traces.py` collects it instead.
+thinking run on purpose, and `research/notebooks/cvpr/_traces.py` collects it instead.
 
 **Warning:** thinking mode must not be greedy. Greedy decoding repeats itself
 over a long trace, which destroys the text that the run exists to collect.
@@ -32,13 +32,13 @@ The config is `dagspaces/pairwisevqa/conf/sweep/thinking_public_investment_10k.y
 
 ## The notebook
 
-There is 1 notebook for each prompt, `notebooks/cvpr/<case>_traces.py`, in the
+There is 1 notebook for each prompt, `research/notebooks/cvpr/<case>_traces.py`, in the
 same shape as the validation-by-proxy notebooks. `_trace_notebook.py` holds the
-body they share. `notebooks/cvpr/README.md` gives the operating detail. Run one
+body they share. `research/notebooks/cvpr/README.md` gives the operating detail. Run one
 from the canonical venv:
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/marimo edit notebooks/cvpr/schools/schools_traces.py
+.venv-mllmsci-vllm025cu129/bin/marimo edit research/notebooks/cvpr/schools/schools_traces.py
 ```
 
 **Only runs from 2026-08-11 forward enter a trace notebook.** That is the
@@ -60,7 +60,7 @@ cue list, and its traces repeat that text. The `think10k` sweep is in the older
 era. A cloud that mixes the eras shows the prompt, not the model.
 
 **gemma-4-e2b needs a post-hoc split.** Its trace and its answer arrive in 1
-field. `scripts/split_e2b_thinking_reasoning.py` separates them and keeps the
+field. `research/scripts/split_e2b_thinking_reasoning.py` separates them and keeps the
 original as `*.presplit.parquet`. Never read the `presplit` file.
 
 **Not every sweep has a Hydra record.** The `think10k` stage directories hold no

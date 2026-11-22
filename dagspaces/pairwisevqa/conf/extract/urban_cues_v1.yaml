@@ -2,7 +2,7 @@
 # Urban cue schema, version 1 (2026-08-13).
 #
 # This config turns 1 reasoning trace into typed, grounded extractions. It
-# replaces the word count in `notebooks/cvpr/_traces.py` for every question that
+# replaces the word count in `research/notebooks/cvpr/_traces.py` for every question that
 # a word cannot answer: which image holds a cue, whether the cue is good or bad,
 # and whether the model went past the pixels.
 #

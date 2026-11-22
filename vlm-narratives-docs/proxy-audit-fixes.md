@@ -1,8 +1,8 @@
 # The tier-1 audit fixes of the proxy road
 
-Date: 2026-08-31. Modules: `notebooks/cvpr/_geography.py`,
-`notebooks/cvpr/_results_table.py`, `notebooks/cvpr/_proxy_arms.py`,
-section 4d of `notebooks/cvpr/master/results_table.py` (section 4 of
+Date: 2026-08-31. Modules: `research/notebooks/cvpr/_geography.py`,
+`research/notebooks/cvpr/_results_table.py`, `research/notebooks/cvpr/_proxy_arms.py`,
+section 4d of `research/notebooks/cvpr/master/results_table.py` (section 4 of
 `master/ablations.py` since 2026-09-04), and the 7 case
 validation notebooks with their `recipe.json` files.
 
@@ -129,14 +129,14 @@ floor 3, thus 19% of its areas held 1 or 2 libraries.
 
 | File | Line on 2026-08-31 | Now | Must become |
 |------|--------------------|-----|-------------|
-| `notebooks/cvpr/plazas/plazas_validation.py` | 73 | `MIN_UNITS_PER_POLYGON = 1` | `= 3` |
-| `notebooks/cvpr/libraries/libraries_validation.py` | 61 | `MIN_UNITS_PER_POLYGON = 1` | `= 3` |
+| `research/notebooks/cvpr/plazas/plazas_validation.py` | 73 | `MIN_UNITS_PER_POLYGON = 1` | `= 3` |
+| `research/notebooks/cvpr/libraries/libraries_validation.py` | 61 | `MIN_UNITS_PER_POLYGON = 1` | `= 3` |
 
 The line moves when a notebook changes. Find it again with:
 
 ```bash
-grep -n "MIN_UNITS_PER_POLYGON = " notebooks/cvpr/plazas/plazas_validation.py \
-    notebooks/cvpr/libraries/libraries_validation.py
+grep -n "MIN_UNITS_PER_POLYGON = " research/notebooks/cvpr/plazas/plazas_validation.py \
+    research/notebooks/cvpr/libraries/libraries_validation.py
 ```
 
 The libraries notebook also carries a markdown block at line 161 that states
@@ -428,7 +428,7 @@ full build takes 262 s, and the paired interval is most of the added cost.
 
 | Step | State |
 |------|-------|
-| `scripts/export_cvpr_results_table.py --allow-stale` | Ran. It wrote 15 files for the 3 layers. |
+| `research/scripts/export_cvpr_results_table.py --allow-stale` | Ran. It wrote 15 files for the 3 layers. |
 | `_proxy_arms.build` + `drift` + `weighted_tau_table` | Ran headless. 262 s. |
 | The plazas and libraries case notebooks | NOT run. They still hold `MIN_UNITS_PER_POLYGON = 1`. |
 
@@ -442,9 +442,9 @@ from those exports.
 
 | Step | Command |
 |------|---------|
-| The case notebooks of plazas and libraries | `marimo edit notebooks/cvpr/<case>/<case>_validation.py` |
-| The master table | `python scripts/export_cvpr_results_table.py` |
-| The ablation arms | `python scripts/export_cvpr_ablations.py` |
+| The case notebooks of plazas and libraries | `marimo edit research/notebooks/cvpr/<case>/<case>_validation.py` |
+| The master table | `python research/scripts/export_cvpr_results_table.py` |
+| The ablation arms | `python research/scripts/export_cvpr_ablations.py` |
 
 The master export reads the case exports, thus run the case notebooks first.
 A fresh case export also lifts the staleness gate.
@@ -520,7 +520,7 @@ reads all 6 published unit-correlation exports. Every reconcile row agrees:
 
 ### The export
 
-`scripts/export_cvpr_results_table.py --allow-stale` ran again on 2026-08-31
+`research/scripts/export_cvpr_results_table.py --allow-stale` ran again on 2026-08-31
 and wrote the 15 files for the 3 layers. The stale gate still fires for the
 2026-08-20 aggregated exports, which is the known cosmetic staleness above.
 The exported tables now carry 41 case-proxy rows for each layer, with the

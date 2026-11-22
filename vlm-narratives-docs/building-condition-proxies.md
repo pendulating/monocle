@@ -1,8 +1,8 @@
 # Building-condition proxies for libraries and schools
 
-`notebooks/cvpr/_proxies_buildings.py`,
-`notebooks/cvpr/libraries/libraries_validation.py`,
-`notebooks/cvpr/schools/schools_validation.py`.
+`research/notebooks/cvpr/_proxies_buildings.py`,
+`research/notebooks/cvpr/libraries/libraries_validation.py`,
+`research/notebooks/cvpr/schools/schools_validation.py`.
 
 Export version **1.2.0**, written 2026-08-31.
 

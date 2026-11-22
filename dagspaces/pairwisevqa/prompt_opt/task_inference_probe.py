@@ -15,7 +15,7 @@ in-process engine (no GEPA search involved):
    number an axis search is chasing; if (a) ≈ (b), val score cannot certify
    semantic recovery and arms must be judged by whether they NAME the axis.
 
-Run on a GPU node under .venv-nightly (see scripts/gepa_probe.sub):
+Run on a GPU node under .venv-nightly (see research/scripts/gepa_probe.sub):
 
   python -m dagspaces.pairwisevqa.prompt_opt.task_inference_probe \\
       --tasks subway,restaurants,schools --outdir outputs/gepa_pairwise/probe_X

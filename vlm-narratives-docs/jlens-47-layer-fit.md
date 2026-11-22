@@ -47,12 +47,12 @@ Write `--gres=gpu:nvidia_rtx_a6000:1`. The submit script also reads
 
 | Tool | Purpose |
 |---|---|
-| `monocle/jlens_fit_mm.py --all-layers` | fit 1 shard |
-| `monocle/jlens_fit_preempt.sub` | the preemptable submit script |
-| `scripts/jlens_shard_watchdog.sh` | keep the 16 shards alive |
-| `monocle/jlens_merge_mm.py` | merge the shards into 1 lens |
-| `scripts/jlens_auto_merge.sh` | merge when the shards land, then check |
-| `scripts/jlens_verify_lens.py` | check that a lens file is usable |
+| `research/monocle/jlens_fit_mm.py --all-layers` | fit 1 shard |
+| `research/monocle/jlens_fit_preempt.sub` | the preemptable submit script |
+| `research/scripts/jlens_shard_watchdog.sh` | keep the 16 shards alive |
+| `research/monocle/jlens_merge_mm.py` | merge the shards into 1 lens |
+| `research/scripts/jlens_auto_merge.sh` | merge when the shards land, then check |
+| `research/scripts/jlens_verify_lens.py` | check that a lens file is usable |
 
 ### Why the project holds the watchdog
 
@@ -73,7 +73,7 @@ peak is about 4 GB. It also reads a live CHECKPOINT, which holds the sum over
 the images that shard finished. So you can merge before every shard is
 complete, and still get a correct mean over fewer images.
 
-    python -m monocle.jlens_merge_mm \
+    python -m research.monocle.jlens_merge_mm \
         --in-dir outputs/_monocle/jlens/mm_all47 \
         --out outputs/_monocle/jlens/mm_all47/gemma4_12b_lens.pt
 
@@ -81,7 +81,7 @@ Add `--final-only` to refuse a partial shard.
 
 ## The check on a fitted shard
 
-`scripts/jlens_verify_lens.py` reports the layer count, any layer that is not
+`research/scripts/jlens_verify_lens.py` reports the layer count, any layer that is not
 finite, and the diagonal mass by depth. The diagonal mass must RISE toward
 the output, because a block near the end changes the residual less.
 

@@ -32,7 +32,7 @@ Three facts replace the old statement:
 
 ## The neutral condition carries a constant label
 
-Paired statistics (`scripts/answer_depth_stats.py`, 300 pairs, 20000-resample
+Paired statistics (`research/scripts/answer_depth_stats.py`, 300 pairs, 20000-resample
 bootstrap, BH correction over layers): the prod-minus-neutral difference
 remains significant after BH correction at every layer from L38 up. At L45 it
 is +0.051 [+0.045, +0.058] in p and +0.42 [+0.36, +0.49] in agreement.
@@ -63,13 +63,13 @@ pair's judgment.** The statement "never under neutral" was too strong.
 ## How to repeat
 
 ```bash
-sbatch --time=03:00:00 monocle/monocle.sub monocle.safety_workspace \
+sbatch --time=03:00:00 research/monocle/monocle.sub monocle.safety_workspace \
     --case subway_safety --kind proxy --n-pairs 300 --n-map-pairs 2 \
     --lenses outputs/_monocle/jlens/mm_all47/gemma4_12b_lens.pt \
     --layers $(seq -s' ' 0 46) --map-layers 30 36 42 \
     --out-dir outputs/_monocle/safety_workspace_all47
 
-python scripts/answer_depth_stats.py \
+python research/scripts/answer_depth_stats.py \
     --parquet outputs/_monocle/safety_workspace_all47/answer_depth.parquet \
     --out outputs/_monocle/safety_workspace_all47/answer_depth_stats.json
 ```

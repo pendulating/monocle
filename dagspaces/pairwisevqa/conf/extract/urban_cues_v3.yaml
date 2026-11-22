@@ -79,7 +79,7 @@
 # justification. Rule 6 of the prompt says so to the model.
 #
 # Warning: keep `attribute_values` in step with `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
+# `research/notebooks/cvpr/_extractions.py`. `tests/test_langextract_backend.py` tests
 # that the 2 agree.
 #
 # See `vlm-narratives-docs/langextract-trace-extraction.md` and

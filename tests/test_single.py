@@ -1,8 +1,8 @@
-"""The single-image lens path. See monocle/single.py."""
+"""The single-image lens path. See research/monocle/single.py."""
 import pytest
 
-from monocle import canonical
-from monocle import single as sg
+from research.monocle import canonical
+from research.monocle import single as sg
 
 
 class StubTokenizer:
@@ -161,24 +161,24 @@ class TestGeometry:
         return {"input_ids": torch.tensor([ids + [0]])}
 
     def test_accepts_one_block(self):
-        from monocle import safety_workspace as sw
+        from research.monocle import safety_workspace as sw
         got = sw.image_token_blocks(self.frame([256]), 99, expect=1)
         assert len(got) == 1 and got[0].numel() == 256
 
     def test_still_defaults_to_the_pairwise_contract(self):
         """The pairwise path must not change when the default is used."""
-        from monocle import safety_workspace as sw
+        from research.monocle import safety_workspace as sw
         with pytest.raises(RuntimeError, match="expected exactly 2"):
             sw.image_token_blocks(self.frame([256]), 99)
         assert len(sw.image_token_blocks(self.frame([256, 256]), 99)) == 2
 
     def test_rejects_two_blocks_when_one_is_expected(self):
-        from monocle import safety_workspace as sw
+        from research.monocle import safety_workspace as sw
         with pytest.raises(RuntimeError, match="expected exactly 1"):
             sw.image_token_blocks(self.frame([256, 256]), 99, expect=1)
 
     def test_rejects_ragged_blocks(self):
-        from monocle import safety_workspace as sw
+        from research.monocle import safety_workspace as sw
         with pytest.raises(RuntimeError, match="unequal length"):
             sw.image_token_blocks(self.frame([256, 200]), 99)
 
@@ -187,7 +187,7 @@ class TestSingleRowIds:
     """The id must name the PHOTOGRAPH. `_A`/`_B` reads as a pair."""
 
     def rows(self, monkeypatch, pairs):
-        import monocle.safety_workspace as sw
+        import research.monocle.safety_workspace as sw
         monkeypatch.setattr(sw, "load_pairs",
                             lambda n, c, k, seed=777: pairs)
         monkeypatch.setattr(
@@ -247,7 +247,7 @@ class TestSingleRowIds:
         assert len(ids) == len(set(ids))
 
     def test_stops_at_the_quota(self, monkeypatch):
-        import monocle.safety_workspace as sw
+        import research.monocle.safety_workspace as sw
         pairs = [{"pair_id": f"p{i}",
                   "presented_left_path": f"/x/l{i}.jpg",
                   "presented_right_path": f"/x/r{i}.jpg"} for i in range(20)]

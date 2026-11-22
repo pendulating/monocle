@@ -1,7 +1,7 @@
 # F10.34: sums and differences of the prompt directions (D190)
 
-**Status (2026-11-03):** done. Script `scripts/f10/hop_sum_directions.py` 1.1.0, tables and the figure in
-`figures/f10/sum/`. The figure is in the paper as `fig:pair-cosines` (Appendix B, `app:pair-cosines`), with
+**Status (2026-11-03):** done. Script `research/scripts/f10/hop_sum_directions.py` 1.1.0, tables and the figure in
+`research/figures/f10/sum/`. The figure is in the paper as `fig:pair-cosines` (Appendix B, `app:pair-cosines`), with
 1 sentence in section 4.2.
 
 ## The question
@@ -84,11 +84,11 @@ band structure; `pairs.csv` keeps the layers.
 
 | File | Content |
 |------|---------|
-| `figures/f10/sum/pairs.csv` | cosine of each pair sum and difference with each single direction, by model and layer |
-| `figures/f10/sum/pair_words.csv` | 10 words at each end of each sum and difference |
-| `figures/f10/sum/pair_cosines.{pdf,png,json}` | the 2 heatmaps (`fig:pair-cosines`) |
-| `figures/f10/sum/words.csv`, `overlap.csv`, `cosine.csv` | the 4 named sums against the single directions and the shared direction |
-| `figures/f10/sum/fit_cool.csv` | the least-squares fit of `cool` and `ordinary` on `nice` and `urban`, by layer |
+| `research/figures/f10/sum/pairs.csv` | cosine of each pair sum and difference with each single direction, by model and layer |
+| `research/figures/f10/sum/pair_words.csv` | 10 words at each end of each sum and difference |
+| `research/figures/f10/sum/pair_cosines.{pdf,png,json}` | the 2 heatmaps (`fig:pair-cosines`) |
+| `research/figures/f10/sum/words.csv`, `overlap.csv`, `cosine.csv` | the 4 named sums against the single directions and the shared direction |
+| `research/figures/f10/sum/fit_cool.csv` | the least-squares fit of `cool` and `ordinary` on `nice` and `urban`, by layer |
 
 ## Related
 

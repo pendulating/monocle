@@ -1,8 +1,8 @@
-"""The reasoning-on read. See monocle/thinking_read.py."""
+"""The reasoning-on read. See research/monocle/thinking_read.py."""
 import pytest
 
-from monocle import single as sg
-from monocle import thinking_read as tr
+from research.monocle import single as sg
+from research.monocle import thinking_read as tr
 
 
 class TestSplitThought:

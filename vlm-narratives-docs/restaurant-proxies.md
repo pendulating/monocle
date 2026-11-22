@@ -1,7 +1,7 @@
 # The restaurants proxies
 
-`notebooks/cvpr/_proxies_restaurants.py`,
-`notebooks/cvpr/restaurants/restaurants_validation.py`,
+`research/notebooks/cvpr/_proxies_restaurants.py`,
+`research/notebooks/cvpr/restaurants/restaurants_validation.py`,
 `dagspaces/common/curation/dohmh/history.py`.
 
 Export version 1.2.0, 2026-08-31.
@@ -285,9 +285,9 @@ reaches +0.72.
 |------|-------|
 | `dagspaces/common/curation/dohmh/history.py` | The sidecar builder |
 | `curation/dohmh_restaurants_inspected_all/restaurants_inspection_history.parquet` | 21,537 rows, keyed by camis |
-| `notebooks/cvpr/_proxies_restaurants.py` | The 4 metrics, the licence join, the unit table |
-| `notebooks/cvpr/restaurants/recipe.json` | The 4 sources and their windows |
-| `notebooks/cvpr/restaurants/outputs/restaurants_proxy_v1.2.0.parquet` | 7,082 area rows, 4 proxies |
+| `research/notebooks/cvpr/_proxies_restaurants.py` | The 4 metrics, the licence join, the unit table |
+| `research/notebooks/cvpr/restaurants/recipe.json` | The 4 sources and their windows |
+| `research/notebooks/cvpr/restaurants/outputs/restaurants_proxy_v1.2.0.parquet` | 7,082 area rows, 4 proxies |
 | `.../restaurants_correlations_v1.2.0.parquet` | The area values above |
 | `.../restaurants_unit_correlations_v1.2.0.parquet` | The unit values above |
 | `.../restaurants_unit_correlations_common_v1.2.0.parquet` | The same, on one unit set |

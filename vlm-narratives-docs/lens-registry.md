@@ -3,7 +3,7 @@
 Generated: 2026-09-07. Do not edit this page by hand.
 
 ```bash
-.venv-3.12/bin/python scripts/register_lenses.py
+.venv-3.12/bin/python research/scripts/register_lenses.py
 ```
 
 ## What this page is

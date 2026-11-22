@@ -1,6 +1,6 @@
 # The 100,000-pair thinking runs
 
-Launched 2026-09-08 00:15 with `scripts/launch_thinking100k.sh`. Both
+Launched 2026-09-08 00:15 with `research/scripts/launch_thinking100k.sh`. Both
 raters, all 7 cases, 100,000 pairs for each case, thinking mode, on the
 preemptable `gpu` partition.
 

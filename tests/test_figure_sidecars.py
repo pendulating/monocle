@@ -1,7 +1,7 @@
 """Tests for the caption sidecars of the version 3 figures.
 
 A figure carries no caption prose. Its caption goes into a `.json` file
-beside the image (`notebooks/cvpr/_figmeta.py`). These tests build small
+beside the image (`research/notebooks/cvpr/_figmeta.py`). These tests build small
 frames by hand. They read no corpus and need no GPU.
 """
 
@@ -18,7 +18,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 import _figmeta as F  # noqa: E402
 import _gold_alignment as G  # noqa: E402

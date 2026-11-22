@@ -34,7 +34,7 @@
 #    of the heading or the note that the caption sits under, or is `none`.
 # 2. `hashtags`: 1 run of hashtags, as written. `scope` tells whether the run
 #    belongs to 1 caption or is a general list for the answer. The regex table
-#    (`scripts/f4/caption_hashtags.py`) is the count of record for hashtags
+#    (`research/scripts/f4/caption_hashtags.py`) is the count of record for hashtags
 #    (D101); this class links a run to its caption and checks the regex.
 #
 # A text that only describes the photograph gives no extraction. 94 Llama
@@ -42,7 +42,7 @@
 # 1st example is a negative example.
 #
 # Every `extraction_text` appears in its own `text` word for word. The
-# examples come from F4 answers. `scripts/f4/build_caption_examples.py` builds
+# examples come from F4 answers. `research/scripts/f4/build_caption_examples.py` builds
 # each span as a slice of its text and prints this examples block.
 #
 # Warning: raise `schema_version` when you change a class, an attribute, a

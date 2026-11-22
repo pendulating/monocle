@@ -1,7 +1,7 @@
 # Validation by proxy, run again on every ablation arm
 
-`notebooks/cvpr/_proxy_arms.py`, section 4 of
-`notebooks/cvpr/master/ablations.py`.
+`research/notebooks/cvpr/_proxy_arms.py`, section 4 of
+`research/notebooks/cvpr/master/ablations.py`.
 
 ## The question
 
@@ -263,15 +263,15 @@ r +0.616 to -0.635, p = 5e-6, with the area score sd falling from 0.175 to
 ## Run it
 
 ```bash
-uv run marimo edit notebooks/cvpr/master/ablations.py
+uv run marimo edit research/notebooks/cvpr/master/ablations.py
 # or, from a command
-python scripts/export_cvpr_ablations.py
+python research/scripts/export_cvpr_ablations.py
 ```
 
 Section 4 builds the long frame, the drift frame, the direction count, the
 arm-by-arm wide table, and 3 figures. The layer control at the top of the
 notebook drives it. The export button writes them under
-`notebooks/cvpr/master/outputs/`.
+`research/notebooks/cvpr/master/outputs/`.
 
 The stem is `proxy_arms_<layer>_v<version>`:
 

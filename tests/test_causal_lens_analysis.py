@@ -14,7 +14,7 @@ import pandas as pd
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-for extra in (str(REPO), str(REPO / "scripts")):
+for extra in (str(REPO), str(REPO / "research" / "scripts")):
     if extra not in sys.path:
         sys.path.insert(0, extra)
 
@@ -149,13 +149,13 @@ class TestMakeRankingShuffle:
         pd.DataFrame(rows).to_parquet(src, index=False)
         out = tmp_path / "r.parquet"
         subprocess.run(
-            [PY_BIN, str(REPO / "scripts/make_ranking.py"), "--maps", str(src),
+            [PY_BIN, str(REPO / "research/scripts/make_ranking.py"), "--maps", str(src),
              "--arm", "lens_own", "--layer", "18", "--group", "2",
              "--shuffle", "99", "--out", str(out)], check=True,
             capture_output=True)
         got = pd.read_parquet(out).set_index("image_id")
         import sys as _s
-        _s.path.insert(0, str(REPO / "scripts"))
+        _s.path.insert(0, str(REPO / "research" / "scripts"))
         from make_ranking import pool
         want = {r["target"]: pool(r["lens_own"], 2) for r in rows}
         same = sum(np.allclose(got.loc[k, "values"], want[k]) for k in want)

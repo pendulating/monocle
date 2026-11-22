@@ -1,6 +1,6 @@
 """The canonical prompt path must match the battery, token for token.
 
-`monocle/canonical.py` builds the forward pass the Jacobian lens reads. If that
+`research/monocle/canonical.py` builds the forward pass the Jacobian lens reads. If that
 prompt drifts from the CVPR battery, every lens number describes a run nobody
 published. These tests are the gate.
 
@@ -26,7 +26,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import canonical  # noqa: E402
+from research.monocle import canonical  # noqa: E402
 
 MODEL_DIR = Path("/share/ju/matt/zoo/models/gemma-4-12B-it")
 
@@ -176,7 +176,7 @@ def test_chat_text_is_identical_to_the_production_path(case):
 
     from dagspaces.common.vllm_inference import (
         _gemma4_unified_chat_template, _to_image_type_blocks)
-    from monocle.canonical import _load_pairwise_vqa
+    from research.monocle.canonical import _load_pairwise_vqa
 
     is_g4u, tmpl = _gemma4_unified_chat_template(str(MODEL_DIR))
     assert is_g4u and tmpl, "gemma4_unified template not found"
@@ -332,7 +332,7 @@ def test_default_prefix_matches_how_the_model_writes_the_object():
 
 @needs_registry
 def test_answer_tokens_defaults_to_the_natural_prefix():
-    from monocle import answer_tokens as at
+    from research.monocle import answer_tokens as at
 
     assert at.build_parser().parse_args([]).force_prefix == "natural"
 

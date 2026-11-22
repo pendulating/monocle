@@ -11,7 +11,7 @@ REPO = Path(__file__).resolve().parent.parent
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle.subset_map import draw_sets, fit_values, holdout_r2  # noqa: E402
+from research.monocle.subset_map import draw_sets, fit_values, holdout_r2  # noqa: E402
 
 
 class TestDrawSets:

@@ -27,8 +27,8 @@
 # 110,025 rows for each case, 5 shards, 35 jobs, 2,048-row resume chunks.
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_ablation_rerun_gemma.sh --dry-run
-#   bash scripts/launch_ablation_rerun_gemma.sh
+#   bash research/scripts/launch_ablation_rerun_gemma.sh --dry-run
+#   bash research/scripts/launch_ablation_rerun_gemma.sh
 
 sampling_params_vqa:
   max_tokens: 128

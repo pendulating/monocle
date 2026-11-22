@@ -19,7 +19,7 @@ absolute bearing in `bearing_a` and `bearing_b`, and those columns hold exactly
 | `B` | south (180 deg) | in front, near noon |
 | `L` | west (270 deg) | behind in the morning, in front in the afternoon |
 
-`dagspaces/urbanroamvqa/graph/street_graph.py` holds the same table as
+`research/dagspaces/urbanroamvqa/graph/street_graph.py` holds the same table as
 `FACE_BEARING_DEG`. The facing filter picks the face that points at the unit,
 thus 1 recording gives 1 face to a facility pool.
 
@@ -254,15 +254,15 @@ photographs and not as a place ranking.
 
 | File | Purpose |
 |------|---------|
-| `notebooks/cvpr/_faces.py` | the frame, the estimator, the figures and the table |
-| `notebooks/cvpr/master/face_effect.py` | the marimo notebook |
-| `scripts/export_face_effect.py` | the reproducible export, with the registry gate |
-| `notebooks/cvpr/master/outputs/face_effect_*` | the grid, the table and the LaTeX |
-| `notebooks/cvpr/master/figures/face_*` | the coefficient figure and the sun figures |
+| `research/notebooks/cvpr/_faces.py` | the frame, the estimator, the figures and the table |
+| `research/notebooks/cvpr/master/face_effect.py` | the marimo notebook |
+| `research/scripts/export_face_effect.py` | the reproducible export, with the registry gate |
+| `research/notebooks/cvpr/master/outputs/face_effect_*` | the grid, the table and the LaTeX |
+| `research/notebooks/cvpr/master/figures/face_*` | the coefficient figure and the sun figures |
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python scripts/export_face_effect.py
-.venv-mllmsci-vllm025cu129/bin/marimo edit notebooks/cvpr/master/face_effect.py
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/export_face_effect.py
+.venv-mllmsci-vllm025cu129/bin/marimo edit research/notebooks/cvpr/master/face_effect.py
 ```
 
 **Warning: the export reads 14 runs of 1,100,000 rows. It needs about 10

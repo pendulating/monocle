@@ -1,9 +1,9 @@
-"""The causal map figure path. See monocle/causal_maps.py."""
+"""The causal map figure path. See research/monocle/causal_maps.py."""
 import numpy as np
 import pytest
 from PIL import Image
 
-from monocle import causal_maps as cm
+from research.monocle import causal_maps as cm
 
 
 class TestGrid:

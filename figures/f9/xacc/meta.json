@@ -1,9 +1,0 @@
-{
- "module": "notebooks/facct/_xacc.py",
- "version": "1.0.0",
- "seed": 20261030,
- "n_per_stratum": 30,
- "spans_counted": 6571483,
- "rows": 6641561,
- "texts": 399657
-}

@@ -12,12 +12,12 @@ the canonical setup. The plan and its checklist are in
 |------|---------|
 | `dagspaces/pairwisevqa/conf/sweep/robustness_1k_<rater>.yaml` | The base of 1 rater: 1,000 pairs, 1 shard, the rater's production layout |
 | `dagspaces/pairwisevqa/conf/prompt/pairwise_subway_safety_{paraphrase,persona,enumrev,flipped}.yaml` | The 4 wording arms, each 1 change against the canonical prompt |
-| `scripts/launch_robustness_battery.sh` | One submit for each (rater, arm); tier A, tier B, and the smoke mode |
+| `research/scripts/launch_robustness_battery.sh` | One submit for each (rater, arm); tier A, tier B, and the smoke mode |
 | `scripts/subset_pair_tables.py` | Cuts the 1k and 25k pair tables out of the 1M table |
-| `notebooks/cvpr/_robustness.py` | The measures, the proof of each arm, and the 3 LaTeX tables |
-| `notebooks/cvpr/_robustness_estimand.py` | Tier B: the station and tract proxies of each arm against the matched canonical control, and the order halves |
-| `notebooks/cvpr/master/outputs/robustness_v1.0.0.{tex,csv}` | The table the paper reads |
-| `notebooks/cvpr/master/outputs/robustness_estimand*_v1.0.0.csv` | The numbers of the estimand paragraph |
+| `research/notebooks/cvpr/_robustness.py` | The measures, the proof of each arm, and the 3 LaTeX tables |
+| `research/notebooks/cvpr/_robustness_estimand.py` | Tier B: the station and tract proxies of each arm against the matched canonical control, and the order halves |
+| `research/notebooks/cvpr/master/outputs/robustness_v1.0.0.{tex,csv}` | The table the paper reads |
+| `research/notebooks/cvpr/master/outputs/robustness_estimand*_v1.0.0.csv` | The numbers of the estimand paragraph |
 
 ## The design
 
@@ -73,14 +73,14 @@ python scripts/subset_pair_tables.py --parent multirun/pair_tables_1m \
     --select multirun/pair_tables_select_1k --out-dir multirun/pair_tables_1k_of_1m --cases subway_safety
 
 # Tier A: 4 raters x 11 arms, 1 job each
-bash scripts/launch_robustness_battery.sh --dry-run
-bash scripts/launch_robustness_battery.sh --base multirun/robustness_a_<stamp>
+bash research/scripts/launch_robustness_battery.sh --dry-run
+bash research/scripts/launch_robustness_battery.sh --base multirun/robustness_a_<stamp>
 
 # Tier B: paraphrase + persona at 25,000 pairs, 2 raters, 2 shards each
-bash scripts/launch_robustness_battery.sh --tier b
+bash research/scripts/launch_robustness_battery.sh --tier b
 
 # The tables
-.venv-mllmsci-vllm025cu129/bin/python notebooks/cvpr/_robustness.py --battery multirun/robustness_a_<stamp>
+.venv-mllmsci-vllm025cu129/bin/python research/notebooks/cvpr/_robustness.py --battery multirun/robustness_a_<stamp>
 ```
 
 ## Traps
@@ -122,7 +122,7 @@ bash scripts/launch_robustness_battery.sh --tier b
 ## Results (tier A, 2026-09-04, `multirun/robustness_a_20260904_210129`)
 
 44 of 44 runs landed, 1,091 rows each, and every run proved its arm. The
-generated tables are in `notebooks/cvpr/master/outputs/robustness*_v1.0.0.tex`
+generated tables are in `research/notebooks/cvpr/master/outputs/robustness*_v1.0.0.tex`
 and in the paper under `tables/robustness*.tex`.
 
 Linear-weighted kappa against the retest (R0). The first row is R0 against
@@ -200,7 +200,7 @@ python scripts/merge_pairwise_shards.py --sweep-dir multirun/robustness_b_202609
     --sweep robustness_1k_gemma12b --out-dir multirun/robustness_b_merged/paraphrase
 # register: give EVERY root (see canonical-run-registry.md), then verify
 # the estimand numbers
-cd notebooks/cvpr && ../../.venv-mllmsci-vllm025cu129/bin/python _robustness_estimand.py
+cd research/notebooks/cvpr && ../../.venv-mllmsci-vllm025cu129/bin/python _robustness_estimand.py
 ```
 
 Abstention: gemma paraphrase 10.8%, persona 0.1%; qwen paraphrase 12.2%,

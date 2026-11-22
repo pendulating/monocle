@@ -14,7 +14,7 @@ This module does the monitors' work in 1 process on the login node and exits.
 It composes the config of each (case, shard), submits every shard as 1 SLURM
 ARRAY, and writes a record of what it submitted. Each GPU job runs
 `run_shard_job`, which runs the stage and writes the `pipeline_manifest.json`
-that the monitor used to write. `scripts/merge_trace_extractions.py` reads
+that the monitor used to write. `research/scripts/merge_trace_extractions.py` reads
 the shard parquets from disk, thus nothing waits for anything.
 
 It follows `submit_shards.py`, the submitter of the million-pair battery, and
@@ -43,7 +43,7 @@ Where the output goes
 
 The default base dir is `multirun/<date>_<experiment>`. Merge with:
 
-    python scripts/merge_trace_extractions.py <base-dir>/runs --out <root>
+    python research/scripts/merge_trace_extractions.py <base-dir>/runs --out <root>
 
 See `vlm-narratives-docs/langextract-trace-extraction.md`, "Submit without a
 monitor".
@@ -71,7 +71,7 @@ __version__ = "1.0.0"
 _ROOT = "/share/ju/matt/mllmsci"
 
 # The registered trace runs of the canonical registry, as named on 2026-09-04.
-# The same table lives in `scripts/launch_trace_extraction.sh`.
+# The same table lives in `research/scripts/launch_trace_extraction.sh`.
 _QWEN_SWEEP = "multirun/2026-08-14_URBANPAIRVQA/21-28-12"
 _GEMMA_SWEEP = "multirun/2026-08-14_URBANPAIRVQA/21-28-32"
 QWEN_RUNS: Dict[str, str] = {
@@ -95,7 +95,7 @@ GEMMA_RUNS: Dict[str, str] = {
 CASE_ORDER = list(QWEN_RUNS)
 
 # The arms: (judge, extractor). The corpus roots are in
-# `notebooks/cvpr/_extractions.ARMS`.
+# `research/notebooks/cvpr/_extractions.ARMS`.
 #
 #   launcher, tp, seqs, mem: the engine shape. A 9B or 12B model in bf16 fits
 #   1 GPU of 48 GB and holds 128 sequences. A 27B or 31B model needs 2 GPUs
@@ -353,7 +353,7 @@ def submit(arm_name: str, *, base_dir: Optional[str] = None,
     }
     with open(os.path.join(base_dir, "launch.json"), "w") as fh:
         json.dump(record, fh, indent=2)
-    print(f"[submit] merge    : python scripts/merge_trace_extractions.py "
+    print(f"[submit] merge    : python research/scripts/merge_trace_extractions.py "
           f"{base_dir}/runs --out <root>")
     return 0
 

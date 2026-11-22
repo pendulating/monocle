@@ -162,7 +162,7 @@ llm:
     provider: vllm
     # IMPORTANT: For multimodal_reflection=true, use a Vision-Language model
     # This must match the --served-model-name in run_qwen3vl30b_vllm.sub
-    # Start the reflection server: sbatch scripts/run_qwen3vl30b_vllm.sub
+    # Start the reflection server: sbatch research/scripts/run_qwen3vl30b_vllm.sub
     model: qwen3-vl-30b-reflection
     api_base: http://localhost:8000/v1
     api_key_env: null

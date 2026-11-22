@@ -84,9 +84,9 @@ Effect of v4 on the drawn set: the angle median 13.6 to 7.6 degrees; views over
 
 | What | Path |
 |------|------|
-| Selection, render | `scripts/f6_select_storefront_views.py` (2.0.0), `scripts/f6_render_best_views.sub` |
-| Pixel check, draw, review | `scripts/f6_vlm_facade_check.py`, `scripts/f6_vlm_facade_check_g3.sub` |
-| The figure of the virtual camera (1 example: the 6 faces, the sampled regions, the view, and the geometry JSON for the TikZ panels of `fig:facade-view`) | `scripts/f6_facade_view_example.py` -> `notebooks/facct/figures/facade_view/` |
+| Selection, render | `research/scripts/f6_select_storefront_views.py` (2.0.0), `research/scripts/f6_render_best_views.sub` |
+| Pixel check, draw, review | `research/scripts/f6_vlm_facade_check.py`, `research/scripts/f6_vlm_facade_check_g3.sub` |
+| The figure of the virtual camera (1 example: the 6 faces, the sampled regions, the view, and the geometry JSON for the TikZ panels of `fig:facade-view`) | `research/scripts/f6_facade_view_example.py` -> `research/notebooks/facct/figures/facade_view/` |
 | Outputs | `data/f6_restaurant_depiction/v4/` |
 | Advisor reviews | `data/f6_restaurant_depiction/advisor-review-2026-10-23.md`, `advisor-review-2026-10-24-math.md` |
 | Label exports | `data/f6_restaurant_depiction/exports/` |

@@ -2,8 +2,8 @@
 
 This report answers the 7 questions of 2026-11-02 on the F10 results. Each question gets a
 section with the method, the table and the limits. The CPU parts read the F10.26 summaries
-(`data/f10/prompts/`) and the F10.27 directions (`figures/f10/shared/`). The GPU parts
-(questions 5 and 7) run `scripts/f10/hop_steer.py` on 1 GPU for each model.
+(`data/f10/prompts/`) and the F10.27 directions (`research/figures/f10/shared/`). The GPU parts
+(questions 5 and 7) run `research/scripts/f10/hop_steer.py` on 1 GPU for each model.
 
 **Status (2026-11-02):** Questions 1, 2, 3, 4 and 6 are done. Questions 5 and 7 run on the GPU
 (jobs 118269 to 118271). Nothing is committed.
@@ -22,7 +22,7 @@ section with the method, the table and the limits. The CPU parts read the F10.26
 
 F10.28 holds the main test (`f10-shared-direction.md`, "ACS gradients of the answers"):
 Spearman rho over the 197 NTAs of the NTA mean of E = P(yes) - P(no) with 4 ACS features,
-Bonferroni over 188 tests. The 3 questions of the author, read from `figures/f10/hierarchy/ses_prompts.csv`:
+Bonferroni over 188 tests. The 3 questions of the author, read from `research/figures/f10/hierarchy/ses_prompts.csv`:
 
 | Question | Answer | Values |
 |----------|--------|--------|
@@ -30,7 +30,7 @@ Bonferroni over 188 tests. The 3 questions of the author, read from `figures/f10
 | Does more education mean more `nice`? | Yes, with `place`, in 3 of 3 | Bachelor's share: rho .29 to .34 pass with `place`; .17 to .24 with `scene` do not pass. Income passes in 6 of 6 (.32 to .41) |
 | Do more Black people mean more `ugly`? | The sign is positive in 6 of 6, but no test passes, and the gradient is an income gradient | rho .15 to .22; Bonferroni p .3 to 1.0. Only Gemma `P_unsure` of `place ugly` passes (.28) |
 
-The partial test (`scripts/f10/hop_ses_partial.py`, `figures/f10/hierarchy/ses_partial.csv`):
+The partial test (`research/scripts/f10/hop_ses_partial.py`, `research/figures/f10/hierarchy/ses_partial.csv`):
 the partial Spearman rho of E with the Black share given income, and with income given the
 Black share. 18 cells: `ugly`, `nice`, `cool`, 3 models, 2 nouns. Bonferroni over 18.
 
@@ -51,7 +51,7 @@ Black-share association. Neighboring NTAs are not independent.
 
 The F10.27 direction of a model is a vector over its lens words. The 2 Qwen models share a
 lens vocab (43,563 words), and Gemma-4-31B shares 36,490 words with them. Script:
-`scripts/f10/hop_transfer.py`. Output: `figures/f10/transfer/`.
+`research/scripts/f10/hop_transfer.py`. Output: `research/figures/f10/transfer/`.
 
 | Step | Rule |
 |------|------|
@@ -87,7 +87,7 @@ different weight in each model.
 
 ## 3. Three images for each NTA
 
-Script: `scripts/f10/hop_sample.py`. Output: `figures/f10/sample/cells.csv`, `summary.csv`.
+Script: `research/scripts/f10/hop_sample.py`. Output: `research/figures/f10/sample/cells.csv`, `summary.csv`.
 Units: the 38 cells with 500 images or more (the 4 Gemma cells with refusals are out).
 
 | Measure | Rule | Min | Median | Max |
@@ -121,14 +121,14 @@ feature has no noise.
 
 **Paper (2026-11-03):** the refusal texts, the refusal shares at 50 images and the last-token words are in section 4.1 (P60), and the refusal gradients in section 4.2 (P61). See `f10-manuscript-proposals.md` section 8.
 
-Script: `scripts/f10/hop_aware.py`. Output: `figures/f10/aware/`. Units: the NTA means of
+Script: `research/scripts/f10/hop_aware.py`. Output: `research/figures/f10/aware/`. Units: the NTA means of
 the F10.26 summaries at the last token.
 
 **Refusals.** Gemma-4-31B gives no yes or no on these cells. The first token is `Subject`
 (Subjective), `Beauty`, `Unable`, `I` or `Whether`. No F10 store holds the full text; the
 texts quoted in `f10-judgment-mechanism.md` are "Subjective", "Unable to determine." and
 "Whether a place is "nice" is a matter of personal opinion." The GPU run of question 5 wrote
-16 tokens of free text for 10 images on `cool`, `nice` and `ugly` (`figures/f10/steer/generations.csv`).
+16 tokens of free text for 10 images on `cool`, `nice` and `ugly` (`research/figures/f10/steer/generations.csv`).
 The Gemma refusals, with the thought channel that follows the first word:
 
 | Prompt | Image | Text |
@@ -184,9 +184,9 @@ measure of harm awareness. No prompt in F10 asks the model about harm.
 
 ## 5. Can the direction coerce the answer?
 
-**Paper (2026-11-03):** the paragraph "The direction moves the answer" in section 4.1 and the Appendix B subsection `app:steering` with `tab:steering-dose` (P59). The table comes from `scripts/f10/hop_steer_table.py`, from `figures/f10/steer/dose.csv`.
+**Paper (2026-11-03):** the paragraph "The direction moves the answer" in section 4.1 and the Appendix B subsection `app:steering` with `tab:steering-dose` (P59). The table comes from `research/scripts/f10/hop_steer_table.py`, from `research/figures/f10/steer/dose.csv`.
 
-Script: `scripts/f10/hop_steer.py` (stages `dirs`, `run`). Output: `data/f10/steer/{model}/`.
+Script: `research/scripts/f10/hop_steer.py` (stages `dirs`, `run`). Output: `data/f10/steer/{model}/`.
 
 | Step | Rule |
 |------|------|
@@ -241,7 +241,7 @@ activations can set. That party already has full control of the model, thus the 
 not a new attack surface. The claim for the paper is about the mechanism: the direction is
 causal for Gemma's verdict, and the verdict is 1 number that the image sets.
 
-**The 197-image run, Gemma-4-31B, 6 sigma** (`figures/f10/steer/run.csv`): mean change of the
+**The 197-image run, Gemma-4-31B, 6 sigma** (`research/figures/f10/steer/run.csv`): mean change of the
 margin, and the yes share (base in the first column).
 
 | Prompt (base yes share) | Aesthetic, noun only, -6 / +6 | Aesthetic, noun onward, -6 / +6 | Judgment, last token, -6 / +6 |
@@ -271,7 +271,7 @@ At 6 sigma and at the test layer the aesthetic direction moves nothing in the Qw
 change of the margin is .05 or less), while the judgment direction flips the answers. The dose run
 below shows that the Qwen aesthetic directions act at other layers and at larger doses.
 
-**The dose run by layer, 40 images** (`figures/f10/steer/dose.csv`): the yes share with the
+**The dose run by layer, 40 images** (`research/figures/f10/steer/dose.csv`): the yes share with the
 aesthetic direction from the noun onward.
 
 | Model, prompt (base) | Layer | -48 | -24 | -12 | +12 | +24 | +48 |
@@ -315,7 +315,7 @@ reads the margin of the 1,379 new images at r .77, .67 and .51. See `f10-30-more
 
 ## 6. Is the phase succession robust?
 
-Script: `scripts/f10/hop_robust.py`. Output: `figures/f10/robust/sweep.csv`, `band_edges.csv`.
+Script: `research/scripts/f10/hop_robust.py`. Output: `research/figures/f10/robust/sweep.csv`, `band_edges.csv`.
 Input: the per-layer tables of F10.26 task 2. The count is the cells of 42 in which the rule
 holds at each threshold.
 
@@ -354,7 +354,7 @@ already.
 
 ## 7. What does the direction say at other tokens? (running)
 
-Script: `scripts/f10/hop_steer.py` stage `words`. Output: `data/f10/steer/{model}/words.parquet`.
+Script: `research/scripts/f10/hop_steer.py` stage `words`. Output: `data/f10/steer/{model}/words.parquet`.
 
 The prompt is text only. The noun words `person`, `building`, `place` and `scene` go in
 "Is this {word} cool? Answer with one word: yes or no." and the adjective words `beautiful`,
@@ -385,7 +385,7 @@ The token-specific question needs the model's own forward, not the lens: the sta
 next-token words at that token and at the last token, with the margin (jobs 118323 to 118325,
 with the larger doses of question 5). **Second result, the model's own forward (`words_model`, 3 models).** Text only, no image.
 The margin at the last token with the direction added at 24 sigma, and the words at the last
-token. Source: `figures/f10/steer/words_model.csv`.
+token. Source: `research/figures/f10/steer/words_model.csv`.
 
 | Model | Word | Base margin | Aesthetic at the word only, -24 / +24 | Aesthetic noun onward, -24 / +24 | Control, -24 / +24 | Judgment, -24 / +24 |
 |-------|------|-------------|---------------------------------------|----------------------------------|--------------------|---------------------|
@@ -420,13 +420,13 @@ The text-only prompt has no image, thus the base margin is the prior of the mode
 
 ```bash
 P=.venv-mllmsci-vllm025cu129/bin/python
-$P scripts/f10/hop_ses_partial.py      # question 1
-$P scripts/f10/hop_transfer.py         # question 2
-$P scripts/f10/hop_sample.py           # question 3
-$P scripts/f10/hop_aware.py            # question 4
-$P scripts/f10/hop_robust.py           # question 6
-$P scripts/f10/hop_steer.py dirs --model gemma-4-31b   # questions 5 and 7, the directions (CPU)
-sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f1029-gemma-4-31b scripts/f10/hop_steer.sbatch
+$P research/scripts/f10/hop_ses_partial.py      # question 1
+$P research/scripts/f10/hop_transfer.py         # question 2
+$P research/scripts/f10/hop_sample.py           # question 3
+$P research/scripts/f10/hop_aware.py            # question 4
+$P research/scripts/f10/hop_robust.py           # question 6
+$P research/scripts/f10/hop_steer.py dirs --model gemma-4-31b   # questions 5 and 7, the directions (CPU)
+sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f1029-gemma-4-31b research/scripts/f10/hop_steer.sbatch
 ```
 
 ## Related

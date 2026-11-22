@@ -10,12 +10,12 @@ writes the answer?
 
 | Step | Script | Output |
 |------|--------|--------|
-| 1. Fit the lenses | `scripts/whatami/lens_fit.py` | `outputs/_monocle/jlens/whatami/<model>/<lens>/lens.pt` |
-| 2. Replay the answers | `scripts/whatami/lens_replay.py` | `multirun/whatami/lens_replay/<model>/<lens>/part-*.parquet` |
-| 3. Summaries | `scripts/whatami/lens_report.py` | `multirun/whatami/lens_report/<model>/<lens>/*.csv` |
+| 1. Fit the lenses | `research/scripts/whatami/lens_fit.py` | `outputs/_monocle/jlens/whatami/<model>/<lens>/lens.pt` |
+| 2. Replay the answers | `research/scripts/whatami/lens_replay.py` | `multirun/whatami/lens_replay/<model>/<lens>/part-*.parquet` |
+| 3. Summaries | `research/scripts/whatami/lens_report.py` | `multirun/whatami/lens_report/<model>/<lens>/*.csv` |
 
-`scripts/whatami/lens_job.sbatch` runs each step as one job on the nissenbaum
-B300. `scripts/whatami/lens_common.py` holds the model table, the HF loaders
+`research/scripts/whatami/lens_job.sbatch` runs each step as one job on the nissenbaum
+B300. `research/scripts/whatami/lens_common.py` holds the model table, the HF loaders
 and the prompt builder.
 
 ## The lenses
@@ -183,7 +183,7 @@ below L44.
 
 ### A latent borough against the true borough
 
-`scripts/whatami/lens_borough_check.py`: the share of answers where the
+`research/scripts/whatami/lens_borough_check.py`: the share of answers where the
 borough token is at top 1 at any position in the late third (layers 31 to 46),
 by the borough of the image. `multirun/whatami/lens_report/gemma-4-12b/borough_check_late.csv`.
 
@@ -211,7 +211,7 @@ Answers SAY "Manhattan" in 2.1% of cases. What the table shows:
 
 Because the gemma J-lenses do not read the middle layers, we fit R-lenses on
 the same corpora: `lens_fit.py --rules lrp`. The LRP rules of
-`monocle/rlens_rules.py` change only the backward pass (norm, identity, half,
+`research/monocle/rlens_rules.py` change only the backward pass (norm, identity, half,
 softmax). The forward values stay bit-identical. The softmax rule needs eager
 attention, thus `--rules lrp` loads the model eager.
 

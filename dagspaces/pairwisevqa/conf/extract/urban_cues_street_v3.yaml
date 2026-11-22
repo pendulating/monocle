@@ -38,7 +38,7 @@
 # D126 and D127 hold: an effect of the planned picture is `photo_advice`; a
 # critique word that stays true of a thing of the place is `visual_evidence`.
 #
-# The examples come from `scripts/f4/build_street_cue_examples.py --version
+# The examples come from `research/scripts/f4/build_street_cue_examples.py --version
 # v3`. No example text is in `x2_smoke_doc_ids.json`. Example texts:
 # gemma-4-12b|street|154|reasoning (2 parts), qwen3.8-27b|street|844|reasoning
 # (2 parts), qwen3.5-9b|street|48|response, qwen3.8-27b|street|278|response,
@@ -48,7 +48,7 @@
 # value list, or an example. Never edit a version in place.
 #
 # Warning: keep `attribute_values` inside `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`.
+# `research/notebooks/cvpr/_extractions.py`.
 
 name: urban_cues_street
 schema_version: street-v3

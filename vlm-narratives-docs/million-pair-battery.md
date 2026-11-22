@@ -65,7 +65,7 @@ The runner compares the sidecar against its own config and STOPS when they
 differ, and it names the settings that differ. A missing file also stops the
 job. `pairs_path: null` draws the table in the job, as before.
 
-`scripts/launch_million_battery.sh` runs the prebuild before it submits. The
+`research/scripts/launch_million_battery.sh` runs the prebuild before it submits. The
 step is idempotent: a table whose sidecar already matches is kept. Use
 `--no-prebuild` to go back to the draw in each job.
 
@@ -133,11 +133,11 @@ The wall simply sits inside the distribution of the shard time:
 looks for that name with the time removed. The name of a result carries the
 time the job started, thus a test of the exact path always fails.
 
-`scripts/resubmit_million_battery.sh` does the whole procedure:
+`research/scripts/resubmit_million_battery.sh` does the whole procedure:
 
 ```bash
-bash scripts/resubmit_million_battery.sh --dry-run   # count what is missing
-bash scripts/resubmit_million_battery.sh             # cancel, then submit
+bash research/scripts/resubmit_million_battery.sh --dry-run   # count what is missing
+bash research/scripts/resubmit_million_battery.sh             # cancel, then submit
 ```
 
 **Warning:** cancel the old array before you submit. A task that runs now and a
@@ -178,7 +178,7 @@ start in the same second, take the same job numbers, and 1 silently overwrites
 the other. Measured on 2026-08-18: a qwen shard and a gemma shard both wrote
 `14-50-19/0/outputs/pairwise/schools_mvp_20260818_145028.parquet`.
 
-`scripts/launch_million_battery.sh` sets
+`research/scripts/launch_million_battery.sh` sets
 `runtime.output_root=<sweep>/<rater>/runs/${hydra:job.num}`, which
 `resolve_output_root` reads before it asks Hydra. The rater name separates the
 sweeps and the job number separates the shards.
@@ -215,10 +215,10 @@ comes from the gemma rate.
 ## How to launch
 
 ```bash
-bash scripts/launch_million_battery.sh --dry-run
-bash scripts/launch_million_battery.sh --smoke      # 1 case, 2 shards
-bash scripts/launch_million_battery.sh              # both raters
-bash scripts/launch_million_battery.sh --parallel 48
+bash research/scripts/launch_million_battery.sh --dry-run
+bash research/scripts/launch_million_battery.sh --smoke      # 1 case, 2 shards
+bash research/scripts/launch_million_battery.sh              # both raters
+bash research/scripts/launch_million_battery.sh --parallel 48
 ```
 
 **Warning:** run the smoke test first when the venv, a model config, or the
@@ -277,9 +277,9 @@ The paper reads the canonical registry, never a sweep directory. After the
 merge:
 
 ```bash
-python scripts/register_canonical_runs.py register \
+python research/scripts/register_canonical_runs.py register \
     --stage-root 'multirun/million_merged/*' --force
-python scripts/register_canonical_runs.py verify
+python research/scripts/register_canonical_runs.py verify
 ```
 
 The proxy row floor is 1,000,000 since 2026-08-20. A `looks_proxy_*` run

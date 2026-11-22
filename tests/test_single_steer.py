@@ -1,8 +1,8 @@
-"""CPU tests for monocle/single_steer.py (the single-image steering rung).
+"""CPU tests for research/monocle/single_steer.py (the single-image steering rung).
 
 These cover the pure helpers: the prompt text, the single-token word gate,
 the polar scoring, the image dedup, and the summary shape. The GPU path runs
-under monocle/monocle.sub.
+under research/monocle/monocle.sub.
 """
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import single_steer  # noqa: E402
+from research.monocle import single_steer  # noqa: E402
 
 MODEL_DIR = Path(single_steer.MODEL_DIR_DEFAULT)
 
@@ -38,7 +38,7 @@ class FakeTokenizer:
 # Word tables and prompt text
 # ---------------------------------------------------------------------------
 def test_every_case_has_words_subject_question():
-    from monocle import canonical
+    from research.monocle import canonical
     for case in canonical.CASES:
         assert case in single_steer.CASE_WORDS
         assert case in single_steer.CASE_SUBJECTS

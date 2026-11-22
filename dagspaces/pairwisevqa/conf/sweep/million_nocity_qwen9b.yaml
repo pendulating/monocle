@@ -63,9 +63,9 @@
 # clear to be worth its own job.
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_nocity_battery.sh --dry-run
-#   bash scripts/launch_nocity_battery.sh --smoke
-#   bash scripts/launch_nocity_battery.sh
+#   bash research/scripts/launch_nocity_battery.sh --dry-run
+#   bash research/scripts/launch_nocity_battery.sh --smoke
+#   bash research/scripts/launch_nocity_battery.sh
 
 sampling_params_vqa:
   max_tokens: 128

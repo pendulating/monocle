@@ -9,11 +9,11 @@ the corpora, and `ic-ingredient-extraction.md` for the codebook.
 
 | File | Purpose |
 |------|---------|
-| `notebooks/cvpr/_ic_v3.py` | The arithmetic, the figures, and the export of the 3 notebooks |
-| `notebooks/cvpr/master/ic_perspectives.py` | Question 1: perspectives, inferences, and dimensions against the vote |
-| `notebooks/cvpr/master/ic_grounding.py` | Question 2: what grounds a perspective |
-| `notebooks/cvpr/master/ic_differentiation.py` | Questions 3 and 4: pseudo-differentiation and dismissals |
-| `scripts/export_ic_v3_figures.py` | Writes every file of the 3 notebooks for the 2 primary arms, without marimo |
+| `research/notebooks/cvpr/_ic_v3.py` | The arithmetic, the figures, and the export of the 3 notebooks |
+| `research/notebooks/cvpr/master/ic_perspectives.py` | Question 1: perspectives, inferences, and dimensions against the vote |
+| `research/notebooks/cvpr/master/ic_grounding.py` | Question 2: what grounds a perspective |
+| `research/notebooks/cvpr/master/ic_differentiation.py` | Questions 3 and 4: pseudo-differentiation and dismissals |
+| `research/scripts/export_ic_v3_figures.py` | Writes every file of the 3 notebooks for the 2 primary arms, without marimo |
 | `tests/test_ic_v3.py` | 15 tests on small synthetic frames. No corpus read |
 
 Each notebook shows the primary arm of the gemma judge by default. An arm
@@ -24,11 +24,11 @@ the same judge (questions 1 and 2) or all 4 arms (questions 3 and 4).
 
 ```bash
 # Run a notebook headless (silent on success)
-.venv-mllmsci-vllm025cu129/bin/python notebooks/cvpr/master/ic_perspectives.py
+.venv-mllmsci-vllm025cu129/bin/python research/notebooks/cvpr/master/ic_perspectives.py
 
 # Write every file for the 2 primary arms (about 2 minutes, 4 arms read)
-.venv-mllmsci-vllm025cu129/bin/python scripts/export_ic_v3_figures.py \
-    --fig-dir notebooks/cvpr/master/figures
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/export_ic_v3_figures.py \
+    --fig-dir research/notebooks/cvpr/master/figures
 
 # Tests
 .venv-mllmsci-vllm025cu129/bin/python -m pytest tests/test_ic_v3.py -q
@@ -46,7 +46,7 @@ notebook shows it under the figure, and `_figmeta.save_figure` writes it.
 ## Paper tables (LaTeX)
 
 The export button of each notebook writes compact LaTeX tables into
-`notebooks/cvpr/master/outputs/`, not into `figures/`. The `latex_<table>`
+`research/notebooks/cvpr/master/outputs/`, not into `figures/`. The `latex_<table>`
 functions of `_ic_v3.py` build them with the shared helper `_latex.py`. The
 file name is `<tag>_<table>_v<NOTEBOOK_VERSION>.tex` (version 1.1.0). In the
 labels, `<arm>` is the arm name with `-` for `_`, for example
@@ -69,7 +69,7 @@ The notebook `ic_grounding.py` reads 1 arm, thus only the script writes
 the 2 primary arms without marimo (about 2 minutes, no figure, no CSV):
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python scripts/export_ic_v3_figures.py --latex
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/export_ic_v3_figures.py --latex
 ```
 
 ## The data path
@@ -248,7 +248,7 @@ it decides, thus a span can follow the judgment.
 
 ## Headline numbers (2026-09-30)
 
-From `scripts/export_ic_v3_figures.py`, `min_count` 25. "Gemma" is
+From `research/scripts/export_ic_v3_figures.py`, `min_count` 25. "Gemma" is
 `gemma_by_qwen27_v3`; "qwen" is `qwen_by_gemma31_v3`.
 
 ### Question 1

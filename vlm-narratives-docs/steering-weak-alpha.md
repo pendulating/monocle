@@ -131,7 +131,7 @@ residual-stream norm.
 - The registered subway_safety run predates the 2026-08-20 layout decision
   (`canonical.prompt_cfg` warns). Both conditions use the same recorded
   prompt, so the signal-minus-control comparison is internally consistent.
-- `monocle/jlens_steer.py` now takes `--scale {raw,centered}` (default
+- `research/monocle/jlens_steer.py` now takes `--scale {raw,centered}` (default
   centered; raw reproduces the 2026-08-23 grid) and `--pullback
   {transpose,pinv}`, and records both scales and both reconstruction errors
   in the summary JSON.

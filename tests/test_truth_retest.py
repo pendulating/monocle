@@ -11,7 +11,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import truth_retest as tr  # noqa: E402
+from research.monocle import truth_retest as tr  # noqa: E402
 
 
 def test_a_perfect_repeat_agrees():

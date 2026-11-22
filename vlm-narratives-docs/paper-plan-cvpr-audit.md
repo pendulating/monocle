@@ -6,7 +6,7 @@ in both files. Change it in both.
 
 | Item | Value |
 |------|-------|
-| Repo | `papers/cvpr27_machine-perception-public-spaces` |
+| Repo | `research/papers/cvpr27_machine-perception-public-spaces` |
 | Working title | AI Judgments of Public Spaces: From Aesthetic Appearance to Neighborhood Reputation |
 | Venue and date | CVPR 2027, deadline 2026-11-15, 8 pages without references |
 | Reader | a vision or fairness reviewer; an urban-science reader |

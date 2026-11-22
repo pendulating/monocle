@@ -23,7 +23,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import jlens_fit_mm as jf  # noqa: E402
+from research.monocle import jlens_fit_mm as jf  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

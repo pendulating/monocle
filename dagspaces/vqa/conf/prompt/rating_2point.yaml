@@ -25,7 +25,7 @@
 # The lens reads ONE position: the one that emits the label. Thus a label must
 # be 1 token, and 2 labels must not share a token. Check a new set BEFORE you
 # use it, because a broken label fails silently:
-#   python -m monocle.labels Safe Dangerous
+#   python -m research.monocle.labels Safe Dangerous
 #
 # Warning: do NOT use the digits 1 to 7. They pass the token rule and still
 # fail. 7-11% of image PATCHES read a bare digit at L40-L43, which is the

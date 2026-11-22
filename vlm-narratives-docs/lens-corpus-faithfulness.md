@@ -55,7 +55,7 @@ A change of topic keeps the deep readout. A change of modality does not.
 
 ### Our own floor already fails
 
-`monocle/judgment_trace.py` prints this rule: a layer below 0.8 reads its
+`research/monocle/judgment_trace.py` prints this rule: a layer below 0.8 reads its
 corpus, not the model. Here is that check, mm against WikiText, 8 images,
 72 rows:
 
@@ -132,8 +132,8 @@ one that holds the number we must move.
 
 | Analysis | Path | Images | Prompt |
 |---|---|---|---|
-| Causal gate, `patch_map_causal` | `monocle/single.py` | **1** | `rating_2point`, per case |
-| Workspace trace, `judgment_trace` | `monocle/canonical.py` | 2 | production pairwise |
+| Causal gate, `patch_map_causal` | `research/monocle/single.py` | **1** | `rating_2point`, per case |
+| Workspace trace, `judgment_trace` | `research/monocle/canonical.py` | 2 | production pairwise |
 
 The causal gate holds the +0.10 against +0.49 result. Thus the ladder targets
 the single-image path. A pairwise lens is separate work.
@@ -222,10 +222,10 @@ directly to the record.
 
 | Gate | Tool | Number on record |
 |---|---|---|
-| Readout legibility | `monocle/jlens_validate.py` | early layers give punctuation |
-| Corpus dependence | `monocle/judgment_trace.py` | fails 0.8 at every read layer |
-| Causal gate | `monocle/patch_map_causal.py` | `lens_delta` -0.073 at L18 |
-| Steering | `monocle/jlens_steer.py` | 9 of 72 cells usable |
+| Readout legibility | `research/monocle/jlens_validate.py` | early layers give punctuation |
+| Corpus dependence | `research/monocle/judgment_trace.py` | fails 0.8 at every read layer |
+| Causal gate | `research/monocle/patch_map_causal.py` | `lens_delta` -0.073 at L18 |
+| Steering | `research/monocle/jlens_steer.py` | 9 of 72 cells usable |
 
 ### Step 4 — the bias measure
 
@@ -237,7 +237,7 @@ full local Jacobian and the gate does not read one:
 
 The taylor map IS the local instrument. So this number asks how much of the
 local truth the fitted transport keeps. It costs no GPU time: both maps are
-already columns of `maps.parquet`. `monocle/lens_bias.py` computes it, and it
+already columns of `maps.parquet`. `research/monocle/lens_bias.py` computes it, and it
 reproduces the stage-4 table as its own check.
 
 ### Step 5 — the width sweep
@@ -256,7 +256,7 @@ must average at all.
 
 The harness check. R0 uses the same 128 images, the same describe-contexts and
 the same target span as `outputs/_monocle/jlens/mm/gemma4_12b_lens.pt`, so it
-must match it. `scripts/check_ladder_r0.py`:
+must match it. `research/scripts/check_ladder_r0.py`:
 
 | Layer | 6 | 12 | 18 | 24 | 30 | 36 | 42 | 46 |
 |---|---|---|---|---|---|---|---|---|
@@ -437,24 +437,24 @@ The tools and the runs:
 | the lens | `outputs/_monocle/jlens/ladder/R2/gemma4_12b_lens.pt` |
 | the 20-photograph gate | `outputs/_monocle/gateB_ladder{R0,R1,R2}/` |
 | the 60-photograph gate | `outputs/_monocle/gateB60_ladder{R0,R1,R2}/` |
-| the report | `scripts/ladder_gate_b_report.py` |
+| the report | `research/scripts/ladder_gate_b_report.py` |
 
 ```bash
-python -m monocle.jlens_merge_mm --in-dir outputs/_monocle/jlens/ladder/R2 \
+python -m research.monocle.jlens_merge_mm --in-dir outputs/_monocle/jlens/ladder/R2 \
     --out outputs/_monocle/jlens/ladder/R2/gemma4_12b_lens.pt --final-only
 
-sbatch --time=02:00:00 monocle/monocle.sub monocle.input_gate \
+sbatch --time=02:00:00 research/monocle/monocle.sub monocle.input_gate \
     --case subway_safety --seed 20260821 --n-images 60 \
     --layers 6 12 18 24 30 36 42 46 --batch 8 --group 1 \
     --truth-from outputs/_monocle/causal_maps60/subway_safety_absent/maps.parquet \
     --lens outputs/_monocle/jlens/ladder/R2/gemma4_12b_lens.pt \
     --out-dir outputs/_monocle/gateB60_ladderR2
 
-python scripts/ladder_gate_b_report.py --case subway_safety \
+python research/scripts/ladder_gate_b_report.py --case subway_safety \
     --prefix gateB60_ladder
 ```
 
-**Warning: `scripts/jlens_verify_lens.py` reports a diagonal mass near 0 for
+**Warning: `research/scripts/jlens_verify_lens.py` reports a diagonal mass near 0 for
 R1 and R2, and that is not a fault.** The diagonal test assumes a span target,
 where a position maps to itself. Read the layer count and the finite check
 instead.
@@ -463,7 +463,7 @@ instead.
 
 A constant matrix cannot adapt to the input. The ladder buys a better
 constant, not a variable one. Region importance still comes from
-`monocle/causal_maps.py`. We keep the standing rule from the R-lens study:
+`research/monocle/causal_maps.py`. We keep the standing rule from the R-lens study:
 read tokens with the lens, and read region importance with the causal maps.
 Never swap one for the other.
 

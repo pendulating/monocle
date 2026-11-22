@@ -132,7 +132,7 @@ pair, on about 100,900 shared pairs for each case:
 Both layouts bind the 2 images. The card's "image first" rule was the only
 reason for the switch, and the abstention cost weighs more. Thus:
 
-- `scripts/register_canonical_runs.py` demands `interleaved_labels` again.
+- `research/scripts/register_canonical_runs.py` demands `interleaved_labels` again.
   The 14 canonical gemma runs verify. The `noabstain`, `nocity` and
   `textfirst` gemma arms, which ran under the 2026-08-20 rule, carry a
   recorded layout problem until they run again. The `nocity` and `textfirst`
@@ -140,7 +140,7 @@ reason for the switch, and the abstention cost weighs more. Thus:
   gemma half has NOT.
 - The text-first probe of the canonical layout is `text_first_interleaved`
   (prompt, "Image A:", A, "Image B:", B), added 2026-09-02.
-- `monocle/canonical.py` and `tests/test_canonical_prompt.py` still demand
+- `research/monocle/canonical.py` and `tests/test_canonical_prompt.py` still demand
   `images_then_labels`. The lens work of 2026-08-21 to 2026-09-01 was built
   on that layout. Whether the lens follows this decision is OPEN.
 
@@ -159,8 +159,8 @@ Three gates now demand `images_then_labels` and REJECT every other layout,
 
 | Gate | File | Constant |
 |---|---|---|
-| registration and verify | `scripts/register_canonical_runs.py` | `REQUIRED_LAYOUT` |
-| the lens prompt path | `monocle/canonical.py` | `REQUIRED_LAYOUT` |
+| registration and verify | `research/scripts/register_canonical_runs.py` | `REQUIRED_LAYOUT` |
+| the lens prompt path | `research/monocle/canonical.py` | `REQUIRED_LAYOUT` |
 | the test suite | `tests/test_canonical_prompt.py` | reads the constant |
 
 The stage itself still SUPPORTS the other layouts — the probes need them for

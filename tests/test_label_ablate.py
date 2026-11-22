@@ -17,7 +17,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle.label_ablate import (  # noqa: E402
+from research.monocle.label_ablate import (  # noqa: E402
     answer_metrics,
     bh_adjust,
     draw_matched_ids,

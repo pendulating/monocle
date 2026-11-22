@@ -33,7 +33,7 @@
 # reaches every output row, and 2 versions must never pool.
 #
 # Warning: keep `attribute_values` inside `VOCABULARY` in
-# `notebooks/cvpr/_extractions.py`. That table is the union of every version,
+# `research/notebooks/cvpr/_extractions.py`. That table is the union of every version,
 # and the normaliser turns a value that it lacks into `other`.
 
 name: urban_cues_single

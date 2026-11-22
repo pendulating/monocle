@@ -18,7 +18,7 @@ REPO = Path("/share/ju/matt/mllmsci")
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from monocle import answer_tokens as at  # noqa: E402
+from research.monocle import answer_tokens as at  # noqa: E402
 
 
 class FakeTokenizer:
@@ -168,7 +168,7 @@ class TestTally:
 # ---------------------------------------------------------------------------
 class TestCli:
     def test_defaults_to_all_seven_cases(self):
-        from monocle import canonical
+        from research.monocle import canonical
         args = at.build_parser().parse_args([])
         assert args.cases == list(canonical.CASES)
         assert args.kind == "proxy"

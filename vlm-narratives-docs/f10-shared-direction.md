@@ -13,7 +13,7 @@ changed 1 side result (Qwen3.5-9B `place ordinary`, p .012 to .055).
 **Correction (script 1.1.0):** Version 1.0.0 also removed the sense score from the `cool` readout
 at the noun token. That step has no purpose there: the model has not read `cool`, and the 4
 `place` readouts are the same. Version 1.1.0 removes the score only after the noun. The noun
-results below are from 1.1.0. The 1.0.0 output is in `figures/f10/shared/{model}_place_v1.0.0/`.
+results below are from 1.1.0. The 1.0.0 output is in `research/figures/f10/shared/{model}_place_v1.0.0/`.
 
 ## Main result
 
@@ -39,7 +39,7 @@ results below are from 1.1.0. The 1.0.0 output is in `figures/f10/shared/{model}
 
 ## Method
 
-Script: `scripts/f10/hop_shared.py` (version 1.2.0). Output: `figures/f10/shared/{model}_{position}/`.
+Script: `research/scripts/f10/hop_shared.py` (version 1.2.0). Output: `research/figures/f10/shared/{model}_{position}/`.
 Input: the NTA mean readouts of F10.26 stage 1 (`data/f10/prompts/{store}/nta_{position}.npy`).
 
 | Step | Rule |
@@ -162,7 +162,7 @@ score is the urban-to-green content of the scene. The `nice` margin has r -.42 w
 
 This section asks if a readout holds the reasons for the judgment, not only the verdict.
 
-Script: `scripts/f10/hop_evidence.py` (version 1.0.0). Output: `figures/f10/shared/evidence_{model}/`.
+Script: `research/scripts/f10/hop_evidence.py` (version 1.0.0). Output: `research/figures/f10/shared/evidence_{model}/`.
 The traces exist for Gemma-4-31B and Qwen3.5-9B only.
 
 | Item | Rule |
@@ -198,8 +198,8 @@ which the F10.26 summaries do not hold. A test of the evidence axis at those tok
 
 ## The words of the direction, and the ACS gradients (F10.28)
 
-Script: `scripts/f10/hop_hierarchy.py` (1.2.0). Output: `figures/f10/hierarchy/` and
-`notebooks/facct/figures/f10/shared_direction_words{,_stacked}.{pdf,png,json}`.
+Script: `research/scripts/f10/hop_hierarchy.py` (1.2.0). Output: `research/figures/f10/hierarchy/` and
+`research/notebooks/facct/figures/f10/shared_direction_words{,_stacked}.{pdf,png,json}`.
 
 ### Words
 
@@ -235,7 +235,7 @@ answers. Among the answered images, rho(E, margin) is .96 (`nice`, `pretty`) and
 Test: Spearman rho over NTAs of the NTA mean with 4 ACS features. E for 3 models and 14 prompts,
 and P_unsure for Gemma where 5% or more of the answers are `unable` (`place nice`, `place pretty`,
 `place ugly`, `scene nice`, `scene ugly`). Bonferroni over 188 tests: 81 pass.
-Output: `ses_prompts.csv` and the table `notebooks/facct/tables/f10_prompt_ses.tex`.
+Output: `ses_prompts.csv` and the table `research/notebooks/facct/tables/f10_prompt_ses.tex`.
 
 | Result | Values |
 |--------|--------|
@@ -301,10 +301,10 @@ words are not independent.
 
 | Item | Path |
 |------|------|
-| Script | `scripts/f10/plot_borough_shared.py` 1.0.0 |
-| Figure | `figures/f10/mechanism/mech_borough_shared.{pdf,png,json}` |
-| Words | `figures/f10/mechanism/borough_shared_words.csv` (top 20 for each borough and band, with the t of each model) |
-| Agreement | `figures/f10/mechanism/borough_shared_agreement.csv` |
+| Script | `research/scripts/f10/plot_borough_shared.py` 1.0.0 |
+| Figure | `research/figures/f10/mechanism/mech_borough_shared.{pdf,png,json}` |
+| Words | `research/figures/f10/mechanism/borough_shared_words.csv` (top 20 for each borough and band, with the t of each model) |
+| Agreement | `research/figures/f10/mechanism/borough_shared_agreement.csv` |
 | Paper copy | `paper/figures/facct/mech_borough_shared.pdf` (manifest entry in `artificial-aesthetic/manifest/assets.toml`) |
 
 ## Each standard in the J-space (F10.31, Figure 2)
@@ -358,10 +358,10 @@ the body of the paper (author decision, 2026-11-02).
 
 | Item | Path |
 |------|------|
-| Script | `scripts/f10/plot_standards.py` 1.0.0 |
-| Figure | `figures/f10/mechanism/mech_standards.{pdf,png,json}` |
-| Words | `figures/f10/mechanism/standards_words.csv` |
-| Agreement | `figures/f10/mechanism/standards_agreement.csv` |
+| Script | `research/scripts/f10/plot_standards.py` 1.0.0 |
+| Figure | `research/figures/f10/mechanism/mech_standards.{pdf,png,json}` |
+| Words | `research/figures/f10/mechanism/standards_words.csv` |
+| Agreement | `research/figures/f10/mechanism/standards_agreement.csv` |
 
 ## Paper edits for the 14-page limit (2026-11-02)
 
@@ -392,12 +392,12 @@ The removed text is in `paper/sec/scratch.tex`, word for word.
 ## Commands
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python scripts/f10/hop_shared.py fit --model gemma-4-31b --position place
-.venv-mllmsci-vllm025cu129/bin/python scripts/f10/hop_shared.py fit --model gemma-4-31b --position after_place
-.venv-mllmsci-vllm025cu129/bin/python scripts/f10/hop_shared.py figure
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/f10/hop_shared.py fit --model gemma-4-31b --position place
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/f10/hop_shared.py fit --model gemma-4-31b --position after_place
+.venv-mllmsci-vllm025cu129/bin/python research/scripts/f10/hop_shared.py figure
 ```
 
-| File in `figures/f10/shared/{model}_{position}/` | Content |
+| File in `research/figures/f10/shared/{model}_{position}/` | Content |
 |--------------------------------------------------|---------|
 | `heldout.csv` | r, p and Bonferroni p for each layer, variant and prompt. Also r of the score with the sense and the polarity scores |
 | `cosine.csv` | Cosines of the judgment vectors of all prompts, at each layer |
@@ -406,7 +406,7 @@ The removed text is in `paper/sec/scratch.tex`, word for word.
 | `sense_margin.csv` | r of each margin with its own sense score |
 | `summary.json` | Test layer, fit set, held-out, missing and partial stores, the yes and no words |
 
-The figure is `figures/f10/shared/shared_direction.png`, with the caption in `shared_direction.json`.
+The figure is `research/figures/f10/shared/shared_direction.png`, with the caption in `shared_direction.json`.
 
 ## Limits
 
@@ -421,7 +421,7 @@ The figure is `figures/f10/shared/shared_direction.png`, with the caption in `sh
 ## Words along the prompt for 3 models (F10.32)
 
 Appendix B ("Along the prompt") now gives words that the 3 models share, not Gemma words. Script:
-`scripts/f10/prompt_words_shared.py`. Output: `figures/f10/mechanism/prompt_shared_words.csv`.
+`research/scripts/f10/prompt_words_shared.py`. Output: `research/figures/f10/mechanism/prompt_shared_words.csv`.
 The script uses the `cool` store, the tokens `place`, `?` and the last token, and quarters of
 relative depth. It gives 2 scores: the mean readout, and the mean readout minus the no-image
 readout. It ranks by the lowest z over the 3 models (the F10.30 rule).
@@ -445,13 +445,13 @@ the scene band for Qwen3.6-27B.
 ## The teaser figure: J++ Lens words on image patches (F10.33)
 
 The paper has a teaser figure again (`fig:teaser`, in `main.tex`). It has the form of the old
-R-lens figure (`notebooks/facct/_rq.py`, `plot_patch_words`), in 1 row of 5 images. The old
+R-lens figure (`research/notebooks/facct/_rq.py`, `plot_patch_words`), in 1 row of 5 images. The old
 figure used the R-lens on Gemma-4-12B. The new figure uses the J++ Lens on Gemma-4-31B.
 
 | Item | Value |
 |------|-------|
-| Script | `scripts/f10/plot_patch_teaser.py` (1.3.0) |
-| Output | `figures/f10/mechanism/mech_patch_teaser.{pdf,png,json}`, `patch_teaser_words.csv`, `patch_teaser_images.csv` |
+| Script | `research/scripts/f10/plot_patch_teaser.py` (1.3.0) |
+| Output | `research/figures/f10/mechanism/mech_patch_teaser.{pdf,png,json}`, `patch_teaser_words.csv`, `patch_teaser_images.csv` |
 | Data | `data/f10/hop_all/gemma-4-31b/patches/ids-*.npy`: the top 30 token ids of each of 256 patches (16 x 16, row-major), 15 layers |
 | Pole words | The 300 words (lowercase, 4 or more letters) at each end of the Gemma-4-31B direction at `place` (F10.27 `direction.npz`, z-scored at each layer, then the mean over layers, as in F10.28) |
 | Hit | A patch holds a pole word in its top 30 at a layer of relative depth .25 to .75 (L16 to L44) |
@@ -493,7 +493,7 @@ Qwen3.5-9B and Qwen3.6-27B have the same patch files (1024 patches, 32 x 32).
 
 ### The pole words by layer (F10.33b, 2026-11-03)
 
-Script `scripts/f10/patch_layers.py` (1.0.0). Outputs `figures/f10/mechanism/patch_layers.csv`,
+Script `research/scripts/f10/patch_layers.py` (1.0.0). Outputs `research/figures/f10/mechanism/patch_layers.csv`,
 `patch_layer_words.csv`, `patch_layer_teaser.csv`. The teaser counts a hit at any layer of the
 band L16 to L44. This table gives each saved layer on its own: the mean number of patches (of 256)
 with an up or a down word, the Pearson r of the per-image counts with the `cool` margin, and the
@@ -537,11 +537,11 @@ ornament. A figure at 1 layer, or 1 layer for each end, would be easier to state
 The author did not want the object words (truck, warehouse) of the top 300 at the down end. The
 teaser now shows the severe words: the social words that fire on innocuous scenes.
 
-Script `scripts/f10/patch_severe.py` (1.0.0). It keeps a hand list of 92 severe candidates
+Script `research/scripts/f10/patch_severe.py` (1.0.0). It keeps a hand list of 92 severe candidates
 (criminal, sewage, filth, slaughter, stench, gangs, trafficking, rape, abuse, trash) and finds 79
 of them within rank 2,000 of the down end. For each image it counts the patches with a severe
 word at each layer, and it draws a contact sheet for each borough
-(`figures/f10/mechanism/severe_sheet_*.png`). Outputs `patch_severe_words.csv` (hits by layer)
+(`research/figures/f10/mechanism/severe_sheet_*.png`). Outputs `patch_severe_words.csv` (hits by layer)
 and `patch_severe_images.csv` (counts by image).
 
 | Layer | Severe hits | Images with a hit (of 591) | Top severe words |
@@ -564,7 +564,7 @@ and `patch_severe_images.csv` (counts by image).
 4. "homeless" is not a word of the direction (rank 22,561 from the down end). The Norwood image
    `street_967` that showed it in an earlier lens run is not in the 591-image store.
 
-Teaser 2.0.0 (`scripts/f10/plot_patch_teaser.py`). One layer for each end: teal words from the
+Teaser 2.0.0 (`research/scripts/f10/plot_patch_teaser.py`). One layer for each end: teal words from the
 top 30 at L32, where the up words peak; coral words from the severe list at L16. A block that
 holds a severe word shows it, and the up words fill the other blocks. A fragment (scav, crimin,
 kriminal) counts but does not show. Five innocuous scenes with the answer no, picked by eye from
@@ -608,7 +608,7 @@ the model calls not cool, nice or pretty, and the 2 word ends with their layers.
 **Removed (2026-11-03).** After the 2.2.0 round the author decided that the figure does not make
 sense, and we took it out of the paper. The `teaserfigure` block is gone from `main.tex`, the
 figure file from `paper/figures/facct/`, and the asset from `manifest/assets.toml`. The script
-and its outputs in `figures/f10/mechanism/` stay for the record. The paper has no teaser.
+and its outputs in `research/figures/f10/mechanism/` stay for the record. The paper has no teaser.
 
 Teaser 2.3.0 (same day): the author wanted a Bronx image that shows an urban scene, not a
 warehouse. The new Bronx pick is W0EM9QBY (Belmont: apartment towers over a shop street; cool
@@ -619,7 +619,7 @@ not change. The teaser stays out of the paper; its 5 images are the columns of t
 ## Steering the image patches (F10.35, interim: 19 of 44 images)
 
 **Status (2026-11-03):** job 120840 (g3, 1 B300) runs. These values are from the first 19
-images. Run `scripts/f10/patch_steer_report.py` again when the job ends.
+images. Run `research/scripts/f10/patch_steer_report.py` again when the job ends.
 
 | Item | Value |
 |------|-------|
@@ -628,7 +628,7 @@ images. Run `scripts/f10/patch_steer_report.py` again when the job ends.
 | Text against image | The cosine of each patch direction with the noun-token direction (`dirs.npz`) at the same layer is .03 to .09. The image patches and the text token carry the value on nearly orthogonal directions |
 | Dose | alpha times sigma of the mean-patch projection (.16 to .39), added to all 256 patches at 1 layer. 96 sigma is 8% (L16) to 14% (L32) of the patch norm (about 260) |
 | Run | `hop_steer.py patches` (GPU): 5 teaser images (v1.3.0) and the 40 `dose` images (44 in all), prompts `cool`, `pretty`, `ugly` with `place`, alpha +-12, 24, 48, 96. Output: `data/f10/steer/gemma-4-31b/patches/` |
-| Report | `scripts/f10/patch_steer_report.py`. Output: `figures/f10/steer_patches/` (`margins.csv`, `pole_shares.csv`, `words.csv`, `margins.*`, `teaser_rows.*`) |
+| Report | `research/scripts/f10/patch_steer_report.py`. Output: `research/figures/f10/steer_patches/` (`margins.csv`, `pole_shares.csv`, `words.csv`, `margins.*`, `teaser_rows.*`) |
 
 **Result 1: the patch direction moves the answer, and the control does not.** Mean change of
 the `cool` margin at -96 / +96 sigma (paired t over 19 images, Bonferroni over 192 tests):
@@ -664,10 +664,10 @@ the teaser are signs of the scene, and the value sits on a separate axis.
 
 ### The steering matrix (2026-11-03)
 
-`scripts/f10/plot_patch_steer_matrix.py` makes a full-page figure (5.4 x 6.4 in): the 5 teaser
+`research/scripts/f10/plot_patch_steer_matrix.py` makes a full-page figure (5.4 x 6.4 in): the 5 teaser
 2.3.0 images in the columns, and 6 rows. The rows are no addition, then +96 sigma of `shared`,
 `cool`, `pretty`, `ugly` and the random control, added to all 256 patches at L32. Job 121146
-(and 121201 for the new Bronx image) gives the data. Output: `figures/f10/steer_patches/`
+(and 121201 for the new Bronx image) gives the data. Output: `research/figures/f10/steer_patches/`
 (`patch_steer_matrix.{png,pdf,json}`, `patch_steer_matrix_counts.csv`).
 
 | Item | Rule |

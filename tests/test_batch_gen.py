@@ -1,9 +1,9 @@
-"""Batched generation over many rows. See monocle/batch_gen.py."""
+"""Batched generation over many rows. See research/monocle/batch_gen.py."""
 import pytest
 import torch
 
-from monocle import batch_gen as bg
-from monocle import patch_ablate as ab
+from research.monocle import batch_gen as bg
+from research.monocle import patch_ablate as ab
 
 IMG = 258880
 
@@ -296,7 +296,7 @@ class TestRankingGuard:
         return root
 
     def load(self, root, **kw):
-        from monocle import caption_loop as cl
+        from research.monocle import caption_loop as cl
         args = {"case": "subway_safety", "group": 2, "seed": 20260821}
         args.update(kw)
         return cl.load_ranking(root, args["case"], args["group"],

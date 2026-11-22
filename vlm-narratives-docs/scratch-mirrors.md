@@ -224,7 +224,7 @@ have the same fault.
 ## monocle and the nightly venv (2026-08-22)
 
 The analysis jobs under `monocle/` did NOT use either mirror until this date.
-`monocle/monocle.sub` activated `.venv-nightly` off NFS by hand, and
+`research/monocle/monocle.sub` activated `.venv-nightly` off NFS by hand, and
 `attn_route.load_eager` read the weights from the zoo path.
 
 The symptom hid itself. A monocle job printed the GPU banner, then nothing at

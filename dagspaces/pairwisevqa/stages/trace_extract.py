@@ -54,7 +54,7 @@ def case_of_parquet(name: str) -> str:
     """Read the case name out of a results file name.
 
     `subway_safety_mvp_20260813_013722.parquet` gives `subway_safety`. This
-    mirrors `notebooks/cvpr/_traces.case_of_parquet`, so a stage output and a
+    mirrors `research/notebooks/cvpr/_traces.case_of_parquet`, so a stage output and a
     notebook agree on the name.
     """
     stem = os.path.basename(str(name))
@@ -76,9 +76,9 @@ def source_provenance(results_path: str) -> Dict[str, str]:
     """
     out: Dict[str, str] = {"stage_dir": "", "pipeline": "", "judge_model": "", "sweep": ""}
     # Follow a symlink first. The canonical registry
-    # (`notebooks/cvpr/canonical_data/`) links each run as
+    # (`research/notebooks/cvpr/canonical_data/`) links each run as
     # `<kind>/<case>__<model>/results.parquet`, and 3 directories above THAT
-    # link is `notebooks/cvpr`, which holds no Hydra record. The real file
+    # link is `research/notebooks/cvpr`, which holds no Hydra record. The real file
     # still sits at `<stage_dir>/outputs/pairwise/<name>.parquet`.
     real_path = os.path.realpath(str(results_path))
     stage_dir = os.path.dirname(os.path.dirname(os.path.dirname(real_path)))

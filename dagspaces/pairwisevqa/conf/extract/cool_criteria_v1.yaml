@@ -1,5 +1,5 @@
 # @package extract
-# Written by scripts/f10/build_cool_schemas.py. Do not edit by hand.
+# Written by research/scripts/f10/build_cool_schemas.py. Do not edit by hand.
 # Example texts:
 #   gemma-4-31b|cool_open|1268.2|response
 #   gemma-4-31b|cool_word|8171.2|reasoning

@@ -24,7 +24,7 @@ result that does not generalize as clearly as each result that does.
 | `vlm-narratives-docs/f10-manuscript-proposals.md`, section 2 | The canonical terms and what the code computes |
 | `vlm-narratives-docs/facct-claim-map.md` | The claims, and the results that support each claim |
 | `vlm-narratives-docs/jacobian-lens-review.md`, `lens-registry.md` | The lens method and the lens files |
-| `scripts/f10/hop_store.py`, `hop_models.py`, `hop_adjectives.py`, `hop_outcomes.py` | The readers and the F10.24 code that you extend |
+| `research/scripts/f10/hop_store.py`, `hop_models.py`, `hop_adjectives.py`, `hop_outcomes.py` | The readers and the F10.24 code that you extend |
 | `paper/sec/3_methods.tex`, `paper/sec/4_results.tex` in `artificial-aesthetic/` | The voice and the claims of the paper. Read only, do not edit |
 
 ## 3. The premise: J++ Lens and readouts
@@ -263,7 +263,7 @@ through a memory map in many strided passes.
 
 | Rule | Detail |
 |------|--------|
-| Jobs | CPU SLURM jobs only on g3: `--clusters=g3 --partition=g3 --account=nissenbaum --qos=g3 --requeue`, with no GPU. Use the header of `scripts/f10/analyze_logit.sbatch` |
+| Jobs | CPU SLURM jobs only on g3: `--clusters=g3 --partition=g3 --account=nissenbaum --qos=g3 --requeue`, with no GPU. Use the header of `research/scripts/f10/analyze_logit.sbatch` |
 | Concurrency | At most 4 jobs at the same time |
 | Exclude | `--exclude=g3-compute-16,g3-compute-10,g3-compute-03,g3-compute-04,g3-compute-02` |
 | Reads | Load each shard file once, in sequence (`np.load` with no `mmap_mode`), and take all the cells that you need from it |
@@ -289,9 +289,9 @@ stores is long, thus make the cache once.
 
 | Item | Place |
 |------|-------|
-| Code | `scripts/f10/hop_prompts.py` (a new name is acceptable), with a docstring in STE |
-| Tables | `figures/f10/prompts/*.csv` |
-| Figures | `figures/f10/prompts/*.png` and `.pdf`, each with a JSON sidecar. House style: `~/style/proper-plotting.md`, `notebooks/cvpr/_style.py`. No caption text in the image. View each saved image |
+| Code | `research/scripts/f10/hop_prompts.py` (a new name is acceptable), with a docstring in STE |
+| Tables | `research/figures/f10/prompts/*.csv` |
+| Figures | `research/figures/f10/prompts/*.png` and `.pdf`, each with a JSON sidecar. House style: `~/style/proper-plotting.md`, `research/notebooks/cvpr/_style.py`. No caption text in the image. View each saved image |
 | Report | A new section "14 prompts: results (F10.26)" in `f10-judgment-mechanism.md`, with the format of F10.24: what holds in all cells, what does not, limits |
 | Walkthrough | A new section "What F10.26 changes" in `f10-analysis-walkthrough.md` |
 | Claim map | Update each row of `facct-claim-map.md` that F10.26 makes stronger or weaker |

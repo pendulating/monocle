@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 import _gold_alignment as G  # noqa: E402
 
 TEXT = "Image A shows a bank. It looks like a wealthy area. So A is More."

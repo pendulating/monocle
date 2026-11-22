@@ -1,7 +1,7 @@
 # Structured trace extraction with LangExtract
 
 This page records the extraction that replaces the word cloud in
-`notebooks/cvpr` with typed, grounded extractions. The first sections give
+`research/notebooks/cvpr` with typed, grounded extractions. The first sections give
 the design. The phases give what ran and what it measured. The section
 "Review of 2026-09-20" gives what the review found, and "Version 2" gives
 what changed because of it.
@@ -74,8 +74,8 @@ writes 1 parquet for each range.
 | `dagspaces/pairwisevqa/orchestrator.py` | change | Add `"trace_extract": TraceExtractRunner()` to `_STAGE_REGISTRY` |
 | `dagspaces/pairwisevqa/conf/extract/urban_cues_v1.yaml` | new | The schema, the few-shot examples, and the chunk settings |
 | `dagspaces/pairwisevqa/conf/pipeline/extract_traces.yaml` | new | The 1-node pipeline, on `slurm_gpu_1x` |
-| `notebooks/cvpr/_extractions.py` | new | Load the extractions, count them, and score them |
-| `notebooks/cvpr/_trace_notebook.py` | change | Add the extraction report beside the cloud |
+| `research/notebooks/cvpr/_extractions.py` | new | Load the extractions, count them, and score them |
+| `research/notebooks/cvpr/_trace_notebook.py` | change | Add the extraction report beside the cloud |
 | `pyproject.toml` | change | Add `langextract`, `absl-py`, `ml-collections`, `more-itertools` |
 
 The stage lives in `pairwisevqa` because its input is a pairvqa results
@@ -190,7 +190,7 @@ A rescued row has `alignment_rescue` set, `is_quotable` true, and
 
 **Warning: the examples teach more than the rules.** The extractor sometimes
 gives the answer of 1 example in place of an answer for the input (LangExtract
-issue 209). A rule cannot stop this. `scripts/f4/x2_retry.py` flags these
+issue 209). A rule cannot stop this. `research/scripts/f4/x2_retry.py` flags these
 texts and reads them again with the examples in reverse order. See the x2
 section of `facct-runbook.md`.
 
@@ -300,12 +300,12 @@ gemma-4-12b as the extractor.
 No trace came back silent. No trace was read two times. 107 answers of 44,000
 reached the token cap, and the repair saved all 107.
 
-`scripts/merge_trace_extractions.py` joins the 24 shards into 1 parquet for
+`research/scripts/merge_trace_extractions.py` joins the 24 shards into 1 parquet for
 each case, under `data/trace_extractions/`. It tests the coverage and never
 repairs a gap.
 
 ```bash
-python scripts/merge_trace_extractions.py \
+python research/scripts/merge_trace_extractions.py \
     multirun/2026-08-14_URBANPAIRVQA/02-01-38 --out data/trace_extractions
 ```
 
@@ -343,9 +343,9 @@ Checkpoint: 4 parquets on disk, and the run table names each source run.
 
 | File | Role |
 |------|------|
-| `notebooks/cvpr/_extractions.py` | Load, normalise, rate, score, quote, and export |
-| `notebooks/cvpr/_gen_trace_notebooks.py` | Section 4 of the template |
-| `notebooks/cvpr/<case>/<case>_traces.py` | The 4 notebooks, at version 1.1.0 |
+| `research/notebooks/cvpr/_extractions.py` | Load, normalise, rate, score, quote, and export |
+| `research/notebooks/cvpr/_gen_trace_notebooks.py` | Section 4 of the template |
+| `research/notebooks/cvpr/<case>/<case>_traces.py` | The 4 notebooks, at version 1.1.0 |
 | `tests/test_extractions.py` | 14 tests over the rate, the vocabulary, and the unit |
 
 Section 4 of each trace notebook holds: the coverage table, the class mix by
@@ -361,7 +361,7 @@ finds no extraction parquet still draws its clouds.
 
 ### Phase 4 — the original plan
 
-1. Write `notebooks/cvpr/_extractions.py`.
+1. Write `research/notebooks/cvpr/_extractions.py`.
 2. Add the report to `_trace_notebook.py`, then run
    `_gen_trace_notebooks.py`.
 
@@ -423,14 +423,14 @@ readers take the root as an argument: `_extractions.load(root=...)`.
 
 | Script | Role |
 |--------|------|
-| `scripts/launch_trace_extraction.sh qwen_by_gemma` | 7 multiruns, 1 for each case, 8 shards each, 120 s apart |
-| `scripts/check_trace_extraction.sh CUESV1Q` | counts the monitors that landed a job and the shards that finished |
+| `research/scripts/launch_trace_extraction.sh qwen_by_gemma` | 7 multiruns, 1 for each case, 8 shards each, 120 s apart |
+| `research/scripts/check_trace_extraction.sh CUESV1Q` | counts the monitors that landed a job and the shards that finished |
 
 The launch: `model=gemma-4-12b/instruct`, `slurm_gpu_preempt`, 8 shards of
 1,375 traces, chunks of 250 rows. After the last shard finishes:
 
 ```bash
-python scripts/merge_trace_extractions.py multirun/<date>_CUESV1Q/* \
+python research/scripts/merge_trace_extractions.py multirun/<date>_CUESV1Q/* \
     --out data/trace_extractions_qwen9b
 ```
 
@@ -477,17 +477,17 @@ extractor changes and the traces hold. The self cells also answer the echo
 question directly: an extractor that reads its own traces can be compared
 with the other extractor on the same traces.
 
-Every arm runs the same way: `scripts/launch_trace_extraction.sh <arm>`, 7
+Every arm runs the same way: `research/scripts/launch_trace_extraction.sh <arm>`, 7
 multiruns 120 s apart, 8 shards of 1,375 traces, chunks of 250 rows, the
-`slurm_gpu_preempt` launcher. `scripts/check_trace_extraction.sh
+`slurm_gpu_preempt` launcher. `research/scripts/check_trace_extraction.sh
 <experiment>` counts the landed monitors and the finished shards. The 2
 self arms started on 2026-09-05 at 19:12, one after the other. The merge
 of each arm goes to its own root:
 
 ```bash
-python scripts/merge_trace_extractions.py multirun/2026-09-05_CUESV1GG/* \
+python research/scripts/merge_trace_extractions.py multirun/2026-09-05_CUESV1GG/* \
     --out data/trace_extractions_gemma12b_self
-python scripts/merge_trace_extractions.py multirun/2026-09-05_CUESV1QQ/* \
+python research/scripts/merge_trace_extractions.py multirun/2026-09-05_CUESV1QQ/* \
     --out data/trace_extractions_qwen9b_self
 ```
 
@@ -623,7 +623,7 @@ extractor) to 20% (qwen extractor) differed from the text at the offsets, and
 some changed the meaning: "the construction in A" for "the cars in A".
 
 Fix: the stage writes `is_verbatim`, which is True when the source text at
-the offsets IS the span. `scripts/verify_span_text.py` added the column to
+the offsets IS the span. `research/scripts/verify_span_text.py` added the column to
 the 4 version 1 corpora on 2026-09-20. A quote needs `is_verbatim`.
 `_extractions.quotes` applies it. A count keeps `is_quotable`, because a
 near-verbatim span is still a statement the model made.
@@ -666,7 +666,7 @@ Every such qwen trace is about 31,000 characters long: the cap cut it. Thus
 the qwen judge's `Same` rate in a thinking run is mostly this fallback, and a
 `decision` span in such a trace cannot agree with `presented_label`.
 
-Fix: the stage writes `judge_answered`, `scripts/verify_span_text.py` added it
+Fix: the stage writes `judge_answered`, `research/scripts/verify_span_text.py` added it
 to the 4 version 1 corpora, and `_extractions.load(answered_only=True)` drops
 those traces from the frame and from the denominator. Every rate in the
 notebooks now excludes them. The pairwise stage itself still writes `Same`;
@@ -701,7 +701,7 @@ gemma traces, the qwen extractor wrote 43.7 spans for each trace against 25.1
 for the gemma extractor, and 12 of the 18 extra spans were copies.
 
 Fix: the stage writes `is_duplicate`, True for every later copy of the same
-class and text inside 1 trace. `scripts/verify_span_text.py` added it to the
+class and text inside 1 trace. `research/scripts/verify_span_text.py` added it to the
 4 version 1 corpora, and `_extractions.load(dedupe=True)` drops those rows.
 The count `answers_truncated` in the manifest is the count of loops.
 
@@ -828,15 +828,15 @@ project has more than 1 node today, thus that path is not built.
 ```bash
 python -m dagspaces.pairwisevqa.submit_trace_shards --arm qwen_by_gemma31_v2 --dry-run
 python -m dagspaces.pairwisevqa.submit_trace_shards --arm qwen_by_gemma31_v2
-bash scripts/check_trace_extraction.sh CUESV2QG31
-python scripts/merge_trace_extractions.py multirun/<date>_CUESV2QG31/runs --out data/trace_extractions_v2_qwen9b_by_gemma31b
+bash research/scripts/check_trace_extraction.sh CUESV2QG31
+python research/scripts/merge_trace_extractions.py multirun/<date>_CUESV2QG31/runs --out data/trace_extractions_v2_qwen9b_by_gemma31b
 ```
 
 The arms, the engine shape of each, and the registered source runs live in
 `submit_trace_shards.ARMS`. The output layout is
 `<base-dir>/runs/<case>__<shard>/`, and `submitted_jobs.txt` names the array
 task of each shard. `--only-missing` with the same `--base-dir` runs the
-shards that hold no final parquet again. `scripts/launch_trace_extraction.sh`
+shards that hold no final parquet again. `research/scripts/launch_trace_extraction.sh`
 is the old path and stays for the record of the version 1 arms.
 
 The 2 qwen arms of version 2 (`CUESV2Q`, `CUESV2QQ`) moved to this path on
@@ -1009,7 +1009,7 @@ dismissals, and justifications need a relabel. The annotator does that
 later (decided 2026-09-28). The Label Studio config of the gold set must
 carry the 12 classes before the remaining 20 traces are annotated.
 
-**The gold set on version 3.** `scripts/build_gold_set.py --schema v3` (the
+**The gold set on version 3.** `research/scripts/build_gold_set.py --schema v3` (the
 default from 2026-09-28) writes the 12 classes into the Label Studio
 interface: a Choices control for each listed attribute and a TextArea for
 the free `name`, `target`, and `dimension`. A carried annotation maps
@@ -1025,7 +1025,7 @@ about the trace. The instructions in Label Studio now state the version 3
 criteria in full: the whole clause, nesting, the 12 classes with the
 dimension-to-perspective process and the mode words, verdict against
 decision, the uncertainty markers, the free names, and the notes box.
-`scripts/label_studio_setup.py --update-config --gold-dir <set>` pushes
+`research/scripts/label_studio_setup.py --update-config --gold-dir <set>` pushes
 both onto an existing project; Label Studio refuses to drop a control that
 an annotation used, thus the 2 depiction results were stripped from the
 11 annotations that held them (1 in project 5, 10 carried in project 4)
@@ -1059,7 +1059,7 @@ and no depiction check. The 2 image-only cases (road quality, street
 photography) take only the doubt filter. `sample.csv` carries `db_max`,
 `dist_max`, and `referent_doubt` for each trace.
 
-**The 50-trace set for version 3 (2026-09-29).** `scripts/build_gold_set.py
+**The 50-trace set for version 3 (2026-09-29).** `research/scripts/build_gold_set.py
 --n-per-judge 25 --in-v3-sample --exclude-sample data/gold_set/sample.csv
 --carry-annotations none --verify-sharing --seed 20260930 --out
 data/gold_set/set50`. It draws 25 traces of each judge, 3 or 4 of each
@@ -1243,7 +1243,7 @@ evaluative content moved to `inference` and `perspective`. The bridge gives
 7 keys, all neutral, against about 30 under v2. A cue ladder on v3 must
 read `dimension` and `inference` together, or the perspective names, and
 that is an open design choice; the paper figures still come from the v2
-corpus until it is made. `scripts/export_trace_figures.py --root <v2 root>`
+corpus until it is made. `research/scripts/export_trace_figures.py --root <v2 root>`
 reads the v2 corpus on purpose.
 
 **The class rates across the 2 extractors of a judge (v3, 7 cases each),
@@ -1291,10 +1291,10 @@ dimension rate and a decision are facts about the traces; a perspective,
 an inference, or an uncertainty rate is a fact about the extractor, and
 the paper reports it from both arms or not at all.
 
-`scripts/check_trace_smoke.py <base> --gate` reads every shard of a base
+`research/scripts/check_trace_smoke.py <base> --gate` reads every shard of a base
 directory. A shard that hits the limit reruns with `--only-missing
 --base-dir <base>`. When every shard has its final parquet:
-`python scripts/merge_trace_extractions.py <base>/runs --out data/trace_extractions_v3_<judge>_by_<extractor>`.
+`python research/scripts/merge_trace_extractions.py <base>/runs --out data/trace_extractions_v3_<judge>_by_<extractor>`.
 
 ## The gold set
 
@@ -1303,11 +1303,11 @@ without one. Built on 2026-09-22.
 
 | Piece | Where |
 |-------|-------|
-| The sample and the tasks | `scripts/build_gold_set.py` -> `data/gold_set/` |
-| The labelling server | `scripts/label_studio_gold.sh` (Label Studio 1.23, port 8925, `.venv-labelstudio`) |
-| The project | `scripts/label_studio_setup.py`: 1 project, 30 blind tasks, 2 annotations for each task |
-| The scorer | `scripts/score_gold_set.py <export.json>` |
-| The status script | `python scripts/check_trace_arms.py` names the arms; `bash scripts/label_studio_gold.sh status` the server |
+| The sample and the tasks | `research/scripts/build_gold_set.py` -> `data/gold_set/` |
+| The labelling server | `research/scripts/label_studio_gold.sh` (Label Studio 1.23, port 8925, `.venv-labelstudio`) |
+| The project | `research/scripts/label_studio_setup.py`: 1 project, 30 blind tasks, 2 annotations for each task |
+| The scorer | `research/scripts/score_gold_set.py <export.json>` |
+| The status script | `python research/scripts/check_trace_arms.py` names the arms; `bash research/scripts/label_studio_gold.sh status` the server |
 
 **The sample.** 30 traces: 15 of each judge, 2 for each case and 3 for
 subway_safety, seed 20260922. Every trace has an answer, is under 9,000
@@ -1351,7 +1351,7 @@ whether the doubt is right. The check is required before a task submits.
 **Warning: Label Studio serves a local file only from a registered storage.**
 `LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED` is not enough; the file must sit
 under a Local Files storage that the project registered, or the route answers
-404. `scripts/label_studio_setup.py` registers `data/gold_set/images` on the
+404. `research/scripts/label_studio_setup.py` registers `data/gold_set/images` on the
 new project, with no sync. The tasks come from the JSON.
 
 **The confidence floor (2026-09-23).** A judge sometimes argues with its
@@ -1384,7 +1384,7 @@ cues gold set v3 (confident pairs)". Projects 1 and 2 stay on the server as
 they were.
 
 **Carried annotations.** A rebuild of the set keeps the work: the builder
-reads the newest export in `notebooks/cvpr/cues_annotations/` and copies each
+reads the newest export in `research/notebooks/cvpr/cues_annotations/` and copies each
 annotation onto the task with the same `task_id` (`--carry-annotations`,
 `none` for a clean set). The project of 2026-09-23 is project 2, "Urban cues
 gold set v2 (with images)", with the 3 annotations of project 1 carried.
@@ -1403,7 +1403,7 @@ span means v3). The export writes `gold_alignment_arm_profile_*.csv` and
 
 **The paper tables (2026-10-01).** The export cell of `master/gold_alignment.py`
 (notebook 1.4.0, `_gold_alignment` 1.6.0) also writes 2 LaTeX tables into
-`notebooks/cvpr/master/outputs/`. The format comes from `notebooks/cvpr/_latex.py`.
+`research/notebooks/cvpr/master/outputs/`. The format comes from `research/notebooks/cvpr/_latex.py`.
 
 | File | `\label` | Shows |
 |------|----------|-------|
@@ -1417,9 +1417,9 @@ Gemma-4-31B). A class row prints when it holds 10 spans or more
 stay in CSV form.
 They explain the 2 tables, but a paper does not print them.
 
-**The alignment notebook.** `notebooks/cvpr/master/gold_alignment.py` reads
-the newest export in `notebooks/cvpr/cues_annotations/` and the spans of
-every arm that holds the annotated traces, with `notebooks/cvpr/_gold_alignment.py`.
+**The alignment notebook.** `research/notebooks/cvpr/master/gold_alignment.py` reads
+the newest export in `research/notebooks/cvpr/cues_annotations/` and the spans of
+every arm that holds the annotated traces, with `research/notebooks/cvpr/_gold_alignment.py`.
 The first annotated trace (2026-09-22, gemma, subway_safety) shows 2 facts
 about the human spans that the 1-to-1 scorer cannot read:
 
@@ -1477,10 +1477,10 @@ annotator draws, not a fixed item, and span F1 between annotators is the
 agreement measure that ReasoningFlow (2026) used for the same design.
 
 ```bash
-bash scripts/label_studio_gold.sh            # start; log in data/label_studio/server.log
-python scripts/label_studio_setup.py         # idempotent
+bash research/scripts/label_studio_gold.sh            # start; log in data/label_studio/server.log
+python research/scripts/label_studio_setup.py         # idempotent
 # ... 2 people label the 30 tasks at http://lisbeth:8925/projects/1 ...
-python scripts/score_gold_set.py data/gold_set/export.json
+python research/scripts/score_gold_set.py data/gold_set/export.json
 ```
 
 **Warning: the API token is off.** Label Studio 1.23 ships a new
@@ -1492,7 +1492,7 @@ the first login and add each annotator as a member.
 
 **Warning: the server is a login-node process.** It runs under `nohup` on
 lisbeth with its database on NFS under `data/label_studio/data/`. A reboot
-of lisbeth stops it; `bash scripts/label_studio_gold.sh` starts it again on
+of lisbeth stops it; `bash research/scripts/label_studio_gold.sh` starts it again on
 the same database.
 
 ### Phase 8 — the plan of 2026-09-20
@@ -1504,10 +1504,10 @@ split its traces. The gemma half runs after, so that the 2 x 2 reads 1
 version.
 
 ```bash
-nohup bash scripts/launch_trace_extraction.sh qwen_by_gemma_v2 > multirun/cuesv2q_launch.log 2>&1 &
-nohup bash scripts/launch_trace_extraction.sh qwen_self_v2 > multirun/cuesv2qq_launch.log 2>&1 &
-bash scripts/check_trace_extraction.sh CUESV2Q
-python scripts/merge_trace_extractions.py multirun/<date>_CUESV2Q/* --out data/trace_extractions_v2_qwen9b
+nohup bash research/scripts/launch_trace_extraction.sh qwen_by_gemma_v2 > multirun/cuesv2q_launch.log 2>&1 &
+nohup bash research/scripts/launch_trace_extraction.sh qwen_self_v2 > multirun/cuesv2qq_launch.log 2>&1 &
+bash research/scripts/check_trace_extraction.sh CUESV2Q
+python research/scripts/merge_trace_extractions.py multirun/<date>_CUESV2Q/* --out data/trace_extractions_v2_qwen9b
 ```
 
 The roots are in `_extractions.ARMS`. The merge summary carries
@@ -1542,7 +1542,7 @@ decision with the tail.
 The 2 arms first launched on 2026-09-20 at 14:34 (`CUESV2Q`) and 14:35
 (`CUESV2QQ`) through the monitor path, and moved to `submit_trace_shards.py`
 at 21:00 (see "Submit without a monitor"): 7 cases, 8 shards each,
-`slurm_gpu_preempt`. Check them with `scripts/check_trace_extraction.sh
+`slurm_gpu_preempt`. Check them with `research/scripts/check_trace_extraction.sh
 CUESV2Q`, then merge `multirun/<date>_CUESV2Q/runs` into the roots of
 `_extractions.ARMS`. Run the gemma half (`gemma_by_qwen_v2`,
 `gemma_self_v2`) after, so that the 2 x 2 reads 1 version.

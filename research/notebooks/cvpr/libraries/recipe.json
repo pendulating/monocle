@@ -1,0 +1,78 @@
+{
+    "0": {
+        "name": "ACS 5-Year 2024, table S1901 \u2014 median household income by census tract",
+        "file": "data/demo/ct/ACSST5Y2024.S1901-Data.csv",
+        "role": "proxy",
+        "key": "geoid",
+        "column": "Estimate!!Households!!Median income (dollars)",
+        "window": "2020-2024 ACS 5-year",
+        "note": "On disk. research/scripts/pairwise_socioeconomic_regression.py reads the same file, so the 2 analyses share one income source. The geoid is the 11-digit tract code and it matches the tract layer for 100% of tracts."
+    },
+    "1": {
+        "name": "ACS 5-Year 2024, table B01003 \u2014 total population by census tract",
+        "file": "data/external/acs_tract_population/acs_b01003_nyc_tract.parquet",
+        "role": "weight",
+        "key": "geoid",
+        "window": "2020-2024 ACS 5-year",
+        "note": "Weights for the NTA and community-district aggregation. You cannot average medians, so those 2 layers report a population-weighted mean of the tract medians, not a median."
+    },
+    "2": {
+        "name": "NYC Atomic Polygons",
+        "endpoint": "https://data.cityofnewyork.us/api/v3/views/wgbs-damt/query.json",
+        "role": "unused",
+        "note": "NOT needed. Atomic polygons would be necessary only if a census tract split across an NTA or a community district. Checked 2026-08-12: every one of the 2,325 tracts puts its interior point in exactly 1 NTA and exactly 1 community district, and no tract falls in 2 polygons. Keep this entry so the next reader knows the check happened and why the source stays unused."
+    },
+    "3": {
+        "name": "NYC Building Footprints (BUILDING)",
+        "file": "data/geo/nyc_buildings.parquet",
+        "endpoint": "https://data.cityofnewyork.us/resource/5zhs-2jue.json",
+        "documentation": "https://data.cityofnewyork.us/City-Government/BUILDING/5zhs-2jue",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "construction_year",
+        "window": "vintage; pulled 2026-04-12",
+        "note": "On disk, pulled 2026-04-12 by data/geo/download_nyc_buildings.py. 1,082,872 footprints and 99.1% carry a usable year; the source writes 0 for an unknown year and _proxies drops it. FacDB gives each unit a BIN, thus this is a key join and not a spatial one. WARNING: a year is NOT oriented. Every other proxy points 'higher is better', so a positive value means agreement. A positive value here says the model calls a NEWER unit better, which is a finding and not a test."
+    },
+    "4": {
+        "name": "DOB Violations",
+        "endpoint": "https://data.cityofnewyork.us/resource/3h2n-5cm9.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-Violations/3h2n-5cm9",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "violation_category",
+        "window": "2016-01-01 to 2026-08-31 (pull date)",
+        "note": "A fault that the Department of Buildings recorded against this building. FacDB gives 96.8% of the libraries a BIN, thus this is a key join and not a spatial one. The source holds more than 2,000,000 rows, so the query sends the BIN list of this case to the server and groups there. A category that ends in ACTIVE is an open violation. WARNING: a count rises when a building gets worse, thus _proxies_buildings applies a sign of -1 and the exported value points 'higher is better'."
+    },
+    "5": {
+        "name": "DOB ECB Violations",
+        "endpoint": "https://data.cityofnewyork.us/resource/6bgk-3dad.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-ECB-Violations/6bgk-3dad",
+        "role": "proxy",
+        "key": "bin",
+        "joins_to": "bin",
+        "column": "ecb_violation_status",
+        "window": "2016-01-01 to 2026-08-31 (pull date)",
+        "note": "An Environmental Control Board violation carries a fine, thus it marks a fault that reached a hearing. The status is ACTIVE or RESOLVE. The export adds these counts to the DOB counts, and proxy_source names the 2 ids together."
+    },
+    "6": {
+        "name": "DOB Permit Issuance",
+        "endpoint": "https://data.cityofnewyork.us/resource/ipu4-2q9a.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-Permit-Issuance/ipu4-2q9a",
+        "role": "proxy",
+        "key": "bin__",
+        "joins_to": "bin",
+        "column": "job__",
+        "window": "2016-01-01 to 2026-08-31 (pull date)",
+        "note": "A permit says that somebody spent money on this building, thus it is a positive measure and it needs no sign. The count is over the distinct job number and not over the permit rows, because 1 job takes an initial permit, a renewal, and 1 permit for each trade. Job types A1, A2, and A3 only: a new building and a demolition are not investments in the building the model looked at. WARNING: issuance_date holds 2 shapes, MM/DD/YYYY and an ISO timestamp, thus the server cannot filter the year and the module filters it in pandas."
+    },
+    "7": {
+        "name": "DOB NOW: Safety - Facades Compliance Filings (FISP)",
+        "endpoint": "https://data.cityofnewyork.us/resource/xubg-57si.json",
+        "documentation": "https://data.cityofnewyork.us/Housing-Development/DOB-NOW-Safety-Facades-Compliance-Filings/xubg-57si",
+        "role": "unused",
+        "key": "bin",
+        "note": "NOT used as a proxy. Local Law 11 applies to a building of more than 6 storeys, and a branch library is low. Measured 2026-08-31: 28 of the 236 library BINs (11.9%) carry any filing, and 27 carry one since 2016. A correlation over 12% of the case would describe the tall libraries alone. _proxies_buildings.facade_status_by_bin builds the frame for a reader who wants it, and no export row comes from it."
+    }
+}

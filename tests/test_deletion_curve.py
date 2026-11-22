@@ -1,9 +1,9 @@
-"""The directed deletion test. See monocle/deletion_curve.py."""
+"""The directed deletion test. See research/monocle/deletion_curve.py."""
 import numpy as np
 import pandas as pd
 import pytest
 
-from monocle import deletion_curve as dc
+from research.monocle import deletion_curve as dc
 
 
 class TestRankCells:

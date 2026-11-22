@@ -23,7 +23,7 @@
 # with `--only-missing` when the array ends.
 #
 # ─── Launch ──────────────────────────────────────────────────────────────────
-#   bash scripts/launch_noabstain_battery.sh --rater gemma --gemma-sweep million_noabstain_gemma12b_il
+#   bash research/scripts/launch_noabstain_battery.sh --rater gemma --gemma-sweep million_noabstain_gemma12b_il
 
 sampling_params_vqa:
   max_tokens: 128

@@ -425,7 +425,7 @@ class TestTheShippedSchemas:
         import sys
         from pathlib import Path
 
-        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "notebooks" / "cvpr"))
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
         import _extractions as X  # noqa: E402
 
         spec = spec_from_config(OmegaConf.load(f"{self.CONF}/{name}.yaml"))

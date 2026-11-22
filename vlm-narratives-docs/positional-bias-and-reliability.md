@@ -10,19 +10,19 @@ each one, how we measure it, and what the canonical runs show.
 
 | File | Purpose |
 |------|---------|
-| `notebooks/cvpr/_reliability.py` | The 2 measures, the cache, and the 3 LaTeX tables |
-| `notebooks/cvpr/master/reliability.py` | The marimo notebook over every canonical run |
-| `notebooks/cvpr/master/outputs/positional_bias_v1.0.0.tex` | The bias table, 5 columns |
-| `notebooks/cvpr/master/outputs/test_retest_v1.0.0.tex` | The reliability table, 5 columns |
-| `notebooks/cvpr/master/outputs/order_effects_v1.0.0.tex` | Both in 1 table, 7 columns |
-| `notebooks/cvpr/master/outputs/*_v1.0.0.csv` | The long frames, every measure |
-| `notebooks/cvpr/master/outputs/reliability_cache/` | 1 JSON file for each run, named by the run hash |
+| `research/notebooks/cvpr/_reliability.py` | The 2 measures, the cache, and the 3 LaTeX tables |
+| `research/notebooks/cvpr/master/reliability.py` | The marimo notebook over every canonical run |
+| `research/notebooks/cvpr/master/outputs/positional_bias_v1.0.0.tex` | The bias table, 5 columns |
+| `research/notebooks/cvpr/master/outputs/test_retest_v1.0.0.tex` | The reliability table, 5 columns |
+| `research/notebooks/cvpr/master/outputs/order_effects_v1.0.0.tex` | Both in 1 table, 7 columns |
+| `research/notebooks/cvpr/master/outputs/*_v1.0.0.csv` | The long frames, every measure |
+| `research/notebooks/cvpr/master/outputs/reliability_cache/` | 1 JSON file for each run, named by the run hash |
 
 The command below writes the same files without marimo. The registry gate
 runs first.
 
 ```bash
-.venv-vllm025cu129/bin/python notebooks/cvpr/_reliability.py
+.venv-vllm025cu129/bin/python research/notebooks/cvpr/_reliability.py
 ```
 
 ## What removes the positional bias

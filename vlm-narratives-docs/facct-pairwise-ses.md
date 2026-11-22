@@ -1,11 +1,11 @@
 # The pairwise results against the area features (FAccT)
 
-`notebooks/facct/_pairwise_ses.py` 1.1.0. Written 2026-10-30.
+`research/notebooks/facct/_pairwise_ses.py` 1.1.0. Written 2026-10-30.
 
 ## What it is
 
 The FAccT paper brings back 3 pairwise cases of the CVPR battery. The CVPR
-figure (`notebooks/cvpr/_proxy_overview.py`, see `proxy-overview.md`) read
+figure (`research/notebooks/cvpr/_proxy_overview.py`, see `proxy-overview.md`) read
 each case against outside measurements and showed the white-box lens read
 beside it. This figure reads the same area scores against the 5 ACS features
 of the F4, F8 and F9 figures. It has no white-box read and no ablation panel,
@@ -13,9 +13,9 @@ and it is 1 column wide (3.33 in).
 
 | Case | Question | Area score |
 |------|----------|------------|
-| Subway safety | which station entrance looks safer | `notebooks/cvpr/subway/outputs/subway_aggregated_v1.0.0.parquet` |
+| Subway safety | which station entrance looks safer | `research/notebooks/cvpr/subway/outputs/subway_aggregated_v1.0.0.parquet` |
 | Street photography | which block is a more appealing location for a street photography photoshoot | `_maps.image_scores_by_layer` (5 images minimum), cached in `data/facct_pairwise/` |
-| Restaurants | which restaurant would you rather eat at | `notebooks/cvpr/restaurants/outputs/restaurants_aggregated_v1.0.0.parquet` |
+| Restaurants | which restaurant would you rather eat at | `research/notebooks/cvpr/restaurants/outputs/restaurants_aggregated_v1.0.0.parquet` |
 
 The scores come from the registered 1,000,000-pair runs of Gemma-4-12B and
 Qwen3.5-9B (no thinking). Each run has 1,100,000 rows: 1,000,000 unique pairs
@@ -23,7 +23,7 @@ and 100,000 repeats for the retest. The old figure used the same 2 exports.
 
 ## The features
 
-`scripts/f4/nta_acs.py` 1.2.0 writes the 5 features (% white, % Black and %
+`research/scripts/f4/nta_acs.py` 1.2.0 writes the 5 features (% white, % Black and %
 Asian, all non-Hispanic; % bachelor's; median household income) at 3 layers,
 by the same method (ACS 2024 5-year tract counts, summed over the area):
 
@@ -68,13 +68,13 @@ hollow near 0.3.
 
 | File | Content |
 |------|---------|
-| `notebooks/facct/figures/pairwise/pairwise_ses.png`, `.pdf`, `.json` | the figure and its caption sidecar |
-| `notebooks/facct/figures/pairwise/pairwise_ses_cells.csv` | 1 row for each cell: n, tau, p, p_bonf, significant |
-| `notebooks/facct/figures/pairwise/pairwise_ses_restaurants_f6.csv` | the 30 restaurant cells in the 3 variants, with `tau_all_same` |
-| `notebooks/facct/figures/pairwise/pairwise_ses_restaurants_f6_share.csv` | the tau of the `Yes` share and the `No` share of an area with each feature |
+| `research/notebooks/facct/figures/pairwise/pairwise_ses.png`, `.pdf`, `.json` | the figure and its caption sidecar |
+| `research/notebooks/facct/figures/pairwise/pairwise_ses_cells.csv` | 1 row for each cell: n, tau, p, p_bonf, significant |
+| `research/notebooks/facct/figures/pairwise/pairwise_ses_restaurants_f6.csv` | the 30 restaurant cells in the 3 variants, with `tau_all_same` |
+| `research/notebooks/facct/figures/pairwise/pairwise_ses_restaurants_f6_share.csv` | the tau of the `Yes` share and the `No` share of an area with each feature |
 
 ```bash
-.venv-mllmsci-vllm025cu129/bin/python notebooks/facct/_pairwise_ses.py
+.venv-mllmsci-vllm025cu129/bin/python research/notebooks/facct/_pairwise_ses.py
 ```
 
 The first run scores 1,100,000 street photography pairs for each model and
@@ -82,7 +82,7 @@ layer (about 2 minutes on a CPU node). Later runs read the cache.
 
 ## The word blocks of the same cases
 
-`scripts/export_wordblocks.py` 1.3.0 adds restaurants and street
+`research/scripts/export_wordblocks.py` 1.3.0 adds restaurants and street
 photography. The block reads the version 2 trace corpus
 (`data/trace_extractions_v2_gemma12b_by_qwen27b`). The photographs need a
 ranking of units, and the trace run (about 11,000 pairs) is too thin for
@@ -95,7 +95,7 @@ these 2 cases:
 
 The 2 runs ask the same question with the same image layout; the proxy run
 does not think. The caption says where the ranking comes from.
-Outputs: `notebooks/cvpr/<case>/figures/<case>_win_block.png` and
+Outputs: `research/notebooks/cvpr/<case>/figures/<case>_win_block.png` and
 `_win_block_column.png`, with `.json` sidecars.
 
 ### The restaurant photographs are F6 views
@@ -123,7 +123,7 @@ The top 6 needed no screen. The caption states all of this.
 
 F6 covers restaurants only, thus this block shows raw faces, and the capture
 vehicle fills the bottom of many of them. `CROP_BOTTOM` in
-`scripts/export_wordblocks.py` removes the bottom 30% of the height.
+`research/scripts/export_wordblocks.py` removes the bottom 30% of the height.
 `_photo_row` then cuts the same width at the 2 sides in equal parts, thus the
 photograph stays square. The roof of the vehicle reaches about 0.71 of the
 height in a forward or back face, thus 0.30 is the smallest round value that
@@ -147,7 +147,7 @@ in the image" as well as "a storefront that the model does not like".
 
 ### The gradients hold on the `Yes` restaurants
 
-`python notebooks/facct/_pairwise_ses.py --f6` repeats the 30 restaurant cells
+`python research/notebooks/facct/_pairwise_ses.py --f6` repeats the 30 restaurant cells
 in 3 variants, with the same steps and the same Bonferroni count (90):
 
 | Variant | Restaurants | Comparisons | Cells that pass | Change of tau on the same areas (mean, range) |
@@ -183,7 +183,7 @@ The project moved from `/share/pierson/matt/mllmsci` to
 
 | Record | Symptom | Repair |
 |--------|---------|--------|
-| The 243 links of `notebooks/cvpr/canonical_data/` | the gate `_canonical.verify_or_raise` failed: "the link moved" | each link now names the same file under `/share/ju`; all 81 runs exist there with the recorded size, and the gate passes |
+| The 243 links of `research/notebooks/cvpr/canonical_data/` | the gate `_canonical.verify_or_raise` failed: "the link moved" | each link now names the same file under `/share/ju`; all 81 runs exist there with the recorded size, and the gate passes |
 | `source_results_path` in the extraction corpora | `_extractions.load(require_canonical=True)` failed | `_extractions.relocated` (1.3.0) reads an old-root path under the repo root; some nodes still mount the old root, thus the map applies always |
 
 The 14 links that still do not resolve are old SLURM submission files inside

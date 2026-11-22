@@ -1,0 +1,16 @@
+{
+  "plot-title": "Sums and differences of the prompt directions",
+  "plot-caption": "The cosine of the sum (left) and the difference (right) of 2 prompt directions with each single prompt direction, at the noun token, as a mean over the saved layers, for 3 models. A prompt direction is the unit vector of the r over the 197 NTAs of each lens word's NTA mean readout with the prompt's answer margin. Rows: the 21 pairs of the 7 adjectives; columns: the 7 single directions of each model. A grey cell is a member of its pair. Values of .5 or more are printed.",
+  "plot-latex-label": "fig:pair-cosines",
+  "plot-tags": [
+    "f10",
+    "shared-direction",
+    "pairs"
+  ],
+  "provenance": {
+    "script": "research/scripts/f10/hop_sum_directions.py",
+    "version": "1.1.0",
+    "file": "pair_cosines.png",
+    "written": "2026-11-03T12:20:40"
+  }
+}

@@ -16,8 +16,8 @@ shared direction more stable. One night of GPU time gives 2 captures:
 
 | Capture | Images | For each NTA | What it keeps | Pipeline |
 |---------|--------|--------------|---------------|----------|
-| Answers | 10,000 | 50 or 51 | the yes-or-no answer of the 14 prompts, 8 forms and the floor | vLLM server (`scripts/f4/serve_and_query.sbatch` with `F4_ANSWERS=1`) |
-| Lean | 1,970 | 10 | residuals at 6 positions, lens readouts at 3 positions, the 8-form margin | HF float32 (`scripts/f10/hop_lean.py`) |
+| Answers | 10,000 | 50 or 51 | the yes-or-no answer of the 14 prompts, 8 forms and the floor | vLLM server (`research/scripts/f4/serve_and_query.sbatch` with `F4_ANSWERS=1`) |
+| Lean | 1,970 | 10 | residuals at 6 positions, lens readouts at 3 positions, the 8-form margin | HF float32 (`research/scripts/f10/hop_lean.py`) |
 
 The answers give the gradient tests at 50 images for each NTA. The lean capture gives the readout
 and direction analyses at 10 images for each NTA, 3.3 times the 591 of F10.26.
@@ -31,7 +31,7 @@ meets all 3, and it is the sample the 591 images come from.
 | Item | Value |
 |------|-------|
 | Source files | `data/f4_traces/f4_street_1k.parquet` (batch 1, 985 views, 5 for each NTA) and `data/f4_traces/b2/f4_street_b2.parquet` (batch 2, 9,015 views, 45 or 46 for each NTA) |
-| Sampler | `scripts/f4/sample_street_images.py` 1.1.0, seed 20261023, catalog `/share/ju/cyclomedia/catalog/v1` (the citywide catalog, `docs/catalog.md`) |
+| Sampler | `research/scripts/f4/sample_street_images.py` 1.1.0, seed 20261023, catalog `/share/ju/cyclomedia/catalog/v1` (the citywide catalog, `docs/catalog.md`) |
 | Epoch | August to November 2025 (2025H2). `recordedAt` from 2025-08-01 to 2025-11-04, both batches |
 | Renderer | the F6 renderer, street direction from CSCL, 1024 px |
 | Tables | `data/f10/hop_more/images_all.parquet` (10,000 rows), `images_k10.parquet` (1,970 rows), `images_manifest.json` |
@@ -43,7 +43,7 @@ F10.26 task 7 fit on the 591.
 
 ## The answers capture (D186)
 
-`scripts/f10/answer_query.py` sends the F10 prompt `Is this {noun} {adjective}? Answer with one
+`research/scripts/f10/answer_query.py` sends the F10 prompt `Is this {noun} {adjective}? Answer with one
 word: yes or no.` for the 7 adjectives and 2 nouns to a vLLM server, thinking off, 1 token, the
 top 2,000 log probabilities (`--max-logprobs 20000` on the server, the F4_PROBE path). The record
 keeps the 8 answer forms and the floor of the list; a form that is not in the list takes the floor
@@ -61,7 +61,7 @@ Submit:
 for m in qwen3.5-9b gemma-4-31b qwen3.6-27b; do
   sbatch --job-name=f1030-$m --exclude=g3-compute-17 \
     --export=ALL,F4_MODEL=$m,F4_PROBE=1,F4_ANSWERS=1,F4_PROBE_TOP=2000,F4_SAMPLE=data/f10/hop_more/images_all.parquet \
-    scripts/f4/serve_and_query.sbatch
+    research/scripts/f4/serve_and_query.sbatch
 done
 ```
 
@@ -70,7 +70,7 @@ requests for each model.
 
 ## The lean capture (D187)
 
-`scripts/f10/hop_lean.py` is the F10.6 capture (`hop_all.py`) with less output. The model loads
+`research/scripts/f10/hop_lean.py` is the F10.6 capture (`hop_all.py`) with less output. The model loads
 once in float32 and runs the 14 prompts in turn. For each image it keeps:
 
 | Array | Shape | Positions |
@@ -92,7 +92,7 @@ Shards of 50 images with claims, as F10.6: many workers fill 1 store, and a requ
 Submit:
 
 ```bash
-sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f1030-lean-gemma-4-31b-1 scripts/f10/hop_lean.sbatch
+sbatch --export=ALL,F10_MODEL=gemma-4-31b --job-name=f1030-lean-gemma-4-31b-1 research/scripts/f10/hop_lean.sbatch
 ```
 
 All 5 lean jobs were pending at 23:10 (Priority) behind the 3 answer jobs and the F10.29 runs. The
@@ -103,7 +103,7 @@ its own claims again and lost at most 1 shard of work.
 
 | Check | Result |
 |-------|--------|
-| The vLLM answers against the F10.28 HF answers, Qwen3.5-9B, the 591 images, E for each cell | Spearman rho .98 to 1.00 in the 14 cells (`figures/f10/more/check.csv`) |
+| The vLLM answers against the F10.28 HF answers, Qwen3.5-9B, the 591 images, E for each cell | Spearman rho .98 to 1.00 in the 14 cells (`research/figures/f10/more/check.csv`) |
 | The lean store vocab against the F10.6 store vocab, Gemma | the same 53,999 tokens in the same order |
 | The lean readouts against the F10.6 store, Gemma `cool place`, shard 1, the 2 shared images | r = 1.00 at `place` and `final` (L32), max difference .008 (float16); the residuals r = 1.00; the margins equal to 3 decimals |
 | The 42 lean stores at the end | 40 shards each, 1,970 images, reads [50, 3, layers, vocab] and residuals [50, 6, layers, d] float16, the image ids in the sample order, no empty margin. Layers 15 (Gemma), 8 (Qwen3.5-9B), 16 (Qwen3.6-27B); d 5,376, 4,096, 5,120; vocab 53,999, 43,563, 43,563 |
@@ -111,14 +111,14 @@ its own claims again and lost at most 1 shard of work.
 | The k = 10 summary against the F10.26 summary, Gemma `cool place` | the same NTA order; the residual rows of the shared images at r = 1.00; the margins of the 591 shared images equal to 1e-6 |
 | Speed of the lean capture, Gemma, 1 worker | 1.27 images a second: 26 min for each prompt, 6 h for the 14 prompts; 2 workers share the shards |
 
-The scripts for the analysis stage are `scripts/f10/hop_more_answers.py` (the answers at k = 3, 10, 50:
-`figures/f10/more/{check,ses,partial,manhattan,reliability,unable}.csv`) and
-`scripts/f10/hop_more_summary.py` (the F10.26 summary layout from a lean store, into
+The scripts for the analysis stage are `research/scripts/f10/hop_more_answers.py` (the answers at k = 3, 10, 50:
+`research/figures/f10/more/{check,ses,partial,manhattan,reliability,unable}.csv`) and
+`research/scripts/f10/hop_more_summary.py` (the F10.26 summary layout from a lean store, into
 `data/f10/prompts_k10/{store}/`, with `nta_` and `residual_` at `place`, `after_place` and `final`).
 
 ## Results of the answers at k = 3, 10 and 50 (D188, part 1)
 
-`figures/f10/more/` holds the tables. k is the number of images for each NTA; k = 3 is the 591
+`research/figures/f10/more/` holds the tables. k is the number of images for each NTA; k = 3 is the 591
 images of F10.26 to F10.29, from the same vLLM capture.
 
 **The ACS gradients** (`ses.csv`; 168 E tests at each k, Spearman rho over 197 NTAs, Bonferroni
@@ -179,10 +179,10 @@ almost every image and the rank order rests on the bf16 tail. Mean E and the yes
 
 ## Results of the lens readouts at k = 10 (D188, part 2)
 
-The summaries are in `data/f10/prompts_k10/` (42 stores, `scripts/f10/hop_more_summary.sbatch`,
-jobs 118875 and 118944, 6 min each on 1 CPU node). `scripts/f10/hop_more_readouts.py` runs the
+The summaries are in `data/f10/prompts_k10/` (42 stores, `research/scripts/f10/hop_more_summary.sbatch`,
+jobs 118875 and 118944, 6 min each on 1 CPU node). `research/scripts/f10/hop_more_readouts.py` runs the
 F10.27 to F10.29 readout analyses on them with a change of root; the tables are in
-`figures/f10/more/`. The F10.27 directions of the 591 images stay in `figures/f10/shared/`.
+`research/figures/f10/more/`. The F10.27 directions of the 591 images stay in `research/figures/f10/shared/`.
 
 **The agreement of the NTA means, k = 3 against k = 10** (`agree.csv`; 14 prompts for each model,
 the projection of the centred NTA mean readout at the noun on the F10.27 direction at its test
@@ -286,17 +286,17 @@ sigma at the noun is 10% to 40% larger under the 1,970-image direction in Gemma 
 and smaller at the last token. A rerun of the steering with these directions is optional; if it
 runs, use the sigma of the 1,970-image direction.
 
-**The k = 50 table in the paper layout.** `notebooks/facct/tables/f10_prompt_ses_k50.tex` is
+**The k = 50 table in the paper layout.** `research/notebooks/facct/tables/f10_prompt_ses_k50.tex` is
 `tab:prompt-ses` built from `ses.csv` at k = 50 with `hop_hierarchy.prompt_table` (120 of 188
 tests pass). It is not in the paper repo. Proposal P52 offers it.
 
 ## The borough order of each standard at k = 50 (D191)
 
-Stage `--borough` of `scripts/f10/hop_more_answers.py` (1.1.0). Outputs
-`figures/f10/more/borough_order.csv` (the order of the borough means of the NTA means
+Stage `--borough` of `research/scripts/f10/hop_more_answers.py` (1.1.0). Outputs
+`research/figures/f10/more/borough_order.csv` (the order of the borough means of the NTA means
 of E, 42 cells) and `borough_tests.csv` (Welch t of each borough against the rest,
 Bonferroni over the 42 cells of each borough), and the paper table
-`notebooks/facct/tables/f10_borough_order.tex` (`tab:borough-order`).
+`research/notebooks/facct/tables/f10_borough_order.tex` (`tab:borough-order`).
 
 | Adjective | First | Last | Passes of the first borough (of 6) |
 |-----------|-------|------|------------------------------------|
@@ -319,9 +319,9 @@ section 4.2 and in Appendix B (`app:borough-order`).
 | Step | Status |
 |------|--------|
 | NTA mean readouts at 10 images | done: `data/f10/prompts_k10/` |
-| ACS, borough, Manhattan and refusal gradients at 50 images | done: `figures/f10/more/{ses,partial,manhattan,unable,reliability}.csv` |
-| The transfer and the ACS test of the shared direction on the held-out images | done: `figures/f10/more/transfer/`, `ses_readout.csv` |
-| The shared direction fit at k = 10 | done: `figures/f10/more/shared/` |
+| ACS, borough, Manhattan and refusal gradients at 50 images | done: `research/figures/f10/more/{ses,partial,manhattan,unable,reliability}.csv` |
+| The transfer and the ACS test of the shared direction on the held-out images | done: `research/figures/f10/more/transfer/`, `ses_readout.csv` |
+| The shared direction fit at k = 10 | done: `research/figures/f10/more/shared/` |
 | The reliability at k = 10 and k = 50 | done: `reliability.csv` |
 | The F10.28 word lists from the layer mean of the k = 10 direction | done: `words.csv`, `words_agree.csv`; rho .95 to .97 over the vocabulary, 10 to 15 of the top 20 shared |
 | The task-7 residual direction and the steering directions on the k = 10 residuals (`residual_place.npy`, `residual_final.npy`, float16) | done: `steer/`, `dirs_agree.csv`, `dirs_projection.csv`; cosine about .6 at the noun, but the projections agree at r .94 to .96 |
@@ -341,7 +341,7 @@ proposal replaces them.
 
 ## 2026-11-03: the partial test for the White share
 
-`scripts/f10/hop_more_answers.py` 1.2.0 adds the two partials for the White
+`research/scripts/f10/hop_more_answers.py` 1.2.0 adds the two partials for the White
 share to `partial.csv`: `rho_white_given_income` and `rho_income_given_white`,
 with their `p` and Bonferroni columns (18 tests in each family, for each k).
 The paper audit asked for them, because the body said that income carries the

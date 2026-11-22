@@ -1,7 +1,7 @@
 # The canonical run registry
 
 Every number and every figure in the CVPR paper must come from a named run. The
-registry names them. It lives at `notebooks/cvpr/canonical_data/`. A cell of
+registry names them. It lives at `research/notebooks/cvpr/canonical_data/`. A cell of
 the grid is a **kind**, an **arm**, a **case**, and a **model**.
 
 | Kind | What the run is | What reads it |
@@ -46,7 +46,7 @@ see it. The registry removes that choice from the notebook.
 ## The layout
 
 ```
-notebooks/cvpr/canonical_data/
+research/notebooks/cvpr/canonical_data/
 ├── manifest.json                        <- every run, each with its SHA-256
 ├── proxy/canonical/<case>__<model>/
 │   ├── results.parquet -> the labels
@@ -68,7 +68,7 @@ used a canonical run.
 
 ```bash
 # 1. register a new battery — give EVERY root, see the warning below
-python scripts/register_canonical_runs.py register \
+python research/scripts/register_canonical_runs.py register \
     --stage-root 'multirun/million_merged/*' \
                  'multirun/noabstain_merged/*' 'multirun/noabstain_merged_il/*' \
                  'multirun/nocity_merged/*' 'multirun/nocity_merged_il/*' \
@@ -81,16 +81,16 @@ python scripts/register_canonical_runs.py register \
 # 81 runs on 2026-09-04
 
 # 2. the gate
-python scripts/register_canonical_runs.py verify
+python research/scripts/register_canonical_runs.py verify
 
 # 3. what is registered
-python scripts/register_canonical_runs.py show
+python research/scripts/register_canonical_runs.py show
 
 # 4. the exports, in this order
-marimo export html notebooks/cvpr/<case>/<case>_validation.py -o /dev/null
-python scripts/export_cvpr_results_table.py
-python scripts/export_cvpr_ablations.py
-python scripts/export_cvpr_trace_figures.py
+marimo export html research/notebooks/cvpr/<case>/<case>_validation.py -o /dev/null
+python research/scripts/export_cvpr_results_table.py
+python research/scripts/export_cvpr_ablations.py
+python research/scripts/export_cvpr_trace_figures.py
 ```
 
 **Warning: `register` REBUILDS the manifest from the roots you give it. It
@@ -141,7 +141,7 @@ An accepted problem stays in the manifest and prints as a warning on every
 2. `register`, then `verify`.
 3. Run the 7 validation notebooks, the results table, and the trace figures.
 4. Run the extraction stage on the new trace runs, then
-   `scripts/merge_trace_extractions.py`, then the trace figures again. Until you
+   `research/scripts/merge_trace_extractions.py`, then the trace figures again. Until you
    do, the extraction panels stay out of the figures.
 
 ## What happened on 2026-08-17
@@ -158,7 +158,7 @@ An accepted problem stays in the manifest and prints as a warning on every
 
 ## The required layout (2026-08-20)
 
-`REQUIRED_LAYOUT` in `scripts/register_canonical_runs.py` names the ONE layout
+`REQUIRED_LAYOUT` in `research/scripts/register_canonical_runs.py` names the ONE layout
 a gemma-4-12b run may register with:
 
 | Layout | Block order | Status |

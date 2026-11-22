@@ -5,7 +5,7 @@
 # On 2026-08-14 the canonical prompts moved to "looks like" wording. A prompt
 # now asks what the image SHOWS, not what is true of the place. The trace
 # corpus must show what the model says under the NEW question, so every
-# thinking run from before that date is stale. `notebooks/cvpr/<case>/
+# thinking run from before that date is stale. `research/notebooks/cvpr/<case>/
 # <case>_traces.py` and the langextract stage read the runs of this sweep.
 #
 # The companion is `looks_thinking_gemma12b.yaml`. The 2 raters differ in
@@ -52,9 +52,9 @@
 #
 # Warning: these runs are NOT canonical. The model string is
 # `qwen3.5-9b/instruct_thinking`, and this sweep name is not in
-# CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
+# CANONICAL_SWEEPS, so `research/notebooks/cvpr/_provenance.py` drops them. That is
 # correct — a thinking run uses different sampling, thus its labels are not
-# comparable with the greedy battery. `notebooks/cvpr/_traces.py` collects them.
+# comparable with the greedy battery. `research/notebooks/cvpr/_traces.py` collects them.
 
 sampling_params_vqa:
   # Thinking mode MUST NOT be greedy. The battery default is temperature=0.0

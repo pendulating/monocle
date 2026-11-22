@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/f10"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from hop_free import folds, grid_pool, kernel, monotone_path, oof_mixed, oof_predict, r2, rdm_ranks  # noqa: E402
 from hop_sets import match_controls  # noqa: E402
 

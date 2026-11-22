@@ -1,8 +1,8 @@
 # The modality order and the question-blind image
 
 **Date:** 2026-08-26. **Model:** gemma-4-12B-it. **Tools:**
-`monocle/modality_order.py`, `scripts/modality_order_report.py`,
-`monocle/causal_maps.py --layout`, and `scripts/layout_map_compare.py`.
+`research/monocle/modality_order.py`, `research/scripts/modality_order_report.py`,
+`research/monocle/causal_maps.py --layout`, and `research/scripts/layout_map_compare.py`.
 **Cases:** all 7 for the encoding, 3 for the causal map. 20 photographs each,
 seed 20260821.
 
@@ -258,7 +258,7 @@ the consequence, and the consequence is large. Read the 2 sections together.
 Sections 1 to 4 read the encoding. This section reads the judgment. We
 measured the causal map again under each layout, and compared the maps.
 
-**The floor is exact.** `monocle/truth_retest.py` shows that at a fixed batch
+**The floor is exact.** `research/monocle/truth_retest.py` shows that at a fixed batch
 the map repeats to the last bit: r = 1.000000, with a shuffled cell order in a
 new process. Only the batch size moves it. Every run here uses `--batch 12`,
 so the floor is 1.0 and any drop is a real change.
@@ -432,10 +432,10 @@ street scene could move it more.
 ```bash
 pytest tests/test_modality_order.py -v
 
-sbatch --time=00:20:00 monocle/monocle.sub monocle.modality_order \
+sbatch --time=00:20:00 research/monocle/monocle.sub monocle.modality_order \
     --list-lengths
 
-sbatch --time=01:00:00 monocle/monocle.sub monocle.modality_order \
+sbatch --time=01:00:00 research/monocle/monocle.sub monocle.modality_order \
     --case libraries --other-case street_photography --n-images 20
 ```
 
@@ -450,7 +450,7 @@ pytest tests/test_layout_map_compare.py -v
 for case in subway_safety libraries street_photography; do
   for layout in image_first neutral_first question_first; do
     sbatch --time=02:00:00 --job-name=cmap-$case-$layout \
-        monocle/monocle.sub monocle.causal_maps \
+        research/monocle/monocle.sub monocle.causal_maps \
         --cases "$case" --n-images 20 --group 2 --batch 12 \
         --reference absent --seed 20260821 --layout "$layout" \
         --out-dir outputs/_monocle/causal_maps_layout
@@ -461,14 +461,14 @@ done
 # content of the leading block, so the geometry does not move.
 for case in subway_safety libraries street_photography; do
   sbatch --time=02:00:00 --job-name=cmap-$case-decoy \
-      monocle/monocle.sub monocle.causal_maps \
+      research/monocle/monocle.sub monocle.causal_maps \
       --cases "$case" --n-images 20 --group 2 --batch 12 \
       --reference absent --seed 20260821 \
       --layout neutral_first --filler-kind decoy \
       --out-dir outputs/_monocle/causal_maps_layout
 done
 
-python scripts/layout_map_compare.py \
+python research/scripts/layout_map_compare.py \
     --out outputs/_monocle/layout_map_compare.json
 ```
 

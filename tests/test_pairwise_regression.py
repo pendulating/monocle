@@ -1,4 +1,4 @@
-"""Tests for scripts/pairwise_vqa_regression_report.py.
+"""Tests for research/scripts/pairwise_vqa_regression_report.py.
 
 Covers the statistical core (planted slope/R² recovery, null, Δx pair-level
 orientation, controls + partial R², WLS weighting), the covariate value-map
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "scripts"))
 
 import pairwise_vqa_regression_report as reg  # noqa: E402
 import pairwise_analysis_common as common  # noqa: E402
