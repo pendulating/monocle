@@ -31,7 +31,7 @@ from typing import Any, Optional
 import torch
 from PIL import Image
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
 from research.monocle import extract  # noqa: E402

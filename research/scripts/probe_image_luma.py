@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 SAMPLE = REPO / "outputs/_monocle/probe_words_all/sample/images.parquet"
 OUT = REPO / "outputs/_monocle/probe_black_control/luma.parquet"
 

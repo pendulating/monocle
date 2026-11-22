@@ -27,7 +27,7 @@ import os
 import pandas as pd
 import yaml
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 SCHEMA = os.path.join(ROOT, "research/conf/pairwisevqa/extract/urban_cues_street_v2.yaml")
 INPUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_streetsmoke_desc.parquet")
 DESC = os.path.join(ROOT, "data/f4_traces/descriptors_street/f4_street_desc_final.parquet")

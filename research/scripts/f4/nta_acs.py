@@ -50,7 +50,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, ROOT)
 from dagspaces.common.stage_utils import ensure_dotenv  # noqa: E402
 

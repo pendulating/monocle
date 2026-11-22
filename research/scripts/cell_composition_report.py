@@ -35,7 +35,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 GRADS = REPO / "outputs/_monocle/patch_grads"
 VECS = REPO / "outputs/_monocle/patch_axis_mean"
 REMOVAL = REPO / "outputs/_monocle/patch_budget"

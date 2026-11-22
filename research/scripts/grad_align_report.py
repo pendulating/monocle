@@ -17,7 +17,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 ROOT = REPO / "outputs/_monocle/grad_align"
 CASES = ["subway_safety", "libraries", "schools", "road_quality",
          "parks_plazas", "restaurants", "street_photography"]

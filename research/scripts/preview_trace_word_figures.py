@@ -19,7 +19,7 @@ import sys
 import time
 from pathlib import Path
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "research" / "notebooks" / "cvpr"))
 

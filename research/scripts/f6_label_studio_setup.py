@@ -28,7 +28,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from label_studio_setup import _authenticated_session, read_creds  # noqa: E402
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SET_DIR = os.path.join(ROOT, "data", "f6_restaurant_depiction")
 
 __version__ = "1.0.0"

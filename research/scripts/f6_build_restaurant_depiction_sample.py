@@ -44,7 +44,7 @@ from datetime import datetime, timezone
 
 import polars as pl
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SOURCE = os.path.join(
     ROOT, "curation/dohmh_restaurants_inspected_all/cyclomedia_near_restaurants_facing.parquet")
 OUT_DIR = os.path.join(ROOT, "data/f6_restaurant_depiction")

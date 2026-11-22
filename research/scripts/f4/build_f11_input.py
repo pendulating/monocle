@@ -24,7 +24,7 @@ import os
 
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 CANON = os.path.join(ROOT, "research/notebooks/cvpr/canonical_data/trace/canonical")
 OUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_f11pw.parquet")
 MODELS = {"gemma-4-12b": "gemma12b", "qwen3.5-9b": "qwen9b"}

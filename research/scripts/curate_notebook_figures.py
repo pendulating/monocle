@@ -50,7 +50,7 @@ from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 __version__ = "1.0.0"
 
-ROOT = Path("/share/ju/matt/mllmsci")
+ROOT = Path(__file__).resolve().parents[2]
 CVPR = ROOT / "research" / "notebooks" / "cvpr"
 MASTER_FIGURES = CVPR / "master" / "figures"
 PAPER = ROOT / "research" / "papers" / "cvpr27_machine-perception-public-spaces"

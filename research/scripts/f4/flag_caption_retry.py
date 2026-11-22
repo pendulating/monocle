@@ -32,7 +32,7 @@ import re
 import pandas as pd
 import yaml
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 EXTRACTIONS = os.path.join(ROOT, "data/f4_traces/captions/f4_captions_extractions.parquet")
 INPUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_captions.parquet")
 SCHEMA = os.path.join(ROOT, "research/conf/pairwisevqa/extract/caption_options_v3.yaml")

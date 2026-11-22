@@ -34,7 +34,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
 FEATURES = ("luminance", "contrast", "edge", "saturation", "row", "col")

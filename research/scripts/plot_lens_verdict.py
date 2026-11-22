@@ -15,7 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 
 #: The palette of the camera-ready figures. See research/notebooks/cvpr/_style.py.
 TEAL = "#498573"

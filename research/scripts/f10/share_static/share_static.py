@@ -38,7 +38,7 @@ from pathlib import Path
 
 __version__ = "1.4.0"
 
-ROOT = Path("/share/ju/matt/mllmsci")
+ROOT = Path(__file__).resolve().parents[4]
 HERE = Path(__file__).resolve().parent
 PIN = "e2573d3"
 REPO = "https://github.com/hijohnnylin/neuronpedia.git"

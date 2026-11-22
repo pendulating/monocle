@@ -44,7 +44,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 PARQUET_DEFAULT = REPO / "outputs/_monocle/safety_workspace/answer_depth.parquet"
 OUT_DEFAULT = REPO / "outputs/_monocle/safety_workspace/answer_depth_stats.json"
 

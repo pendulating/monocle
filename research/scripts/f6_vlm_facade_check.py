@@ -49,7 +49,7 @@ from datetime import datetime, timezone
 
 import polars as pl
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, ROOT)
 
 # The selection of f6_select_storefront_views.py 2.0.0 (D73 to D84).

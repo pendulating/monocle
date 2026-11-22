@@ -30,7 +30,7 @@ import os
 
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DIR = os.path.join(ROOT, "data/f4_traces/extract_input")
 
 __version__ = "1.2.0"

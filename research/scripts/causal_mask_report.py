@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 BI = REPO / "outputs/_monocle/patch_budget"
 CA = REPO / "outputs/_monocle/causal12b/patch_budget"
 CASES = ["subway_safety", "libraries", "schools", "road_quality",

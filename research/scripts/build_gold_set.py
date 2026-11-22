@@ -88,7 +88,7 @@ import _extractions as X  # noqa: E402
 
 __version__ = "1.6.0"
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_DIR = os.path.join(ROOT, "data", "gold_set")
 
 # The registered thinking runs. The same table lives in

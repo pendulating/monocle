@@ -25,7 +25,7 @@ from pathlib import Path
 
 import torch
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[3]
 for _p in (REPO, REPO / "sub/jacobian-lens"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))

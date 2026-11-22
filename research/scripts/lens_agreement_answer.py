@@ -42,7 +42,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 TRACE_DEFAULT = (
     REPO / "outputs/_monocle/judgment_trace/subway_safety/trace.parquet")
 OUT_DEFAULT = (

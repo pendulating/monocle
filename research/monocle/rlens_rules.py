@@ -61,7 +61,7 @@ from typing import Any, Iterator, Optional
 import torch
 from torch import nn
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 

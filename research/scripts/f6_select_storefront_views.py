@@ -79,7 +79,7 @@ import polars as pl
 import shapely
 from PIL import Image
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DOHMH = os.path.join(ROOT, "curation/dohmh_restaurants_inspected_all")
 BUILDINGS = os.path.join(ROOT, "data/geo/nyc_buildings.parquet")
 CATALOG = "/share/ju/cyclomedia/catalog/v1/by_dataset"

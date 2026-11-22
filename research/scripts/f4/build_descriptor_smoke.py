@@ -18,7 +18,7 @@ import os
 import pandas as pd
 import yaml
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 INPUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_{}.parquet")
 SCHEMA = os.path.join(ROOT, "research/conf/pairwisevqa/extract/aesthetic_descriptors_v1.yaml")
 OUT = INPUT.format("descsmoke")

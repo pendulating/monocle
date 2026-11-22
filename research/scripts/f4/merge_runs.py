@@ -42,7 +42,7 @@ from datetime import datetime, timezone
 
 import polars as pl
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 F4 = os.path.join(ROOT, "data/f4_traces")
 SAMPLE = os.path.join(F4, "f4_restaurants_1k.parquet")
 OUT = os.path.join(F4, "f4_traces_1k.parquet")

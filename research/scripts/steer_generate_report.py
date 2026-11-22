@@ -18,7 +18,7 @@ from typing import Optional
 
 import pandas as pd
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 ROOT = REPO / "outputs/_monocle/steer_generate"
 CASES = ["subway_safety", "libraries", "schools", "road_quality",
          "parks_plazas", "restaurants", "street_photography"]

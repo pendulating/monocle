@@ -61,7 +61,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 CVPR = REPO / "research/notebooks/cvpr"
 PROBE = REPO / "outputs/_monocle/probe/data"
 OUT = REPO / "outputs/_monocle/probe_nta/data"

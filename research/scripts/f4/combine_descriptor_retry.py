@@ -34,7 +34,7 @@ import os
 import pandas as pd
 import yaml
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 # set -> (main extractions, flags, retry run, retry schema, output)
 SETS = {
     "restaurant": ("data/f4_traces/descriptors/f4_restaurant_desc_extractions.parquet",

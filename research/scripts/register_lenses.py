@@ -40,7 +40,7 @@ from pathlib import Path
 
 import torch
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 JLENS = REPO / "outputs/_monocle/jlens"
 OUT_DEFAULT = JLENS / "LENS_REGISTRY.json"
 DOC_DEFAULT = REPO / "research/docs/lens-registry.md"

@@ -36,7 +36,7 @@ import yaml
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from x2_retry import copy_flags  # noqa: E402
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 IN = os.path.join(ROOT, "data/f4_traces/extract_input")
 CONF = os.path.join(ROOT, "research/conf/pairwisevqa/extract")
 SCHEMA = {

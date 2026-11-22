@@ -56,7 +56,7 @@ except ImportError:  # pragma: no cover - mirrors vqa fallback shim
 from dagspaces.pairwisevqa.stages.pairwise_vqa import _canonicalize_label
 
 LOG = logging.getLogger(__name__)
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[3]
 
 ORDINAL = ["MuchLess", "Less", "Same", "More", "MuchMore"]
 ORD_IDX = {lab: i for i, lab in enumerate(ORDINAL)}

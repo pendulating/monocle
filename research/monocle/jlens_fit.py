@@ -33,7 +33,7 @@ from pathlib import Path
 
 import torch
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 # The jlens package is vendored. A venv that does not install it must
 # still import it, so put the vendored path on sys.path.

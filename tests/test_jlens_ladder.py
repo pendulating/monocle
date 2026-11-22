@@ -94,9 +94,10 @@ class TestHoldOut:
     def test_heldout_skips_the_reserve(self, monkeypatch):
         pool = [{"path": f"/img/{i}.jpg", "image_id": str(i)}
                 for i in range(100)]
-        fake = type(sys)("research.monocle.single")
-        fake.load_single_rows = lambda n, case, **kw: pool[:n]
-        monkeypatch.setitem(sys.modules, "research.monocle.single", fake)
+        # Patch the function on the real module (see the next test): a patch
+        # of sys.modules has no effect once research.monocle.single is imported.
+        monkeypatch.setattr("research.monocle.single.load_single_rows",
+                            lambda n, case, **kw: pool[:n])
 
         rows = ld.heldout_rows("subway_safety", 20, reserve=32)
         assert len(rows) == 20

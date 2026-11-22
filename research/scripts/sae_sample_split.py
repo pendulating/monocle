@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 SRC = REPO / "outputs/_monocle/probe_words_all/sample/images.parquet"
 OUT = REPO / "outputs/_monocle/sae/sample"
 TRAIN_PER_NTA = 300

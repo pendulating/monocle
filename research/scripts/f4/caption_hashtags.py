@@ -35,7 +35,7 @@ import re
 
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 TRACES = os.path.join(ROOT, "data/f4_traces/f4_traces_1k.parquet")
 OUT = os.path.join(ROOT, "data/f4_traces/captions/f4_caption_hashtags.parquet")
 

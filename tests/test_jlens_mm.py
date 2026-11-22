@@ -26,6 +26,19 @@ if str(REPO) not in sys.path:
 from research.monocle import jlens_fit_mm as jf  # noqa: E402
 
 
+def _have_jlens() -> bool:
+    """jlens is installed, or its local copy is in sub/jacobian-lens (not in git)."""
+    try:
+        import jlens  # noqa: F401
+    except ModuleNotFoundError:
+        return (REPO / "sub" / "jacobian-lens" / "jlens").is_dir()
+    return True
+
+
+# The fitter imports the ActivationRecorder hooks of jlens. CI has no jlens.
+pytestmark = pytest.mark.skipif(not _have_jlens(), reason="jlens is not available")
+
+
 # ---------------------------------------------------------------------------
 # Toy model: two per-position linear blocks, no cross-position mixing.
 # ---------------------------------------------------------------------------

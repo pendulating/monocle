@@ -42,7 +42,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 F6 = os.path.join(ROOT, "data/f6_restaurant_depiction/v4")
 CHECK = os.path.join(F6, "facade_check_b300")
 NTA = os.path.join(ROOT, "data/geo/nynta2020_26b/nynta2020.shp")

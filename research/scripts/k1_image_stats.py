@@ -32,7 +32,7 @@ from scipy.stats import rankdata, wilcoxon
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 

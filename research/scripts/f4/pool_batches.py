@@ -47,7 +47,7 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 F4 = os.path.join(ROOT, "data/f4_traces")
 SCHEMAS = {"single-v2", "street-v3", "descriptors-v6-restaurant", "descriptors-v6-street", "caption-v4"}
 SCHEMAS |= {s + "r" for s in SCHEMAS}

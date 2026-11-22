@@ -36,7 +36,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 import sys  # noqa: E402
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "research" / "scripts"))

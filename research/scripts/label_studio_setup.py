@@ -27,7 +27,7 @@ import time
 
 import requests
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 GOLD = os.path.join(ROOT, "data", "gold_set")
 CREDS = os.path.join(ROOT, "data", "label_studio", "credentials.env")
 

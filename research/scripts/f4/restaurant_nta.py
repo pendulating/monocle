@@ -24,7 +24,7 @@ import os
 import geopandas as gpd
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 IMAGES = os.path.join(ROOT, "data/f4_traces/f4_restaurants_1k.parquet")
 VIEWS = os.path.join(ROOT, "data/f6_restaurant_depiction/v4/best.parquet")
 NTA = os.path.join(ROOT, "data/geo/nynta2020_26b/nynta2020.shp")

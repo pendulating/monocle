@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 
 import polars as pl
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DRAWN = os.path.join(ROOT, "data/f6_restaurant_depiction/v4/facade_check_b300/drawn_10000.parquet")
 OUT = os.path.join(ROOT, "data/f4_traces/f4_restaurants_1k.parquet")
 SEED = 20261023

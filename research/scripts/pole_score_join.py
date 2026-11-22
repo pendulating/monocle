@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 ROOT = REPO / "outputs/_monocle/pole_score"
 CASES = ["restaurants", "subway_safety", "libraries", "schools", "parks_plazas", "road_quality"]
 BOOT_N, BOOT_SEED = 400, 20260831

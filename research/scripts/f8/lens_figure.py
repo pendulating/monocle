@@ -46,7 +46,7 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[3]
 MODEL_DIR = "/share/ju/matt/zoo/models/Gemma-4-31B-it"
 TRACES = REPO / "data/f4_traces/pooled/f4_traces_1k.parquet"
 FIELDS = {1: "reasoning", 2: "response"}

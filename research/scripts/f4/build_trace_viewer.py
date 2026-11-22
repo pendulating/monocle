@@ -36,7 +36,7 @@ from datetime import datetime, timezone
 import pandas as pd
 from PIL import Image
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 TRACES = os.path.join(ROOT, "data/f4_traces/f4_traces_1k.parquet")
 EXTRACTIONS = os.path.join(ROOT, "data/f4_traces/extractions")
 OUT_DIR = os.path.join(ROOT, "data/f4_traces/viewer")

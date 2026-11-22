@@ -56,7 +56,7 @@ import re
 import pandas as pd
 import yaml
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 IN = os.path.join(ROOT, "data/f4_traces/extract_input")
 EXTR = os.path.join(ROOT, "data/f4_traces/extractions")
 SEED = 20261026

@@ -18,7 +18,7 @@ import os
 
 import polars as pl
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 SAMPLE = os.path.join(ROOT, "data/f4_traces/f4_restaurants_1k.parquet")
 
 __version__ = "1.0.0"

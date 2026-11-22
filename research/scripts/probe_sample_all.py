@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 from scripts.probe_sample_nta import DATA_NTA, DATA_R1, NTA_COLS, draw_nta, log, tract_to_nta  # noqa: E402
 

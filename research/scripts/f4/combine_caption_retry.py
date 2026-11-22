@@ -28,7 +28,7 @@ import os
 
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 CAPTIONS = os.path.join(ROOT, "data/f4_traces/captions")
 MAIN = os.path.join(CAPTIONS, "f4_captions_extractions.parquet")
 FLAGS = os.path.join(CAPTIONS, "f4_captions_retry_flags.csv")

@@ -70,7 +70,7 @@ import pandas as pd
 from rapidfuzz.distance import Levenshtein
 from rapidfuzz.process import cdist
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 CAPTIONS = os.path.join(ROOT, "data/f4_traces/captions/f4_captions_final.parquet")
 HASHTAGS = os.path.join(ROOT, "data/f4_traces/captions/f4_caption_hashtags.parquet")
 NTAS = os.path.join(ROOT, "data/f4_traces/f4_restaurants_nta.parquet")

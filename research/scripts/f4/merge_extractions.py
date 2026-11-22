@@ -54,7 +54,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))  # the repo root
 from x2_retry import copy_flags  # noqa: E402
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 INPUT_DIR = os.path.join(ROOT, "data/f4_traces/extract_input")
 OUT_DIR = os.path.join(ROOT, "data/f4_traces/extractions")
 

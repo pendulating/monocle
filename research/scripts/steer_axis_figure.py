@@ -28,7 +28,7 @@ import numpy as np
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 ROOT_DEFAULT = REPO / "outputs/_monocle/single_steer_axis"
 ROOT = ROOT_DEFAULT
 CASES = ["subway_safety", "libraries", "schools", "road_quality",

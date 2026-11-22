@@ -38,7 +38,7 @@ import polars as pl
 import shapely
 from PIL import Image, ImageDraw, ImageFont
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "research", "scripts"))
 import f6_select_storefront_views as f6  # noqa: E402
 

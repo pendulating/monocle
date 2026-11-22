@@ -43,7 +43,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
-ROOT = "/share/ju/matt/mllmsci"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 GOLD = os.path.join(ROOT, "data", "gold_set")
 
 __version__ = "1.0.0"

@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 from research.monocle.probe_frame import PROBE_ORDER, PROBES  # noqa: E402
 

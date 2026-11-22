@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-REPO = Path("/share/ju/matt/mllmsci")
+REPO = Path(__file__).resolve().parents[2]
 CANON = REPO / "research/notebooks/cvpr/canonical_data/proxy/canonical"
 POLE = REPO / "outputs/_monocle/pole_sample"
 
