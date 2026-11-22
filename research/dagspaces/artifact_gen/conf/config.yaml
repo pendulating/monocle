@@ -56,7 +56,7 @@ combine:
 wandb:
   enabled: true
   project: ${oc.env:WANDB_PROJECT,ARTIFACT_GEN}
-  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  entity: ${oc.env:WANDB_ENTITY,null}  # W&B logs only when an entity is set (server.env)
   group: ${oc.env:WANDB_GROUP,""}
   single_run: true
 

@@ -23,12 +23,15 @@ additional_parameters:
 setup:
   - export HYDRA_FULL_ERROR=1
   - export PYTHONUNBUFFERED=1
+  # Load server.env in the job. The submitter env does not always reach the job.
+  # Hydra writes the repo path into this line at compose time.
+  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/scripts/load_server_env.sh
   # A site script: module loads, a conda fix, an LD_PRELOAD. server.env names it.
   - if [ -n "$IMAGE_FORWARD_SITE_SETUP" ]; then source "$IMAGE_FORWARD_SITE_SETUP"; fi
   - if [ -n "$IMAGE_FORWARD_VENV_ACTIVATE" ]; then source "$IMAGE_FORWARD_VENV_ACTIVATE"; fi
   # Use a node-local /scratch mirror of the venv when the node has one.
   # See scripts/activate_stage_venv.sh and vlm-narratives-docs/scratch-mirrors.md.
-  - if [ -n "$IMAGE_FORWARD_PROJECT_ROOT" ]; then source "$IMAGE_FORWARD_PROJECT_ROOT/scripts/activate_stage_venv.sh"; fi
+  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/scripts/activate_stage_venv.sh
   # Give the local GPU indices (0..N-1) to vLLM.
   - if [ -n "$SLURM_GPUS_ON_NODE" ] && [ "$SLURM_GPUS_ON_NODE" -gt 0 ]; then export CUDA_VISIBLE_DEVICES=$(seq -s, 0 $((SLURM_GPUS_ON_NODE - 1))); else unset CUDA_VISIBLE_DEVICES; fi
   - echo "HOST=$(hostname) CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"

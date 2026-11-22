@@ -22,6 +22,9 @@ srun_args:
 setup:
   - export HYDRA_FULL_ERROR=1
   - export PYTHONUNBUFFERED=1
+  # Load server.env in the job. The submitter env does not always reach the job.
+  # Hydra writes the repo path into this line at compose time.
+  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/scripts/load_server_env.sh
   # A site script: module loads, a conda fix, an LD_PRELOAD. server.env names it.
   - if [ -n "$IMAGE_FORWARD_SITE_SETUP" ]; then source "$IMAGE_FORWARD_SITE_SETUP"; fi
   - if [ -n "$IMAGE_FORWARD_VENV_ACTIVATE" ]; then source "$IMAGE_FORWARD_VENV_ACTIVATE"; fi
@@ -30,7 +33,7 @@ setup:
   - export IMAGE_FORWARD_SKIP_SCRATCH_VENV=1
   # Use a node-local /scratch mirror of the venv when the node has one.
   # See scripts/activate_stage_venv.sh and vlm-narratives-docs/scratch-mirrors.md.
-  - if [ -n "$IMAGE_FORWARD_PROJECT_ROOT" ]; then source "$IMAGE_FORWARD_PROJECT_ROOT/scripts/activate_stage_venv.sh"; fi
+  - source ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/scripts/activate_stage_venv.sh
   - unset WANDB_DISABLED
   - export WANDB_SILENT=true
   - export WANDB_DISABLE_SERVICE=true

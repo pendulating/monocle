@@ -9,6 +9,12 @@
 # driver: if it activated the mirror, sys.prefix would become a /scratch path,
 # and no stage node could match the marker.
 
+# ── 0. the site keys ───────────────────────────────────────────────────
+# The job does not always get the environment of the submitter (an sbatch call
+# through ssh, for example). Load server.env for the keys below.
+# shellcheck disable=SC1091
+source "$(dirname "${BASH_SOURCE[0]}")/load_server_env.sh"
+
 # ── 1. the node-local venv mirror ─────────────────────────────────────
 # If the node holds a COMPLETE /scratch mirror of the venv that the driver runs
 # from (see scripts/sync_venv_to_scratch.sh), the script activates the mirror
@@ -77,7 +83,7 @@ else
       return 1
     fi
 
-    root="${IMAGE_FORWARD_PROJECT_ROOT:-/share/ju/matt/mllmsci}"
+    root="${IMAGE_FORWARD_PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
     mkdir -p "$(dirname "$dst")" 2>/dev/null
     echo "[stage_venv] no mirror on $(hostname -s) — sync starts (tarball $(du -h "$tarball" 2>/dev/null | cut -f1))"
     local t0=$SECONDS
@@ -131,16 +137,21 @@ fi
 # Warning: the launchers `source ~/.bashrc` BEFORE this script, and that sets
 # CUDA_HOME=/usr/local/cuda-12.8. Thus a "set it only when it is empty" test
 # NEVER fires on a compute node, and the Blackwell bug stays. Our toolkit wins
-# whenever it is present. Override with IMAGE_FORWARD_CUDA_HOME.
-_mllmsci_cuda="${IMAGE_FORWARD_CUDA_HOME:-/share/ju/matt/cuda-12.9}"
-if [ -x "$_mllmsci_cuda/bin/nvcc" ]; then
+# whenever it is present.
+#
+# IMAGE_FORWARD_CUDA_HOME (server.env) names the toolkit. When it is not set,
+# this part does nothing and the stage uses the CUDA_HOME of the node.
+_mllmsci_cuda="${IMAGE_FORWARD_CUDA_HOME:-}"
+if [ -z "$_mllmsci_cuda" ]; then
+  :
+elif [ -x "$_mllmsci_cuda/bin/nvcc" ]; then
   if [ "${CUDA_HOME:-}" != "$_mllmsci_cuda" ]; then
     echo "[stage_venv] CUDA_HOME ${CUDA_HOME:-unset} -> $_mllmsci_cuda (nvcc $("$_mllmsci_cuda/bin/nvcc" --version | sed -n 's/.*release \([0-9.]*\),.*/\1/p' | tail -1))"
   fi
   export CUDA_HOME="$_mllmsci_cuda"
   export CUDA_PATH="$_mllmsci_cuda"
 else
-  echo "[stage_venv] WARNING no 12.9 toolkit at $_mllmsci_cuda; FlashInfer will fail on any sm_120 node"
+  echo "[stage_venv] ERROR: IMAGE_FORWARD_CUDA_HOME=$_mllmsci_cuda has no bin/nvcc. Correct the key in server.env, or remove it to use the CUDA of the node." >&2
 fi
 unset _mllmsci_cuda
 
@@ -163,13 +174,18 @@ unset _mllmsci_cuda
 # Prepend ONLY the ffmpeg directory. A general library directory could hide the
 # CUDA or torch libraries. The guard keeps the entry unique across repeat
 # sources.
-_ff_libdir="${IMAGE_FORWARD_FFMPEG_LIBDIR:-/share/ju/matt/zoo/ffmpeg-libs/n7.1/lib}"
-if [ -d "$_ff_libdir" ] && [ -e "$_ff_libdir/libavutil.so.59" ]; then
+#
+# IMAGE_FORWARD_FFMPEG_LIBDIR (server.env) names the folder. When it is not set,
+# this part does nothing and torchcodec uses the FFmpeg of the system.
+_ff_libdir="${IMAGE_FORWARD_FFMPEG_LIBDIR:-}"
+if [ -z "$_ff_libdir" ]; then
+  :
+elif [ -d "$_ff_libdir" ] && [ -e "$_ff_libdir/libavutil.so.59" ]; then
   case ":${LD_LIBRARY_PATH:-}:" in
     *":$_ff_libdir:"*) : ;;                       # already there — do nothing
     *) export LD_LIBRARY_PATH="$_ff_libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
   esac
 else
-  echo "[stage_venv] WARNING: no FFmpeg libs at $_ff_libdir — torchcodec, and thus 'import vllm' on 0.25, will fail" >&2
+  echo "[stage_venv] ERROR: IMAGE_FORWARD_FFMPEG_LIBDIR=$_ff_libdir has no libavutil.so.59. torchcodec, and thus 'import vllm' on 0.25, can fail. Correct the key in server.env." >&2
 fi
 unset _ff_libdir

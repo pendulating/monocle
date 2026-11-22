@@ -15,7 +15,7 @@ database. The page shows a saved run when no inference host serves the model.
 | Source, pinned at `e2573d3` | `/scratch/$USER/neuronpedia/src` | Node-local. |
 | Postgres 16 with pgvector | `/scratch/$USER/neuronpedia/pgdata` | From the wheel `pgserver`. Port 55432, 127.0.0.1 only. |
 | Webapp | port 3001, 127.0.0.1 only | `next dev`. Telemetry off. Vercel analytics off by default. |
-| Gate | port 3000, all interfaces | `research/scripts/f10/neuronpedia_gate.py`. Accepts `unicorn-login-04` (128.84.96.23) and 127.0.0.1 only. |
+| Gate | port 3000, all interfaces | `research/scripts/f10/neuronpedia_gate.py`. Accepts the login node (`F10_VIEWER_ALLOW`) and 127.0.0.1 only. |
 | Runs | `data/f10/hop_all/viewer/` | From `research/scripts/f10/hop_viewer.py`. |
 
 ## Commands
@@ -29,7 +29,7 @@ database. The page shows a saved run when no inference host serves the model.
 To open the viewer from a laptop, forward the port through the login node:
 
 ```bash
-ssh mwf62@unicorn-login-04.coecis.cornell.edu -L 3000:g3-compute-04:3000
+ssh <user>@<login-node> -L 3000:<compute-node>:3000
 ```
 
 Then open `http://localhost:3000/f10/index.html`. The page lists each image with its

@@ -1,7 +1,7 @@
 # Multimodal Data Configuration
 # Extends inputs.yaml with image column support
 
-parquet_path: ${oc.env:DATA_ROOT,/share/pierson/matt/URBANVQA/data}/multimodal_dataset.parquet
+parquet_path: ${oc.env:DATA_ROOT,/path/to/data}/multimodal_dataset.parquet
 
 columns:
   # Standard text columns

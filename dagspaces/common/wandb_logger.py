@@ -301,8 +301,17 @@ class WandbConfig:
             )
             user_tags = _get_list(wandb_cfg, "tags")
             merged_tags = list(dict.fromkeys(user_tags + auto_tags))
+            # With no entity (wandb.entity or WANDB_ENTITY), W&B stays off. Then a
+            # new user gets no login prompt and no run in an unknown account.
+            enabled = bool(getattr(wandb_cfg, "enabled", False))
+            if enabled and not entity:
+                print(
+                    "[wandb] W&B is off: set WANDB_ENTITY (server.env) or wandb.entity to log runs.",
+                    file=sys.stderr,
+                )
+                enabled = False
             return cls(
-                enabled=bool(getattr(wandb_cfg, "enabled", False)),
+                enabled=enabled,
                 project=project,
                 entity=entity,
                 group=_get_group_from_config(cfg),

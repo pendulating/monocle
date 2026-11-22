@@ -110,7 +110,7 @@ wandb:
   enabled: true
   name_prefix: null
   project: ${oc.env:WANDB_PROJECT,URBANVIT}
-  entity: ${oc.env:WANDB_ENTITY,urbanekg}
+  entity: ${oc.env:WANDB_ENTITY,null}  # W&B logs only when an entity is set (server.env)
   group: ${oc.env:WANDB_GROUP,""}
   table_sample_rows: 1000
   single_run: true

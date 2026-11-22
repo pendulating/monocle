@@ -73,7 +73,9 @@ are incompatible". Take the redistributable tarball.
 `CUDA_HOME=/usr/local/cuda-12.8`. A test of the form
 `[ -z "${CUDA_HOME:-}" ] && export CUDA_HOME=...` therefore NEVER fires on a
 compute node, and the bug stays. Our toolkit wins whenever it is present.
-Override with `IMAGE_FORWARD_CUDA_HOME`.
+`IMAGE_FORWARD_CUDA_HOME` in `server.env` names the toolkit. Since phase 3d of
+`repo-cleanup-plan.md` the script has no default path: when the key is not set,
+the job uses the CUDA of the node.
 
 ## What it buys
 

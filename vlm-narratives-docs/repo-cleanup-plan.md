@@ -1,6 +1,6 @@
 # Plan: make the repo a starting point for GPU vision inference
 
-Written 2026-11-21. Status: phases 0, 1 and 2 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22).
+Written 2026-11-21. Status: phases 0 to 3 are done (see "Progress"). Phase 2 is merged to `main` (2026-11-22). Phase 3 is on the branch `cleanup/phase-3`.
 
 ## Progress
 
@@ -15,6 +15,7 @@ Written 2026-11-21. Status: phases 0, 1 and 2 are done (see "Progress"). Phase 2
 | 3a: the env prefix and `server.env` | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 | 3b: the launchers and the job names | Done 2026-11-22 | Branch `cleanup/phase-3`. See `site/README.md`. |
 | 3c: the model paths | Done 2026-11-22 | Branch `cleanup/phase-3`. |
+| 3d: the job env, W&B, personal data, data defaults | Done 2026-11-22 | Branch `cleanup/phase-3`. |
 
 The rename of phase 2a has these rules:
 
@@ -97,6 +98,16 @@ Phase 3c has these rules:
 | `server.env` load | Each stage job now calls `ensure_dotenv()` (before, only embed, pairwisevqa and speech). The shard drivers and `prebuild_pair_tables.py` call it before they compose. |
 | Code defaults | `rerank.py` uses the zoo key or the Hub ID. `submit_trace_shards.py` finds the repo root from its own path. The GEPA stage reads the zoo key; before, its import failed. |
 | Not changed | The `sv/` and `research/` configs keep their absolute paths. They are site code. |
+
+Phase 3d has these rules:
+
+| Item | Result |
+|------|--------|
+| Job env | A job does not always get the env of the submitter. On this site, `sbatch` goes through ssh on some hosts. The new `scripts/load_server_env.sh` loads `server.env` in the job shell, with the rules of `ensure_dotenv()`. A test found the same 17 values as python-dotenv. `activate_stage_venv.sh` and the generic launchers source it. |
+| `activate_stage_venv.sh` | The CUDA and FFmpeg parts act only when `IMAGE_FORWARD_CUDA_HOME` or `IMAGE_FORWARD_FFMPEG_LIBDIR` is set. A key that names a bad folder gives an error line. The project root comes from the script path. This site sets both keys in `server.env`. |
+| W&B | The default entity `urbanekg` is gone from the 9 dagspace configs. With no entity, W&B is off and the run prints 1 line. This site sets `WANDB_ENTITY` in `server.env`. The 3 GEPA configs keep their entity. |
+| Personal data | The 6 `.sub` files have no `--mail-user` or `--mail-type` now. `neuronpedia-viewer.md` has no login host, address or user name. |
+| Data defaults | The vqa default is now the generic `vqa_inputs`. Only the vqa composes with no pipeline changed (19 of 172). `inputs` and `multimodal_inputs` have no `/share/pierson` default. `flattened_rules.yaml` goes to `research/conf/vqa/data/`. The ocr, embed and pairwisevqa defaults stay for phase 5. |
 
 Phase 1 found these problems. It did not repair them:
 

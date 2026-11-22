@@ -2,8 +2,6 @@
 #SBATCH -J labelling
 #SBATCH --output=/share/ju/matt/mllmsci/logs/labelling-server-%j.out
 #SBATCH --error=/share/ju/matt/mllmsci/logs/labelling-server-%j.err
-#SBATCH --mail-type=ALL 
-#SBATCH --mail-user=mwf62@cornell.edu 
 #SBATCH -N 1
 #SBATCH -n 4
 #SBATCH --get-user-env 
