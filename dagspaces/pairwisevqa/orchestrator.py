@@ -33,7 +33,7 @@ from dagspaces.common.resource_tracker_patch import apply_patch as _apply_resour
 _apply_resource_tracker_patch()
 
 # -- Dagspace-local imports -------------------------------------------------
-from .samplers.cyclomedia_pairs import (
+from .samplers.pairs import (
     build_global_random_pairs,
     build_unit_random_pairs,
 )

@@ -2029,7 +2029,7 @@ from close by. F6 runs before the image choice.
 
 ### How the restaurant images are chosen now
 
-`dagspaces/common/conf/data/cyclomedia_near_restaurants_facing.yaml`, built by
+`sv/nyc/conf/common/data/cyclomedia_near_restaurants_facing.yaml`, built by
 `curation/dohmh_restaurants_inspected_all/`:
 
 | Step | Rule |

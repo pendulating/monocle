@@ -1,0 +1,65 @@
+# Cyclomedia images near NYC parks and public plazas (FacDB facgroup=PARKS AND
+# PLAZAS, domain "PARKS, GARDENS, AND HISTORICAL SITES"), 80-ft-buffered
+# coverage, per-unit facing filter, with attribution_confidence score for
+# downstream weighted sampling.
+#
+# Built 2026-08-11:
+#   python -m sv.nyc.curation facdb-facilities \
+#       --facgroup "PARKS AND PLAZAS" --out curation/facdb_parks_plazas/
+#   python -m sv.nyc.curation materialize-cyclomedia \
+#       --curation-root curation/facdb_parks_plazas \
+#       --output-filename cyclomedia_near_parks.parquet
+# Run the curation CLI from `.venv-nightly`. `.venv-3.12` has no polars.
+#
+# Row counts: 2,582 FacDB units → 495,340 materialized rows → 103,478 rows after
+# the per-unit facing filter (20.9% kept), over 2,064 unique units.
+#
+# Note on the geometry. Only 34.7% of these units matched a BIN polygon exactly;
+# the nearest-building fallback supplied 57.4% more, and 7.8% stayed as points.
+# FacDB rows for parks often have no BIN. Thus the Fix F occlusion check tests
+# the line of sight to a *nearby building*, not to the park itself. It still ran
+# and dropped 7,548 rows. The bearing and distance checks dropped far more
+# (266,613 and 17,454). attribution_confidence is low but it varies — mean 0.097,
+# median 0.061, no zero values — so pair_sampler.weight_column works.
+# See [[concept-facing-filter]].
+#
+# Schema highlights (matches cyclomedia_near_libraries_facing):
+#   sample_id              str  — Cyclomedia sample identifier ({recording_id}_{face})
+#   image_path             str  — absolute path to cube-face JPEG on NFS
+#   unit_uid               str  — FacDB uid of the attributed park / plaza
+#   unit_name              str  — facname (e.g. "TOMPKINS SQUARE PARK")
+#   unit_dist_ft           f64  — recording → park centroid distance (US ft)
+#   bearing_to_unit_deg    f64  — compass bearing recording → centroid
+#   delta_bearing_deg      f64  — |face_bearing − bearing_to_unit|, ∈ [0, 180°]
+#   distance_to_unit_ft    f64  — same as unit_dist_ft, recomputed in filter stage
+#   attribution_confidence f64  — ∈ [0, 1], higher = more confidently facing.
+#                                 Feeds pair_sampler.weight_column downstream.
+#   recording_id, face, dataset, latitude, longitude, bearing — catalog metadata
+
+parquet_path: "/share/pierson/matt/mllmsci/curation/facdb_parks_plazas/cyclomedia_near_parks_facing.parquet"
+
+columns:
+  sample_id: sample_id
+  image_path: image_path
+
+image_path: /share/ju/cyclomedia/raw
+
+# Propagate the unit-attribution + facing-diagnostic + catalog metadata columns
+# into pair rows (they'll show up as <col>_a / <col>_b on the final pair
+# manifest). attribution_confidence MUST be listed here — the orchestrator only
+# reads columns in this list from the parquet, and pair_sampler.weight_column
+# needs it to drive within-unit weighted draws.
+metadata_columns:
+  - unit_uid
+  - unit_name
+  - unit_dist_ft
+  - bearing_to_unit_deg
+  - delta_bearing_deg
+  - distance_to_unit_ft
+  - attribution_confidence
+  - recording_id
+  - face
+  - dataset
+  - latitude
+  - longitude
+  - bearing

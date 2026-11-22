@@ -20,7 +20,7 @@ The confidence floor (2026-09-23)
 ---------------------------------
 A judge sometimes argues with its prompt: "I don't see a subway entrance in
 Image B". That is a separate reasoning task, and the gold set does not mix it
-in. The facing filter (`dagspaces/common/curation/filter_facing.py`) gives
+in. The facing filter (`sv/nyc/curation/filter_facing.py`) gives
 each image an `attribution_confidence` in [0, 1]: the share of the unit that
 sits inside the face, times a cubic falloff in the distance to the unit. The
 score is geometric, not a model's read. It sits in the image manifest of each

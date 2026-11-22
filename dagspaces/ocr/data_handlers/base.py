@@ -51,28 +51,30 @@ class OCRDataHandler(ABC):
 
     @classmethod
     def get_handler(cls, handler_name: str) -> "OCRDataHandler":
-        """Factory method to get a handler by name.
+        """Get a handler by name or by import path.
 
         Args:
-            handler_name: Name of the handler (e.g., "cyclomedia", "generic")
+            handler_name: ``"generic"``, or an import path of the form
+                ``"package.module:ClassName"``. A project gives its own
+                handler with an import path, for example
+                ``"sv.ocr.cyclomedia_handler:CyclomediaHandler"``.
 
         Returns:
             Instance of the requested handler
         """
-        handlers = {
-            "cyclomedia": "CyclomediaHandler",
-            "generic": "GenericImageHandler",
-        }
-
-        if handler_name not in handlers:
-            raise ValueError(f"Unknown handler: {handler_name}. Available: {list(handlers.keys())}")
-
-        # Import handler class dynamically
-        if handler_name == "cyclomedia":
-            from .cyclomedia import CyclomediaHandler
-            return CyclomediaHandler()
-        elif handler_name == "generic":
+        if handler_name == "generic":
             from .generic import GenericImageHandler
             return GenericImageHandler()
-        else:
-            raise ValueError(f"Handler not implemented: {handler_name}")
+
+        if ":" in handler_name:
+            import importlib
+
+            module_name, _, class_name = handler_name.partition(":")
+            handler_cls = getattr(importlib.import_module(module_name), class_name)
+            if not (isinstance(handler_cls, type) and issubclass(handler_cls, OCRDataHandler)):
+                raise TypeError(f"{handler_name} is not an OCRDataHandler subclass")
+            return handler_cls()
+
+        raise ValueError(
+            f"Unknown handler: {handler_name}. Use 'generic' or 'package.module:ClassName'."
+        )

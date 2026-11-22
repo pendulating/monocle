@@ -35,7 +35,7 @@ mixed types compares restaurants on different conditions. The history mean
 reads `Cycle Inspection / Initial Inspection` alone: the routine visit that
 every operating restaurant receives on a cycle.
 
-`dagspaces.common.curation.dohmh.history` writes the sidecar that holds the
+`sv.nyc.curation.dohmh.history` writes the sidecar that holds the
 numbers. It is keyed by `camis` and it adds no column to
 `restaurants_aggregated.parquet`.
 
@@ -124,7 +124,7 @@ def load_history() -> pd.DataFrame:
 
     Build it with::
 
-        from dagspaces.common.curation.dohmh import build_inspection_history
+        from sv.nyc.curation.dohmh import build_inspection_history
         build_inspection_history(
             "curation/dohmh_restaurants_inspected_all/restaurants.parquet")
 
@@ -134,7 +134,7 @@ def load_history() -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
             f"no inspection history at {path} — build it with "
-            "dagspaces.common.curation.dohmh.build_inspection_history"
+            "sv.nyc.curation.dohmh.build_inspection_history"
         )
     df = pd.read_parquet(path)
     df["camis"] = df["camis"].astype(str)
@@ -148,7 +148,7 @@ def load_open_restaurants() -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
             f"no open-restaurants table at {path} — build it with "
-            "python -m dagspaces.common.curation open-restaurants"
+            "python -m sv.nyc.curation open-restaurants"
         )
     return pd.read_parquet(path)
 

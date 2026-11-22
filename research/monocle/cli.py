@@ -188,7 +188,7 @@ def _resolve_recording_faces(
     Any catalog/DuckDB failure is wrapped in a clear RuntimeError.
     """
     try:
-        from dagspaces.common.cyclomedia import catalog
+        from sv.cyclomedia import catalog
 
         con = catalog.connect()
         df = catalog.faces_for_recording(con, recording_id, dataset=dataset)

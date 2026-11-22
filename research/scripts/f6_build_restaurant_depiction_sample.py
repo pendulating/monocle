@@ -19,7 +19,7 @@ The seed is fixed, thus the same call gives the same 100 images.
 
 `attribution_confidence` is geometric, not a read of the pixels: the share of
 the restaurant inside the face, times a cubic falloff in the distance
-(`dagspaces/common/curation/filter_facing.py`).
+(`sv/nyc/curation/filter_facing.py`).
 
 The outputs, in `--out-dir`
 ---------------------------

@@ -25,7 +25,7 @@ import os
 
 import polars as pl
 
-from dagspaces.common.cyclomedia_catalog import CyclomediaCatalog
+from sv.cyclomedia_catalog import CyclomediaCatalog
 
 
 DEFAULT_OUTPUT = "/share/ju/matt/mllmsci/data/cyclomedia/opf_vision_30k.parquet"

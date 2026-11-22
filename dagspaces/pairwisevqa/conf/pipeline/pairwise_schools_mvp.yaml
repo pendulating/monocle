@@ -52,7 +52,7 @@ pair_sampler:
   max_pairs: 100000
   allow_replacement: false    # 2,287 unique schools after facing filter →
                               # ~2.6M canonical pairs without replacement;
-                              # fixed sampler in cyclomedia_pairs.py honors
+                              # fixed sampler in samplers/pairs.py honors
                               # max_pairs up to C(n_units, 2).
   counterbalance_mode: balanced
   repeat_count: 0

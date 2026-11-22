@@ -119,7 +119,7 @@ def pull_311(tr) -> tuple[pd.DataFrame, dict]:
     import geopandas as gpd
 
     sys.path.insert(0, str(REPO))
-    from dagspaces.common.curation.socrata import fetch_socrata
+    from sv.nyc.curation.socrata import fetch_socrata
 
     types = ",".join(f"'{t}'" for t in NYC311_TYPES)
     where = f"created_date>='{NYC311_SINCE}' AND complaint_type in({types})"

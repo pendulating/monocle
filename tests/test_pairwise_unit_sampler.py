@@ -1,11 +1,11 @@
-"""Unit tests for dagspaces.pairwisevqa.samplers.cyclomedia_pairs.build_unit_random_pairs."""
+"""Unit tests for dagspaces.pairwisevqa.samplers.pairs.build_unit_random_pairs."""
 
 from __future__ import annotations
 
 import pandas as pd
 import pytest
 
-from dagspaces.pairwisevqa.samplers.cyclomedia_pairs import (
+from dagspaces.pairwisevqa.samplers.pairs import (
     build_unit_random_pairs,
     build_global_random_pairs,
 )

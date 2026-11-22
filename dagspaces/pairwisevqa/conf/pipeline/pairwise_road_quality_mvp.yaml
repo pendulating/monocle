@@ -8,7 +8,7 @@
 # This case therefore pairs RANDOM street-level shots directly via
 # `pair_sampler.mode=image` against the citywide 500k stratified cyclomedia
 # manifest (cyclomedia_all_2025_citywide — 100k/borough, built by
-# scripts/materialize_cyclomedia_citywide.py), exactly like street photography.
+# sv/scripts/materialize_cyclomedia_citywide.py), exactly like street photography.
 # Each "block" is one random cube-face image; there is no within-unit
 # repetition, so the TrueSkill section of the report does not apply — use the
 # label-distribution and cross-model aggregation reports instead.

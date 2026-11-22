@@ -31,7 +31,7 @@ The 50% swap removes it, not the repeats.
 
 1. The sampler runs with `counterbalance_mode: balanced`. It swaps the
    presented order on every second observation, by the parity of the
-   observation index. See `dagspaces/pairwisevqa/samplers/cyclomedia_pairs.py`.
+   observation index. See `dagspaces/pairwisevqa/samplers/pairs.py`.
 2. The row records the swap in `is_swapped` and `presented_order`.
 3. The stage maps the presented label to its mirror on a swapped row, and
    writes the result to `relative_label`. "More" becomes "Less", and "Same"

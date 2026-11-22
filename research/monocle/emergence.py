@@ -56,7 +56,7 @@ from research.monocle.render import get_font  # noqa: E402
 # Cyclomedia sampler constants (mirrors monocle.sample_fit_images). Imported
 # lazily-safe: catalog is CPU-only (duckdb + constants), no model.
 try:  # pragma: no cover - trivial import guard
-    from dagspaces.common.cyclomedia.catalog import (
+    from sv.cyclomedia.catalog import (
         DEFAULT_INDEX_PATH,
         RAW_ROOT,
     )

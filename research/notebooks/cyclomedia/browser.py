@@ -71,9 +71,9 @@ def _setup(mo):
     import plotly.graph_objects as go
     from PIL import Image
 
-    from dagspaces.common.cyclomedia import catalog as cat
-    from dagspaces.common.cyclomedia import cubemap as cube
-    from dagspaces.common.cyclomedia import depth as dep
+    from sv.cyclomedia import catalog as cat
+    from sv.cyclomedia import cubemap as cube
+    from sv.cyclomedia import depth as dep
 
     con = cat.connect()
 

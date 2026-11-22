@@ -131,7 +131,7 @@ Module: `dagspaces/common/log_setup.py`. Stdlib only.
 | `embed/stages/embed.py` | `Runtime env: {...}` | print | info |
 | `pairwisevqa/stages/pairwise_vqa.py` | `Preparing {n} pairs...` | print | info |
 | `artifact_gen/stages/raster.py` | `Embedding matrix: {shape}` | print | info |
-| `common/curation/cli.py` | `basicConfig` setup | ad-hoc root config | `get_stage_logger("dagspaces.common.curation")` |
+| `common/curation/cli.py` | `basicConfig` setup | ad-hoc root config | `get_stage_logger("sv.nyc.curation")` |
 
 Notes on text changes:
 

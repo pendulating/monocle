@@ -43,7 +43,7 @@ import numpy as np
 REPO = Path("/share/ju/matt/mllmsci")
 sys.path.insert(0, str(REPO))
 
-from dagspaces.common.cyclomedia.catalog import (  # noqa: E402
+from sv.cyclomedia.catalog import (  # noqa: E402
     DEFAULT_INDEX_PATH,
     RAW_ROOT,
 )

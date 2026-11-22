@@ -51,7 +51,7 @@ answers are useful.
 | Piece | Value |
 |---|---|
 | prompt | `dagspaces/vqa/conf/prompt/rating_3point.yaml` |
-| pipeline | `dagspaces/vqa/conf/pipeline/vqa_cyclomedia_rating.yaml` |
+| pipeline | `sv/conf/vqa/pipeline/vqa_cyclomedia_rating.yaml` |
 | lens module | `research/monocle/single.py` |
 | label rule | `research/monocle/labels.py` |
 | forced answer prefix | `{\n  "answer": "` — the same as the pairwise path |

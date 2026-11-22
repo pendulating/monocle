@@ -39,13 +39,13 @@ def _intro():
         materialize via:
 
         ```bash
-        python -m dagspaces.common.curation facdb-facilities \\
+        python -m sv.nyc.curation facdb-facilities \\
             --out curation/facdb_<slug> \\
             --facgroup "<GROUP>"  # or --facdomain / --facsubgrp / --factype
         ```
 
         The hierarchy is loaded from the frozen
-        `dagspaces/common/curation/facdb/categorization.json`; row
+        `sv/nyc/curation/facdb/categorization.json`; row
         counts come from a one-time live FacDB pull, cached locally.
         """
     )
@@ -70,7 +70,7 @@ def _imports():
 @app.cell
 def _load_hierarchy():
     """Frozen 4-level hierarchy from `categorization.json`."""
-    from dagspaces.common.curation.facdb import load_categorization
+    from sv.nyc.curation.facdb import load_categorization
 
     cat = load_categorization()
     hierarchy = cat["hierarchy"]
@@ -100,11 +100,11 @@ def _hierarchy_summary(cat, domains, groups, mo, subgroups, types):
 def _fetch_full_facdb(FACDB_CACHE, pl):
     """Pull the full FacDB once and cache as parquet (~34.7k rows).
 
-    Re-uses `dagspaces.common.curation.facdb.fetch_facdb` so we get
+    Re-uses `sv.nyc.curation.facdb.fetch_facdb` so we get
     the exact same column subset and pagination handling the curation
     CLI uses. Subsequent runs hit the parquet on disk.
     """
-    from dagspaces.common.curation.facdb.fetch import fetch_facdb
+    from sv.nyc.curation.facdb.fetch import fetch_facdb
 
     if FACDB_CACHE.exists():
         full_df = pl.read_parquet(FACDB_CACHE)
@@ -510,7 +510,7 @@ def _cli_command(chosen: dict[str, str], mo, n):
         slug = _slug(chosen)
         flags = " \\\n    ".join(f'{_flag(k)} "{v}"' for k, v in chosen.items())
         cmd = (
-            "python -m dagspaces.common.curation facdb-facilities \\\n"
+            "python -m sv.nyc.curation facdb-facilities \\\n"
             f"    --out curation/{slug} \\\n"
             f"    {flags}"
         )
@@ -529,7 +529,7 @@ def _cli_command(chosen: dict[str, str], mo, n):
 
     ```bash
     sbatch --export=ALL,OUTPUT_FILENAME=cyclomedia_near_{cyclo_target}.parquet \\
-    scripts/materialize_scaffolding_cyclomedia.sub \\
+    sv/nyc/scripts/materialize_scaffolding_cyclomedia.sub \\
     curation/{slug}
     ```
     """
@@ -633,10 +633,10 @@ def _footer(mo):
     ### References
 
     - Wiki: [[facdb-curation]] — full pipeline / validation / output schema
-    - Code: `dagspaces/common/curation/facdb/` — fetch, normalize, validate
-    - Frozen dictionary: `dagspaces/common/curation/facdb/categorization.json`
+    - Code: `sv/nyc/curation/facdb/` — fetch, normalize, validate
+    - Frozen dictionary: `sv/nyc/curation/facdb/categorization.json`
       (baked from `curation/facilities_data_dictionary.xlsx`, 25v2)
-    - Downstream consumer: `scripts/materialize_scaffolding_cyclomedia.sub`
+    - Downstream consumer: `sv/nyc/scripts/materialize_scaffolding_cyclomedia.sub`
       + per-unit facing filter (see [[concept-facing-filter]])
     """)
     return

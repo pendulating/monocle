@@ -96,3 +96,7 @@ no-build-isolation-package = ['flash-attn', 'setuptools']
 override-dependencies = [
     "transformers>=5.5.0",
 ]
+
+[tool.pytest.ini_options]
+# The framework tests are in tests/. The street-view tests are in sv/.
+testpaths = ["tests", "sv"]

@@ -9,7 +9,7 @@ it picks up a model as soon as that model finishes. The UNIT section reads the
 canonical registry instead, through `_unit_validation.place_scores`.
 
 This case is simpler than the schools case. The curation tooling in
-`dagspaces/common/curation/dohmh` already wrote `restaurants_aggregated.parquet`
+`sv/nyc/curation/dohmh` already wrote `restaurants_aggregated.parquet`
 and the `restaurants_inspection_history.parquet` sidecar beside it. Both hold
 the inspection record AND the position. Thus the notebook makes no network call
 for a proxy, and it needs no name join: `uid` matches `unit_uid` in the pairs

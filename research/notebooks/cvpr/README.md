@@ -524,7 +524,7 @@ community-district layer as the libraries result. The census-tract layer is
 structurally unusable, because 3 libraries almost never share 1 tract.
 
 The restaurants case is the simpler shape. The curation tooling in
-`dagspaces/common/curation/dohmh` already got the inspections, cleaned them, and
+`sv/nyc/curation/dohmh` already got the inspections, cleaned them, and
 aggregated them to 1 row for each restaurant, with the position. Thus the
 notebook makes no network call and needs no name join.
 

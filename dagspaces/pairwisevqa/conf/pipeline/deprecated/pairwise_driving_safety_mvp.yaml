@@ -7,7 +7,7 @@
 # to a curated unit), there is no block-level facing manifest, so this case pairs
 # RANDOM street-level shots directly via `pair_sampler.mode=image` against the
 # citywide 500k stratified cyclomedia manifest (cyclomedia_all_2025_citywide —
-# 100k/borough, built by scripts/materialize_cyclomedia_citywide.py). Each
+# 100k/borough, built by sv/scripts/materialize_cyclomedia_citywide.py). Each
 # "block" is one random cube-face image; there is no within-unit repetition, so
 # the TrueSkill section of the report does not apply at the image level — the
 # socioeconomic pipeline instead aggregates image scores up to census tracts.

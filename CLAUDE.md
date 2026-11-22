@@ -188,7 +188,16 @@ Hydra-based hierarchical config composition (version 1.3). Key config groups:
 - `pipeline/` — DAG node definitions (dagspace-local)
 - `hydra/launcher/` — SLURM launcher configs (shared via `dagspaces/common/conf/hydra/launcher/`, dagspace-local overrides where needed)
 
-Shared configs resolved via `hydra.searchpath: [pkg://dagspaces.common.conf]` in each dagspace's `config.yaml`. Site-specific settings (SLURM partition, project paths, NCCL) are in `server.env`, loaded automatically by `ensure_dotenv()`.
+Shared configs resolved via `hydra.searchpath: [pkg://dagspaces.common.conf]` in each dagspace's `config.yaml`.
+
+The dataset configs (Cyclomedia, NYC, bayflood, nexar) are in `sv/conf/` and
+`sv/nyc/conf/`, not in `dagspaces/`. The Hydra plugin
+`hydra_plugins/mllmsci_searchpath/` adds them to the search path of each
+dagspace. Thus `pipeline=vqa_bayflood` and `data=cyclomedia_manhattan` work
+as before. Run the commands from the repo root, or Hydra does not find the
+plugin. See `vlm-narratives-docs/project-config-roots.md`.
+
+Site-specific settings (SLURM partition, project paths, NCCL) are in `server.env`, loaded automatically by `ensure_dotenv()`.
 
 Supports `${oc.env:VAR}` interpolation and optional defaults.
 
@@ -234,7 +243,13 @@ resume chunks.
 ## File Locations
 
 - `<output_root>/pipeline_manifest.json` — The orchestrator writes it in each run. It holds the stage results and the metadata. Git ignores it.
-- `scripts/` — The generic tools of the framework (venv build, scratch mirrors, image packs, shard merge) and the data scripts that phase 2 moves to `sv/`.
+- `scripts/` — The generic tools of the framework (venv build, scratch mirrors, image packs, shard merge).
+- `sv/` — The street-view code. The framework does not import it.
+  - `sv/cyclomedia/`, `sv/cyclomedia_catalog/` — The Cyclomedia readers and the catalog builder.
+  - `sv/ocr/` — The Cyclomedia OCR handler (`handler: sv.ocr.cyclomedia_handler:CyclomediaHandler`).
+  - `sv/nyc/curation/` — The NYC Socrata curation (`python -m sv.nyc.curation`).
+  - `sv/conf/`, `sv/nyc/conf/` — The dataset configs, in `common/` (all dagspaces) and `<dagspace>/` folders.
+  - `sv/scripts/`, `sv/nyc/scripts/`, `sv/tests/`, `sv/nyc/tests/` — The data scripts and their tests.
 - `research/` — The research code. The framework does not import it. Run its code from the repo root, because the editable install maps only `dagspaces`.
   - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`.
   - `research/notebooks/` — The analysis notebooks (cvpr, facct).

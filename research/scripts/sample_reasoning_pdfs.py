@@ -120,7 +120,7 @@ def _load_geo_map(sample: pd.DataFrame) -> dict[str, dict]:
         import geopandas as gpd
         import polars as pl
 
-        from dagspaces.common.cyclomedia_catalog import CyclomediaCatalog
+        from sv.cyclomedia_catalog import CyclomediaCatalog
     except Exception as e:  # noqa: BLE001
         print(f"[WARN] geo enrichment unavailable ({e}); skipping NTA/tract/income.")
         return {}

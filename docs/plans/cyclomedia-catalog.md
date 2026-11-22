@@ -2,11 +2,11 @@
 
 **Status:** proposed — awaiting approval before implementation
 **Owner:** mllmsci (shared across all dagspaces)
-**Target path:** `dagspaces/common/cyclomedia_catalog/`
+**Target path:** `sv/cyclomedia_catalog/`
 
 ## Goal
 
-Replace the per-run `scripts/create_cyclomedia_dataset.py` directory walk with a centralized, queryable backend that lets every dagspace assemble an inference-ready DataFrame by **space × time × face × dataset** in sub-second wall time.
+Replace the per-run `sv/scripts/create_cyclomedia_dataset.py` directory walk with a centralized, queryable backend that lets every dagspace assemble an inference-ready DataFrame by **space × time × face × dataset** in sub-second wall time.
 
 ## Problem with the current script
 
@@ -178,7 +178,7 @@ Stages:
 
 ```python
 import geopandas as gpd
-from dagspaces.common.cyclomedia_catalog import CyclomediaCatalog
+from sv.cyclomedia_catalog import CyclomediaCatalog
 
 cat = CyclomediaCatalog()  # resolves /share/ju/cyclomedia/catalog/v1/ by default
 
@@ -231,19 +231,19 @@ Under the hood: `pl.scan_parquet(...)` over the partitioned dataset with predica
 
 ```bash
 # Full rebuild
-python -m dagspaces.common.cyclomedia_catalog.cli build \
+python -m sv.cyclomedia_catalog.cli build \
     --raw-root /share/ju/cyclomedia/raw \
     --catalog-csv-glob "/share/ju/cyclomedia/pull/**/recordings_*.csv" \
     --output /share/ju/cyclomedia/catalog/v1
 
 # Incremental (walk + diff only)
-python -m dagspaces.common.cyclomedia_catalog.cli refresh --output /share/ju/cyclomedia/catalog/v1
+python -m sv.cyclomedia_catalog.cli refresh --output /share/ju/cyclomedia/catalog/v1
 
 # Validate an existing catalog without rebuilding
-python -m dagspaces.common.cyclomedia_catalog.cli validate --output /share/ju/cyclomedia/catalog/v1
+python -m sv.cyclomedia_catalog.cli validate --output /share/ju/cyclomedia/catalog/v1
 
 # One-shot query (replaces create_cyclomedia_dataset.py for common cases)
-python -m dagspaces.common.cyclomedia_catalog.cli query \
+python -m sv.cyclomedia_catalog.cli query \
     --catalog /share/ju/cyclomedia/catalog/v1 \
     --within data/geo/manhattan_cd5.geojson \
     --between 2025-05-01 2025-08-01 \
@@ -253,7 +253,7 @@ python -m dagspaces.common.cyclomedia_catalog.cli query \
 
 ## Sanity checks (testable, baked into the indexer)
 
-These are the invariants `scripts/create_cyclomedia_dataset.py` silently violates today:
+These are the invariants `sv/scripts/create_cyclomedia_dataset.py` silently violates today:
 
 1. **`recording_id` ↔ directory**: for every recording, `manifest.imageId == basename(recording_path)`. Log violations; don't silently prefer manifest.
 2. **Face ↔ `sample_id` mapping**: `sample_id.endswith(f"_{face}")` and `face ∈ {F,B,L,R,U,D}`.
@@ -266,7 +266,7 @@ These are the invariants `scripts/create_cyclomedia_dataset.py` silently violate
 9. **Partition completeness**: every (dataset, year) partition has at least one row; schema matches union.
 10. **No path escape**: `image_path` starts with the configured `raw_root` (defense against symlink surprises).
 
-All checks run as a pytest suite (`tests/test_cyclomedia_catalog.py`) against a fixture catalog built from `plazas_sample` (small, fast) and as runtime assertions in the indexer (fatal on 1–4, warning on 5–10).
+All checks run as a pytest suite (`sv/tests/test_cyclomedia_catalog.py`) against a fixture catalog built from `plazas_sample` (small, fast) and as runtime assertions in the indexer (fatal on 1–4, warning on 5–10).
 
 ## Dependencies
 
@@ -276,11 +276,11 @@ All checks run as a pytest suite (`tests/test_cyclomedia_catalog.py`) against a 
 - `geopandas`, `shapely` — already in env; used for loading/preparing input polygons that feed the `.st.within(...)` call
 - `fd` binary — installed at `/share/ju/matt/.cargo/bin/fd` (v10.4.2). Indexer prepends `/share/ju/matt/.cargo/bin` to `PATH` or calls the binary by absolute path. Keep a threaded `os.scandir` fallback for portability, but the cluster path assumes `fd`.
 
-## Migration path for `scripts/create_cyclomedia_dataset.py`
+## Migration path for `sv/scripts/create_cyclomedia_dataset.py`
 
 1. Build v1 catalog once (manual rebuild).
 2. Rewrite `create_cyclomedia_dataset.py` as a thin shim calling `CyclomediaCatalog.build_inference_parquet(...)`. Keep the CLI flags identical for backward compatibility.
-3. Update `dagspaces/vqa/conf/pipeline/vqa_cyclomedia_scaffolding.yaml` + any pipeline configs that reference the old script output to point at the new catalog-built parquet (path is stable).
+3. Update `sv/nyc/conf/vqa/pipeline/vqa_cyclomedia_scaffolding.yaml` + any pipeline configs that reference the old script output to point at the new catalog-built parquet (path is stable).
 4. Deprecate `--parse_manifests` and `--catalog_csv` flags (no-ops; catalog already has everything).
 
 ## Decisions (2026-04-17 review)
@@ -302,7 +302,7 @@ All checks run as a pytest suite (`tests/test_cyclomedia_catalog.py`) against a 
 | 3 | `CyclomediaCatalog` Polars + `polars-st` reader with `within`/`between`/`faces`/`datasets` filters | 0.5 day |
 | 4 | pytest suite covering the 10 sanity checks on `plazas_sample` fixture | 0.5 day |
 | 5 | Full build across all 5 boroughs + validation report review | 0.5 day (wall), 2–4h compute |
-| 6 | Rewrite `scripts/create_cyclomedia_dataset.py` as shim + update one pipeline config end-to-end | 0.5 day |
+| 6 | Rewrite `sv/scripts/create_cyclomedia_dataset.py` as shim + update one pipeline config end-to-end | 0.5 day |
 | 7 | Wiki + CLI reference updates | alongside above |
 
 Total: ~3–4 focused days.

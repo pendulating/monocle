@@ -11,14 +11,14 @@
 # full statement of what is deliberately left unspecified and why.
 #
 # PREREQUISITE — the unit manifest does not exist yet. Build it before running:
-#   python -m dagspaces.common.curation facdb-facilities \
+#   python -m sv.nyc.curation facdb-facilities \
 #       --facgroup "PARKS AND PLAZAS" --out curation/facdb_parks_plazas/
 # then materialize-cyclomedia (which auto-chains the facing filter).
 # CAVEAT: unlike libraries/schools, most park and plaza FacDB rows carry no BIN,
 # so the building-polygon occlusion check in the facing filter has nothing to
 # aim at. Expect the facing filter to behave differently here — audit
 # attribution_confidence before trusting unit attribution. See
-# [[concept-facing-filter]] and dagspaces/common/curation/facdb/validation.py.
+# [[concept-facing-filter]] and sv/nyc/curation/facdb/validation.py.
 
 # No system persona. `null` means the stage omits the system turn entirely —
 # NOT an empty system turn (`system: ""`), which renders a vestigial empty block.

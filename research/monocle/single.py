@@ -48,7 +48,7 @@ from research.monocle import canonical  # noqa: E402
 from research.monocle import labels as lb  # noqa: E402
 
 #: The vqa prompt contract. One source of truth for the run and the lens.
-PROMPT_YAML = REPO / "dagspaces/vqa/conf/prompt/rating_2point.yaml"
+PROMPT_YAML = REPO / "sv/conf/vqa/prompt/rating_2point.yaml"
 
 #: The forced JSON prefix, shared with the pairwise path so the answer
 #: position sits in the same place.

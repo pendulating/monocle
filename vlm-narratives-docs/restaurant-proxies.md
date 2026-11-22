@@ -2,7 +2,7 @@
 
 `research/notebooks/cvpr/_proxies_restaurants.py`,
 `research/notebooks/cvpr/restaurants/restaurants_validation.py`,
-`dagspaces/common/curation/dohmh/history.py`.
+`sv/nyc/curation/dohmh/history.py`.
 
 Export version 1.2.0, 2026-08-31.
 
@@ -131,7 +131,7 @@ The 2 metrics also disagree at the unit level: the Spearman rho between
 
 ### The source and the join
 
-`dagspaces/common/curation/open_restaurants` already curates the DCWP
+`sv/nyc/curation/open_restaurants` already curates the DCWP
 "Dining Out NYC" licence dataset (`fpeh-f7ci`). The curated file holds 1,309
 issued licenses: 656 Sidewalk and 653 Roadway, issued between 2024-10-09 and
 2026-05-29 and pulled on 2026-06-01.
@@ -283,7 +283,7 @@ reaches +0.72.
 
 | File | Holds |
 |------|-------|
-| `dagspaces/common/curation/dohmh/history.py` | The sidecar builder |
+| `sv/nyc/curation/dohmh/history.py` | The sidecar builder |
 | `curation/dohmh_restaurants_inspected_all/restaurants_inspection_history.parquet` | 21,537 rows, keyed by camis |
 | `research/notebooks/cvpr/_proxies_restaurants.py` | The 4 metrics, the licence join, the unit table |
 | `research/notebooks/cvpr/restaurants/recipe.json` | The 4 sources and their windows |
@@ -311,7 +311,7 @@ rebuild of the curation sub-dataset is scheduled.
 
 ```bash
 .venv-nightly/bin/python -c "
-from dagspaces.common.curation.dohmh import build_inspection_history
+from sv.nyc.curation.dohmh import build_inspection_history
 print(build_inspection_history(
     'curation/dohmh_restaurants_inspected_all/restaurants.parquet',
     overwrite=True))"

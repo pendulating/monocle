@@ -2,7 +2,7 @@
 
 **Status:** proposed — awaiting approval before implementation
 **Owner:** mllmsci (first of several "curated sub-dataset" bootstraps)
-**Target path:** `dagspaces/common/curation/` (module) + `curation/` (data)
+**Target path:** `sv/nyc/curation/` (module) + `curation/` (data)
 **Downstream consumer:** `CyclomediaCatalog.query(within=coverage_gdf)`
 
 ## Goal
@@ -48,7 +48,7 @@ This is the first concrete bootstrap of the broader "curated sub-dataset" patter
 ## Module layout
 
 ```
-dagspaces/common/curation/
+sv/nyc/curation/
   __init__.py
   socrata.py                 # fetch_socrata(...) — paginated, parquet-cached, no-token
   permits/
@@ -58,7 +58,7 @@ dagspaces/common/curation/
     buffer.py                # BIN → building polygon or point; buffer 80 ft; project
     validation.py            # post-pull sanity checks (fatal + warn), emits summary.md + report.parquet
     scaffolding_permits.py   # top-level orchestration: fetch → union → buffer → validate → write
-  cli.py                     # `python -m dagspaces.common.curation scaffolding-permits ...`
+  cli.py                     # `python -m sv.nyc.curation scaffolding-permits ...`
 ```
 
 ```
@@ -132,7 +132,7 @@ curation/                    # new repo-root data dir (alongside datasets/, vaul
 Next task (separate PR) wires the curated mask to the catalog:
 
 ```python
-from dagspaces.common.cyclomedia_catalog import CyclomediaCatalog
+from sv.cyclomedia_catalog import CyclomediaCatalog
 import geopandas as gpd
 
 cat = CyclomediaCatalog()
@@ -150,7 +150,7 @@ Rough expected volume: current compliance notebook shows ~45k unique BINs citywi
 
 ## Validation
 
-Modeled on `dagspaces/common/cyclomedia_catalog/validation.py`. Runs at the tail of `scaffolding_permits.build(...)` against the normalized + buffered frame, before any output is written. Produces two artifacts per run:
+Modeled on `sv/cyclomedia_catalog/validation.py`. Runs at the tail of `scaffolding_permits.build(...)` against the normalized + buffered frame, before any output is written. Produces two artifacts per run:
 
 - **`validation_report.parquet`** — one row per permit with a boolean column per check. Used for drill-downs.
 - **`summary.md`** — human-readable scoreboard. Every check lists severity, pass rate, per-source breakdown, per-borough breakdown where applicable.
@@ -221,7 +221,7 @@ If any **fatal** check fails, refuse to write `permits.parquet` / `permits.geojs
 ...
 ```
 
-### Unit tests (`tests/test_scaffolding_permits_curation.py`)
+### Unit tests (`sv/nyc/tests/test_scaffolding_permits_curation.py`)
 
 - `test_normalize_dob_now_scaffold_type` — both flags → `both`, etc.
 - `test_normalize_bis_permit_subtype` — `SH` → shed; `SD/SF` → scaffold.
@@ -234,7 +234,7 @@ If any **fatal** check fails, refuse to write `permits.parquet` / `permits.geojs
 ## CLI
 
 ```bash
-python -m dagspaces.common.curation scaffolding-permits \
+python -m sv.nyc.curation scaffolding-permits \
     --cutoff 2025-12-31 \
     --buffer-ft 80 \
     --out curation/scaffolding_permits_through_2025/
@@ -244,7 +244,7 @@ Defaults baked in match this plan. Versioned output dir name (`scaffolding_permi
 
 ## Testing
 
-`tests/test_scaffolding_permits_curation.py`:
+`sv/nyc/tests/test_scaffolding_permits_curation.py`:
 - `test_normalize_dob_now_scaffold_type` — both flags → `both`, etc.
 - `test_normalize_bis_permit_subtype` — `SH` → shed; `SD/SF` → scaffold
 - `test_drops_null_first_permit_date` — DOB NOW filing with null `first_permit_date` excluded

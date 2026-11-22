@@ -1,0 +1,21 @@
+# Cyclomedia Manhattan 8K - Tiny test (single location, 4 faces)
+# Images are 8192x8192 - will be tiled to 1024x1024
+handler: sv.ocr.cyclomedia_handler:CyclomediaHandler
+image_path: /share/ju/cyclomedia/raw/manhattan_w_depth_2025_nov1225/W0E96/W0E96HOD
+# Only 4 faces available for Manhattan: Back, Front, Left, Right (no Up/Down)
+faces_filter:
+  - B
+  - F
+  - L
+  - R
+
+
+
+
+
+
+
+
+
+
+
