@@ -22,6 +22,11 @@ REPO = Path(__file__).resolve().parent
 # Load server.env and .env, as the CLI does: some tests read IMAGE_FORWARD_MODEL_ZOO.
 ensure_dotenv()
 
+# A model config resolves ${oc.env:IMAGE_FORWARD_MODEL_ZOO} at compose time. With no
+# server.env (CI), a placeholder lets the configs resolve. The folder does not exist,
+# thus a test that needs the weights still skips.
+os.environ.setdefault("IMAGE_FORWARD_MODEL_ZOO", str(REPO / "no-model-zoo"))
+
 
 @pytest.fixture(scope="session")
 def repo_root() -> Path:

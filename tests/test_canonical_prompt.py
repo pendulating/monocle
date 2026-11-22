@@ -47,8 +47,13 @@ def _registered(case: str = "subway_safety", kind: str = "proxy") -> bool:
     return True
 
 
-needs_registry = pytest.mark.skipif(
+_skip_no_registry = pytest.mark.skipif(
     not _registered(), reason="canonical registry not present")
+
+
+def needs_registry(fn):
+    """Mark a test that reads the canonical run registry (data that is not in git)."""
+    return pytest.mark.data(_skip_no_registry(fn))
 needs_model = pytest.mark.skipif(
     not MODEL_DIR.is_dir(), reason="gemma-4-12B-it not on this host")
 
