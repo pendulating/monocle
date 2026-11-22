@@ -280,7 +280,7 @@ All checks run as a pytest suite (`tests/test_cyclomedia_catalog.py`) against a 
 
 1. Build v1 catalog once (manual rebuild).
 2. Rewrite `create_cyclomedia_dataset.py` as a thin shim calling `CyclomediaCatalog.build_inference_parquet(...)`. Keep the CLI flags identical for backward compatibility.
-3. Update `dagspaces/urbanvqa/conf/pipeline/vqa_cyclomedia_scaffolding.yaml` + any pipeline configs that reference the old script output to point at the new catalog-built parquet (path is stable).
+3. Update `dagspaces/vqa/conf/pipeline/vqa_cyclomedia_scaffolding.yaml` + any pipeline configs that reference the old script output to point at the new catalog-built parquet (path is stable).
 4. Deprecate `--parse_manifests` and `--catalog_csv` flags (no-ops; catalog already has everything).
 
 ## Decisions (2026-04-17 review)

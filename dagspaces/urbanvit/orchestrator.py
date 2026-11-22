@@ -3,7 +3,7 @@
 Imports shared infrastructure from dagspaces.common and adds urbanvit-specific
 stage runners for ViT training, feature extraction, and classification.
 
-Follows the same two-tier SLURM pattern as urbanvqa/urbanembed:
+Follows the same two-tier SLURM pattern as vqa/embed:
   - Orchestrator runs on slurm_monitor (lightweight CPU job)
   - Stage nodes submit their own GPU jobs via per-node launcher
 

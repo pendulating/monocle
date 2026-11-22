@@ -174,7 +174,7 @@ class WandbConfig:
         table_sample_seed: Random seed for table row sampling.
         default_experiment_name: Fallback for cfg.experiment.name in run names.
         env_var_prefix: Prefix for dagspace-specific sanitizer env vars
-                        (e.g. "MLLMSCI", "URBANVQA").  Empty string means
+                        (e.g. "MLLMSCI", "VQA").  Empty string means
                         no sanitizer vars are read.
         full_column_stages: Stage names for which all DataFrame columns are
                             logged (not just the first 12).

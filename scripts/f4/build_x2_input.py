@@ -87,7 +87,7 @@ def with_context(d: pd.DataFrame) -> pd.DataFrame:
 
 def copied_docs() -> set:
     """Give the texts whose single-v1 spans are 5 or more copies of example spans, not in the text."""
-    ex = yaml.safe_load(open(os.path.join(ROOT, "dagspaces/urbanpairvqa/conf/extract/urban_cues_single_v1.yaml")))
+    ex = yaml.safe_load(open(os.path.join(ROOT, "dagspaces/pairwisevqa/conf/extract/urban_cues_single_v1.yaml")))
     spans = {e["extraction_text"] for x in ex["examples"] for e in x["extractions"]}
     d = pd.concat([pd.read_parquet(os.path.join(EXTR, f"f4_{c}_extractions.parquet"),
                                    columns=["doc_id", "extraction_text", "is_verbatim"]) for c in ("restaurant", "caption")])
@@ -97,7 +97,7 @@ def copied_docs() -> set:
 
 def example_doc_ids(schema: str) -> set:
     """Give the doc_ids of the example texts that the header of a schema lists."""
-    path = os.path.join(ROOT, f"dagspaces/urbanpairvqa/conf/extract/{schema}.yaml")
+    path = os.path.join(ROOT, f"dagspaces/pairwisevqa/conf/extract/{schema}.yaml")
     return {m.group(1) for m in re.finditer(r"^#\s+(\S+\|\w+\|\d+\|(?:reasoning|response))\s*$",
                                             open(path).read(), re.M)}
 

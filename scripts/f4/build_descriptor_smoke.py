@@ -20,7 +20,7 @@ import yaml
 
 ROOT = "/share/ju/matt/mllmsci"
 INPUT = os.path.join(ROOT, "data/f4_traces/extract_input/f4_{}.parquet")
-SCHEMA = os.path.join(ROOT, "dagspaces/urbanpairvqa/conf/extract/aesthetic_descriptors_v1.yaml")
+SCHEMA = os.path.join(ROOT, "dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v1.yaml")
 OUT = INPUT.format("descsmoke")
 
 __version__ = "1.0.0"

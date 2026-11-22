@@ -43,7 +43,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-_CONF_DIR = os.path.join(_ROOT, "dagspaces", "urbanpairvqa", "conf")
+_CONF_DIR = os.path.join(_ROOT, "dagspaces", "pairwisevqa", "conf")
 
 
 def _compose(sweep: str, case: str, extra: List[str]):
@@ -58,7 +58,7 @@ def _compose(sweep: str, case: str, extra: List[str]):
 def build_one(sweep: str, case: str, out_dir: str, extra: List[str],
               force: bool) -> Dict[str, Any]:
     """Draw 1 case and write its parquet and sidecar."""
-    from dagspaces.urbanpairvqa.orchestrator import (
+    from dagspaces.pairwisevqa.orchestrator import (
         _load_pairwise_manifest, build_pair_table, pair_fingerprint,
     )
 
@@ -120,7 +120,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--workers", type=int, default=7)
     args = ap.parse_args(argv)
 
-    from dagspaces.urbanpairvqa.submit_shards import read_grid
+    from dagspaces.pairwisevqa.submit_shards import read_grid
     _, all_cases, _ = read_grid(args.sweep)
     cases = args.cases or all_cases
     os.makedirs(args.out_dir, exist_ok=True)

@@ -1,0 +1,75 @@
+# A forced 2-point rating of ONE image.
+#
+# This is the single-image counterpart of the pairwisevqa contract. It does
+# not replace pairwisevqa. It removes the A-against-B step, so a patch map
+# needs no DIFF and 2 image blocks cannot contaminate each other.
+#
+# Why there is no middle label
+# ---------------------------
+# A 3-point form with `Neutral` COLLAPSED. Measured on 6 images of
+# subway_safety with gemma-4-12B, greedy:
+#
+# | Image | p(Safe) | p(Neutral) | p(Dangerous) | argmax |
+# |---|---|---|---|---|
+# | every one | 0.000 | 1.000 | 0.000 | Neutral |
+#
+# `c` still varied with the image, from +3.4 to +10.6, so the image does
+# reach the Safe-minus-Dangerous direction. But the OUTPUT never varied. Thus
+# there was no label to correlate a patch map against, and the faithfulness
+# check that makes the pairwise maps trustworthy was not available.
+#
+# 2 labels force the model to commit, so the output varies again.
+#
+# The label contract
+# ------------------
+# The lens reads ONE position: the one that emits the label. Thus a label must
+# be 1 token, and 2 labels must not share a token. Check a new set BEFORE you
+# use it, because a broken label fails silently:
+#   python -m monocle.labels Safe Dangerous
+#
+# Warning: do NOT use the digits 1 to 7. They pass the token rule and still
+# fail. 7-11% of image PATCHES read a bare digit at L40-L43, which is the
+# attribution window, so a digit contrast shares a direction with the patches
+# it scores. `Safe` and `Dangerous` read 0.00% over the same patches.
+#
+# The code reads `system` and `user_template`, not `system_prompt`.
+# `user_template` holds no `{{variables}}`, so it overrides any prompt column.
+
+# What the image shows, and the question. Override both per case. The wording
+# tracks the pairwise battery, which opens with "Both show New York City ...".
+subject: New York City subway station entrances
+question: How safe does this station entrance look?
+
+# The 2 contrast poles. The lens reads c = logit(positive) - logit(negative).
+positive: Safe
+negative: Dangerous
+
+system: ""
+
+user_template: 'This shows one of the ${prompt.subject}.
+
+
+  ${prompt.question}
+
+
+  Return exactly one label from:
+
+  - ${prompt.positive}
+
+  - ${prompt.negative}
+
+
+  You must choose one of the two labels, even when you are not sure.'
+
+structured_output:
+  enabled: true
+  json_schema:
+    type: object
+    properties:
+      answer:
+        type: string
+        enum:
+          - ${prompt.positive}
+          - ${prompt.negative}
+    required: ["answer"]
+    additionalProperties: false

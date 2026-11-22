@@ -36,7 +36,7 @@ prompt. Re-run them on this path before you cite them.
 **Call the production code. Do not copy it.**
 
 Every string that reaches the model comes from
-`dagspaces/urbanpairvqa/stages/pairwise_vqa.py` and
+`dagspaces/pairwisevqa/stages/pairwise_vqa.py` and
 `dagspaces/common/vllm_inference.py`. `monocle/canonical.py` holds no prompt
 text of its own, except the 2 contrast templates below. Thus the prompt cannot
 drift away from the battery.

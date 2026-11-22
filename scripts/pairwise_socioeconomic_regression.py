@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Tract-level socioeconomic regression for urbanpairvqa layers.
+"""Tract-level socioeconomic regression for pairwisevqa layers.
 
 Regresses model-derived latent scores for the **street-photography appeal** and
 **subway-entrance safety** layers against two census-tract covariates:

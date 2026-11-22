@@ -1,0 +1,101 @@
+# @package _global_
+# A forced 2-point rating of ONE image, with gemma-4-12B.
+#
+# This pipeline is the single-image counterpart of the pairwisevqa battery.
+# It exists so the lens work can drop the A-against-B step. It does NOT
+# replace pairwisevqa, and it does not touch it.
+#
+# What the simplification buys
+# ----------------------------
+# | Pairwise | Single image |
+# |---|---|
+# | 2 bidirectional vision islands | 1 |
+# | a map needs (sum A) - (sum B) | a map needs no DIFF |
+# | the model reads A and B differently | 1 image, no asymmetry |
+# | about 703 tokens, 94% text at block 47 | shorter, so the image share rises |
+#
+# The measured asymmetry is the reason. At blocks 42 and 46 the answer puts
+# about twice the attention on image B's patches that it puts on image A's,
+# and it reads A mostly through A's final patch. Which image comes first is
+# our choice, so that asymmetry sits inside every pairwise map.
+#
+# This run also TESTS the aggregation result. If the final patch still takes
+# 80-105x the attention of any other patch with only 1 image, the pooling is
+# intrinsic. If it stops, the pooling belongs to the comparison. Both answers
+# are useful. See vlm-narratives-docs/patch-attribution.md.
+#
+# The data configs match the pairwise cases, so the image pool is the same:
+#   cyclomedia_near_subway_facing, cyclomedia_near_libraries_facing,
+#   cyclomedia_near_schools_facing, cyclomedia_near_parks_facing,
+#   cyclomedia_near_restaurants_facing
+
+defaults:
+  - _self_
+  - override /hydra/launcher: slurm_monitor
+  - override /data: cyclomedia_near_subway_facing
+  - override /model: gemma-4-12b/instruct
+  - override /prompt: rating_2point
+
+runtime:
+  multimodal_enabled: true
+  image_fallback: false     # A rating needs the image; fail if it is missing.
+  batch_inference: true
+  streaming_io: true
+  job_memory_gb: 300
+  reservoir_class_key: answer
+  reservoir_weights:
+    "Safe": 0.5
+    "Dangerous": 0.5
+
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      vqa:
+        stage: vqa
+        depends_on: []
+        outputs:
+          results: outputs/vqa/rating/cyclomedia_${now:%Y%m%d_%H%M%S}.parquet
+        overrides:
+          runtime.streaming_io: ${runtime.streaming_io}
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+          model.model_source: /share/ju/matt/zoo/models/gemma-4-12B-it
+          model.engine_kwargs.gpu_memory_utilization: 0.90
+          model.engine_kwargs.tensor_parallel_size: 1
+          # 1 image is about 256 tokens, and the prompt is short. The answer
+          # is `{\n  "answer": "Safe"\n}`. 1536 leaves a wide margin.
+          model.engine_kwargs.max_model_len: 1536
+          model.engine_kwargs.max_num_seqs: 32
+          # This run sends ONE image. The pairwise configs pin 2.
+          model.engine_kwargs.limit_mm_per_prompt.image: 1
+          model.engine_kwargs.trust_remote_code: true
+          model.engine_kwargs.enable_prefix_caching: true
+          model.concurrency: 1
+          model.batch_size: 0
+          sampling_params_vqa.max_tokens: 16
+          # Greedy, to match the canonical pairwise runs.
+          sampling_params_vqa.temperature: 0.0
+          prompt.structured_output: ${prompt.structured_output}
+        launcher: slurm_gpu_klara_1x
+        wandb_suffix: vqa_cyclomedia_rating
+
+# Warning: check a new label set before you use it. A label that is not 1
+# token fails silently.
+#   python -m monocle.labels Safe Dangerous
+#
+# Smoke test:
+#   python -m dagspaces.vqa.cli -m \
+#       pipeline=vqa_cyclomedia_rating \
+#       runtime.debug=true runtime.sample_n=64
+#
+# Another case, with its own question and labels:
+#   python -m dagspaces.vqa.cli -m \
+#       pipeline=vqa_cyclomedia_rating \
+#       data=cyclomedia_near_parks_facing \
+#       prompt.question="How green does this location look?" \
+#       prompt.positive=Green prompt.negative=Bare
+#
+# Warning: a 3-point form with a Neutral midpoint collapsed to p(Neutral)=1.000
+# on every image. Do not add a middle label back without re-measuring.

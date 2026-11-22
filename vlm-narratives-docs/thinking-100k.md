@@ -8,7 +8,7 @@ preemptable `gpu` partition.
 
 The 10x scale-up of the 10,000-pair trace corpus of 2026-08-14
 (`looks_thinking_*`). The sweeps are
-`dagspaces/urbanpairvqa/conf/sweep/thinking100k_gemma12b.yaml` and
+`dagspaces/pairwisevqa/conf/sweep/thinking100k_gemma12b.yaml` and
 `thinking100k_qwen9b.yaml`. Each keeps the thinking contract of its
 10,000-pair parent: the reasoning parser, sampling at temperature 1.0,
 `allow_not_sure`, and the gemma layout `interleaved_labels`.
@@ -53,7 +53,7 @@ kill does not requeue: run the missing shards again on the same base dir.
 # progress
 ls multirun/thinking100k_20260908_001705/*/runs/*/outputs/pairwise/*_mvp_*.parquet | wc -l   # of 504
 # the shards that timed out, on the same base
-.venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.submit_shards \
+.venv-mllmsci-vllm025cu129/bin/python -m dagspaces.pairwisevqa.submit_shards \
     --sweep thinking100k_gemma12b --base-dir multirun/thinking100k_20260908_001705/gemma \
     --pairs-dir multirun/pair_tables_100k_of_1m --only-missing --timeout-min 480 \
     --set runtime.image_pack=/share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack

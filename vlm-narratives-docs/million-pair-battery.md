@@ -34,7 +34,7 @@ compares those rows against each other. A cut by row would put the halves of a
 comparison in 2 jobs and make the diagnostic empty.
 
 ```bash
-python -m dagspaces.urbanpairvqa.cli -m pipeline=pairwise_schools_mvp \
+python -m dagspaces.pairwisevqa.cli -m pipeline=pairwise_schools_mvp \
     pair_sampler.max_pairs=1000000 \
     pair_sampler.shard_count=92 pair_sampler.shard_index=range(0,92)
 ```

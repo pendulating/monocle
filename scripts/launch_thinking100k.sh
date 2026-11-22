@@ -11,11 +11,11 @@
 #
 # A shard that hits the walltime keeps its resume chunks. Run the missing
 # shards again on the SAME base dir:
-#   python -m dagspaces.urbanpairvqa.submit_shards --sweep <sweep> \
+#   python -m dagspaces.pairwisevqa.submit_shards --sweep <sweep> \
 #       --base-dir <base>/<rater> --pairs-dir <pairs> --only-missing \
 #       --timeout-min 480 --set runtime.image_pack=<pack>
 #
-# See dagspaces/urbanpairvqa/conf/sweep/thinking100k_gemma12b.yaml.
+# See dagspaces/pairwisevqa/conf/sweep/thinking100k_gemma12b.yaml.
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -62,7 +62,7 @@ for rater in "${RATERS[@]}"; do
     qwen)  sweep=thinking100k_qwen9b ;;
     *) echo "unknown rater: ${rater} (use gemma or qwen)" >&2; exit 1 ;;
   esac
-  cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+  cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
        "--sweep=${sweep}" "--base-dir=${BASE}/${rater}" "--launcher=${LAUNCHER}"
        "--parallel=${PARALLEL}" "--timeout-min=${TIMEOUT}" "--pairs-dir=${PAIRS_DIR}"
        "--set=runtime.image_pack=${IMAGE_PACK}")
@@ -77,7 +77,7 @@ cat <<TXT
 Finished shards:
   ls ${BASE}/*/runs/*/outputs/pairwise/*_mvp_*.parquet 2>/dev/null | wc -l   # of 504
 Run the missing shards again (the walltime is terminal, a preemption is not):
-  ${PY} -m dagspaces.urbanpairvqa.submit_shards --sweep <sweep> \\
+  ${PY} -m dagspaces.pairwisevqa.submit_shards --sweep <sweep> \\
       --base-dir ${BASE}/<rater> --pairs-dir ${PAIRS_DIR} --only-missing \\
       --timeout-min ${TIMEOUT} --set runtime.image_pack=${IMAGE_PACK}
 TXT

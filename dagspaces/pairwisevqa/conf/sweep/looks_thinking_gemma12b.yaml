@@ -1,0 +1,194 @@
+# @package _global_
+# THINKING MODE — rater 2 of 2, gemma-4-12b, all 7 cases, 10k pairs for each.
+#
+# The companion of `looks_thinking_qwen9b.yaml`. Read that file for why the
+# trace corpus is re-run: on 2026-08-14 the canonical prompts moved to "looks
+# like" wording, so every earlier trace answers a different question.
+#
+# This sweep replaces `thinking_public_investment_10k.yaml` (4 cases) and
+# `thinking_remaining_cases_10k.yaml` (3 cases). It holds all 7 cases and the
+# model axis, so the launch command carries neither.
+#
+# ┌─ REQUIREMENT 1 — LAUNCHER: klara_1x, NEVER klara_2x ───────────────────────┐
+# │ gemma-4-12b is the encoder-free `gemma4_unified` arch, and the DP-worker   │
+# │ path is not gated for its `<|image|>` template, so a 2-GPU stage crashes.  │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# ┌─ REQUIREMENT 2 — LAYOUT: interleaved_labels. Do not remove. ───────────────┐
+# │ `interleaved_labels` puts a text anchor before each image:                 │
+# │   "Image A:", image, "Image B:", image, prompt                             │
+# │                                                                            │
+# │ Without it, gemma-4-12b in thinking mode CANNOT SEE THE SECOND IMAGE.      │
+# │ Measured on 16 pairs, 2026-08-13:                                          │
+# │                                                                            │
+# │   layout              "only one image" in the trace   NotSure              │
+# │   images_then_text    15 of 18                        83%                  │
+# │   interleaved_labels   0 of 18                         5.6%                │
+# │                                                                            │
+# │ The prompt holds about 696 input tokens either way, which is 2 images'     │
+# │ worth, so the pixels are present. The model fails to BIND them as 2        │
+# │ images. As of 2026-08-14 the gemma proxy sweep pins the same layout.       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# MODEL: `gemma-4-12b/instruct_thinking` flips thinking on AND wires the
+# `gemma4` reasoning parser. The parser is what makes this work: it holds the
+# answer enum grammar until the model closes its thought channel. Without it,
+# guided decoding forces the JSON at once and NO reasoning comes out.
+#
+# VENV: the canonical default. Do NOT override it. `.venv-nightly` is
+# DEPRECATED (2026-08-12); gemma-4-12b runs on `.venv-mllmsci-vllm025cu129`,
+# which `server.env` already selects. An override loses the node-local mirror,
+# and a cold import over NFS costs about 13 minutes for each process spawn.
+#
+# PAIRS: max_pairs=10000 draws its OWN 10,000 pairs.
+#
+# Warning: this is NOT a prefix of the proxy battery's draw, and a trace does
+# NOT sit beside the greedy label for the same pair. That claim was true when
+# the proxy drew 100,000 pairs. The proxy now draws 1,000,000, and the two
+# draws share almost nothing: measured 2026-08-20, a 200-pair draw of
+# subway_safety overlapped the 1,000,000-pair table in 1 pair of 220, which is
+# chance.
+#
+# Nothing downstream needs the join today: `_ic_link.py` and `_extractions.py`
+# merge a TRACE run against its OWN pairs table, never against a proxy run. To
+# make the join hold, point this sweep at the prebuilt 1,000,000-pair table
+# (`pair_sampler.pairs_path`) and take a slice of it with shard_count, instead
+# of drawing here.
+#
+# ─── Cost (measured 2026-08-13 and 2026-08-14) ───────────────────────────────
+# 11,000 rows took 7.2-10 h on 1 A6000. 7 cases = about 63 GPU-hours. At 4 GPUs
+# that is about 16 hours.
+#
+# ─── Launch ──────────────────────────────────────────────────────────────────
+#   export HYDRA_SWEEP_DIR=multirun/looks_thinking_gemma12b
+#   .venv-mllmsci-vllm025cu129/bin/python -m dagspaces.pairwisevqa.cli \
+#       --multirun +sweep=looks_thinking_gemma12b
+#
+# The case axis is in this file, thus the command needs no `pipeline=`.
+#
+# Smoke-test 16 pairs first:
+#   ... pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16
+#
+# Check the stage log for this line, which proves the mirror was used:
+#   [stage_venv] ... scratch mirror ...
+# "no matching scratch mirror" means the job runs from NFS.
+#
+# Warning: these runs are NOT canonical. The model string is
+# `gemma-4-12b/instruct_thinking`, and this sweep name is not in
+# CANONICAL_SWEEPS, so `notebooks/cvpr/_provenance.py` drops them. That is
+# correct — a thinking run uses different sampling. `_traces.py` collects them.
+
+# ┌─ UPDATE 2026-08-20 — LAYOUT IS NOW `images_then_labels` ───────────────────┐
+# │ The boxes below still hold: `images_then_text` is broken on this arch.     │
+# │ What changed is WHY, and which fix we use.                                 │
+# │                                                                            │
+# │ Re-tested on 2026-08-20 with `limit_mm_per_prompt` pinned and on vLLM      │
+# │ 0.25.0: `images_then_text` still gives 55 of 70 traces that speak of one   │
+# │ image (NotSure 81.4%). The engine never dropped the image — every vLLM on  │
+# │ disk allows 999 for an unspecified modality. The model reads two ADJACENT  │
+# │ image blocks as one image.                                                 │
+# │                                                                            │
+# │ Thus the rule is adjacency, not order: text must sit BETWEEN the two       │
+# │ images, and text before the first image is optional. Both layouts bind     │
+# │ (0 of 70 one-image traces each):                                           │
+# │   interleaved_labels  "Image A:", image, "Image B:", image, prompt         │
+# │   images_then_labels  image, "Image A.", image, "Image B.", prompt         │
+# │                                                                            │
+# │ `images_then_labels` opens with an image, which is what Google asks for    │
+# │ (gemma-4 card, "Modality order"). Production moved to it on 2026-08-20.    │
+# │                                                                            │
+# │ OPEN: on the greedy path the new layout abstained MORE on the schools      │
+# │ probe — 10 pairs into NotSure, 1 out, McNemar p=0.012, n=70, 1 case. Watch │
+# │ the abstention rate of the first re-run against the registered numbers.    │
+# │                                                                            │
+# │ Warning: a battery must hold ONE layout for every case. The registry gate  │
+# │ rejects a mixed set. A run from before 2026-08-20 is NOT comparable.       │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+sampling_params_vqa:
+  # Google's standard sampling for gemma-4-12b: temperature 1.0, top_p 0.95,
+  # top_k 64.
+  #
+  # Warning: thinking mode MUST NOT be greedy. Greedy decoding degenerates into
+  # repetition over a long trace, which would corrupt the text this run exists
+  # to collect.
+  #
+  # Note on top_k. It is inert in the greedy battery, because guided decoding
+  # already masks the vocabulary to about 6 label tokens. Here it is NOT inert:
+  # the thought channel is free text and carries no grammar.
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  # Measured across all 11,000 road-quality traces of 2026-08-13:
+  #   p50 538 · p90 877 · p99 1,313 · max 2,827 tokens
+  # 4,096 keeps 1.45x headroom over the longest trace ever seen. The prompt is
+  # 624 tokens, thus the ceiling is 4,720, inside the 5,120 window that
+  # `instruct_thinking.yaml` sets.
+  #
+  # Warning: raise this and you must raise `max_model_len` with it, or vLLM
+  # truncates the trace.
+  max_tokens: 4096
+
+prompt:
+  # REQUIRED for this arch: text must sit BETWEEN the two images.
+  # See the UPDATE box at the top. Do not remove.
+  image_layout: images_then_labels
+
+  structured_output:
+    # Match the canonical battery, so a trace explains the same 6-way choice.
+    allow_not_sure: true
+
+pair_sampler:
+  # Deterministic seed-777 prefix of the 100k canonical draw.
+  max_pairs: 10000
+  # 8 shards for each case: 11,000 rows / 8 = 1,375 rows, about 65 minutes of
+  # 1 GPU. That sits inside the 45-to-90-minute band the preempt launcher asks
+  # for, and 7 x 8 = 56 jobs run at once on a pool of 420 GPUs.
+  #
+  # Warning: the prebuilt pair tables under multirun/pair_tables_1m are drawn
+  # for max_pairs=1,000,000. The sidecar does not match this sweep, and the
+  # runner REFUSES a table that other settings drew. Launch this sweep with no
+  # `--pairs-dir`: a 10,000-pair draw costs about 2 seconds.
+  shard_count: 8
+
+runtime:
+  # The `gpu` partition takes a node back when its owner wants it, thus a
+  # thinking job MUST resume. Without this the stage writes nothing until the
+  # last row and a preemption throws the whole shard away.
+  #
+  # 512 rows is the unit of loss. A thinking row costs about 3 seconds, thus a
+  # chunk is about 25 minutes. The greedy battery uses 2,048 rows, because a
+  # greedy row costs about 0.2 seconds.
+  resume: true
+  resume_chunk_rows: 512
+
+pipeline:
+  graph:
+    nodes:
+      pairwise:
+        # Moved off klara_1x on 2026-08-20. The `gpu` partition needs 2 things
+        # that this sweep now has: shards that fit the walltime, and resume.
+        # A whole case is about 8.7 hours of 1 GPU, which no walltime here
+        # holds. See `pair_sampler.shard_count` below.
+        #
+        # Blackwell nodes work again — see blackwell-sm120-flashinfer.md — thus
+        # the pool is 420 GPUs, not the 8 of klara.
+        launcher: slurm_gpu_preempt
+
+hydra:
+  mode: MULTIRUN
+  launcher:
+    # 4 single-GPU stage jobs at a time. Each array task is its own job, so
+    # parallel tasks are safe — the klara_2x prohibition is about DP inside 1
+    # job. To change a running array, do not cancel it. Use:
+    #   scontrol update JobId=<arrayid> ArrayTaskThrottle=<n>
+    array_parallelism: 4
+  sweeper:
+    params:
+      model: gemma-4-12b/instruct_thinking
+      # The shard AXIS. `pair_sampler.shard_count` alone is not enough:
+      # `submit_shards` reads the number of shards from THIS line, and without
+      # it every case runs shard 0 only — an eighth of the corpus, silently.
+      pair_sampler.shard_index: range(0,8)
+      # All 7 cases, in the same order as the proxy sweeps.
+      pipeline: pairwise_subway_safety_mvp,pairwise_libraries_mvp,pairwise_schools_mvp,pairwise_road_quality_mvp,pairwise_parks_plazas_mvp,pairwise_restaurants_mvp,pairwise_street_photography_mvp

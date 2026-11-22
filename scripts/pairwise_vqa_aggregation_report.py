@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a multi-model aggregation report for a urbanpairvqa task.
+"""Generate a multi-model aggregation report for a pairwisevqa task.
 
 Reads an *aggregation directory* — a directory of symlinked run directories,
 one per model — verifies that prompts and pair sets are identical across

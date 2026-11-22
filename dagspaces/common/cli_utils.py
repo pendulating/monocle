@@ -54,7 +54,7 @@ def dagspace_main(
             run_experiment(cfg)
 
     At import time the decorator strips the inherited SLURM variables. Pass
-    ``strip_slurm_env=False`` for a copy that never stripped them (urbanocr).
+    ``strip_slurm_env=False`` for a copy that never stripped them (ocr).
     The decorator then applies ``hydra.main`` with the ``conf/`` directory
     next to the file of the decorated function. Hydra passes an absolute
     config path through verbatim, so the config search path matches the old

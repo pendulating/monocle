@@ -105,7 +105,7 @@ echo "[ic] shards   : ${SHARDS} for each case, ${n_jobs} jobs, ${PARALLEL} at a 
 echo "[ic] chunk    : ${SHARD_ROWS} rows, the unit a preemption loses"
 echo "[ic] sweep    : ${SWEEP_DIR}"
 
-cmd=("${PY}" -m dagspaces.urbanpairvqa.cli -m pipeline=ic_extract
+cmd=("${PY}" -m dagspaces.pairwisevqa.cli -m pipeline=ic_extract
      "ic_extract.results_path=${paths}"
      "ic_extract.shard_count=${SHARDS}"
      "ic_extract.shard_index=${shard_list}"

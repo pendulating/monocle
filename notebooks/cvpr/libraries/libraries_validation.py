@@ -1,7 +1,7 @@
 """Validation via statistical proxy — the libraries case.
 
 This notebook is load-bearing for the CVPR paper. It reads every canonical
-urbanpairvqa run of the libraries prompt, scores each library, and compares the
+pairwisevqa run of the libraries prompt, scores each library, and compares the
 scores against median household income in 3 NYC geographies.
 
 The notebook discovers its runs from W&B. It does not name run directories, so

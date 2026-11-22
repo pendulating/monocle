@@ -65,7 +65,7 @@ class DagspaceSettings:
     dagspace_name:
         Name written into the W&B run_config.
     job_prefix:
-        Prefix for SLURM job names, e.g. ``URBANVQA``.
+        Prefix for SLURM job names, e.g. ``VQA``.
     config_dir:
         Absolute path to the dagspace ``conf/`` directory. The launcher
         config loader resolves prompts and launcher YAML against it.
@@ -91,7 +91,7 @@ class DagspaceSettings:
         ``basic`` reads the result pickle after the job leaves the queue.
         ``nfs_poll`` also polls for the pickle for up to 120 s and checks
         the outcome, because a fast job can finish before NFS shows the
-        pickle (urbanspeech variant).
+        pickle (speech variant).
     pipeline_style:
         ``monitor`` runs a per-stage W&B run, GPU preflight, and the
         submit-wait-recover path. ``inline`` submits each node and blocks
@@ -102,7 +102,7 @@ class DagspaceSettings:
         Send the node-order block to ``logger.set_config``.
     inline_announce_submit:
         Print the ``submitting`` and ``submitted`` statuses in the inline
-        style (urbanocr prints them; pairvqa/roamvqa do not).
+        style (ocr prints them; pairvqa/roamvqa do not).
     manifest_include_inputs:
         Put ``inputs`` in each manifest node entry.
     """

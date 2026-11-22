@@ -2,7 +2,7 @@
 """Render PDF samples of pairwise-VQA reasoning traces with the paired images.
 
 For a pairwise VQA stage output parquet (the kind produced by
-``dagspaces.urbanpairvqa``), draw a reproducible random sample of pairs and
+``dagspaces.pairwisevqa``), draw a reproducible random sample of pairs and
 write one PDF per pair containing:
 
   * a **prompt page** — the exact ``system`` + ``user_template`` prompt the
@@ -20,7 +20,7 @@ JSON; pass ``--include-empty`` to sample from all rows regardless).
 
 The exact prompt is auto-resolved from the parquet filename
 (restaurants / schools / libraries -> the matching
-``dagspaces/urbanpairvqa/conf/prompt/*.yaml``); override with ``--prompt-file``.
+``dagspaces/pairwisevqa/conf/prompt/*.yaml``); override with ``--prompt-file``.
 
 Examples
 --------
@@ -62,7 +62,7 @@ LABEL_ORDER = ["MuchLess", "Less", "Same", "More", "MuchMore"]
 
 # Prompt-config dir and the keyword -> prompt-stem map used to auto-resolve the
 # exact prompt from a parquet filename.
-PROMPT_DIR = Path(__file__).resolve().parents[1] / "dagspaces/urbanpairvqa/conf/prompt"
+PROMPT_DIR = Path(__file__).resolve().parents[1] / "dagspaces/pairwisevqa/conf/prompt"
 # Warning: the schools prompt changed on 2026-08-13. A parquet from before that
 # date used `deprecated/pairwise_school_send_child_ordinal`, so the text below
 # is the WRONG prompt for it. Pass `--prompt-file` to render an older schools

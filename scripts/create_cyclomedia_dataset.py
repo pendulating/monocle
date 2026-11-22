@@ -9,7 +9,7 @@ Each recording has 6 cube faces: F(ront), B(ack), L(eft), R(ight), U(p), D(own).
 The manifest.json contains the imageId and lat/lon coordinates.
 
 This script walks the directory tree in parallel, optionally parses manifests,
-filters to selected faces, and outputs a parquet file ready for the urbanvqa pipeline.
+filters to selected faces, and outputs a parquet file ready for the vqa pipeline.
 
 Usage:
     # Build manifest with horizontal faces only (default, fast -- skips JSON parsing)

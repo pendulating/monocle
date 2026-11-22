@@ -177,7 +177,7 @@ The contract:
 - Zoo models do not change after the download. The mirrors do not test
   freshness. If you replace a model in place, sync each node again.
 
-The canonical set is the urbanpairvqa roster: `Qwen3.5-9B`, `gemma-4-12B-it`,
+The canonical set is the pairwisevqa roster: `Qwen3.5-9B`, `gemma-4-12B-it`,
 `Gemma-4-E2B-it`, `Gemma-4-E4B-it`, `Qwen3.5-2B` and `Qwen3.5-4B`. Phi-4 is
 absent on purpose, because it gives degenerate output on each pairvqa task.
 
@@ -204,21 +204,21 @@ Set `MLLMSCI_MODEL_AUTOSYNC=0` to turn it off.
 A mirror of a DIFFERENT source keeps its marker. The code does not touch it,
 and the stage reads NFS. This is the same refusal that the sync script makes.
 
-## urbanpairvqa did not read server.env (2026-08-28)
+## pairwisevqa did not read server.env (2026-08-28)
 
 `MLLMSCI_MODEL_REGISTRY` lives in `server.env`. A stage job reads that file
-only when its dagspace sets `ensure_dotenv_first=True`. urbanembed,
-artifact_gen, urbanvit and urbanspeech set it. urbanpairvqa did not.
+only when its dagspace sets `ensure_dotenv_first=True`. embed,
+artifact_gen, urbanvit and speech set it. pairwisevqa did not.
 
-Thus the registry root was empty in each urbanpairvqa stage job, and
+Thus the registry root was empty in each pairwisevqa stage job, and
 `resolve_model_source` returned the zoo path with no message. The model mirror
 never worked for the largest dagspace, and no log line said so. A 2026-08-28
 extraction job showed the cost: 195 seconds of weight load for each engine
 start.
 
-`dagspaces/urbanpairvqa/orchestrator.py` now sets `ensure_dotenv_first=True`.
+`dagspaces/pairwisevqa/orchestrator.py` now sets `ensure_dotenv_first=True`.
 
-**Warning:** urbanvqa, urbanocr and urbanroamvqa still do not set it. They
+**Warning:** vqa, ocr and urbanroamvqa still do not set it. They
 have the same fault.
 
 ## monocle and the nightly venv (2026-08-22)

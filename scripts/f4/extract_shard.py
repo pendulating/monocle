@@ -226,9 +226,9 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="compose and print the config; run nothing")
     args = ap.parse_args()
 
-    from dagspaces.urbanpairvqa.orchestrator import run_shard_job
-    from dagspaces.urbanpairvqa.submit_shards import build_payload
-    from dagspaces.urbanpairvqa.submit_trace_shards import compose_cfg, write_hydra_record
+    from dagspaces.pairwisevqa.orchestrator import run_shard_job
+    from dagspaces.pairwisevqa.submit_shards import build_payload
+    from dagspaces.pairwisevqa.submit_trace_shards import compose_cfg, write_hydra_record
 
     arm = ARMS[args.arm]
     case = f"f4_{args.case}"

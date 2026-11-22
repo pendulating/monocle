@@ -374,7 +374,7 @@ The version 1 corpus (`data/trace_extractions/`, the 9B extractor,
 Run `extract_traces` on each registered trace run, then merge:
 
 ```bash
-python -m dagspaces.urbanpairvqa.cli -m pipeline=extract_traces \
+python -m dagspaces.pairwisevqa.cli -m pipeline=extract_traces \
     trace_extract.results_path=<the registered results.parquet> \
     trace_extract.shard_count=8 trace_extract.shard_index=0,1,2,3,4,5,6,7 \
     hydra.launcher.array_parallelism=8

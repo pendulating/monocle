@@ -1,7 +1,7 @@
 """Validation via statistical proxy — the schools case.
 
 This notebook is load-bearing for the CVPR paper. It reads every canonical
-urbanpairvqa run of the schools prompt, scores each school, and aggregates the
+pairwisevqa run of the schools prompt, scores each school, and aggregates the
 scores into 3 NYC geographies.
 
 The notebook discovers its runs from W&B. It does not name run directories. Thus

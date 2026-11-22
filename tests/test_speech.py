@@ -1,16 +1,16 @@
-"""Unit tests for the urbanspeech anti-hallucination logic.
+"""Unit tests for the speech anti-hallucination logic.
 
 Covers the two GPU-free pieces that fix granite-speech hallucinating filler
 over non-speech audio:
-  - VAD speech-window packing (dagspaces.urbanspeech.stages.vad.pack_segments)
+  - VAD speech-window packing (dagspaces.speech.stages.vad.pack_segments)
   - the hallucination post-filter (asr._make_hallucination_flagger)
 """
 
 import pytest
 from omegaconf import OmegaConf
 
-from dagspaces.urbanspeech.stages.vad import pack_segments, total_speech_seconds
-from dagspaces.urbanspeech.stages.asr import (
+from dagspaces.speech.stages.vad import pack_segments, total_speech_seconds
+from dagspaces.speech.stages.asr import (
     _make_hallucination_flagger,
     _normalize_for_match,
     _segment_bounds,

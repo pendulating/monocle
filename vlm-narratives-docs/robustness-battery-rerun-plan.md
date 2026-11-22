@@ -81,7 +81,7 @@ contradicts the decision of 2026-09-02 and the registry. Do not copy it.
 
 ## Phase 2. Prompt variants
 
-New files under `dagspaces/urbanpairvqa/conf/prompt/`, each a copy of
+New files under `dagspaces/pairwisevqa/conf/prompt/`, each a copy of
 `pairwise_subway_safety_ordinal.yaml` with ONE change. The
 `structured_output` block stays byte-identical so guided decoding does not
 change.
@@ -113,7 +113,7 @@ change.
       `array_parallelism: 1`, the rater's layout from the table above, and
       `pipeline: pairwise_subway_safety_mvp`.
 - [x] 3.2 New script `scripts/launch_robustness_battery.sh`. For each rater and
-      each arm it calls `dagspaces.urbanpairvqa.submit_shards --sweep
+      each arm it calls `dagspaces.pairwisevqa.submit_shards --sweep
       robustness_1k_<rater> --base-dir multirun/robustness_<stamp>/<rater>/<arm>
       --pairs-dir multirun/pair_tables_1k_of_1m --set <arm overrides>`. It
       sleeps 20 s between submits (the sbatch ssh shim refuses a burst).

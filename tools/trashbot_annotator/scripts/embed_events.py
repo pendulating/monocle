@@ -5,8 +5,8 @@ scripts/embed_events.sub does that. The input is the frames manifest
 from ``trashbot-annotate embed-frames``. The output parquet holds one
 L2-normalized embedding per event keyframe.
 
-This mirrors the message and pooling pattern of the urbanembed embed
-stage (dagspaces/urbanembed/stages/embed.py).
+This mirrors the message and pooling pattern of the embed dagspace
+stage (dagspaces/embed/stages/embed.py).
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ INSTRUCTION = (
     "clothing, and action toward the trash robot."
 )
 
-# Fixed 1024x1024, the same pin as the urbanembed 8B config. A fixed
+# Fixed 1024x1024, the same pin as the embed 8B config. A fixed
 # shape keeps the batch memory stable.
 MIN_PIXELS = 1049600
 MAX_PIXELS = 1049600

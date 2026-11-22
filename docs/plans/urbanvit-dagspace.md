@@ -160,7 +160,7 @@ Selection is a Hydra override: `shard=ffcv` or `shard=webdataset`.
 
 ## Open items
 
-- Label acquisition pipeline — bootstrapped via embedding retrieval from `urbanembed`. Out of scope for urbanvit itself; label parquet is an input.
+- Label acquisition pipeline — bootstrapped via embedding retrieval from `embed`. Out of scope for urbanvit itself; label parquet is an input.
 - H3 spatial partitioning for splits — deferred, see "Future upgrade path" above.
 - TensorRT / INT8 path for production inference — deferred until throughput need is measured.
 - FP8 — not available on A6000 (Ampere), skip.

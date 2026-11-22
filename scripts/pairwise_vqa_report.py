@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a markdown summary report for a urbanpairvqa run.
+"""Generate a markdown summary report for a pairwisevqa run.
 
 Reads a pairwise VQA stage output parquet plus its companion ``pairs.parquet``
 (for unit identity) and emits a self-contained markdown report with embedded

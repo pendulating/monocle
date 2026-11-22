@@ -63,7 +63,7 @@ sys.path.insert(0, str(REPO))
 from scipy.spatial.distance import jensenshannon  # noqa: E402
 from scipy import stats as sps  # noqa: E402
 
-from dagspaces.urbanpairvqa.stages.pairwise_vqa import (  # noqa: E402
+from dagspaces.pairwisevqa.stages.pairwise_vqa import (  # noqa: E402
     _canonicalize_label,
     _INVERT_LABEL,
     _ORDINAL_SCORE,

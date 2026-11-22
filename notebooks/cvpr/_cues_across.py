@@ -6,7 +6,7 @@ word list is mostly what the case is ABOUT. A word count cannot separate the
 subject from the judgment.
 
 This module counts CUES instead. The extraction stage
-(`dagspaces/urbanpairvqa/stages/trace_extract.py`) turns each trace into typed
+(`dagspaces/pairwisevqa/stages/trace_extract.py`) turns each trace into typed
 spans, and a `visual_evidence` span carries 3 things a word never can:
 
 | Field | What it gives |

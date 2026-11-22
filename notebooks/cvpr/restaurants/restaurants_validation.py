@@ -1,7 +1,7 @@
 """Validation via statistical proxy — the restaurants case.
 
 This notebook is load-bearing for the CVPR paper. It reads every canonical
-urbanpairvqa run of the restaurants prompt, scores each restaurant, and compares
+pairwisevqa run of the restaurants prompt, scores each restaurant, and compares
 the scores against the DOHMH inspection record in 3 NYC geographies.
 
 The notebook discovers its runs from W&B. It does not name run directories, so

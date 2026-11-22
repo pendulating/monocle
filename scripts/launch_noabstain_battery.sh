@@ -109,7 +109,7 @@ echo
 
 launch_one() {
   local rater="$1" sweep="$2" parallel="$3" timeout="$4"
-  local -a cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+  local -a cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
                 "--sweep=${sweep}"
                 "--base-dir=${BASE}/${rater}"
                 "--launcher=${LAUNCHER}"
@@ -156,7 +156,7 @@ Finished shards:
   ls -d ${BASE}/*/runs/*/outputs/pairwise/*_mvp_*.parquet 2>/dev/null | wc -l
 
 Run the missing shards again (the wall is terminal, SLURM does not requeue it):
-  ${PY} -m dagspaces.urbanpairvqa.submit_shards --sweep million_noabstain_qwen9b \\
+  ${PY} -m dagspaces.pairwisevqa.submit_shards --sweep million_noabstain_qwen9b \\
       --base-dir ${BASE}/qwen --pairs-dir ${PAIRS_DIR} --only-missing --timeout-min 360
 
 When it lands:

@@ -10,8 +10,8 @@ the canonical setup. The plan and its checklist are in
 
 | File | Purpose |
 |------|---------|
-| `dagspaces/urbanpairvqa/conf/sweep/robustness_1k_<rater>.yaml` | The base of 1 rater: 1,000 pairs, 1 shard, the rater's production layout |
-| `dagspaces/urbanpairvqa/conf/prompt/pairwise_subway_safety_{paraphrase,persona,enumrev,flipped}.yaml` | The 4 wording arms, each 1 change against the canonical prompt |
+| `dagspaces/pairwisevqa/conf/sweep/robustness_1k_<rater>.yaml` | The base of 1 rater: 1,000 pairs, 1 shard, the rater's production layout |
+| `dagspaces/pairwisevqa/conf/prompt/pairwise_subway_safety_{paraphrase,persona,enumrev,flipped}.yaml` | The 4 wording arms, each 1 change against the canonical prompt |
 | `scripts/launch_robustness_battery.sh` | One submit for each (rater, arm); tier A, tier B, and the smoke mode |
 | `scripts/subset_pair_tables.py` | Cuts the 1k and 25k pair tables out of the 1M table |
 | `notebooks/cvpr/_robustness.py` | The measures, the proof of each arm, and the 3 LaTeX tables |

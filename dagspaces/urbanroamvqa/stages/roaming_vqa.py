@@ -20,10 +20,10 @@ from ..graph.street_graph import FACE_BEARING_DEG, HORIZONTAL_FACES, StreetGraph
 from ..graph.builder import build_street_graph
 from ..samplers.seed_sampler import sample_walk_seeds
 from dagspaces.common.stage_utils import run_with_retry
-from dagspaces.urbanvqa.stages.vqa import run_vqa_stage
+from dagspaces.vqa.stages.vqa import run_vqa_stage
 
 
-# --- Image stitching (adapted from urbanpairvqa) ---
+# --- Image stitching (adapted from pairwisevqa) ---
 
 # Face labels depend on the graph's face frame: Cyclomedia NYC cube faces are
 # compass-fixed (F=North...), not vehicle-relative (F=Forward...).
@@ -514,7 +514,7 @@ class RoamingStepper:
         """Render the Jinja2 user prompt template for a step.
 
         Note: The system prompt is NOT included here. It is injected
-        separately by urbanvqa's preprocess_simple via cfg.prompt.system,
+        separately by vqa's preprocess_simple via cfg.prompt.system,
         which wraps it as a proper {"role": "system"} message.
         """
         prompt_cfg = getattr(self.cfg, "prompt", {})

@@ -1,7 +1,7 @@
 """Validation via statistical proxy — the road quality case.
 
 This notebook is load-bearing for the CVPR paper. It reads every canonical
-urbanpairvqa run of the road-quality prompt, scores each street-level image, and
+pairwisevqa run of the road-quality prompt, scores each street-level image, and
 compares the scores against 4 proxies.
 
 **This case is IMAGE mode.** Road quality pairs random street-level shots, not

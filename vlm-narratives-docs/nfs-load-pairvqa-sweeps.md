@@ -1,6 +1,6 @@
 # NFS load from the pairvqa sweeps on /share/ju
 
-A large `urbanpairvqa` sweep on the `gpu` partition makes `/share/ju` slow for
+A large `pairwisevqa` sweep on the `gpu` partition makes `/share/ju` slow for
 everyone. This page gives the cause, the measurements, and the fix options.
 Measured 2026-09-03 on the noabstain gemma battery (array 217915, 322 shards).
 
@@ -105,7 +105,7 @@ A stage reads the pack when `runtime.image_pack` (or `model.image_pack`)
 names the directory:
 
 ```bash
-python -m dagspaces.urbanpairvqa.submit_shards --sweep ... \
+python -m dagspaces.pairwisevqa.submit_shards --sweep ... \
     --set runtime.image_pack=/share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack
 ```
 

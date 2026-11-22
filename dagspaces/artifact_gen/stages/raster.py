@@ -1,6 +1,6 @@
 """Generate a GeoTIFF raster of text-query relevance over geolocated image embeddings.
 
-Takes pre-computed embeddings (from urbanembed) with lat/lon coordinates and a text
+Takes pre-computed embeddings (from embed) with lat/lon coordinates and a text
 query string, computes cosine similarity between the query and all image embeddings,
 then interpolates the scores onto a regular geographic grid.
 

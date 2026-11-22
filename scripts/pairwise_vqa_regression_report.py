@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Targeted regressions over a urbanpairvqa run.
+"""Targeted regressions over a pairwisevqa run.
 
 Answers questions like "how much of the VLM's per-school rating is explained
 by poverty rate?" Per-unit TrueSkill μ is regressed on one or more unit-level

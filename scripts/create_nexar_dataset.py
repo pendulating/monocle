@@ -14,7 +14,7 @@ Usage:
     
     Or generate directly from config:
     python scripts/create_nexar_dataset.py \
-        --config dagspaces/urbanvqa/conf/data/nexar_dashcam.yaml \
+        --config dagspaces/vqa/conf/data/nexar_dashcam.yaml \
         --output_path /share/ju/matt/mllmsci/data/nexar_dashcam_vqa.parquet
     
     Note: Use a path accessible from GPU nodes (not /tmp)

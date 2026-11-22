@@ -66,7 +66,7 @@ for arm in "${ARMS[@]}"; do
     textfirst) sweep=million_textfirst_gemma12b_il ;;
     *) echo "unknown arm: ${arm} (use nocity or textfirst)" >&2; exit 1 ;;
   esac
-  cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+  cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
        "--sweep=${sweep}" "--base-dir=${BASE}/${arm}" "--launcher=${LAUNCHER}"
        "--parallel=${PARALLEL}" "--timeout-min=${TIMEOUT}" "--pairs-dir=${PAIRS_DIR}")
   [ "${DRY}" -eq 1 ] && cmd+=("--dry-run")
@@ -84,6 +84,6 @@ Finished shards:
   ls -d ${BASE}/*/runs/*/outputs/pairwise/*_mvp_*.parquet 2>/dev/null | wc -l
 
 Run the missing shards again (the wall is terminal):
-  ${PY} -m dagspaces.urbanpairvqa.submit_shards --sweep <sweep> \\
+  ${PY} -m dagspaces.pairwisevqa.submit_shards --sweep <sweep> \\
       --base-dir ${BASE}/<arm> --pairs-dir ${PAIRS_DIR} --only-missing --timeout-min ${TIMEOUT}
 TXT

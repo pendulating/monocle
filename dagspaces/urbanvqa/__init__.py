@@ -1,3 +1,0 @@
-"""URBANVQA experiment package."""
-
-

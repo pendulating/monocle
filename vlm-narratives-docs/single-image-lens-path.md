@@ -50,14 +50,14 @@ answers are useful.
 
 | Piece | Value |
 |---|---|
-| prompt | `dagspaces/urbanvqa/conf/prompt/rating_3point.yaml` |
-| pipeline | `dagspaces/urbanvqa/conf/pipeline/vqa_cyclomedia_rating.yaml` |
+| prompt | `dagspaces/vqa/conf/prompt/rating_3point.yaml` |
+| pipeline | `dagspaces/vqa/conf/pipeline/vqa_cyclomedia_rating.yaml` |
 | lens module | `monocle/single.py` |
 | label rule | `monocle/labels.py` |
 | forced answer prefix | `{\n  "answer": "` — the same as the pairwise path |
 | layout | the image first, then the question |
 
-The lens reads the prompt from the urbanvqa config. It does not keep a copy.
+The lens reads the prompt from the vqa config. It does not keep a copy.
 That is the rule the pairwise path follows, and it prevents a divergence
 between the run and the lens.
 
@@ -122,6 +122,6 @@ python -m monocle.labels Safe Neutral Dangerous
 sbatch monocle/monocle.sub monocle.single --case subway_safety --n-images 6
 
 # The production run.
-python -m dagspaces.urbanvqa.cli -m pipeline=vqa_cyclomedia_rating \
+python -m dagspaces.vqa.cli -m pipeline=vqa_cyclomedia_rating \
     runtime.debug=true runtime.sample_n=64
 ```

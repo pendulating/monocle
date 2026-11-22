@@ -3,7 +3,7 @@
 The lens must read the SAME forward pass the CVPR battery ran. This module
 builds that forward pass. It does not copy the production prompt code — it
 calls it. Every string that reaches the model comes from
-``dagspaces.urbanpairvqa.stages.pairwise_vqa`` and
+``dagspaces.pairwisevqa.stages.pairwise_vqa`` and
 ``dagspaces.common.vllm_inference``, so the prompt cannot drift away from the
 battery.
 
@@ -229,14 +229,14 @@ def load_pairs(case: str, kind: str = "proxy") -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Prompt construction — production functions only
 # ---------------------------------------------------------------------------
-_PAIRWISE_VQA_PATH = REPO / "dagspaces/urbanpairvqa/stages/pairwise_vqa.py"
+_PAIRWISE_VQA_PATH = REPO / "dagspaces/pairwisevqa/stages/pairwise_vqa.py"
 _pairwise_vqa_module: Any = None
 
 
 def _load_pairwise_vqa() -> Any:
     """The production pairwise stage module, loaded by file path.
 
-    ``dagspaces.urbanpairvqa.stages.__init__`` imports ``trace_extract``,
+    ``dagspaces.pairwisevqa.stages.__init__`` imports ``trace_extract``,
     which needs langextract. That package is absent from the lens venvs, and
     the lens does not use it. A direct load by path skips the package
     ``__init__`` and keeps this module CPU-safe.

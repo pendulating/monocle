@@ -9,8 +9,8 @@ the GPU.
 |-------|-------|
 | Schema and prompt | `dagspaces/common/ic_schema.py` |
 | Examples | `dagspaces/common/ic_examples_v2.json` |
-| Stage | `dagspaces/urbanpairvqa/stages/ic_extract.py` |
-| Pipeline | `dagspaces/urbanpairvqa/conf/pipeline/ic_extract.yaml` |
+| Stage | `dagspaces/pairwisevqa/stages/ic_extract.py` |
+| Pipeline | `dagspaces/pairwisevqa/conf/pipeline/ic_extract.yaml` |
 | Merge | `scripts/merge_trace_extractions.py --schema ic` |
 
 ## The rule that makes it work
@@ -110,7 +110,7 @@ and model:
 
 ```bash
 export HYDRA_SWEEP_DIR=multirun/ic_<name>
-.venv-mllmsci-vllm025cu129/bin/python -m dagspaces.urbanpairvqa.cli -m \
+.venv-mllmsci-vllm025cu129/bin/python -m dagspaces.pairwisevqa.cli -m \
     pipeline=ic_extract \
     ic_extract.results_path=notebooks/cvpr/canonical_data/trace/canonical/<case>__gemma-4-12b/results.parquet \
     ic_extract.shard_count=6 ic_extract.shard_index=0,1,2,3,4,5 \

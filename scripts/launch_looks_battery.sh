@@ -80,7 +80,7 @@ echo
 cd "${ROOT}"
 
 for sweep in "${SWEEPS[@]}"; do
-  conf="${ROOT}/dagspaces/urbanpairvqa/conf/sweep/${sweep}.yaml"
+  conf="${ROOT}/dagspaces/pairwisevqa/conf/sweep/${sweep}.yaml"
   if [ ! -f "${conf}" ]; then
     echo "error: no sweep config at ${conf}" >&2
     exit 1
@@ -93,7 +93,7 @@ for sweep in "${SWEEPS[@]}"; do
     extra=(pipeline=pairwise_schools_mvp pair_sampler.max_pairs=16)
   fi
 
-  cmd=("${PY}" -m dagspaces.urbanpairvqa.cli --multirun "+sweep=${sweep}" "${extra[@]}")
+  cmd=("${PY}" -m dagspaces.pairwisevqa.cli --multirun "+sweep=${sweep}" "${extra[@]}")
 
   if [ "${DRY}" -eq 1 ]; then
     echo "HYDRA_SWEEP_DIR=${BATTERY_DIR}/${sweep} ${cmd[*]}"

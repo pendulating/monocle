@@ -87,7 +87,7 @@ echo "[matched] base    : ${BASE}"
 [ "${SMOKE}" -eq 1 ] && echo "[matched] SMOKE   : 1 case, 2 shards, 2,000 pairs"
 echo
 
-cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
      "--sweep=million_matched_gemma12b"
      "--base-dir=${BASE}/gemma"
      "--launcher=${LAUNCHER}"
@@ -114,7 +114,7 @@ Finished shards:
   ls -d ${BASE}/gemma/runs/*/outputs/pairwise/*_mvp_*.parquet 2>/dev/null | wc -l
 
 Run the missing shards again (the wall is terminal, SLURM does not requeue it):
-  ${PY} -m dagspaces.urbanpairvqa.submit_shards --sweep million_matched_gemma12b \\
+  ${PY} -m dagspaces.pairwisevqa.submit_shards --sweep million_matched_gemma12b \\
       --base-dir ${BASE}/gemma --pairs-dir ${PAIRS_DIR} --only-missing --timeout-min ${T_GEMMA}
 
 When it lands:

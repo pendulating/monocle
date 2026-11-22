@@ -46,7 +46,7 @@ import yaml
 
 ROOT = "/share/ju/matt/mllmsci"
 IN = os.path.join(ROOT, "data/f4_traces/extract_input")
-CONF = os.path.join(ROOT, "dagspaces/urbanpairvqa/conf/extract")
+CONF = os.path.join(ROOT, "dagspaces/pairwisevqa/conf/extract")
 # arm -> (schema, the x2 input files that the arm reads: smoke, full, and batch 2 of D132)
 ARMS = {
     "x2_cues": ("urban_cues_single_v2", ("restaurant_x2", "caption_x2", "x2smoke_restaurant", "x2smoke_caption",

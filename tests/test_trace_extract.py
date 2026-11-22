@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from omegaconf import OmegaConf
 
-from dagspaces.urbanpairvqa.stages.trace_extract import (
+from dagspaces.pairwisevqa.stages.trace_extract import (
     _shard,
     case_of_parquet,
     source_provenance,

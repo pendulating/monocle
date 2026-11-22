@@ -35,12 +35,12 @@ ROOT = "/share/ju/matt/mllmsci"
 SETS = {
     "restaurant": ("data/f4_traces/descriptors/f4_restaurant_desc_extractions.parquet",
                    "data/f4_traces/extract_input/f4_restaurant_desc.parquet",
-                   "dagspaces/urbanpairvqa/conf/extract/aesthetic_descriptors_v3.yaml",
+                   "dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v3.yaml",
                    "data/f4_traces/extract_input/f4_restaurant_desc_retry.parquet",
                    "data/f4_traces/descriptors/f4_restaurant_desc_retry_flags.csv"),
     "street": ("data/f4_traces/descriptors_street/f4_street_desc_extractions.parquet",
                "data/f4_traces/extract_input/f4_street_desc.parquet",
-               "dagspaces/urbanpairvqa/conf/extract/aesthetic_descriptors_v5.yaml",
+               "dagspaces/pairwisevqa/conf/extract/aesthetic_descriptors_v5.yaml",
                "data/f4_traces/extract_input/f4_street_desc_retry.parquet",
                "data/f4_traces/descriptors_street/f4_street_desc_retry_flags.csv"),
 }

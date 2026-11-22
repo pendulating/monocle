@@ -114,7 +114,7 @@ echo
 
 launch_one() {
   local rater="$1" sweep="$2" parallel="$3" timeout="$4"
-  local -a cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+  local -a cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
                 "--sweep=${sweep}"
                 "--base-dir=${BASE}/${rater}"
                 "--launcher=${LAUNCHER}"
@@ -152,7 +152,7 @@ Check that NO prompt names the city (it must print False), and that the
 abstention is back (it must print True):
   ${PY} - <<'PYEOF'
 import sys; sys.path.insert(0, ".")
-from dagspaces.urbanpairvqa.submit_shards import compose_cfg
+from dagspaces.pairwisevqa.submit_shards import compose_cfg
 c = compose_cfg("million_nocity_qwen9b", "qwen3.5-9b/instruct",
                 "pairwise_schools_mvp_nocity", 0, "/tmp/x", [])
 t = c.prompt.user_template
@@ -164,7 +164,7 @@ Finished shards:
   ls -d ${BASE}/*/runs/*/outputs/pairwise/*_mvp_*.parquet 2>/dev/null | wc -l
 
 Run the missing shards again (the wall is terminal, SLURM does not requeue it):
-  ${PY} -m dagspaces.urbanpairvqa.submit_shards --sweep million_nocity_qwen9b \\
+  ${PY} -m dagspaces.pairwisevqa.submit_shards --sweep million_nocity_qwen9b \\
       --base-dir ${BASE}/qwen --pairs-dir ${PAIRS_DIR} --only-missing --timeout-min 360
 
 When it lands:

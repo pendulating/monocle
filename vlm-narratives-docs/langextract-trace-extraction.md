@@ -69,16 +69,16 @@ writes 1 parquet for each range.
 | File | State | Role |
 |------|-------|------|
 | `dagspaces/common/langextract_backend.py` | new | `VLLMLanguageModel`, the schema bridge, and the example loader |
-| `dagspaces/urbanpairvqa/stages/trace_extract.py` | new | The stage: read traces, extract, write the long parquet |
-| `dagspaces/urbanpairvqa/stages/__init__.py` | change | Export the stage function |
-| `dagspaces/urbanpairvqa/orchestrator.py` | change | Add `"trace_extract": TraceExtractRunner()` to `_STAGE_REGISTRY` |
-| `dagspaces/urbanpairvqa/conf/extract/urban_cues_v1.yaml` | new | The schema, the few-shot examples, and the chunk settings |
-| `dagspaces/urbanpairvqa/conf/pipeline/extract_traces.yaml` | new | The 1-node pipeline, on `slurm_gpu_1x` |
+| `dagspaces/pairwisevqa/stages/trace_extract.py` | new | The stage: read traces, extract, write the long parquet |
+| `dagspaces/pairwisevqa/stages/__init__.py` | change | Export the stage function |
+| `dagspaces/pairwisevqa/orchestrator.py` | change | Add `"trace_extract": TraceExtractRunner()` to `_STAGE_REGISTRY` |
+| `dagspaces/pairwisevqa/conf/extract/urban_cues_v1.yaml` | new | The schema, the few-shot examples, and the chunk settings |
+| `dagspaces/pairwisevqa/conf/pipeline/extract_traces.yaml` | new | The 1-node pipeline, on `slurm_gpu_1x` |
 | `notebooks/cvpr/_extractions.py` | new | Load the extractions, count them, and score them |
 | `notebooks/cvpr/_trace_notebook.py` | change | Add the extraction report beside the cloud |
 | `pyproject.toml` | change | Add `langextract`, `absl-py`, `ml-collections`, `more-itertools` |
 
-The stage lives in `urbanpairvqa` because its input is a pairvqa results
+The stage lives in `pairwisevqa` because its input is a pairvqa results
 parquet. A new dagspace is not needed. 1 stage and 1 config group is the whole
 surface.
 
@@ -246,15 +246,15 @@ row.
 
 | File | Role |
 |------|------|
-| `dagspaces/urbanpairvqa/stages/trace_extract.py` | The stage: read, shard, extract, write |
-| `dagspaces/urbanpairvqa/orchestrator.py` | `TraceExtractRunner`, in the registry as `trace_extract` |
-| `dagspaces/urbanpairvqa/conf/extract/urban_cues_v1.yaml` | The 7 classes, 3 examples, and the chunk settings |
-| `dagspaces/urbanpairvqa/conf/pipeline/extract_traces.yaml` | The 1-node pipeline, on `slurm_gpu_1x` |
+| `dagspaces/pairwisevqa/stages/trace_extract.py` | The stage: read, shard, extract, write |
+| `dagspaces/pairwisevqa/orchestrator.py` | `TraceExtractRunner`, in the registry as `trace_extract` |
+| `dagspaces/pairwisevqa/conf/extract/urban_cues_v1.yaml` | The 7 classes, 3 examples, and the chunk settings |
+| `dagspaces/pairwisevqa/conf/pipeline/extract_traces.yaml` | The 1-node pipeline, on `slurm_gpu_1x` |
 
 Command:
 
 ```bash
-python -m dagspaces.urbanpairvqa.cli -m pipeline=extract_traces \
+python -m dagspaces.pairwisevqa.cli -m pipeline=extract_traces \
     trace_extract.results_path=/share/.../subway_safety_mvp_20260813_013722.parquet \
     runtime.sample_n=200
 ```
@@ -713,7 +713,7 @@ finish.
 
 ## Version 2
 
-`dagspaces/urbanpairvqa/conf/extract/urban_cues_v2.yaml`, 2026-09-20. It
+`dagspaces/pairwisevqa/conf/extract/urban_cues_v2.yaml`, 2026-09-20. It
 keeps the 7 classes, the attribute names, and the value lists of version 1.
 
 | Change | Value | Why |
@@ -826,8 +826,8 @@ state that `afterok` reads as a failure (see Phase 7). No pipeline of this
 project has more than 1 node today, thus that path is not built.
 
 ```bash
-python -m dagspaces.urbanpairvqa.submit_trace_shards --arm qwen_by_gemma31_v2 --dry-run
-python -m dagspaces.urbanpairvqa.submit_trace_shards --arm qwen_by_gemma31_v2
+python -m dagspaces.pairwisevqa.submit_trace_shards --arm qwen_by_gemma31_v2 --dry-run
+python -m dagspaces.pairwisevqa.submit_trace_shards --arm qwen_by_gemma31_v2
 bash scripts/check_trace_extraction.sh CUESV2QG31
 python scripts/merge_trace_extractions.py multirun/<date>_CUESV2QG31/runs --out data/trace_extractions_v2_qwen9b_by_gemma31b
 ```
@@ -1582,7 +1582,7 @@ No trace needs another trace, thus the work splits perfectly.
 a Hydra multirun runs 1 job for each shard on its own GPU.
 
 ```bash
-python -m dagspaces.urbanpairvqa.cli -m pipeline=extract_traces \
+python -m dagspaces.pairwisevqa.cli -m pipeline=extract_traces \
     trace_extract.results_path=/share/.../subway_safety_mvp_20260813_013722.parquet \
     trace_extract.shard_count=8 \
     trace_extract.shard_index=0,1,2,3,4,5,6,7
@@ -1681,7 +1681,7 @@ report the rate you dropped.
 | Choice | Recommendation |
 |--------|----------------|
 | Which model extracts | gemma-4-12b instruct, text only. It already runs in the venv, and Phase 5 tests the swap. |
-| Where the stage lives | `urbanpairvqa`. Its input is a pairvqa parquet. |
+| Where the stage lives | `pairwisevqa`. Its input is a pairvqa parquet. |
 | Whether to keep the clouds | Keep them. The 2 methods answer different questions. |
 
 ## Who reads this corpus

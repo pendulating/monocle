@@ -25,7 +25,7 @@ set -euo pipefail
 ZOO="${MLLMSCI_MODEL_ZOO:-/share/ju/matt/zoo/models}"
 REG="${MLLMSCI_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
-# The canonical urbanpairvqa roster (the 5-model klara2x sweep, plus the
+# The canonical pairwisevqa roster (the 5-model klara2x sweep, plus the
 # 12B model that runs alone on klara1x). Phi-4 is deliberately absent: it
 # gives degenerate output on each pairvqa task and is excluded from all
 # sweeps. Pass other names on the command line when you need them, for

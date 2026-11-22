@@ -38,7 +38,7 @@ from x2_retry import copy_flags  # noqa: E402
 
 ROOT = "/share/ju/matt/mllmsci"
 IN = os.path.join(ROOT, "data/f4_traces/extract_input")
-CONF = os.path.join(ROOT, "dagspaces/urbanpairvqa/conf/extract")
+CONF = os.path.join(ROOT, "dagspaces/pairwisevqa/conf/extract")
 SCHEMA = {
     "x2_cues": "urban_cues_single_v2", "x2_cues_street": "urban_cues_street_v3",
     "x2_desc_restaurant": "aesthetic_descriptors_restaurant_v6",

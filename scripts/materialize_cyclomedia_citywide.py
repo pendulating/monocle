@@ -9,14 +9,14 @@ cell; deterministic via a fixed seed; a final global shuffle means a downstream
 
 This is the general-purpose sibling of ``materialize_opf_vision_30k.py`` (which
 is hard-wired to the OPF vision-head 30k training manifest). It backs the
-``urbanpairvqa`` street-photography case (image-mode pairing over citywide
+``pairwisevqa`` street-photography case (image-mode pairing over citywide
 blocks); the default 25,000/cell = 500,000 rows = 100,000 per borough gives a
 100k-pair run ~0.4x block reuse (most runs sample distinct blocks).
 
 Output schema matches the existing manhattan_2025_1k / opf_vision_30k manifests
 (``image_path`` canonical /share/ju path, ``sample_id``, ``recording_id``,
 ``face``, ``dataset`` + latitude/longitude/yawDegrees/recordedAt), so the
-urbanpairvqa data config + ``_load_pairwise_manifest`` path need no changes.
+pairwisevqa data config + ``_load_pairwise_manifest`` path need no changes.
 
 Usage:
     python scripts/materialize_cyclomedia_citywide.py            # 500k default
@@ -44,7 +44,7 @@ DEFAULT_DATASETS = (
 DEFAULT_FACES = ("F", "B", "L", "R")
 
 # Same shape as the existing manhattan_2025_1k / opf_vision_30k manifests so the
-# urbanpairvqa data config + _load_pairwise_manifest path don't need to change.
+# pairwisevqa data config + _load_pairwise_manifest path don't need to change.
 KEEP_COLUMNS = (
     "sample_id",
     "image_path",

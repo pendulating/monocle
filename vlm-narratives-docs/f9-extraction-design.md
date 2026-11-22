@@ -226,7 +226,7 @@ a description.
 | Item | Restaurant | Street |
 |------|------------|--------|
 | Case | `restaurant_subj` | `street_subj` |
-| Schema file (new) | `dagspaces/urbanpairvqa/conf/extract/urban_cues_single_subj_v1.yaml` | `urban_cues_street_subj_v1.yaml` |
+| Schema file (new) | `dagspaces/pairwisevqa/conf/extract/urban_cues_single_subj_v1.yaml` | `urban_cues_street_subj_v1.yaml` |
 | `name` / `schema_version` | `urban_cues_single` / `single-subj-v1` | `urban_cues_street` / `street-subj-v1` |
 | Retry schema (new) | `urban_cues_single_subj_v1r.yaml` (`single-subj-v1r`) | `urban_cues_street_subj_v1r.yaml` (`street-subj-v1r`) |
 | Arm | `x2_cues_subj` | `x2_cues_street_subj` |

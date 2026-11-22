@@ -1,6 +1,6 @@
 """Shared orchestrator utilities for all dagspace pipelines.
 
-Functions and classes extracted from urbanvqa, urbanocr, and other dagspace
+Functions and classes extracted from vqa, ocr, and other dagspace
 orchestrators. Each orchestrator imports from this module and re-exports
 the symbols for backward-compatibility with runner files that do
 ``from ..orchestrator import X``.
@@ -758,7 +758,7 @@ def _sanitize_cuda_visible_devices(
         ``"stage_start"`` or ``"node:my_stage"``.
     env_prefix:
         Prefix for the sanitisation book-keeping env vars
-        (e.g. ``"MLLMSCI"`` or ``"URBANVQA"``).
+        (e.g. ``"MLLMSCI"`` or ``"VQA"``).
     cfg:
         Optional Hydra config.  When provided, ``model.engine_kwargs.tensor_parallel_size``
         is clamped to the number of valid GPUs via OmegaConf.

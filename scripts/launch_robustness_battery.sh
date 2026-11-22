@@ -90,7 +90,7 @@ n=0
 for r in "${RATERS[@]}"; do
   for a in "${ARMS[@]}"; do
     ov="$(arm_override "$r" "$a")"
-    cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards "--sweep=robustness_1k_${r}"
+    cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards "--sweep=robustness_1k_${r}"
          "--base-dir=${BASE}/${r}/${a}" "--launcher=${LAUNCHER}" "--parallel=${SHARDS}"
          "--shards=${SHARDS}" "--timeout-min=${TIMEOUT}")
     [ -n "${PAIRS_DIR}" ] && cmd+=("--pairs-dir=${PAIRS_DIR}")

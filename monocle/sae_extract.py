@@ -14,7 +14,7 @@ Raw residuals, no centering: the training step centers.
 
 The pretrained checkpoint has no chat template. Under `--template raw`
 every frame is the completion form `<|image|>\\n` + text + the forced
-prefix, and the case texts come from the same urbanvqa config.
+prefix, and the case texts come from the same vqa config.
 
     sbatch --time=02:00:00 monocle/monocle.sub monocle.sae_extract --template chat \\
         --shard 0 --n-shards 24 --out-root /scratch/mwf62/sae/it

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build browser-searchable index from embedding parquet output.
 
-Reads parquet parts from the urbanembed pipeline, fits PCA for
+Reads parquet parts from the embed pipeline, fits PCA for
 dimensionality reduction, quantizes to uint8, and exports all
 artifacts needed by the viz/embedding_search/ web app.
 

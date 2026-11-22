@@ -92,8 +92,8 @@ ROOT = "/share/ju/matt/mllmsci"
 OUT_DIR = os.path.join(ROOT, "data", "gold_set")
 
 # The registered thinking runs. The same table lives in
-# `dagspaces/urbanpairvqa/submit_trace_shards.py`.
-from dagspaces.urbanpairvqa.submit_trace_shards import (  # noqa: E402
+# `dagspaces/pairwisevqa/submit_trace_shards.py`.
+from dagspaces.pairwisevqa.submit_trace_shards import (  # noqa: E402
     CASE_ORDER, GEMMA_RUNS, QWEN_RUNS,
 )
 

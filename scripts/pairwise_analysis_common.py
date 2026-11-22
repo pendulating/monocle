@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared infrastructure for the urbanpairvqa analysis tools.
+"""Shared infrastructure for the pairwisevqa analysis tools.
 
 Used by ``pairwise_vqa_difference_report.py`` (group difference testing) and
 ``pairwise_vqa_regression_report.py`` (covariate regressions). Provides:
@@ -339,7 +339,7 @@ def mirror_to_wandb(
         tags=tags,
         table_sample_rows=5000,
         default_experiment_name=run_label,
-        dagspace_name="urbanpairvqa",
+        dagspace_name="pairwisevqa",
     )
     run_config = {k: v for k, v in record.items() if k not in ("results", "wandb_url")}
     logger = WandbLogger.with_config(

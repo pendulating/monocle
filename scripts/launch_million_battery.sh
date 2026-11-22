@@ -16,7 +16,7 @@
 # │ only blocks on `job.result()`. For 966 shards of about 2 hours that holds  │
 # │ about 1,900 CPU-hours of lisbeth for nothing.                             │
 # │                                                                            │
-# │ `dagspaces.urbanpairvqa.submit_shards` composes every shard config in 1    │
+# │ `dagspaces.pairwisevqa.submit_shards` composes every shard config in 1    │
 # │ process on the login node, submits them as 1 SLURM ARRAY, and exits. The   │
 # │ GPU job writes its own `pipeline_manifest.json`.                          │
 # └────────────────────────────────────────────────────────────────────────────┘
@@ -98,7 +98,7 @@ echo
 
 launch_one() {
   local rater="$1" sweep="$2" parallel="$3"
-  local -a cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+  local -a cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
                 "--sweep=${sweep}"
                 "--base-dir=${BASE}/${rater}"
                 "--launcher=${LAUNCHER}"

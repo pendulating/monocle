@@ -268,7 +268,7 @@ Claims and the evidence that supports them:
   exact output file name carries a timestamp suffix.
 * The video path stays audio-free. The speech channel covers audio
   through the existing transcript corpus instead. Footage without a
-  transcript needs an urbanspeech ASR pass first.
+  transcript needs an speech ASR pass first.
 * The metre estimates in the proxemics channel come from a monocular
   VLM. Validate a sample against known object sizes before a paper
   claim rests on the metre scale.

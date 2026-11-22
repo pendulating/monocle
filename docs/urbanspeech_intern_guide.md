@@ -54,7 +54,7 @@ If some subfolders shouldn't be transcribed, use the **blacklist** option. Add
 contains "Interview" (case-insensitive) is skipped:
 
 ```bash
-python -m dagspaces.urbanspeech.cli -m \
+python -m dagspaces.speech.cli -m \
   pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy \
   'data.video_exclude=[Interview]'
@@ -76,7 +76,7 @@ Once the videos are in place, this is the whole thing:
 cd /share/ju/mllmsci
 source .venv/bin/activate
 
-python -m dagspaces.urbanspeech.cli -m \
+python -m dagspaces.speech.cli -m \
   pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy
 ```
@@ -100,7 +100,7 @@ Before transcribing hundreds of videos, run on just a few to make sure everythin
 works. Add two options:
 
 ```bash
-python -m dagspaces.urbanspeech.cli -m \
+python -m dagspaces.speech.cli -m \
   pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy \
   runtime.sample_n=3 \
@@ -184,7 +184,7 @@ model that can be more accurate but needs **2 GPUs**. To use it, add these two l
 (this is exactly what the demo run did):
 
 ```bash
-python -m dagspaces.urbanspeech.cli -m \
+python -m dagspaces.speech.cli -m \
   pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy \
   model=granite_speech_3_3_8b \
@@ -216,16 +216,16 @@ cd /share/ju/mllmsci
 source .venv/bin/activate
 
 # tiny test (3 clips)
-python -m dagspaces.urbanspeech.cli -m pipeline=asr_videos \
+python -m dagspaces.speech.cli -m pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy \
   runtime.sample_n=3 runtime.debug=true
 
 # full run
-python -m dagspaces.urbanspeech.cli -m pipeline=asr_videos \
+python -m dagspaces.speech.cli -m pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy
 
 # full run, skipping the Interview folder
-python -m dagspaces.urbanspeech.cli -m pipeline=asr_videos \
+python -m dagspaces.speech.cli -m pipeline=asr_videos \
   data.video_dir=/share/ju/robot_norms/data/little-italy \
   'data.video_exclude=[Interview]'
 

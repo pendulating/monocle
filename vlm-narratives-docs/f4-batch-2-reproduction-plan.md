@@ -686,10 +686,10 @@ After every pass-1 step of D2 and D3 has `X2_DONE`:
 $PY scripts/f4/x2_retry.py flag --root multirun/f4x2_sc --prefix scx2r
 # 1 retry step: x2r_captions scx2r_x2_captions 0 1 multirun/f4x2_sc/x2r_captions
 $PY scripts/f4/merge_extractions.py multirun/f4x2_sc/x2_captions/runs --retry-runs multirun/f4x2_sc/x2r_captions/runs \
-    --schema dagspaces/urbanpairvqa/conf/extract/caption_options_v4.yaml --cases street_captions_x2 \
+    --schema dagspaces/pairwisevqa/conf/extract/caption_options_v4.yaml --cases street_captions_x2 \
     --out data/f4_traces/x2/street_captions
 $PY scripts/f4/merge_extractions.py multirun/f4x2_sc/x2_captions/runs --retry-runs multirun/f4x2_sc/x2r_captions/runs \
-    --schema dagspaces/urbanpairvqa/conf/extract/caption_options_v4.yaml --cases street_captions_b2x2 \
+    --schema dagspaces/pairwisevqa/conf/extract/caption_options_v4.yaml --cases street_captions_b2x2 \
     --out data/f4_traces/b2/x2/street_captions
 $PY scripts/f4/pool_batches.py
 uv run --script scripts/f4/caption_nta_analysis.py \

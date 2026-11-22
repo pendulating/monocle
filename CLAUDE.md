@@ -98,10 +98,10 @@ Python 3.12, managed with `uv`.
 uv pip install -e .
 
 # Run a pipeline (VQA example)
-python -m dagspaces.urbanvqa.cli pipeline=vqa_cyclomedia_scaffolding runtime.debug=true runtime.sample_n=100
+python -m dagspaces.vqa.cli pipeline=vqa_cyclomedia_scaffolding runtime.debug=true runtime.sample_n=100
 
 # Run on SLURM with GPUs
-python -m dagspaces.urbanvqa.cli hydra/launcher=slurm_gpu_4x pipeline=vqa_cyclomedia_scaffolding
+python -m dagspaces.vqa.cli hydra/launcher=slurm_gpu_4x pipeline=vqa_cyclomedia_scaffolding
 
 # Run tests
 pytest tests/test_vqa.py -v
@@ -111,16 +111,16 @@ pyright
 ```
 
 Each dagspace has its own CLI entry point:
-- `python -m dagspaces.urbanvqa.cli` — Visual Question Answering
-- `python -m dagspaces.urbanocr.cli` — OCR / text spotting
-- `python -m dagspaces.urbanpairvqa.cli` — Pairwise comparison VQA
+- `python -m dagspaces.vqa.cli` — Visual Question Answering
+- `python -m dagspaces.ocr.cli` — OCR / text spotting
+- `python -m dagspaces.pairwisevqa.cli` — Pairwise comparison VQA
 - `python -m dagspaces.urbanroamvqa.cli` — Multi-step street traversal VQA
-- `python -m dagspaces.urbanembed.cli` — Embedding inference
-- `python -m dagspaces.urbanspeech.cli` — Speech recognition over video clips
+- `python -m dagspaces.embed.cli` — Embedding inference
+- `python -m dagspaces.speech.cli` — Speech recognition over video clips
 
 All accept Hydra overrides: `model.batch_size=32 runtime.debug=true data.parquet_path=/path/to/data.parquet`
 
-**IMPORTANT:** Always use `-m` (multirun/submitit) when giving CLI commands to run a dagspace pipeline. Pipelines are designed to be orchestrated via SLURM — the monitor node submits stage jobs. Example: `python -m dagspaces.urbanembed.cli -m pipeline=browser_index_cyclomedia ...`
+**IMPORTANT:** Always use `-m` (multirun/submitit) when giving CLI commands to run a dagspace pipeline. Pipelines are designed to be orchestrated via SLURM — the monitor node submits stage jobs. Example: `python -m dagspaces.embed.cli -m pipeline=browser_index_cyclomedia ...`
 
 ## Architecture
 
@@ -130,12 +130,12 @@ Six independent pipeline systems under `dagspaces/`, each following the same str
 
 | Dagspace | Purpose |
 |----------|---------|
-| `urbanvqa` | Multimodal VQA inference (prompt + images → answers) |
-| `urbanocr` | Text spotting with bounding boxes, automatic tiling for large images |
-| `urbanpairvqa` | Pairwise relative comparison of image pairs |
+| `vqa` | Multimodal VQA inference (prompt + images → answers) |
+| `ocr` | Text spotting with bounding boxes, automatic tiling for large images |
+| `pairwisevqa` | Pairwise relative comparison of image pairs |
 | `urbanroamvqa` | Multi-step street traversal VQA |
-| `urbanembed` | Embedding inference |
-| `urbanspeech` | Speech recognition over video clips (ffmpeg audio isolation + granite-speech via vLLM, JU partition) |
+| `embed` | Embedding inference |
+| `speech` | Speech recognition over video clips (ffmpeg audio isolation + granite-speech via vLLM, JU partition) |
 
 Each dagspace contains:
 - `cli.py` — Entry point; cleans SLURM env vars before Hydra init

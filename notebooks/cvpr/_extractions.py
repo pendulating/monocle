@@ -1,7 +1,7 @@
 """Structured extractions over the reasoning traces.
 
 `_traces.py` counts words. This module counts CLAIMS. The extraction stage
-(`dagspaces/urbanpairvqa/stages/trace_extract.py`) turns each trace into typed
+(`dagspaces/pairwisevqa/stages/trace_extract.py`) turns each trace into typed
 spans with attributes and character offsets, and this module reads them.
 
 What a word count cannot answer, and this can:

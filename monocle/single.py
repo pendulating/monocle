@@ -31,7 +31,7 @@ read a bare digit at L40-L43 — see `monocle/labels.py`.
 
 The prompt
 ----------
-The text comes from the urbanvqa config, not from a copy kept here, so the
+The text comes from the vqa config, not from a copy kept here, so the
 lens reads the prompt the run sends. That is the rule `canonical` follows.
 """
 from __future__ import annotations
@@ -47,8 +47,8 @@ if str(REPO) not in sys.path:
 from monocle import canonical  # noqa: E402
 from monocle import labels as lb  # noqa: E402
 
-#: The urbanvqa prompt contract. One source of truth for the run and the lens.
-PROMPT_YAML = REPO / "dagspaces/urbanvqa/conf/prompt/rating_2point.yaml"
+#: The vqa prompt contract. One source of truth for the run and the lens.
+PROMPT_YAML = REPO / "dagspaces/vqa/conf/prompt/rating_2point.yaml"
 
 #: The forced JSON prefix, shared with the pairwise path so the answer
 #: position sits in the same place.
@@ -109,7 +109,7 @@ def rating(case: str) -> dict[str, str]:
 
 
 def prompt_text(case: str, overrides: Optional[dict] = None) -> str:
-    """The user text for one case, rendered from the urbanvqa config."""
+    """The user text for one case, rendered from the vqa config."""
     from omegaconf import OmegaConf
 
     cfg = OmegaConf.load(PROMPT_YAML)

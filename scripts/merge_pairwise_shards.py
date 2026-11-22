@@ -181,7 +181,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def sweep_model(sweep: str) -> str:
     """Read the model config that a sweep pins, such as `qwen3.5-9b/instruct`."""
-    f = os.path.join(REPO_ROOT, "dagspaces", "urbanpairvqa", "conf", "sweep",
+    f = os.path.join(REPO_ROOT, "dagspaces", "pairwisevqa", "conf", "sweep",
                      f"{sweep}.yaml")
     with open(f) as fh:
         cfg = yaml.safe_load(fh) or {}
@@ -240,7 +240,7 @@ def write_hydra_record(stage_dir: str, sweep: str, model: str,
                 "their .hydra/config.yaml; refuse to write one record for them")
         cfg = OmegaConf.create(records[0])
     else:
-        from dagspaces.urbanpairvqa.submit_shards import compose_cfg
+        from dagspaces.pairwisevqa.submit_shards import compose_cfg
         cfg = compose_cfg(sweep, model, pipeline, 0, stage_dir, [])
     hydra_dir = os.path.join(stage_dir, ".hydra")
     os.makedirs(hydra_dir, exist_ok=True)

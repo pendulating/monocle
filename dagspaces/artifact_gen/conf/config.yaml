@@ -17,7 +17,7 @@ runtime:
 raster:
   query_text: ""
   query_mode: qwen_raw                           # qwen_raw, bge_projection, or qwen_direct
-  embeddings_input_path: null                    # urbanembed embed output (parquet dir)
+  embeddings_input_path: null                    # output of the embed dagspace (parquet dir)
   pca_artifacts_path: null                       # dir with pca_components.bin, pca_mean.bin
   projection_matrix_path: null                   # dir with W_proj.bin
   bge_model: BAAI/bge-small-en-v1.5

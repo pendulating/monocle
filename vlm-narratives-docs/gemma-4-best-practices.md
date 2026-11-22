@@ -1,6 +1,6 @@
 # Gemma-4 best practices: what we follow
 
-Date: 2026-08-20. Scope: the `urbanpairvqa` dagspace and the `monocle` lens
+Date: 2026-08-20. Scope: the `pairwisevqa` dagspace and the `monocle` lens
 study. Source: the Gemma 4 model card, "Best Practices".
 
 ## The audit

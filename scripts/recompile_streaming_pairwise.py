@@ -1,6 +1,6 @@
 """Recompile a pairwise-VQA final parquet from leftover streaming chunks.
 
-When a urbanpairvqa run is interrupted (or the monitor dies) after the DP
+When a pairwisevqa run is interrupted (or the monitor dies) after the DP
 workers have written their per-chunk parquets under
 ``outputs/pairwise/streaming/urbanpairvqa_pairwise/`` but before the
 orchestrator wrote the consolidated ``<dataset>_mvp_<ts>.parquet``, this
@@ -33,7 +33,7 @@ import re
 
 import pandas as pd
 
-from dagspaces.urbanpairvqa.stages.pairwise_vqa import _derive_labels
+from dagspaces.pairwisevqa.stages.pairwise_vqa import _derive_labels
 
 # Canonical column order of the consolidated output (15 raw + 5 derived).
 _FINAL_COLUMNS = [

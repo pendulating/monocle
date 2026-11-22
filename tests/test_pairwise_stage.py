@@ -1,4 +1,4 @@
-"""Tests for the urbanpairvqa stage logic — label canonicalization, ordinal
+"""Tests for the pairwisevqa stage logic — label canonicalization, ordinal
 scoring, and the optional 'Not sure' (abstention) toggle.
 
 The abstention option is OFF by default and is enabled per run/sweep via
@@ -13,7 +13,7 @@ import pandas as pd
 import pytest
 from omegaconf import OmegaConf
 
-from dagspaces.urbanpairvqa.stages.pairwise_vqa import (
+from dagspaces.pairwisevqa.stages.pairwise_vqa import (
     _augment_schema_with_not_sure,
     _canonicalize_label,
     _derive_labels,

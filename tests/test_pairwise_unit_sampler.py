@@ -1,11 +1,11 @@
-"""Unit tests for dagspaces.urbanpairvqa.samplers.cyclomedia_pairs.build_unit_random_pairs."""
+"""Unit tests for dagspaces.pairwisevqa.samplers.cyclomedia_pairs.build_unit_random_pairs."""
 
 from __future__ import annotations
 
 import pandas as pd
 import pytest
 
-from dagspaces.urbanpairvqa.samplers.cyclomedia_pairs import (
+from dagspaces.pairwisevqa.samplers.cyclomedia_pairs import (
     build_unit_random_pairs,
     build_global_random_pairs,
 )
@@ -226,7 +226,7 @@ class TestPersistPairs:
     """Pairs should land on disk alongside the stage output."""
 
     def test_persist_writes_parquet_and_meta(self, tmp_path):
-        from dagspaces.urbanpairvqa.orchestrator import _persist_pairs
+        from dagspaces.pairwisevqa.orchestrator import _persist_pairs
         import json
 
         df = _synth_manifest(n_units=4, imgs_per_unit=2)

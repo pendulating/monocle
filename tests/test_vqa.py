@@ -9,7 +9,7 @@ from omegaconf import DictConfig, OmegaConf
 from PIL import Image
 import numpy as np
 
-from dagspaces.urbanvqa.stages.vqa import (
+from dagspaces.vqa.stages.vqa import (
     render_prompt_template,
     _prepare_image_content,
     _group_by_prompt_optimization,

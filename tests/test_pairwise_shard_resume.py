@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 from omegaconf import OmegaConf
 
-from dagspaces.urbanpairvqa.orchestrator import _shard_pairs
+from dagspaces.pairwisevqa.orchestrator import _shard_pairs
 from dagspaces.common.vllm_inference import (
     _read_resume_chunk,
     _records_from_outputs,

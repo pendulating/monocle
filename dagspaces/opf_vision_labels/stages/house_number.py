@@ -99,8 +99,8 @@ def _load_pil_image(path: Any):
 def _make_preprocess(cfg: DictConfig):
     """Build a self-contained preprocess for the text-spotting VLM call.
 
-    Avoids importing urbanvqa.prompts.unified.preprocess_simple — that
-    helper assumes a urbanvqa-shaped config (cfg.prompt.system,
+    Avoids importing vqa.prompts.unified.preprocess_simple — that
+    helper assumes a vqa-shaped config (cfg.prompt.system,
     cfg.sampling_params_vqa, cfg.prompt.user_template, ...) which our
     dagspace doesn't define. Rolling our own keeps the dependency
     surface narrow and avoids silent preprocess_failed errors that drop

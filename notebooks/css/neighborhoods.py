@@ -1,6 +1,6 @@
 """Neighborhood (NTA) aggregation of pairwise street-view rankings.
 
-Marimo notebook that turns the 100k-pair urbanpairvqa outputs (restaurants:
+Marimo notebook that turns the 100k-pair pairwisevqa outputs (restaurants:
 "which would you rather eat at"; schools: "which would you rather send your
 child to") into per-neighborhood rankings over NYC's 2020 Neighborhood
 Tabulation Areas (NTAs).
@@ -38,7 +38,7 @@ def _intro():
         """
         # Pairwise rankings → NYC neighborhoods (NTA 2020)
 
-        Aggregates the 100k-pair **urbanpairvqa** comparisons to the
+        Aggregates the 100k-pair **pairwisevqa** comparisons to the
         **Neighborhood Tabulation Area** level. The 5-label ordinal answers are
         collapsed to win/loss/draw and fit with **TrueSkill** (the canonical
         `wealth.ipynb` recipe).

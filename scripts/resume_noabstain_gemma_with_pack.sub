@@ -11,7 +11,7 @@
 cd /share/ju/matt/mllmsci
 source /share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate
 test -f /share/ju/matt/mllmsci/multirun/pair_tables_1m/image_pack/manifest.json || { echo "no manifest; the pack is not complete"; exit 1; }
-python -m dagspaces.urbanpairvqa.submit_shards \
+python -m dagspaces.pairwisevqa.submit_shards \
     --sweep million_noabstain_gemma12b_il \
     --base-dir /share/ju/matt/mllmsci/multirun/noabstain_battery_20260902_231642/gemma \
     --pairs-dir /share/ju/matt/mllmsci/multirun/pair_tables_1m \

@@ -61,7 +61,7 @@ Two fixes went missing during concurrent edits, and this round restored them:
 
 | Fix | Location | Role |
 |---|---|---|
-| `_prepare_image_content` | `urbanvqa/stages/vqa.py` | Normalizes PIL images, file paths, URLs, and base64 strings into vLLM chat content blocks |
+| `_prepare_image_content` | `vqa/stages/vqa.py` | Normalizes PIL images, file paths, URLs, and base64 strings into vLLM chat content blocks |
 | `log_grouped_metrics` | `dagspaces/common/wandb_logger.py` | Logs grouped stage metrics under one key |
 
 ## Dead code removal
@@ -69,7 +69,7 @@ Two fixes went missing during concurrent edits, and this round restored them:
 About 4,000 lines left the tree:
 
 - Nine copied SLURM blocks in the dagspace orchestrators.
-- Twelve bespoke runner classes in urbanembed, artifact_gen, and urbanvit.
+- Twelve bespoke runner classes in embed, artifact_gen, and urbanvit.
 - The unused `_NoOpLogger` class.
 - Old helper code that moved to `compute_metadata.py` and `host_info.py`.
 - Worker code that moved to `dp_worker_full.py`.
@@ -78,13 +78,13 @@ About 4,000 lines left the tree:
 
 | Cache | Location | Key |
 |---|---|---|
-| Jinja compiled templates | `urbanvqa/stages/vqa.py` | Template string, `lru_cache(512)` |
+| Jinja compiled templates | `vqa/stages/vqa.py` | Template string, `lru_cache(512)` |
 | Gemma4 unified chat template | `common/vllm_inference.py` | Model source |
 | Sampling params objects | `common/vllm_inference.py` | Source dict identity |
 | Resume chunks | `common/vllm_inference.py` | Prompt hash, opt-in |
 | Host probe results | `common/host_info.py` | Process, `lru_cache(1)` |
 | Street graphs | `urbanroamvqa/graph/cache.py` | Config fingerprint + parquet path |
-| Prebuilt pair tables | `urbanpairvqa/orchestrator.py` | Sampler fingerprint sidecar |
+| Prebuilt pair tables | `pairwisevqa/orchestrator.py` | Sampler fingerprint sidecar |
 
 Parquet reads also prune columns and probe the schema arrow metadata before a
 full read. Image inputs decode locally from base64 data URIs; remote URLs are
@@ -127,9 +127,9 @@ Module: `dagspaces/common/log_setup.py`. Stdlib only.
 | `common/vllm_inference.py` | `skipping remote image URL (not fetched): ...` | print | warning |
 | `urbanroamvqa/graph/builder.py` | `Dropped {n} recordings with NaN/inf coordinates` | print | warning |
 | `urbanroamvqa/graph/builder.py` | `Graph built: {n} nodes, avg {x} neighbors` | print | info |
-| `urbanembed/stages/embed.py` | `{n} rows to embed (streaming={flag})` | print | info |
-| `urbanembed/stages/embed.py` | `Runtime env: {...}` | print | info |
-| `urbanpairvqa/stages/pairwise_vqa.py` | `Preparing {n} pairs...` | print | info |
+| `embed/stages/embed.py` | `{n} rows to embed (streaming={flag})` | print | info |
+| `embed/stages/embed.py` | `Runtime env: {...}` | print | info |
+| `pairwisevqa/stages/pairwise_vqa.py` | `Preparing {n} pairs...` | print | info |
 | `artifact_gen/stages/raster.py` | `Embedding matrix: {shape}` | print | info |
 | `common/curation/cli.py` | `basicConfig` setup | ad-hoc root config | `get_stage_logger("dagspaces.common.curation")` |
 

@@ -28,7 +28,7 @@
 # is also unsuitable -- it is text-only and would drop the image entirely.
 #
 # To actually run inference you need ONE of:
-#   (a) a bespoke transformers sidecar like dagspaces/urbanvqa/stages/persistent_cambrian.py,
+#   (a) a bespoke transformers sidecar like dagspaces/vqa/stages/persistent_cambrian.py,
 #       driving the HF reference path (AutoModel + AutoProcessor, trust_remote_code=True,
 #       model.generate(..., generation_mode="hybrid"|"slow")), or
 #   (b) a future vLLM plugin / version that registers the locateanything architecture.

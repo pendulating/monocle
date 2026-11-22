@@ -58,4 +58,4 @@ for exp, arm in ARMS.items():
         print(f"   {case:<20} done {done[case]}/{total[case]} chunks {chunks[case]}")
     if timeouts:
         print(f"   NEEDS RERUN ({len(timeouts)}): " + ", ".join(f"{c}#{s}:{jid}:{state}" for c, s, jid, state in timeouts[:8]))
-        print(f"   -> python -m dagspaces.urbanpairvqa.submit_trace_shards --arm {arm} --only-missing --base-dir {base} ...")
+        print(f"   -> python -m dagspaces.pairwisevqa.submit_trace_shards --arm {arm} --only-missing --base-dir {base} ...")

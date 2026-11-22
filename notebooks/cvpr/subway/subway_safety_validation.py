@@ -1,7 +1,7 @@
 """Validation via statistical proxy — the subway safety case.
 
 This notebook is load-bearing for the CVPR paper. It reads every canonical
-urbanpairvqa run of the subway prompt, scores each station entrance, and
+pairwisevqa run of the subway prompt, scores each station entrance, and
 compares the scores against 2 proxies in 3 NYC geographies:
 
 - median household income (ACS 5-Year 2024, table S1901)

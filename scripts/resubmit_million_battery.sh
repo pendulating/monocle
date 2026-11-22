@@ -84,7 +84,7 @@ echo
 # ---- 2. Submit what is missing ---------------------------------------------
 submit_one() {
   local rater="$1" sweep="$2" parallel="$3" timeout="$4"
-  local -a cmd=("${PY}" -m dagspaces.urbanpairvqa.submit_shards
+  local -a cmd=("${PY}" -m dagspaces.pairwisevqa.submit_shards
                 "--sweep=${sweep}"
                 "--base-dir=${BASE}/${rater}"
                 "--pairs-dir=${PAIRS}"
@@ -108,6 +108,6 @@ To watch:
   squeue -u \$USER -h -t RUNNING -n matt-PAIRVQA-shard | wc -l
 
 Shards still missing (run again any time, it is idempotent):
-  ${PY} -m dagspaces.urbanpairvqa.submit_shards --sweep million_proxy_qwen9b \\
+  ${PY} -m dagspaces.pairwisevqa.submit_shards --sweep million_proxy_qwen9b \\
       --base-dir ${BASE}/qwen --pairs-dir ${PAIRS} --only-missing --dry-run
 TXT

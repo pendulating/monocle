@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""On-the-fly group-difference testing for a urbanpairvqa run.
+"""On-the-fly group-difference testing for a pairwisevqa run.
 
 Answers questions like "would the VLM rather eat at Chinese restaurants than
 Italian ones?" from a pairwise VQA stage output. Units (restaurants,
