@@ -1,0 +1,58 @@
+# Cyclomedia images near NYC Public Library facilities (FacDB facgroup=LIBRARIES),
+# 80-ft-buffered coverage, per-unit facing filter, with attribution_confidence
+# score for downstream weighted sampling.
+#
+# Upstream:
+#   curation/facdb_libraries/ — facdb-facilities + materialize-cyclomedia +
+#   filter-facing (auto-chained by materialize-cyclomedia's default --facing,
+#   per-unit mode since 2026-04-22 — see [[concept-facing-filter]]).
+#
+# Schema highlights:
+#   sample_id              str  — Cyclomedia sample identifier ({recording_id}_{face})
+#   image_path             str  — absolute path to cube-face JPEG on NFS
+#   unit_uid               str  — FacDB uid of the attributed library
+#   unit_name              str  — facname (e.g. "CENTRAL LIBRARY")
+#   unit_dist_ft           f64  — recording → library centroid distance (US ft,
+#                                 real value after Fix B; was hardcoded 0.0 before)
+#   bearing_to_unit_deg    f64  — compass bearing recording → centroid
+#   delta_bearing_deg      f64  — |face_bearing − bearing_to_unit|, ∈ [0, 180°]
+#   distance_to_unit_ft    f64  — same as unit_dist_ft, recomputed in filter stage
+#   attribution_confidence f64  — ∈ [0, 1], higher = more confidently facing.
+#                                 Feeds pair_sampler.weight_column downstream.
+#   recording_id, face, dataset, latitude, longitude, bearing — catalog metadata
+#
+# Row count (2026-04-23 re-materialize with A+B+C+D+E+F): 11,721 rows across
+# 236 unique libraries. Kept_rows = 21.2% of raw materialize output; the drop
+# is overwhelmingly from legitimate filtering (see concept-facing-filter).
+# Fix F (occlusion) adds a strict-pierce LOS check against nyc_buildings.parquet,
+# dropping ~3,265 rows whose line of sight to the library's own BIN polygon is
+# blocked by a non-unit NYC building (e.g. Castle Hill side-street shots where
+# Top Banana Food Market occludes the library).
+
+parquet_path: "/share/pierson/matt/mllmsci/curation/facdb_libraries/cyclomedia_near_libraries_facing.parquet"
+
+columns:
+  sample_id: sample_id
+  image_path: image_path
+
+image_path: /share/ju/cyclomedia/raw
+
+# Propagate the unit-attribution + facing-diagnostic + catalog metadata
+# columns into pair rows (they'll show up as <col>_a / <col>_b on the final
+# pair manifest). attribution_confidence MUST be listed here — the orchestrator
+# only reads columns in this list from the parquet, and pair_sampler.weight_column
+# needs it to drive within-unit weighted draws.
+metadata_columns:
+  - unit_uid
+  - unit_name
+  - unit_dist_ft
+  - bearing_to_unit_deg
+  - delta_bearing_deg
+  - distance_to_unit_ft
+  - attribution_confidence
+  - recording_id
+  - face
+  - dataset
+  - latitude
+  - longitude
+  - bearing

@@ -1,0 +1,52 @@
+# Nexar Dashcam Dataset Configuration
+# Dataset: Dashcam images from directory (no parquet required)
+# Images are loaded from the directory
+# No need to create a parquet file - just specify image_path and default_prompt
+
+# Optional: parquet_path (only needed if you want to use a pre-existing parquet file)
+# If specified and file exists, metadata columns will be loaded and joined with images
+# Metadata columns can be used in Jinja2 templates for dynamic prompt generation
+parquet_path: ""
+
+columns:
+  # Required: text prompt/question
+  prompt: prompt
+
+  # Optional: sample identifier
+  sample_id: sample_id
+
+  # Required: at least one image source
+  image_path: image_path      # Path to local image files
+
+# Path to directory containing images
+# This will be used to generate the dataset on-the-fly
+image_path: /share/ju/nexar_data/2023/2023-09-29
+
+# Default prompt for all images (can be overridden by per-image prompts in parquet)
+default_prompt: |-
+  As an expert in assessing floodwater levels from images, utilize your expertise and the provided guidelines to evaluate the floodwater level for each image.
+  Considerations:
+  1. Account for distractions in images.
+  2. Employ vehicles (cars, SUVs, and taxis, excluding buses and trucks) and people as primary references for assessing floodwater levels. Utilize additional indicators (water lines, water color, light reflection, etc.) when primary references are insufficient.
+  3. Floodwater levels are categorized as follows:
+  • Level 0: No water presence on the road.
+  • Level 1: Water depth up to 15 cm, does not submerge vehicle chassis or covering half of the wheels, or does not reach ankles.
+  • Level 2: Water depth between 16-40 cm, exceeding Level 1 but not submerging fully wheels, below the vehicle's front license plate, exhaust pipes, or not reaching knees.
+  • Level 3: Water depth between 41-60 cm, exceeding Level 2 but not reaching above the car's headlights, door handle, or not mid-thigh of people.
+  • Level 4: Water depth between 61-100 cm, exceeding Level 3 but not full submersion half of vehicle windows, or the car's bonnet, or people's waist.
+  4. Determine the highest floodwater level referenced in the image and report it as the image's floodwater level.
+  5. Conclude 'Inconclusive Determination' if uncertain, but try to avoid.
+  Procedure:
+  1. Reference Floodwater Level: List each reference's floodwater level with a brief explanation.
+  2. Image Floodwater Level: Give the image's floodwater level.
+  Notes:
+  1. Ensure a comprehensive understanding of the guidelines before proceeding.
+  2. Follow the procedure strictly and answer concisely.
+
+# Optional: Explicitly specify metadata columns to load from parquet
+# If not specified, all non-standard columns will be loaded automatically
+# metadata_columns:
+#   - location
+#   - timestamp
+#   - camera_id
+#   - weather_conditions

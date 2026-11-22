@@ -1,0 +1,17 @@
+# Generic Image Directory Data Configuration
+# Works with any directory of images
+
+handler: generic
+
+# Path to image directory
+image_path: "/path/to/images"
+
+# Search subdirectories recursively
+recursive: true
+
+# File extensions to include (default: all supported)
+# extensions: [".jpg", ".jpeg", ".png"]
+
+# Metadata columns extracted:
+# - sample_id: Derived from filename (without extension)
+# - image_path: Full path to image

@@ -1,0 +1,14 @@
+# Cyclomedia pairwise dataset config
+
+parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
+
+columns:
+  sample_id: sample_id
+  image_path: image_path
+
+metadata_columns:
+  - recording_id
+  - face
+  - latitude
+  - longitude
+

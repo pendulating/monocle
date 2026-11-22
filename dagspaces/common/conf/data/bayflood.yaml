@@ -1,0 +1,36 @@
+# BayFlood Dataset Configuration
+# Images are located under data/bayflood/ with split subdirectories (e.g., 0/, 1/)
+# Metadata is stored in processed split folders (metadata.csv) and will be joined
+# using the derived image sample_id.
+
+processed_root: /share/pierson/matt/mllmsci/data/bayflood_splits
+split: train
+
+parquet_path: ${.processed_root}/${.split}/metadata.csv
+
+columns:
+  prompt: prompt
+  expected_answer: expected_answer
+  image_path: image_path
+
+image_path: ${.processed_root}/${.split}/images
+
+default_prompt: "NOT ENTERED"
+
+metadata_columns:
+  - image
+  - gt
+  - pred
+  - tp
+  - camera_heading
+  - captured_at
+  - h3_index_res12
+  - direction
+  - frame_quality
+  - frame_context
+  - gps_info.longitude
+  - gps_info.latitude
+  - prompt
+  - expected_answer
+  - sample_id
+  - image_path

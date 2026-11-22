@@ -224,6 +224,9 @@ server.env
 **/logs/
 **/.deprecated/
 data/
+# The data/ rule also matches the Hydra data config groups. Git must track them.
+!**/conf/data/
+!**/conf/*/data/
 
 # Pipeline artifacts & outputs (data, not source)
 /curation/

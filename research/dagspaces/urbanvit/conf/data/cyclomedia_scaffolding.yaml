@@ -1,0 +1,21 @@
+# Scaffolding permits curated Cyclomedia corpus.
+# Labels are appended to the same parquet in a future pass (bootstrapped via
+# embedding-retrieval pseudo-labeling). Rows with null labels are masked out
+# of the training loss per-head; no label column yet → training is a no-op
+# until labels are populated.
+
+parquet_path: /share/pierson/matt/mllmsci/curation/scaffolding_permits_2020_through_2025/cyclomedia_near_permits.parquet
+
+columns:
+  id: sample_id
+  image_path: image_path
+  recording_id: recording_id
+  borough: borough
+  year: year
+
+# Optional filter pushed into pandas.read_parquet (DNF-style list of tuples).
+# Example: [[("borough", "==", "manhattan")]].
+pandas_filters: null
+
+# Subsample for debugging
+limit: null

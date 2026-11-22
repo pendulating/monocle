@@ -1,0 +1,56 @@
+# Cyclomedia images near NYC K-12 schools (FacDB facgroup="SCHOOLS (K-12)"),
+# 80-ft-buffered coverage, per-unit facing filter, with attribution_confidence
+# score for downstream weighted sampling.
+#
+# Upstream:
+#   curation/facdb_schools_k_12/ — facdb-facilities + materialize-cyclomedia +
+#   filter-facing (auto-chained by materialize-cyclomedia's default --facing,
+#   per-unit mode — see [[concept-facing-filter]]).
+#
+# Schema highlights (mirrors cyclomedia_near_libraries_facing):
+#   sample_id              str  — Cyclomedia sample identifier ({recording_id}_{face})
+#   image_path             str  — absolute path to cube-face JPEG on NFS
+#   unit_uid               str  — FacDB uid of the attributed school
+#   unit_name              str  — facname (e.g. "P.S. 001 ALFRED E. SMITH")
+#   unit_dist_ft           f64  — recording → school centroid distance (US ft)
+#   bearing_to_unit_deg    f64  — compass bearing recording → centroid
+#   delta_bearing_deg      f64  — |face_bearing − bearing_to_unit|, ∈ [0, 180°]
+#   distance_to_unit_ft    f64  — same as unit_dist_ft, recomputed in filter stage
+#   attribution_confidence f64  — ∈ [0, 1], higher = more confidently facing.
+#                                 Feeds pair_sampler.weight_column downstream.
+#   recording_id, face, dataset, latitude, longitude, bearing — catalog metadata
+#
+# Row count (2026-05-01 build): 130,727 rows across 2,287 unique schools
+# (out of 3,103 publishable in facilities.parquet; 816 schools had no
+# facing-confident cyclomedia shot). 18.4% of raw materialize output kept.
+# Borough split: Brooklyn 47k · Queens 29k · Bronx 25k · Manhattan 23k · SI 6k.
+# attribution_confidence: mean 0.050, max 0.645 (lower than restaurants which
+# was 0.15/0.66, but adequate for weighted within-school sampling).
+
+parquet_path: "/share/pierson/matt/mllmsci/curation/facdb_schools_k_12/cyclomedia_near_schools_facing.parquet"
+
+columns:
+  sample_id: sample_id
+  image_path: image_path
+
+image_path: /share/ju/cyclomedia/raw
+
+# Propagate the unit-attribution + facing-diagnostic + catalog metadata
+# columns into pair rows (they'll show up as <col>_a / <col>_b on the final
+# pair manifest). attribution_confidence MUST be listed here — the orchestrator
+# only reads columns in this list from the parquet, and pair_sampler.weight_column
+# needs it to drive within-unit weighted draws.
+metadata_columns:
+  - unit_uid
+  - unit_name
+  - unit_dist_ft
+  - bearing_to_unit_deg
+  - delta_bearing_deg
+  - distance_to_unit_ft
+  - attribution_confidence
+  - recording_id
+  - face
+  - dataset
+  - latitude
+  - longitude
+  - bearing

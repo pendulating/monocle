@@ -1,0 +1,21 @@
+# Cyclomedia Manhattan 8K - Full dataset (~200 groups, thousands of locations)
+# Images are 8192x8192 - will be tiled to 1024x1024 (64 tiles per face)
+handler: cyclomedia
+image_path: /share/ju/cyclomedia/raw/manhattan_w_depth_2025_nov1225
+# Only 4 faces available for Manhattan: Back, Front, Left, Right (no Up/Down)
+faces_filter:
+  - B
+  - F
+  - L
+  - R
+
+
+
+
+
+
+
+
+
+
+

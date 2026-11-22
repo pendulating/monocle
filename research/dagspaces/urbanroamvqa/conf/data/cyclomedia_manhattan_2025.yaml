@@ -1,0 +1,20 @@
+# Cyclomedia Manhattan dataset config for roaming VQA
+
+parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/manhattan_2025_1_1k_scratch.parquet"
+metadata_parquet: ${data.parquet_path}
+
+image_root: ""
+image_pattern: "{recording_id}_{face}.jpg"
+
+columns:
+  sample_id: sample_id
+  image_path: image_path
+  recording_id: recording_id
+  face: face
+
+metadata_columns:
+  - recording_id
+  - face
+  - latitude
+  - longitude
+  - yawDegrees  # normalized to yaw_deg by builder

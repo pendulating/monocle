@@ -1,0 +1,17 @@
+# Test dataset: W0ETZ location group from Bronx 2025
+# Medium-sized test (~2927 images)
+
+handler: cyclomedia
+
+# Single location group
+image_path: "/share/ju/cyclomedia/raw/bronx_2025_1k/W0ETZ"
+
+# Structure: W0ETZ/{location_id}/faces/{face}.jpg
+# Example: W0ETZ/W0ETZ9YV/faces/B.jpg
+
+# Stats:
+#   489 locations
+#   2927 images (some locations may have fewer than 6 faces)
+#   Each 8192x8192 -> 81 tiles
+#   ~237,000 total tiles to process
+

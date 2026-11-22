@@ -1,0 +1,31 @@
+# Cyclomedia all-borough 30k stratified manifest for OPF vision-head
+# Stage 1 scale-up. Built via scripts/materialize_opf_vision_30k.py from
+# the v1 catalog: 1500 samples per (dataset, face) cell over the five
+# borough datasets and the F/B/L/R street-level faces (U/D excluded).
+#
+# Regenerate with:
+#   python scripts/materialize_opf_vision_30k.py
+#
+# The catalog already stores canonical /share/ju paths in `image_path`,
+# so unlike the older manhattan_2025_1_1k_scratch parquet there is no
+# `image_path_original` column — the dagspace's load_input_frame falls
+# through to `image_path` directly.
+
+parquet_path: "/share/pierson/matt/mllmsci/data/cyclomedia/opf_vision_30k.parquet"
+
+columns:
+  sample_id: sample_id
+  image_path: image_path
+
+# Root used for any image-loading code that resolves relative paths;
+# image_path in the manifest is already absolute, so this is informational.
+image_path: /share/ju/cyclomedia/raw
+
+metadata_columns:
+  - recording_id
+  - face
+  - dataset
+  - latitude
+  - longitude
+  - yawDegrees
+  - recordedAt
