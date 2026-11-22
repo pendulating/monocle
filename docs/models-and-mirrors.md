@@ -81,6 +81,14 @@ bash scripts/sync_venv_to_scratch.sh --make-tarball   # on the first node only
 bash scripts/sync_model_registry_to_scratch.sh Qwen2.5-VL-3B-Instruct
 ```
 
+With no model names, the model script copies the zoo folders of the
+`server.env` key `IMAGE_FORWARD_MIRROR_MODELS`, for example
+`IMAGE_FORWARD_MIRROR_MODELS="Qwen2.5-VL-3B-Instruct Qwen3-VL-2B-Instruct"`.
+The script needs `IMAGE_FORWARD_MODEL_ZOO`.
+
+**Warning:** a mirror is refused when its marker names a different source. If
+you move the venv or the zoo, delete the old mirror on each node first.
+
 The tarball makes the copy to the next nodes fast: one sequential read in
 place of many small reads.
 

@@ -69,18 +69,11 @@ echo "[sync_venv] $SRC -> $DST (jobs=$JOBS)"
 start=$SECONDS
 
 # A mirror with no marker is partial or stale data from an interrupted sync. A
-# marker for a different source venv means the names collided. Start again.
-# A marker written before the 2026-10 move off /share/pierson names this same
-# venv under its old path. Re-sync in place; the rsync --delete pass below
-# brings the mirror to parity with the venv on /share/ju.
+# marker for a different source venv means the names collided: refuse. If the
+# venv moved, delete the old mirror, then run this script again.
 if [ -e "$DST/.sync_complete" ] && ! grep -q "src=$SRC\$" "$DST/.sync_complete"; then
-  _moved_src=$(sed -n 's/.*src=//p' "$DST/.sync_complete" | sed 's#^/share/pierson/matt/#/share/ju/matt/#')
-  if [ "$_moved_src" = "$SRC" ]; then
-    echo "[sync_venv] marker predates the /share/pierson -> /share/ju move ($(cat "$DST/.sync_complete")); re-syncing in place"
-  else
-    echo "sync_venv_to_scratch: $DST is a mirror of a different venv ($(cat "$DST/.sync_complete")) — refused" >&2
-    exit 1
-  fi
+  echo "sync_venv_to_scratch: $DST is a mirror of a different venv ($(cat "$DST/.sync_complete")) — refused. Delete $DST if the venv moved." >&2
+  exit 1
 fi
 rm -f "$DST/.sync_complete"
 

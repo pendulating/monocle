@@ -9,38 +9,36 @@
 # interrupted sync is thus safe.
 #
 # Usage:
-#   scripts/sync_model_registry_to_scratch.sh              # the canonical set
-#   scripts/sync_model_registry_to_scratch.sh NAME [...]   # specific zoo dirs
+#   scripts/sync_model_registry_to_scratch.sh              # the models of IMAGE_FORWARD_MIRROR_MODELS
+#   scripts/sync_model_registry_to_scratch.sh NAME [...]   # these zoo folders
 #
-# Run this one time on each node:
-#   klara:  sbatch -p pierson -w klara -c 4 --mem=8G \
-#             --wrap 'bash /share/ju/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
-#   ju:     sbatch -p ju -c 4 --mem=8G \
-#             --wrap 'bash /share/ju/matt/mllmsci/scripts/sync_model_registry_to_scratch.sh'
+# The keys come from server.env:
+#   IMAGE_FORWARD_MODEL_ZOO       the zoo folder (necessary)
+#   IMAGE_FORWARD_MODEL_REGISTRY  the mirror folder (default /scratch/$USER/registry/models)
+#   IMAGE_FORWARD_MIRROR_MODELS   the zoo folder names to mirror, with a space between them
+#
+# Run this one time on each node, from the repo root:
+#   sbatch -p <partition> -w <node> -c 4 --mem=8G \
+#     --wrap "bash $PWD/scripts/sync_model_registry_to_scratch.sh"
 #
 # The zoo models do not change after the download. If one IS replaced in place,
 # run this script again on each node — the mirrors do not test freshness.
 set -euo pipefail
 
-ZOO="${IMAGE_FORWARD_MODEL_ZOO:-/share/ju/matt/zoo/models}"
+source "$(dirname "${BASH_SOURCE[0]}")/load_server_env.sh"
+
+ZOO="${IMAGE_FORWARD_MODEL_ZOO:?set IMAGE_FORWARD_MODEL_ZOO in server.env}"
 REG="${IMAGE_FORWARD_MODEL_REGISTRY:-/scratch/$USER/registry/models}"
 
-# The canonical pairwisevqa roster (the 5-model klara2x sweep, plus the
-# 12B model that runs alone on klara1x). Phi-4 is deliberately absent: it
-# gives degenerate output on each pairvqa task and is excluded from all
-# sweeps. Pass other names on the command line when you need them, for
-# example the vision models (Qwen3-VL-2B-Instruct, Qwen3-VL-30B-A3B-Instruct)
-# or the speech models (granite-speech-4.1-2b).
-CANONICAL=(
-  Qwen3.5-9B
-  gemma-4-12B-it
-  Gemma-4-E2B-it
-  Gemma-4-E4B-it
-  Qwen3.5-2B
-  Qwen3.5-4B
-)
-
-if [ "$#" -gt 0 ]; then MODELS=("$@"); else MODELS=("${CANONICAL[@]}"); fi
+if [ "$#" -gt 0 ]; then
+  MODELS=("$@")
+else
+  read -r -a MODELS <<< "${IMAGE_FORWARD_MIRROR_MODELS:-}"
+fi
+if [ "${#MODELS[@]}" -eq 0 ]; then
+  echo "sync_model_registry: no models. Give the names, or set IMAGE_FORWARD_MIRROR_MODELS in server.env." >&2
+  exit 2
+fi
 
 mkdir -p "$REG"
 for name in "${MODELS[@]}"; do

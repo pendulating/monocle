@@ -13,9 +13,13 @@
 #
 # torch is built against CUDA 12.9, thus this toolkit MATCHES torch. The 12.8
 # system toolkit never did.
+#
+# Usage: scripts/install_cuda_129_toolkit.sh [PREFIX]
+# PREFIX is the install folder. The default is $IMAGE_FORWARD_CUDA_HOME, or else
+# $HOME/cuda-12.9. Then set IMAGE_FORWARD_CUDA_HOME=PREFIX in server.env.
 set -euo pipefail
 
-PREFIX="${1:-/share/ju/matt/cuda-12.9}"
+PREFIX="${1:-${IMAGE_FORWARD_CUDA_HOME:-$HOME/cuda-12.9}}"
 BASE="https://developer.download.nvidia.com/compute/cuda/redist"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT

@@ -24,7 +24,7 @@ differ, thus a table from other settings cannot quietly change the science.
 Use
 ---
     python scripts/prebuild_pair_tables.py --sweep million_proxy_qwen9b \\
-        --out-dir /share/ju/matt/mllmsci/multirun/pair_tables_1m
+        --out-dir multirun/pair_tables_1m
     python scripts/prebuild_pair_tables.py --sweep ... --cases pairwise_schools_mvp
     python scripts/prebuild_pair_tables.py --sweep ... --force
 """
