@@ -421,12 +421,15 @@ def recover_slurm_job(
                     if os.path.exists(job.paths.result_pickle):
                         with open(job.paths.result_pickle, "rb") as f:
                             _outcome, _result = pickle.load(f)
-                        _print_status({"debug": "recovered_result_from_pickle",
-                                       "job_id": job.job_id})
-                        return StageResult(
-                            outputs=_result["outputs"],
-                            metadata=_result["metadata"],
-                        )
+                        # A failed job writes ("error", trace text). Only a
+                        # "success" pickle holds the result of the stage.
+                        if _outcome == "success":
+                            _print_status({"debug": "recovered_result_from_pickle",
+                                           "job_id": job.job_id})
+                            return StageResult(
+                                outputs=_result["outputs"],
+                                metadata=_result["metadata"],
+                            )
 
         if mode == "nfs_poll":
             # A fast job can reach COMPLETED before its result pickle is

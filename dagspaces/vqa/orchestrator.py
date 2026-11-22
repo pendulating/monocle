@@ -161,7 +161,10 @@ def _load_vqa_input(cfg: DictConfig, parquet_path: str) -> pd.DataFrame:
         parquet_path = os.path.abspath(parquet_path)
 
     df = _load_parquet_dataset(parquet_path, columns, debug=debug, sample_n=sample_n)
-    return df
+    # data.image_root makes the relative image paths of the table absolute.
+    from dagspaces.common.runners.dataframe import apply_image_root
+
+    return apply_image_root(df, cfg)
 
 
 # ---------------------------------------------------------------------------

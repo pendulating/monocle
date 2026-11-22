@@ -2433,6 +2433,10 @@ def run_vllm_inference(
             # Resume is off unless `model.resume_dir` is set, thus this block
             # changes nothing for a run that does not ask for it.
             _resume_dir, _resume_rows = _resume_settings(cfg, batch_size)
+            if not _resume_dir:
+                # No resume: one chunk holds all the prompts. The batch plan
+                # below uses the chunk size as a step, thus it must not be 0.
+                _resume_rows = max(len(prompts), 1)
             # The image pack replaces the file reads of the raw tree. Each
             # batch prefetches its images with a small thread pool and drops
             # them after the generate call, thus memory holds 1 batch.
@@ -2469,8 +2473,6 @@ def run_vllm_inference(
                 _resume_guard(_resume_dir, prompts, stage_name)
                 print(f"[{stage_name}] resume ON: dir={_resume_dir}, "
                       f"chunk={_resume_rows} rows", flush=True)
-            else:
-                _resume_rows = max(len(prompts), 1)
 
             gen_records: List[Dict[str, Any]] = []
             shared_sp = sampling_params_list if not isinstance(sampling_params_list, list) else None
