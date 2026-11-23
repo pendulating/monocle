@@ -5,10 +5,10 @@ makes the lens read the same prompt the CVPR battery ran.
 
 The model this path drives is described in [gemma4-12b-architecture.md](gemma4-12b-architecture.md).
 
-**Note, 2026-08-20:** the layout decision of that date replaced
-`interleaved_labels` with `images_then_labels`. A run that was registered before
-that date warns in `prompt_cfg` and needs a re-run before a lens read. See
-[gemma-4-best-practices.md](gemma-4-best-practices.md).
+**Note, 2026-09-02:** the canonical layout is `interleaved_labels` again. The
+lens gate (`REQUIRED_LAYOUT`) follows the registry gate. A run that records
+another layout warns in `prompt_cfg`. The lens reads the layout that the run
+recorded. See [gemma-4-best-practices.md](gemma-4-best-practices.md).
 
 ## Why it exists
 
@@ -18,13 +18,13 @@ consolidation changed 3 things, and each one breaks a lens read.
 
 | Mismatch | The old lens build | The canonical battery |
 |---|---|---|
-| Image layout | `images_then_text` | `images_then_labels` |
+| Image layout | `images_then_text` | `interleaved_labels` |
 | System turn | a persona string | `system: null` — no system turn |
 | Abstention | 5 labels, no `NotSure` | `NotSure` in the enum and in the text |
 
 The layout mismatch is the worst of the 3. The registry gate demands
-`images_then_labels` for gemma-4-12b, because that architecture does not bind
-image B without the text anchor between the 2 images. A lens read under
+`interleaved_labels` for gemma-4-12b. It puts a text anchor before each image,
+thus the architecture binds image B. A lens read under
 `images_then_text` measures a different forward pass. Every per-patch map over
 image B would be wrong.
 

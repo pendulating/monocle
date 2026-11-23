@@ -7,9 +7,9 @@ published. These tests are the gate.
 The three mismatches this file locks down (each one broke the pre-2026-08-11
 `safety_workspace.py` build):
 
-  1. image_layout must be `images_then_labels`: text between the two
-     images (so the arch does not read them as one), and an image first
-     (the modality order the gemma-4 card asks for).
+  1. image_layout must be `interleaved_labels`: a text anchor before each
+     image, so the arch does not read the two images as one. The decision
+     of 2026-09-02 made this the canonical layout.
   2. `system: null` must send NO system turn.
   3. The abstention label must reach both the answer enum and the user text.
 
@@ -76,15 +76,15 @@ def test_rejects_unknown_case_and_kind():
 @needs_registry
 @pytest.mark.parametrize("case", canonical.CASES)
 def test_every_case_records_the_required_layout(case):
-    """Mismatch 1. The gate demands `images_then_labels`.
+    """Mismatch 1. The gate demands `interleaved_labels`.
 
     The layout must put text BETWEEN the two images, because the arch reads two
-    adjacent image blocks as one image. It must ALSO open the message with an
-    image, which is the modality order the gemma-4 card asks for.
-    `interleaved_labels` keeps the first rule and breaks the second.
+    adjacent image blocks as one image. `interleaved_labels` puts a text anchor
+    before each image. The canonical gemma battery ran it.
 
-    A failure here means the registry holds a run from before 2026-08-20. That
-    is not a bug in this test: re-run the case and register it again.
+    A failure here means the registry holds a run with another layout, for
+    example `images_then_labels` of 2026-08-20. That is not a bug in this
+    test: re-run the case and register it again.
     """
     cfg = canonical.prompt_cfg(case, "proxy")
     assert cfg.prompt.image_layout == canonical.REQUIRED_LAYOUT
@@ -289,7 +289,7 @@ def test_every_condition_keeps_the_canonical_frame():
         assert cfg.prompt.image_layout == canonical.REQUIRED_LAYOUT, name
         blocks = canonical.build_messages(ROW, cfg)[0]["content"]
         assert [b["type"] for b in blocks] == [
-            "image", "text", "image", "text", "text"], name
+            "text", "image", "text", "image", "text"], name
         text = canonical.user_text("p0", cfg)
         assert '"NotSure"' in text, name
         assert text.endswith(
