@@ -146,7 +146,7 @@ The island is exactly the 256 patches.
 This is why the prompt layout matters. Two adjacent image blocks with no text
 between them read as 1 image. See
 [canonical-lens-prompt-path.md](canonical-lens-prompt-path.md) and
-[gemma-4-best-practices.md](../../docs/gemma-4-best-practices.md).
+[gemma-4-best-practices.md](gemma-4-best-practices.md).
 
 The island is vision-only, and `blockwise_overlay` proves it: it unmasks a
 pair only when both positions hold the same island id, and text carries -1.
@@ -207,4 +207,4 @@ is in [canonical-lens-prompt-path.md](canonical-lens-prompt-path.md) and
 vLLM 0.25.0 in `.venv-vllm025cu129`, and transformers 5.12 in `.venv-nightly`
 for the lens work. `limit_mm_per_prompt.image` must be 2 for a pairwise
 prompt. See
-[gemma-4-best-practices.md](../../docs/gemma-4-best-practices.md).
+[gemma-4-best-practices.md](gemma-4-best-practices.md).

@@ -1,5 +1,8 @@
-# CI of the framework: the tests with no GPU, no SLURM and no local data, and
-# the lint gates. See .dev_history/repo-cleanup-plan.md (phase 5).
+# CI of monocle: the tests with no GPU, no SLURM and no local data, and ruff.
+#
+# uv fetches image-forward (a private repo) over SSH. The secret
+# IMAGE_FORWARD_DEPLOY_KEY holds the private part of a read-only deploy key of
+# pendulating/image-forward.
 name: ci
 
 on:
@@ -15,25 +18,21 @@ jobs:
       # The locked CUDA wheels (torch, vLLM, FlashInfer) need about 12 GB.
       - name: Free disk space
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - name: SSH key for image-forward
+        env:
+          DEPLOY_KEY: ${{ secrets.IMAGE_FORWARD_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
       - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
       - name: Install
-        run: >
-          uv sync --frozen
-          --extra wandb --extra speech --extra embed --extra langextract
-          --extra urban --extra research --extra notebooks
+        run: uv sync --frozen --extra urban --extra research --extra notebooks
       - name: Tests
         run: uv run --frozen pytest -q -m "not gpu and not slurm and not data"
-      # Pyright checks the files that are clean now. Add a file when its errors are gone.
-      # (The full framework has about 270 old errors: run `pyright` to see them.)
-      - name: Pyright (clean files)
-        run: >
-          uv run --frozen pyright
-          hydra_plugins dagspaces/_template
-          dagspaces/common/dagspace_factory.py dagspaces/common/dagspace_cli.py
-          dagspaces/common/stage_utils.py dagspaces/common/cli_utils.py
-          scripts/new_dagspace.py scripts/make_image_table.py
 
   lint:
     runs-on: ubuntu-latest

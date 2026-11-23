@@ -4,7 +4,7 @@
 #
 # Warning: this is the OLD path (2026-09-20). It puts a monitor job above
 # each shard, 112 for an arm, and each one waits 1 CPU and 8 GB for the
-# stage job. Use `python -m dagspaces.pairwisevqa.submit_trace_shards
+# stage job. Use `python -m research.traces.submit_trace_shards
 # --arm <arm>` instead: 1 SLURM array, no monitor. This script stays for the
 # record of how the version 1 arms ran.
 #

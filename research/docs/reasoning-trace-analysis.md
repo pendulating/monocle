@@ -83,7 +83,7 @@ In thinking mode, gemma-4-12b cannot see the second image under the default
 
 Text between the 2 images is what repairs the binding. From 2026-08-20
 production uses `images_then_labels`, and it rejects `interleaved_labels`. See
-[gemma-4-best-practices.md](../../docs/gemma-4-best-practices.md).
+[gemma-4-best-practices.md](gemma-4-best-practices.md).
 
 The prompt holds about 696 input tokens either way, which is 2 images' worth, so
 the pixels are present. The model fails to bind them as 2 images. This is the

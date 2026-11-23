@@ -1,4 +1,0 @@
-# The prompt of the describe stage. user_template is a Jinja template: it can
-# use each column of the input row, for example {{ prompt }}.
-system: "You are a careful observer. Answer in plain words."
-user_template: "{{ prompt }}"

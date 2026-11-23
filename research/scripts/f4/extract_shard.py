@@ -228,7 +228,7 @@ def main() -> int:
 
     from dagspaces.pairwisevqa.orchestrator import run_shard_job
     from dagspaces.pairwisevqa.submit_shards import build_payload
-    from dagspaces.pairwisevqa.submit_trace_shards import compose_cfg, write_hydra_record
+    from research.traces.submit_trace_shards import compose_cfg, write_hydra_record
 
     arm = ARMS[args.arm]
     case = f"f4_{args.case}"

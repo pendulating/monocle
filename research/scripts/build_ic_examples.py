@@ -32,7 +32,8 @@ SOURCE_PARQUET = (
     "outputs/pairwise/subway_safety_mvp_20260813_013722.parquet"
 )
 
-OUT_PATH = REPO / "dagspaces" / "common" / f"ic_examples_{S.SCHEMA_VERSION}.json"
+# ic_schema.load_examples() reads the file beside ic_schema.py.
+OUT_PATH = Path(S.__file__).resolve().parent / f"ic_examples_{S.SCHEMA_VERSION}.json"
 
 
 # ---------------------------------------------------------------------------

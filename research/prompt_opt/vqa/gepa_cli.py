@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import logging
 import os
@@ -417,9 +418,10 @@ def _run_validation(cfg: DictConfig, logger: Optional[WandbLogger]) -> None:
 
     LOG.info("Validation artifacts written to %s", artifact_dir)
 
-# The vqa dagspace conf/ is the main config path. The plugin in hydra_plugins/
-# adds research/conf/vqa/, which holds prompt_opt/gepa_bayflood.yaml.
-_VQA_CONF = str(Path(__file__).resolve().parents[3] / "dagspaces" / "vqa" / "conf")
+# The vqa dagspace conf/ (in image-forward) is the main config path. The
+# image-forward search-path plugin adds research/conf/vqa/, which holds
+# prompt_opt/gepa_bayflood.yaml.
+_VQA_CONF = str(Path(importlib.util.find_spec("dagspaces").submodule_search_locations[0]) / "vqa" / "conf")  # type: ignore[union-attr,index]
 
 
 @hydra.main(version_base="1.3", config_path=_VQA_CONF, config_name="prompt_opt/gepa_bayflood")

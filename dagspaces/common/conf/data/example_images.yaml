@@ -1,9 +1,0 @@
-# The 10 example images in examples/images/ (public domain, see CREDITS.md).
-# The table holds relative paths; image_root makes them absolute.
-# Make a table of your own images with scripts/make_image_table.py.
-parquet_path: ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/examples/images/images.parquet
-image_root: ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/examples/images
-columns:
-  sample_id: sample_id
-  image_path: image_path
-  prompt: prompt

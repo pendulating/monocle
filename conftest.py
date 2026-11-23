@@ -1,4 +1,4 @@
-"""The pytest setup of the repo: site settings, markers and path fixtures.
+"""The pytest setup of monocle: site settings, markers and path fixtures.
 
 The markers (pyproject.toml registers them):
     gpu    the test needs a CUDA GPU
@@ -19,6 +19,9 @@ from dagspaces.common.stage_utils import ensure_dotenv
 
 REPO = Path(__file__).resolve().parent
 
+# The project root: this repo, also when pytest starts in a subfolder.
+os.environ.setdefault("IMAGE_FORWARD_PROJECT_ROOT", str(REPO))
+
 # Load server.env and .env, as the CLI does: some tests read IMAGE_FORWARD_MODEL_ZOO.
 ensure_dotenv()
 
@@ -30,14 +33,8 @@ os.environ.setdefault("IMAGE_FORWARD_MODEL_ZOO", str(REPO / "no-model-zoo"))
 
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
-    """The repo root."""
+    """The monocle repo root."""
     return REPO
-
-
-@pytest.fixture(scope="session")
-def example_images() -> Path:
-    """The folder of the 10 example images (examples/images/)."""
-    return REPO / "examples" / "images"
 
 
 @pytest.fixture(scope="session")

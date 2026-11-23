@@ -1,3 +1,0 @@
-"""VQA experiment package."""
-
-

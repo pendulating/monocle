@@ -64,10 +64,14 @@ This rule applies to:
 
 ## Documentation
 
-The user guides of the framework are in `docs/`. Write a research note in
-`research/docs/`. Write a note on how the code changed (a plan, an upgrade, an
+The pipelines run on image-forward, a separate repo (`IMAGE_FORWARD_HOME`).
+Its `docs/` holds the framework guides. Change framework code there, not here.
+Write a research note in `research/docs/`. Write a note on how the code changed (a plan, an upgrade, an
 incident, a review) in `.dev_history/`, which git ignores.
 
 The old Obsidian wiki (`vault/context/`), the UAIR docs archive and the old
 one-off scripts left git on 2026-11-22. The tag `archive/pre-cleanup-2026-11-21`
 holds them. Do not add them again.
+
+Do not add AI-tool lines (`Co-Authored-By: Claude ...`, `Claude-Session: ...`)
+to commit messages.

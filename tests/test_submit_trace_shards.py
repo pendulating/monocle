@@ -7,7 +7,7 @@ because the GPU job IS the stage job.
 
 import pytest
 
-from dagspaces.pairwisevqa import submit_trace_shards as S
+from research.traces import submit_trace_shards as S
 
 
 @pytest.fixture(scope="module")

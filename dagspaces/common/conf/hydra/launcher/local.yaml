@@ -1,3 +1,0 @@
-# Run the job in this process, with no SLURM. Use it on a workstation:
-#   python -m dagspaces.vqa.cli hydra/launcher=local pipeline=...
-_target_: hydra._internal.core_plugins.basic_launcher.BasicLauncher

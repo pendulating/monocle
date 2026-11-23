@@ -1,8 +1,9 @@
 # TrashBot footage annotator
 
-Tool location: `tools/trashbot_annotator/`. Usage guide:
-`tools/trashbot_annotator/README.md`. This page records the design, the
-evidence path, and the limits.
+The tool is its own repo: `pendulating/trashbot-annotator`. On the cluster,
+the checkout is at `tools/trashbot_annotator/` in this repo (git ignores
+`tools/`). The usage guide is the `README.md` of that repo. This page records
+the design, the evidence path, and the limits.
 
 ## Purpose
 

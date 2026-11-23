@@ -198,10 +198,10 @@ def _rate_row(k: int, n: int) -> Dict[str, float]:
 def results_path(judge: str, case: str) -> str:
     """The judgment results parquet of the registered run of 1 judge and case.
 
-    The map is `dagspaces.pairwisevqa.submit_trace_shards.GEMMA_RUNS` and
+    The map is `research.traces.submit_trace_shards.GEMMA_RUNS` and
     `QWEN_RUNS`, which the extraction stage read.
     """
-    from dagspaces.pairwisevqa import submit_trace_shards as S
+    from research.traces import submit_trace_shards as S
 
     runs = S.GEMMA_RUNS if judge.startswith("gemma") else S.QWEN_RUNS
     path = Path(runs[case])

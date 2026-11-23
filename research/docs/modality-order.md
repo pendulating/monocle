@@ -479,4 +479,4 @@ a mixed batch destroys the exact floor.
 
 - [gemma4-12b-architecture.md](gemma4-12b-architecture.md) — the mask, the 2 block kinds, the encoder-free vision path.
 - [causal-lens-retrospective.md](causal-lens-retrospective.md) — the 2 halves, and the reader that uses both.
-- [gemma-4-best-practices.md](../../docs/gemma-4-best-practices.md) — why production uses `images_then_labels` and not the card's simple form.
+- [gemma-4-best-practices.md](gemma-4-best-practices.md) — why production uses `images_then_labels` and not the card's simple form.

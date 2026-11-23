@@ -49,6 +49,7 @@ Every import that needs a GPU stays inside a function, so the CPU test suite
 """
 from __future__ import annotations
 
+import importlib.util
 import sys
 from pathlib import Path
 from typing import Any, Optional
@@ -229,7 +230,9 @@ def load_pairs(case: str, kind: str = "proxy") -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Prompt construction — production functions only
 # ---------------------------------------------------------------------------
-_PAIRWISE_VQA_PATH = REPO / "dagspaces/pairwisevqa/stages/pairwise_vqa.py"
+# The installed image-forward package. find_spec does not import it.
+_DAGSPACES = Path(importlib.util.find_spec("dagspaces").submodule_search_locations[0])  # type: ignore[union-attr,index]
+_PAIRWISE_VQA_PATH = _DAGSPACES / "pairwisevqa/stages/pairwise_vqa.py"
 _pairwise_vqa_module: Any = None
 
 

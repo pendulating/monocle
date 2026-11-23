@@ -11,7 +11,7 @@ This rule applies to:
 - Replies to the user
 - Code comments and docstrings
 - Comments in config files
-- Documentation in `docs/`, `research/docs/` and `.dev_history/`, and commit messages
+- Documentation in `research/docs/` and `.dev_history/`, and commit messages
 
 ### Writing rules
 
@@ -65,21 +65,20 @@ equivalent, use it as a technical name.
 
 ## Documentation
 
-The documentation has 3 folders:
+The documentation of this repo has 2 folders:
 
 | Folder | Content |
 |--------|---------|
-| `docs/` | The framework guides for a new user: architecture, add a dagspace, add a stage, site setup, models and mirrors, large runs |
 | `.dev_history/` | Gitignored. The development history of the code: plans, upgrade logs, incident reports, reviews, proposals |
 | `research/docs/` | The research notes: experiments, results, paper plans, runbooks |
 
 | Note | Folder |
 |------|--------|
-| How the framework works now | `docs/`. Change a guide when a change alters how a user does a task. |
+| How the framework works now | The `docs/` folder of image-forward, not this repo |
 | A research experiment, a result, a runbook | `research/docs/` |
 | How the code changed: a plan, an upgrade log, an incident, a fix, a review, a proposal | `.dev_history/` (not in git) |
 
-A page in `docs/` or `research/docs/` must not link to `.dev_history/`. A clone
+A page in `research/docs/` must not link to `.dev_history/`. A clone
 does not have that folder. Put the current facts in the guide, and keep the
 story of the change in `.dev_history/`.
 
@@ -101,184 +100,78 @@ to a test does not need documentation. Document the architecture, not each commi
 **Conventions:** Use `kebab-case.md` for file names. Prefer tables and lists.
 Write the text in STE (see the section above).
 
+## Commit messages
+
+Do not add AI-tool lines (`Co-Authored-By: Claude ...`, `Claude-Session: ...`)
+to commit messages.
+
 ## Project Overview
 
-MLLMSCI / UAIR (Urban AI Risks Assessment Framework) — a scalable pipeline framework for large-scale multimodal LLM inference over urban datasets. Uses vLLM for GPU inference, Hydra for configuration, and W&B for experiment tracking. Runs on SLURM clusters.
+monocle is the research repo of the study of how vision-language models judge
+urban images (MLLMSCI / UAIR). It holds the experiments, the street-view data
+code, the J-lens and the paper material.
 
-Python 3.12, managed with `uv`. The distribution name is `image-forward`; the import path is `dagspaces`.
+The pipelines run on **image-forward** (`pendulating/image-forward`), a separate
+repo: the dagspaces, the launchers, vLLM inference and the scripts. Its import
+path is `dagspaces`. On this cluster the checkout is `/share/ju/matt/image-forward`,
+and `IMAGE_FORWARD_HOME` in `server.env` names it. Read its `CLAUDE.md` and
+`docs/` for the framework. Change framework code there, not here.
+
+**Warning:** do not put generic framework code in this repo. Do not put project
+code, datasets or research configs in image-forward.
 
 ## Common Commands
 
 ```bash
-# Install the locked environment in .venv (add extras with --extra NAME)
-bash scripts/build_venv.sh --extra wandb --extra research
-
-# Run the example on the 10 images of examples/images/ (in this process, on a GPU node)
-dagspace vqa -m hydra/launcher=local pipeline=example_images
-# The same, with the stage in a SLURM GPU job
-dagspace vqa -m hydra/launcher=local pipeline=example_images runtime.stage_launcher=slurm_gpu_1x
-
-# Run a pipeline. `dagspace vqa` is the same as `python -m dagspaces.vqa.cli`.
+# Run a pipeline. Run the commands in this repo: image-forward finds the
+# project config roots from the current folder.
 dagspace vqa -m pipeline=vqa_cyclomedia_scaffolding runtime.debug=true runtime.sample_n=100
-
-# Run on SLURM with GPUs
 dagspace vqa -m hydra/launcher=slurm_gpu_4x pipeline=vqa_cyclomedia_scaffolding
+dagspace pairwisevqa -m pipeline=extract_traces runtime.sample_n=10
+dagspace research.dagspaces.urbanroamvqa -m pipeline=...
 
-# Make a new dagspace from dagspaces/_template, with its tests
-python scripts/new_dagspace.py NAME
-
-# Run tests (CI runs the selection with no GPU, SLURM or local data)
-pytest tests/test_vqa.py -v
+# Tests (CI runs the selection with no GPU, SLURM or local data)
 pytest -m "not gpu and not slurm and not data"
 ruff check .
-
-# Type checking
-pyright
 ```
 
-Each dagspace has its own CLI entry point:
-- `python -m dagspaces.vqa.cli` — Visual Question Answering
-- `python -m dagspaces.ocr.cli` — OCR / text spotting
-- `python -m dagspaces.pairwisevqa.cli` — Pairwise comparison VQA
-- `python -m research.dagspaces.urbanroamvqa.cli` — Multi-step street traversal VQA
-- `python -m dagspaces.embed.cli` — Embedding inference
-- `python -m dagspaces.speech.cli` — Speech recognition over video clips
+**IMPORTANT:** Always use `-m` (multirun/submitit) when giving CLI commands to run a dagspace pipeline. Pipelines are designed to be orchestrated via SLURM — the monitor node submits stage jobs.
 
-The `dagspace` console script runs each of them: `dagspace <name>`, or `dagspace research.dagspaces.urbanroamvqa`.
+## How monocle uses image-forward
 
-All accept Hydra overrides: `model.batch_size=32 runtime.debug=true data.parquet_path=/path/to/data.parquet`
-
-**IMPORTANT:** Always use `-m` (multirun/submitit) when giving CLI commands to run a dagspace pipeline. Pipelines are designed to be orchestrated via SLURM — the monitor node submits stage jobs. Example: `python -m dagspaces.embed.cli -m pipeline=browser_index_cyclomedia ...`
-
-## Architecture
-
-### Dagspaces
-
-The framework has five pipeline systems under `dagspaces/`. Each has the same structure:
-
-| Dagspace | Purpose |
-|----------|---------|
-| `vqa` | Multimodal VQA inference (prompt + images → answers) |
-| `ocr` | Text spotting with bounding boxes, automatic tiling for large images |
-| `pairwisevqa` | Pairwise relative comparison of image pairs |
-| `embed` | Embedding inference |
-| `speech` | Speech recognition over video clips (ffmpeg audio isolation + granite-speech via vLLM, JU partition) |
-| `_template` | The smallest dagspace: one `describe` stage. `scripts/new_dagspace.py` copies it. |
-
-The experimental dagspaces are in `research/dagspaces/`: `urbanroamvqa`,
-`urbanvit`, `opf_vision_labels` and `artifact_gen`. They import the framework,
-but the framework does not import them.
-
-Each dagspace contains:
-- `cli.py` — Entry point; cleans SLURM env vars before Hydra init
-- `orchestrator.py` — DAG execution engine; topologically sorts pipeline nodes, defines `get_stage_registry()` with dagspace-specific `StageRunner` subclasses
-- `stages/` — Processing stage implementations (vqa.py, ocr.py, etc.)
-- `conf/` — Hydra configs (data, model, prompt, pipeline); dagspace-local launcher overrides only where needed
-
-### Shared Infrastructure (`dagspaces/common/`)
-
-All dagspaces import shared modules directly from `dagspaces.common`:
-- `config_schema.py` — `PipelineGraphSpec`, `PipelineNodeSpec`, `ArtifactSpec` dataclasses
-- `orchestrator.py` — DAG utilities, `ArtifactRegistry`, `StageExecutionContext`, `StageResult`, SLURM helpers
-- `runners/base.py` — `StageRunner` base class
-- `runners/dataframe.py` — `DataFrameStageRunner`: runs a stage function `(df, cfg) -> DataFrame`, joins `data.image_root`, writes the parquet
-- `dagspace_factory.py` — `make_dagspace()`: the 3 orchestrator functions of a dagspace from its stage runners (see `dagspaces/_template/orchestrator.py`)
-- `wandb_logger.py` — Distributed W&B integration with auto-tagging
-- `vllm_inference.py` — vLLM inference utilities
-- `multiprocessing_utils.py` — SLURM detection, warning suppression
-- `stage_utils.py` — `ensure_dotenv()`, `extract_last_json()`, `sanitize_for_json()`, `resolve_thinking_mode()`, `maybe_silence_vllm_logs()`
-- `image_pack.py` — Read images from a pack of blob files (`runtime.image_pack`) instead of the raw NFS tree. Build with `scripts/build_image_pack.py`. See `docs/streaming-and-resume.md`.
-- `conf/data/` — Shared data configs (symlinked from root as `datasets/`)
-- `conf/model/` — Shared model configs (symlinked from root as `models/`)
-- `conf/hydra/launcher/` — Shared SLURM launcher configs (symlinked from root as `launchers/`)
-
-Shared configs are resolved by all dagspaces via Hydra searchpath (`pkg://dagspaces.common.conf`). Dagspace-local `conf/data/`, `conf/model/`, or `conf/hydra/launcher/` overrides take precedence when present.
-
-### Pipeline Execution Model
-
-Pipelines are DAGs defined in YAML (`conf/pipeline/*.yaml`). Each node specifies a stage type, dependencies, inputs, and outputs. The orchestrator resolves the DAG topologically and executes stages sequentially, passing parquet data between them.
-
-Stage types include: `vqa`, `ocr`, `pairwise_vqa`, `roaming_vqa`, `embed`, `classify`, `taxonomy`, `decompose`, `topic`, `verify`.
-
-### VQA Stage Data Flow (primary inference path)
-
-```
-Input Parquet → pandas DataFrame
-  → preprocess (Jinja2 prompt rendering, image loading)
-  → run_vllm_inference (direct vLLM LLM.generate() with multimodal support)
-  → postprocess (JSON extraction)
-  → Output Parquet
-```
-
-### Configuration System
-
-Hydra-based hierarchical config composition (version 1.3). Key config groups:
-- `data/` — Input data paths and dataset definitions (shared via `dagspaces/common/conf/data/`, dagspace-local overrides where needed)
-- `model/` — vLLM model settings (shared via `dagspaces/common/conf/model/`)
-- `prompt/` — Jinja2 prompt templates (dagspace-local)
-- `pipeline/` — DAG node definitions (dagspace-local)
-- `hydra/launcher/` — SLURM launcher configs. The framework has a generic set in `dagspaces/common/conf/hydra/launcher/` (`local`, `slurm_cpu`, `slurm_gpu_{1,2,4}x`, `slurm_monitor`). They read the site settings from `server.env`. The launchers of this cluster are in `site/conf/` and take the place of the generic ones with the same name. See `site/README.md`.
-
-Shared configs resolved via `hydra.searchpath: [pkg://dagspaces.common.conf]` in each dagspace's `config.yaml`.
+| Item | Where |
+|------|-------|
+| The framework version | `[tool.uv.sources] image-forward` in `pyproject.toml` (a git rev). Keep the checkout at the same commit. |
+| The config roots | `[tool.image-forward] conf-roots` in `pyproject.toml`: `site/conf`, `sv/conf`, `sv/nyc/conf`, `research/conf` |
+| The site settings | `server.env` in this repo (gitignored), with `IMAGE_FORWARD_HOME` |
+| The cluster launchers | `site/conf/common/hydra/launcher/`. They take the place of the generic launchers with the same name. See `site/README.md`. |
+| The framework scripts | `scripts/*.sh` and `scripts/*.py` are shims to `$IMAGE_FORWARD_HOME/scripts/` |
+| The research dagspaces | `research/dagspaces/`: `urbanroamvqa`, `urbanvit`, `opf_vision_labels`, `artifact_gen` |
+| A project stage | `pipeline.stage_runners` in a pipeline (for example `research/ic/` adds `ic_extract`) |
 
 The dataset configs (Cyclomedia, NYC, bayflood, nexar) are in `sv/conf/` and
-`sv/nyc/conf/`, not in `dagspaces/`. The Hydra plugin
-`hydra_plugins/mllmsci_searchpath/` adds them (and `research/conf/`) to the search path of each
-dagspace. Thus `pipeline=vqa_bayflood` and `data=cyclomedia_manhattan` work
-as before. Run the commands from the repo root, or Hydra does not find the
-plugin. See `docs/project-config-roots.md`.
-
-Site-specific settings (SLURM partition, project paths, NCCL) are in `server.env`, loaded automatically by `ensure_dotenv()`.
-
-Supports `${oc.env:VAR}` interpolation and optional defaults.
-
-### Key Infrastructure
-
-- **vLLM** — GPU inference with batching, guided decoding, multimodal support
-- **SLURM** — Cluster job submission via hydra-submitit-launcher
-- **W&B** — Experiment tracking (in-process mode for SLURM compatibility)
+`sv/nyc/conf/`. Thus `pipeline=vqa_bayflood` and `data=cyclomedia_manhattan`
+work in each dagspace.
 
 ### Environments and node-local mirrors
 
-`pyproject.toml` and `uv.lock` give the environment: vLLM 0.25.0, torch
-2.11.0+cu129. The extras are `wandb`, `speech`, `embed`, `flash-attn`,
-`langextract`, `urban`, `research`, `notebooks` and `cambrian`. A new clone uses
-`.venv`. On this site, `.venv-vllm025cu129` is the default for all
-launchers. `server.env` sets it. `.venv-3.12` (vLLM 0.19) and `.venv-nightly`
-(vLLM 0.23) stay on disk; override `IMAGE_FORWARD_VENV_ACTIVATE` to use one.
+On this site, `.venv-vllm025cu129` (a symlink to `.venv-mllmsci-vllm025cu129`)
+is the default venv for all launchers. `server.env` sets it. It holds editable
+installs of the image-forward checkout and of this repo. `.venv-3.12` (vLLM
+0.19) and `.venv-nightly` (vLLM 0.23) stay on disk; override
+`IMAGE_FORWARD_VENV_ACTIVATE` to use one.
+
+**Warning:** do not change the site venv while jobs run. Check `squeue -u $USER` first.
 
 A stage job starts from a node-local `/scratch` mirror of the venv when the
-node holds one. Weight loads go to a `/scratch` model mirror by the same rule.
-Each mirror carries a `.sync_complete` marker, and a user of the mirror trusts
-it only when the marker names the same source. If it does not, the stage falls
-back to NFS.
-
-| Command | Purpose |
-|---------|---------|
-| `bash scripts/build_venv.sh [--extra NAME]` | Build an environment from `uv.lock` |
-| `bash scripts/sync_venv_to_scratch.sh` | Deploy the venv mirror on this node |
-| `bash scripts/sync_model_registry_to_scratch.sh` | Deploy the model mirror |
-
-See `docs/models-and-mirrors.md`. The history of the mirrors and of the
-vLLM 0.25 upgrade is in `.dev_history/` (see "Documentation").
-
-### Image Input Formats
-
-The VQA stage accepts images as: PIL objects, local file paths, `file://` paths and base64 strings. Format is auto-detected in `_prepare_image_content()`. **Warning:** inference does not download an `http(s)` URL. A row with an image that does not load does not go to the model: it gets an empty answer and `__image_load_error__` (the DP path does the same). `runtime.strict_images=true` stops the stage. See `docs/gotchas.md`.
-
-## Current Performance State
-
-The Ray Data path is gone. The VQA stages now send chunked batches through
-in-process `llm.chat` calls. Results stream to parquet during the run, and
-resume chunks align with batch boundaries. See
-`docs/streaming-and-resume.md`, and `research/docs/million-pair-battery.md`
-for the details on shards and resume chunks.
+mirror stamp agrees with the venv. After a change to the venv, run
+`bash scripts/sync_venv_to_scratch.sh` and then `--make-tarball`. See
+`docs/models-and-mirrors.md` in image-forward. The history of the mirrors and of
+the vLLM 0.25 upgrade is in `.dev_history/`.
 
 ## File Locations
 
 - `<output_root>/pipeline_manifest.json` — The orchestrator writes it in each run. It holds the stage results and the metadata. Git ignores it.
-- `scripts/` — The generic tools of the framework (venv build, scratch mirrors, image packs, shard merge, `new_dagspace.py`, `make_image_table.py`).
-- `examples/images/` — 10 public-domain photos and `images.parquet`. `data=example_images` reads them.
 - `site/` — The launchers of this cluster and `site/speech-guide.md`. The framework does not need them.
 - `sv/` — The street-view code. The framework does not import it.
   - `sv/cyclomedia/`, `sv/cyclomedia_catalog/` — The Cyclomedia readers and the catalog builder.
@@ -287,20 +180,19 @@ for the details on shards and resume chunks.
   - `sv/conf/`, `sv/nyc/conf/` — The dataset configs, in `common/` (all dagspaces) and `<dagspace>/` folders.
   - `sv/scripts/`, `sv/nyc/scripts/`, `sv/tests/`, `sv/nyc/tests/` — The data scripts and their tests.
   - `sv/docs/` — The design notes of the catalog and the NYC curation.
-- `research/` — The research code. The framework does not import it. Run its code from the repo root, because the editable install maps only `dagspaces`.
+- `research/` — The research code. The framework does not import it. The editable install maps `research` and `sv`.
   - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`.
   - `research/notebooks/` — The analysis notebooks (cvpr, facct).
   - `research/scripts/` — The experiment scripts (f4 to f10, batteries, exports).
+  - `research/traces/` — The shard submitter of the trace extraction (`python -m research.traces.submit_trace_shards`).
   - `research/figures/`, `research/tables_export/` — The outputs of the notebooks and the scripts.
   - `research/papers/`, `research/notes/` — The paper drafts and the method notes.
   - `research/docs/` — The research documentation: experiments, results, runbooks (for example `facct-runbook.md`).
   - `research/conf/` — The research configs: the pairwisevqa batteries (`pipeline/`, `prompt/`, `sweep/`, `extract/`) and the GEPA configs. The plugin adds them to the search path.
   - `research/ic/` — The Integrative Complexity schema, codes, examples and the `ic_extract` stage. A pipeline adds the stage with `pipeline.stage_runners`.
   - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). The `gepa` package is not in the venv.
-- `docs/` — The framework guides: architecture, add a dagspace, add a stage, site setup, models and mirrors, large runs.
-- `conftest.py` — Loads `server.env`, sets the markers `gpu`, `slurm` and `data`, and gives the path fixtures. CI (`.github/workflows/ci.yml`) runs `pytest -m "not gpu and not slurm and not data"`, ruff and pyright.
-- `tests/test_framework_configs.py` — Each framework default composes with no project roots (`IMAGE_FORWARD_NO_PROJECT_ROOTS=1`).
-- `tests/test_vqa.py` — VQA unit tests (template rendering, image prep, JSON extraction, data validation)
+- `scripts/` — Shims to the scripts of image-forward (`_image_forward_home.sh` finds the checkout), and `build_browser_index.py`.
+- `conftest.py` — Loads `server.env`, sets the markers `gpu`, `slurm` and `data`, and gives the path fixtures. CI (`.github/workflows/ci.yml`) runs `pytest -m "not gpu and not slurm and not data"` and ruff.
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
 - `.dev_history/` — Gitignored. The development history: the cleanup plan, upgrade logs, incident reports, reviews and proposals.
 - `artificial-aesthetic/` — The FAccT paper repo. The LaTeX is the submodule `paper/`. `paperkit` copies the figures, tables and numbers into it, and checks them. See `research/docs/paper-repo-sync.md`.

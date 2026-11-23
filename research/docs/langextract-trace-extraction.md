@@ -282,7 +282,7 @@ any install, as an sbatch job pinned to the node:
 sbatch --partition=pierson -w klara --wrap="bash scripts/sync_venv_to_scratch.sh"
 ```
 
-See [models-and-mirrors.md](../../docs/models-and-mirrors.md).
+See [models-and-mirrors.md](https://github.com/pendulating/image-forward/blob/main/docs/models-and-mirrors.md).
 
 ### Phase 3 — The full extraction — DONE 2026-08-14
 
@@ -826,8 +826,8 @@ state that `afterok` reads as a failure (see Phase 7). No pipeline of this
 project has more than 1 node today, thus that path is not built.
 
 ```bash
-python -m dagspaces.pairwisevqa.submit_trace_shards --arm qwen_by_gemma31_v2 --dry-run
-python -m dagspaces.pairwisevqa.submit_trace_shards --arm qwen_by_gemma31_v2
+python -m research.traces.submit_trace_shards --arm qwen_by_gemma31_v2 --dry-run
+python -m research.traces.submit_trace_shards --arm qwen_by_gemma31_v2
 bash research/scripts/check_trace_extraction.sh CUESV2QG31
 python research/scripts/merge_trace_extractions.py multirun/<date>_CUESV2QG31/runs --out data/trace_extractions_v2_qwen9b_by_gemma31b
 ```

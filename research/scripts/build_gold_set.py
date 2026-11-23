@@ -92,8 +92,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OUT_DIR = os.path.join(ROOT, "data", "gold_set")
 
 # The registered thinking runs. The same table lives in
-# `dagspaces/pairwisevqa/submit_trace_shards.py`.
-from dagspaces.pairwisevqa.submit_trace_shards import (  # noqa: E402
+# `research/traces/submit_trace_shards.py`.
+from research.traces.submit_trace_shards import (  # noqa: E402
     CASE_ORDER, GEMMA_RUNS, QWEN_RUNS,
 )
 

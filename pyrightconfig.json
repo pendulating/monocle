@@ -1,8 +1,9 @@
 {
   "include": [
-    "dagspaces",
-    "hydra_plugins",
-    "scripts"
+    "research",
+    "sv",
+    "scripts",
+    "tests"
   ],
   "exclude": [
     "**/node_modules",
