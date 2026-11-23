@@ -149,6 +149,7 @@ ruff check .
 | The research dagspaces | `research/dagspaces/`: `urbanroamvqa`, `urbanvit`, `opf_vision_labels`, `artifact_gen`, `lensread` (J-lens readouts, see `research/docs/lensread.md`) |
 | A project stage | `pipeline.stage_runners` in a pipeline (for example `research/ic/` adds `ic_extract`) |
 | Bee Maps (Hivemapper) images | The `beemaps` command of image-forward (`dagspaces/sources/beemaps`): `inspect`, `sample`, `nearest`. The key is `BEE_MAPS_API_KEY` in `.env`. Read `docs/sources-beemaps.md` in image-forward for the costs. |
+| Mapillary images (free, CC BY-SA 4.0) | The `mapillary` command of image-forward (`dagspaces/sources/mapillary`): `inspect`, `sample`, `nearest`, `sequence`. The key is `MAPILLARY_ACCESS_TOKEN` in `.env`. Read `docs/sources-mapillary.md` in image-forward. |
 | Cyclomedia panoramas | The `cyclomedia` command of image-forward (`dagspaces/sources/cyclomedia`): `build`, `query`, `inspect`, `sample`. Read `docs/sources-cyclomedia.md` in image-forward. |
 | Open-data catalog (the PEF datasets of global_robots) | The `opendata` command of image-forward (`dagspaces/sources/opendata`). `IMAGE_FORWARD_OPENDATA_CATALOG` in `server.env` names the symlink `data/opendata-catalog`. A spec such as `opendata:us_ca_san_diego/sidewalk_obstructions/fire_hydrants` is a target set for `beemaps nearest`. **Warning:** `opendata curate` writes into the shared catalog; give `--root` to a copy for a test. |
 
