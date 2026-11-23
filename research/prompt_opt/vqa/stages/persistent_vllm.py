@@ -28,9 +28,9 @@ from omegaconf import DictConfig, OmegaConf
 
 from dagspaces.common.vllm_inference import filter_vllm_engine_kwargs
 from dagspaces.vqa.stages.vqa import (
-    _build_guided_decoding_config,
-    _ensure_json_schema_dict,
-    _resolve_default_prompt,
+    build_guided_decoding_config,
+    ensure_json_schema_dict,
+    resolve_default_prompt,
 )
 
 LOG = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def _sanitize_prompt_value(value: Any, cfg: DictConfig) -> str:
     This is a copy of the old helper of the vqa stage, which image-forward removed.
     """
     sanitized = ("" if value is None else str(value)).strip()
-    return sanitized or _resolve_default_prompt(cfg)
+    return sanitized or resolve_default_prompt(cfg)
 
 # The local model folder (server.env). Empty: use the Hub ID.
 MODEL_ZOO_BASE = os.environ.get("IMAGE_FORWARD_MODEL_ZOO", "")
@@ -319,11 +319,11 @@ class PersistentVLLMProcessor:
             else:
                 schema = getattr(structured_cfg, "json_schema", None)
 
-            schema = _ensure_json_schema_dict(schema)
+            schema = ensure_json_schema_dict(schema)
             if not schema:
                 return None
 
-            return _build_guided_decoding_config(schema)
+            return build_guided_decoding_config(schema)
         except Exception as exc:  # pragma: no cover - defensive
             LOG.warning(f"Failed to derive guided decoding payload: {exc}")
             return None
@@ -500,7 +500,7 @@ class PersistentVLLMProcessor:
         Returns:
             Tuple of (conversation_messages, metadata_dict)
         """
-        from dagspaces.vqa.stages.vqa import _resolve_row_sample_id
+        from dagspaces.vqa.stages.vqa import resolve_row_sample_id
         
         row_values = dict(row)
         
@@ -510,7 +510,7 @@ class PersistentVLLMProcessor:
         else:
             prompt = _sanitize_prompt_value(row_values.get("prompt"), cfg)
         
-        resolved_sample_id = _resolve_row_sample_id(row_values)
+        resolved_sample_id = resolve_row_sample_id(row_values)
         if resolved_sample_id is not None:
             row_values["sample_id"] = resolved_sample_id
         

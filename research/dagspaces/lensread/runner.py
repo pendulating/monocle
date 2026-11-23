@@ -22,8 +22,8 @@ from omegaconf import DictConfig, OmegaConf
 from dagspaces.common.orchestrator import (
     StageExecutionContext,
     StageResult,
-    _collect_outputs,
-    _safe_log_table,
+    collect_outputs,
+    safe_log_table,
 )
 from dagspaces.common.runners.base import StageRunner
 from dagspaces.common.runners.dataframe import load_stage_input
@@ -168,12 +168,12 @@ class ReadoutRunner(StageRunner):
         print(f"[readout] wrote {len(results)} reads and {len(answers)} answers to {out_dir}", flush=True)
 
         if context.logger:
-            _safe_log_table(context.logger, answers, "readout/answers",
+            safe_log_table(context.logger, answers, "readout/answers",
                             prefer_cols=[c for c in ("sample_id", "top", "margin", "yes_no") if c in answers.columns])
             first = results[results["rank"] == 0] if "rank" in results.columns else results
-            _safe_log_table(context.logger, first, "readout/top1",
+            safe_log_table(context.logger, first, "readout/top1",
                             prefer_cols=["sample_id", "position", "token_at", "selectors", "layer", "token"])
-        outputs = _collect_outputs(context, {k: s.optional for k, s in context.node.outputs.items()})
+        outputs = collect_outputs(context, {k: s.optional for k, s in context.node.outputs.items()})
         return StageResult(outputs=outputs, metadata={"rows": len(answers), "reads": len(results)})
 
     @staticmethod

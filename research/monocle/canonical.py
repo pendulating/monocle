@@ -266,8 +266,8 @@ def _production():
     ``vllm_inference`` imports only pandas and omegaconf at module level, so
     this stays CPU-safe.
     """
-    from dagspaces.common.vllm_inference import _to_image_type_blocks
-    return _load_pairwise_vqa(), _to_image_type_blocks
+    from dagspaces.common.vllm_inference import to_image_type_blocks
+    return _load_pairwise_vqa(), to_image_type_blocks
 
 
 def system_text(cfg: DictConfig) -> Optional[str]:

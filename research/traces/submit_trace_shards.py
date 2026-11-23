@@ -62,7 +62,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from omegaconf import DictConfig, OmegaConf
 
 from dagspaces.pairwisevqa.submit_shards import (
-    _CONF_DIR,
+    CONF_DIR,
     build_payload,
     outputs_complete,
 )
@@ -194,7 +194,7 @@ def compose_cfg(arm: Dict[str, Any], case: str, shard: int, shard_count: int,
     ] + list(extra)
 
     GlobalHydra.instance().clear()
-    with initialize_config_dir(config_dir=_CONF_DIR, version_base="1.3"):
+    with initialize_config_dir(config_dir=CONF_DIR, version_base="1.3"):
         cfg = compose(config_name="config", overrides=overrides,
                       return_hydra_config=False)
     return cfg
@@ -238,7 +238,7 @@ def submit(arm_name: str, *, base_dir: Optional[str] = None,
            only_missing: bool = False, timeout_min: Optional[int] = None,
            dry_run: bool = False, only: Optional[List[str]] = None) -> int:
     from dagspaces.common.orchestrator import (
-        _clean_slurm_env, _create_submitit_executor, _load_launcher_config,
+        clean_slurm_env, create_submitit_executor, load_launcher_config,
     )
     from dagspaces.pairwisevqa.orchestrator import run_shard_job
 
@@ -327,7 +327,7 @@ def submit(arm_name: str, *, base_dir: Optional[str] = None,
 
     # One executor, thus one SLURM array for the whole arm.
     cfg0 = payloads[0][2]["cfg"]
-    launcher_cfg = _load_launcher_config(OmegaConf.create(cfg0), launcher, _CONF_DIR)
+    launcher_cfg = load_launcher_config(OmegaConf.create(cfg0), launcher, CONF_DIR)
     merge: Dict[str, Any] = {"array_parallelism": int(parallel)}
     if timeout_min:
         merge["timeout_min"] = int(timeout_min)
@@ -335,10 +335,10 @@ def submit(arm_name: str, *, base_dir: Optional[str] = None,
 
     log_folder = os.path.join(base_dir, ".slurm_jobs")
     os.makedirs(log_folder, exist_ok=True)
-    executor = _create_submitit_executor(
+    executor = create_submitit_executor(
         launcher_cfg, f"{arm['experiment']}-shard", log_folder
     )
-    with _clean_slurm_env():
+    with clean_slurm_env():
         with executor.batch():
             jobs = [executor.submit(run_shard_job, p) for _, _, p in payloads]
 

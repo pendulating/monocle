@@ -70,9 +70,9 @@ def load_eager(model_dir: str, device: str):
     from transformers import AutoProcessor, Gemma4UnifiedForConditionalGeneration
 
     from dagspaces.common.model_registry import resolve_model_source
-    from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
+    from dagspaces.common.vllm_inference import gemma4_unified_chat_template
 
-    is_g4u, tmpl = _gemma4_unified_chat_template(model_dir)
+    is_g4u, tmpl = gemma4_unified_chat_template(model_dir)
     if not is_g4u or not tmpl:
         raise RuntimeError(f"{model_dir} is not gemma4_unified")
     # 24 GB of weights off NFS is minutes when the mount is busy, and the

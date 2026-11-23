@@ -71,9 +71,9 @@ def load_model(model_dir: str, device: str) -> tuple[Any, Any, str]:
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
     from dagspaces.common.model_registry import resolve_model_source
-    from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
+    from dagspaces.common.vllm_inference import gemma4_unified_chat_template
 
-    if _gemma4_unified_chat_template(model_dir)[0]:
+    if gemma4_unified_chat_template(model_dir)[0]:
         return ar.load_eager(model_dir, device)
     src = resolve_model_source(model_dir, stage_name="word-gif")
     proc = AutoProcessor.from_pretrained(src)

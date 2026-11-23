@@ -21,8 +21,8 @@ from dagspaces.common.config_schema import PipelineNodeSpec
 from dagspaces.common.orchestrator import (
     StageExecutionContext,
     StageResult,
-    _collect_outputs,
-    _print_status,
+    collect_outputs,
+    print_status,
 )
 from dagspaces.common.runners.base import StageRunner
 from dagspaces.common.resource_tracker_patch import apply_patch as _apply_resource_tracker_patch
@@ -214,7 +214,7 @@ class RoamingVQARunner(StageRunner):
             "diagnostics": diagnostics,
         }
 
-        outputs = _collect_outputs(
+        outputs = collect_outputs(
             context,
             {name: spec.optional for name, spec in context.node.outputs.items()},
         )

@@ -1485,10 +1485,10 @@ class TestVqaPerRowGuidedOverride:
         })
 
     def test_row_payload_overrides_cfg_schema(self):
-        from dagspaces.vqa.stages.vqa import _make_preprocess
+        from dagspaces.vqa.stages.vqa import make_preprocess
 
         cfg = self._make_cfg(structured_output=_ROAM_SCHEMA)
-        preprocess = _make_preprocess(cfg)
+        preprocess = make_preprocess(cfg)
         row_guided = {"json": {"type": "object", "properties": {
             "chosen_face": {"type": "string", "enum": ["F", "R"]}}}}
         result = preprocess({"sample_id": "s1", "prompt": "q",
@@ -1496,19 +1496,19 @@ class TestVqaPerRowGuidedOverride:
         assert result["sampling_params"]["guided_decoding"] == row_guided
 
     def test_falls_back_to_cfg_schema_without_row_payload(self):
-        from dagspaces.vqa.stages.vqa import _make_preprocess
+        from dagspaces.vqa.stages.vqa import make_preprocess
 
         cfg = self._make_cfg(structured_output=_ROAM_SCHEMA)
-        preprocess = _make_preprocess(cfg)
+        preprocess = make_preprocess(cfg)
         result = preprocess({"sample_id": "s1", "prompt": "q"})
         # cfg-level path goes through _build_guided_decoding_config, which
         # collapses enum-bearing schemas to a choice constraint
         assert result["sampling_params"]["guided_decoding"] == {"choice": ["F", "R", "B", "L"]}
 
     def test_no_guided_decoding_when_neither_present(self):
-        from dagspaces.vqa.stages.vqa import _make_preprocess
+        from dagspaces.vqa.stages.vqa import make_preprocess
 
-        preprocess = _make_preprocess(self._make_cfg())
+        preprocess = make_preprocess(self._make_cfg())
         result = preprocess({"sample_id": "s1", "prompt": "q"})
         assert "guided_decoding" not in result["sampling_params"]
 

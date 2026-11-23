@@ -28,10 +28,10 @@ Two tiers:
                      outputs/pairwise/. Arms listed in --flip-arms asked the
                      semantically flipped question ("which looks LESS safe");
                      their labels/scores are negated before comparison — the
-                     stage's _canonicalize_label/_invert_label do NOT perform
+                     stage's canonicalize_label/_invert_label do NOT perform
                      semantic inversion.
 
-Reuses: _canonicalize_label from the pairwise stage, _compute_trueskill from
+Reuses: canonicalize_label from the pairwise stage, _compute_trueskill from
 pairwise_vqa_report (draw_prob=0.05 canon), tract/income machinery from
 pairwise_socioeconomic_regression, mirror_to_wandb from
 pairwise_analysis_common.
@@ -64,9 +64,9 @@ from scipy.spatial.distance import jensenshannon  # noqa: E402
 from scipy import stats as sps  # noqa: E402
 
 from dagspaces.pairwisevqa.stages.pairwise_vqa import (  # noqa: E402
-    _canonicalize_label,
-    _INVERT_LABEL,
-    _ORDINAL_SCORE,
+    canonicalize_label,
+    INVERT_LABEL,
+    ORDINAL_SCORE,
 )
 from pairwise_vqa_report import _compute_trueskill  # noqa: E402
 from pairwise_socioeconomic_regression import (  # noqa: E402
@@ -128,7 +128,7 @@ def _semantic_flip(labels: pd.Series) -> pd.Series:
     MuchMore etc.; Same/NotSure fixed). Reuses the stage's inversion table —
     the mapping is the same even though the reason differs (semantic flip
     here, A/B swap there)."""
-    return labels.map(lambda v: _INVERT_LABEL.get(str(v), "Same"))
+    return labels.map(lambda v: INVERT_LABEL.get(str(v), "Same"))
 
 
 def _weighted_kappa(a: pd.Series, b: pd.Series) -> float:
@@ -155,7 +155,7 @@ def _weighted_kappa(a: pd.Series, b: pd.Series) -> float:
 def _is_parse_fallback(raw: str) -> bool:
     """True when the raw model output only reached "Same" via the stage's
     unparseable-output fallback (no ordinal/equal/abstention token present)."""
-    canon = _canonicalize_label(raw)
+    canon = canonicalize_label(raw)
     if canon != "Same":
         return False
     low = str(raw or "").lower()

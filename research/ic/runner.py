@@ -16,7 +16,7 @@ import pandas as pd
 from dagspaces.common.orchestrator import (
     StageExecutionContext,
     StageResult,
-    _collect_outputs,
+    collect_outputs,
 )
 from dagspaces.common.runners.base import StageRunner
 from research.ic.extract_stage import run_ic_extract_stage
@@ -71,7 +71,7 @@ class ICExtractRunner(StageRunner):
                 print(f"[ic_extract] Warning: failed to log to wandb: {exc}",
                       flush=True)
 
-        outputs = _collect_outputs(
+        outputs = collect_outputs(
             context,
             {name: spec.optional for name, spec in context.node.outputs.items()},
         )

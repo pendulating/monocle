@@ -182,10 +182,10 @@ def test_chat_text_is_identical_to_the_production_path(case):
     from transformers import AutoTokenizer
 
     from dagspaces.common.vllm_inference import (
-        _gemma4_unified_chat_template, _to_image_type_blocks)
+        gemma4_unified_chat_template, to_image_type_blocks)
     from research.monocle.canonical import _load_pairwise_vqa
 
-    is_g4u, tmpl = _gemma4_unified_chat_template(str(MODEL_DIR))
+    is_g4u, tmpl = gemma4_unified_chat_template(str(MODEL_DIR))
     assert is_g4u and tmpl, "gemma4_unified template not found"
     tok = AutoTokenizer.from_pretrained(str(MODEL_DIR))
 
@@ -194,7 +194,7 @@ def test_chat_text_is_identical_to_the_production_path(case):
     # Production chain, as the stage runs it.
     row = dict(ROW)
     row["prompt"] = _load_pairwise_vqa()._render_pair_prompt(row, cfg)
-    prod_messages = _to_image_type_blocks(
+    prod_messages = to_image_type_blocks(
         _load_pairwise_vqa()._make_pairwise_preprocess(cfg)(row)["messages"])
     prod_text = tok.apply_chat_template(
         prod_messages, tokenize=False, add_generation_prompt=True,
@@ -212,9 +212,9 @@ def test_forced_prefix_is_appended_last():
     """The lens reads the final position, so the prefix must end the text."""
     from transformers import AutoTokenizer
 
-    from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
+    from dagspaces.common.vllm_inference import gemma4_unified_chat_template
 
-    _, tmpl = _gemma4_unified_chat_template(str(MODEL_DIR))
+    _, tmpl = gemma4_unified_chat_template(str(MODEL_DIR))
     tok = AutoTokenizer.from_pretrained(str(MODEL_DIR))
     cfg = canonical.prompt_cfg("subway_safety", "proxy")
     text = canonical.render_chat_text(

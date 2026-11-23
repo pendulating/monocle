@@ -30,8 +30,8 @@ import pandas as pd
 
 from research.ic import ic_schema as S
 from dagspaces.pairwisevqa.stages.trace_extract import (
-    _sample,
-    _shard,
+    smoke_sample,
+    job_shard,
     case_of_parquet,
     load_traces,
     source_provenance,
@@ -142,8 +142,8 @@ def run_ic_extract_stage(
     df, stats = load_traces(cfg, section="ic_extract")
     # Sample first, then shard. The other order gives each shard its own sample
     # of a different size, and no 2 shards then cover the same set.
-    df = _sample(df, cfg)
-    df = _shard(df, cfg, section="ic_extract")
+    df = smoke_sample(df, cfg)
+    df = job_shard(df, cfg, section="ic_extract")
     stats["traces_extracted"] = int(len(df))
 
     # Follow a symlink before you read a name from the path. Every canonical

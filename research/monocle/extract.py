@@ -1,7 +1,7 @@
 """Model loading, input construction, and patch-position logit extraction.
 
 Reuses the exact production prompt path from the activation-probe work
-(`_gemma4_unified_chat_template` + `Gemma4UnifiedProcessor`) so the model we
+(`gemma4_unified_chat_template` + `Gemma4UnifiedProcessor`) so the model we
 lens is the same one the pairvqa runs serve. The wiki page
 concept-activation-probe.md gives the verified recipe. The wiki left git; the
 tag archive/pre-cleanup-2026-11-21 holds it.
@@ -51,9 +51,9 @@ def load_model(model_dir: str = MODEL_DIR_DEFAULT, device: str = "cuda:0"):
     from transformers import AutoProcessor, Gemma4UnifiedForConditionalGeneration
 
     from dagspaces.common.model_registry import resolve_model_source
-    from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
+    from dagspaces.common.vllm_inference import gemma4_unified_chat_template
 
-    is_g4u, tmpl = _gemma4_unified_chat_template(model_dir)
+    is_g4u, tmpl = gemma4_unified_chat_template(model_dir)
     cls = Gemma4UnifiedForConditionalGeneration
     if not is_g4u or not tmpl:
         # The E-series (Gemma4ForConditionalGeneration, model_type gemma4)

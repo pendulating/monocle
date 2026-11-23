@@ -452,9 +452,9 @@ def list_lengths(model_dir: str) -> int:
     from transformers import AutoProcessor
 
     from dagspaces.common.model_registry import resolve_model_source
-    from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
+    from dagspaces.common.vllm_inference import gemma4_unified_chat_template
 
-    _, tmpl = _gemma4_unified_chat_template(model_dir)
+    _, tmpl = gemma4_unified_chat_template(model_dir)
     proc = AutoProcessor.from_pretrained(
         resolve_model_source(model_dir, stage_name="monocle"))
     tok = proc.tokenizer

@@ -53,7 +53,7 @@ except ImportError:  # pragma: no cover - mirrors vqa fallback shim
         scores: list
         trajectories: Any = None
 
-from dagspaces.pairwisevqa.stages.pairwise_vqa import _canonicalize_label
+from dagspaces.pairwisevqa.stages.pairwise_vqa import canonicalize_label
 
 LOG = logging.getLogger(__name__)
 REPO = Path(__file__).resolve().parents[3]
@@ -358,7 +358,7 @@ class PairwiseTaskEngine:
                  reflection_max_tokens: int = 4096,
                  limit_mm_images: int = 2) -> None:
         from vllm import LLM
-        from dagspaces.common.vllm_inference import _gemma4_unified_chat_template
+        from dagspaces.common.vllm_inference import gemma4_unified_chat_template
 
         self.model_dir = model_dir
         self.reflection_temperature = reflection_temperature
@@ -381,7 +381,7 @@ class PairwiseTaskEngine:
             trust_remote_code=True,
         )
         self.tokenizer = self.llm.get_tokenizer()
-        self.is_g4u, self.g4u_template = _gemma4_unified_chat_template(model_dir)
+        self.is_g4u, self.g4u_template = gemma4_unified_chat_template(model_dir)
         LOG.info("gemma4_unified=%s (custom chat template %s)",
                  self.is_g4u, "loaded" if self.g4u_template else "absent")
 
@@ -418,10 +418,10 @@ class PairwiseTaskEngine:
                  image_cache: Optional[Dict[str, Any]] = None) -> List[str]:
         """Return one raw answer string per row (two images each)."""
         from vllm import TokensPrompt
-        from dagspaces.common.vllm_inference import _build_sampling_params
+        from dagspaces.common.vllm_inference import build_sampling_params
 
         prompt_ids = self._render_pair_prompt_ids(system, user_text)
-        sp = _build_sampling_params({
+        sp = build_sampling_params({
             "temperature": 0.0,
             "max_tokens": 128,
             "guided_decoding": {"json": ANSWER_SCHEMA},
@@ -444,11 +444,11 @@ class PairwiseTaskEngine:
         """Task-neutral two-image captions (one text per row), no guided
         decoding. Used by the caption-mediated reflection variants."""
         from vllm import TokensPrompt
-        from dagspaces.common.vllm_inference import _build_sampling_params
+        from dagspaces.common.vllm_inference import build_sampling_params
 
         prompt_ids = self._render_pair_prompt_ids(
             DESCRIBE_SYSTEM, DESCRIBE_STYLES[style])
-        sp = _build_sampling_params({"temperature": 0.0, "max_tokens": 200})
+        sp = build_sampling_params({"temperature": 0.0, "max_tokens": 200})
         prompts = []
         for row, images in zip(rows, _load_pair_images(rows, image_cache)):
             prompts.append(TokensPrompt(
@@ -481,7 +481,7 @@ class PairwiseTaskEngine:
     def reflect(self, prompt) -> str:
         """Text reflection (``str``) or multimodal reflection (gepa passes a
         messages ``list`` when reflective records embed ``gepa.Image``s)."""
-        from dagspaces.common.vllm_inference import _build_sampling_params
+        from dagspaces.common.vllm_inference import build_sampling_params
         from vllm import TokensPrompt
 
         images = None
@@ -490,7 +490,7 @@ class PairwiseTaskEngine:
         else:
             text, images = _parse_multimodal_reflection(prompt)
             ids = self._render_multimodal_reflection_ids(text, len(images))
-        sp = _build_sampling_params({
+        sp = build_sampling_params({
             "temperature": self.reflection_temperature,
             "max_tokens": self.reflection_max_tokens,
         })
@@ -597,7 +597,7 @@ class PairwiseGEPAAdapter(GEPAAdapter):
         scores: List[float] = []
         traces: List[Dict[str, Any]] = []
         for row, answer in zip(rows, raw):
-            pred = _canonicalize_label(answer)
+            pred = canonicalize_label(answer)
             expected = str(row["expected_answer"])
             score = _ordinal_score(pred, expected)
             scores.append(score)
