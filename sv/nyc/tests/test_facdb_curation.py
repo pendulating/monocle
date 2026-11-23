@@ -151,7 +151,7 @@ class TestOrchestratorEndToEnd:
         ])
 
         def fake_fetch_facdb(*, cache_path=None, refresh=False, **_kw):
-            from sv.nyc.curation.socrata import FetchResult
+            from dagspaces.sources.opendata.socrata import FetchResult
             return FetchResult(df=raw_df, pages=1, total_rows=raw_df.height,
                                page_rows=[raw_df.height])
 
@@ -213,5 +213,5 @@ class TestOrchestratorEndToEnd:
 
 
 def _make_fetch_result(df: pl.DataFrame):
-    from sv.nyc.curation.socrata import FetchResult
+    from dagspaces.sources.opendata.socrata import FetchResult
     return FetchResult(df=df, pages=1, total_rows=df.height, page_rows=[df.height])

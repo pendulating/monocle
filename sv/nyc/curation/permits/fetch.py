@@ -18,13 +18,15 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Optional
 
-from ..socrata import FetchResult, fetch_socrata
+from dagspaces.sources.opendata.socrata import FetchResult, fetch_socrata
+
+from .. import NYC_OPEN_DATA
 
 __all__ = [
     "fetch_dob_now",
     "fetch_bis",
-    "DOB_NOW_URL",
-    "BIS_URL",
+    "DOB_NOW_DATASET",
+    "BIS_DATASET",
     "DOB_NOW_COLUMNS",
     "BIS_COLUMNS",
     "BIS_SCAFFOLD_SUBTYPES",
@@ -32,8 +34,10 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 
-DOB_NOW_URL = "https://data.cityofnewyork.us/resource/w9ak-ipjd.json"
-BIS_URL = "https://data.cityofnewyork.us/resource/ipu4-2q9a.json"
+#: The Socrata dataset id (on NYC_OPEN_DATA).
+DOB_NOW_DATASET = "w9ak-ipjd"
+#: The Socrata dataset id (on NYC_OPEN_DATA).
+BIS_DATASET = "ipu4-2q9a"
 
 BIS_SCAFFOLD_SUBTYPES: tuple[str, ...] = ("SH", "SD", "SF")
 
@@ -134,12 +138,14 @@ def fetch_dob_now(
     select = ",".join(columns)
     log.info("fetch: DOB NOW — where=%s", where)
     return fetch_socrata(
-        DOB_NOW_URL,
+        NYC_OPEN_DATA,
+        DOB_NOW_DATASET,
         where=where,
         select=select,
         cache_path=cache_path,
         limit=limit,
         refresh=refresh,
+        frame="polars",
     )
 
 
@@ -190,10 +196,12 @@ def fetch_bis(
     select = ",".join(columns)
     log.info("fetch: BIS — where=%s", where)
     return fetch_socrata(
-        BIS_URL,
+        NYC_OPEN_DATA,
+        BIS_DATASET,
         where=where,
         select=select,
         cache_path=cache_path,
         limit=limit,
         refresh=refresh,
+        frame="polars",
     )

@@ -371,12 +371,12 @@ class TestOrchestratorEndToEnd:
         ])
 
         def fake_fetch_dob_now(*a, **kw):
-            from sv.nyc.curation.socrata import FetchResult
+            from dagspaces.sources.opendata.socrata import FetchResult
             return FetchResult(df=dob_df, pages=1, total_rows=dob_df.height,
                                page_rows=[dob_df.height])
 
         def fake_fetch_bis(*a, **kw):
-            from sv.nyc.curation.socrata import FetchResult
+            from dagspaces.sources.opendata.socrata import FetchResult
             return FetchResult(df=bis_df, pages=1, total_rows=bis_df.height,
                                page_rows=[bis_df.height])
 

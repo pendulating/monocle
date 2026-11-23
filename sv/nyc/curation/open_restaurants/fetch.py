@@ -13,13 +13,16 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Optional
 
-from ..socrata import FetchResult, fetch_socrata
+from dagspaces.sources.opendata.socrata import FetchResult, fetch_socrata
 
-__all__ = ["fetch_open_restaurants", "OPEN_RESTAURANTS_URL", "OPEN_RESTAURANTS_COLUMNS"]
+from .. import NYC_OPEN_DATA
+
+__all__ = ["fetch_open_restaurants", "OPEN_RESTAURANTS_DATASET", "OPEN_RESTAURANTS_COLUMNS"]
 
 log = logging.getLogger(__name__)
 
-OPEN_RESTAURANTS_URL = "https://data.cityofnewyork.us/resource/fpeh-f7ci.json"
+#: The Socrata dataset id (on NYC_OPEN_DATA).
+OPEN_RESTAURANTS_DATASET = "fpeh-f7ci"
 
 OPEN_RESTAURANTS_COLUMNS: tuple[str, ...] = (
     "business_legal_name",
@@ -82,10 +85,12 @@ def fetch_open_restaurants(
     select = ",".join(columns)
     log.info("fetch: open-restaurants — where=%s", where)
     return fetch_socrata(
-        OPEN_RESTAURANTS_URL,
+        NYC_OPEN_DATA,
+        OPEN_RESTAURANTS_DATASET,
         where=where,
         select=select,
         cache_path=cache_path,
         limit=limit,
         refresh=refresh,
+        frame="polars",
     )

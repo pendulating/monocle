@@ -46,7 +46,7 @@ REPO = Path(__file__).resolve().parents[2]
 CVPR = REPO / "research/notebooks/cvpr"
 OUT = REPO / "outputs/_monocle/probe/data"
 CATALOG = REPO / "data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet"
-NYC311_URL = "https://data.cityofnewyork.us/resource/erm2-nwe9.json"
+NYC311_DATASET = "erm2-nwe9"  # on NYC Open Data
 NYC311_CACHE = REPO / "data/external/nyc311_homeless/nyc311_homeless_2024on.parquet"
 NYC311_TYPES = ("Encampment", "Homeless Person Assistance")
 NYC311_SINCE = "2024-01-01T00:00:00"
@@ -119,13 +119,14 @@ def pull_311(tr) -> tuple[pd.DataFrame, dict]:
     import geopandas as gpd
 
     sys.path.insert(0, str(REPO))
-    from sv.nyc.curation.socrata import fetch_socrata
+    from dagspaces.sources.opendata.socrata import fetch_socrata
+    from sv.nyc.curation import NYC_OPEN_DATA
 
     types = ",".join(f"'{t}'" for t in NYC311_TYPES)
     where = f"created_date>='{NYC311_SINCE}' AND complaint_type in({types})"
     NYC311_CACHE.parent.mkdir(parents=True, exist_ok=True)
     res = fetch_socrata(
-        NYC311_URL, where=where,
+        NYC_OPEN_DATA, NYC311_DATASET, where=where, frame="polars",
         select="unique_key,created_date,complaint_type,latitude,longitude",
         cache_path=str(NYC311_CACHE))
     df = res.df.to_pandas()

@@ -11,13 +11,16 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Optional
 
-from ..socrata import FetchResult, fetch_socrata
+from dagspaces.sources.opendata.socrata import FetchResult, fetch_socrata
 
-__all__ = ["fetch_dohmh", "DOHMH_URL", "DOHMH_COLUMNS"]
+from .. import NYC_OPEN_DATA
+
+__all__ = ["fetch_dohmh", "DOHMH_DATASET", "DOHMH_COLUMNS"]
 
 log = logging.getLogger(__name__)
 
-DOHMH_URL = "https://data.cityofnewyork.us/resource/43nn-pn8j.json"
+#: The Socrata dataset id (on NYC_OPEN_DATA).
+DOHMH_DATASET = "43nn-pn8j"
 
 # Every column we care about for restaurant-level metadata. Violation-level
 # columns (violation_code, violation_description, critical_flag) are kept so
@@ -88,10 +91,12 @@ def fetch_dohmh(
 
     log.info("fetch: DOHMH — where=%s", where)
     return fetch_socrata(
-        DOHMH_URL,
+        NYC_OPEN_DATA,
+        DOHMH_DATASET,
         where=where,
         select=select,
         cache_path=cache_path,
         limit=limit,
         refresh=refresh,
+        frame="polars",
     )

@@ -12,13 +12,16 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Optional
 
-from ..socrata import FetchResult, fetch_socrata
+from dagspaces.sources.opendata.socrata import FetchResult, fetch_socrata
 
-__all__ = ["fetch_facdb", "FACDB_URL", "FACDB_COLUMNS"]
+from .. import NYC_OPEN_DATA
+
+__all__ = ["fetch_facdb", "FACDB_DATASET", "FACDB_COLUMNS"]
 
 log = logging.getLogger(__name__)
 
-FACDB_URL = "https://data.cityofnewyork.us/resource/ji82-xba5.json"
+#: The Socrata dataset id (on NYC_OPEN_DATA).
+FACDB_DATASET = "ji82-xba5"
 
 FACDB_COLUMNS: tuple[str, ...] = (
     "uid",
@@ -95,10 +98,12 @@ def fetch_facdb(
     select = ",".join(columns)
     log.info("fetch: FacDB — where=%s", where)
     return fetch_socrata(
-        FACDB_URL,
+        NYC_OPEN_DATA,
+        FACDB_DATASET,
         where=where,
         select=select,
         cache_path=cache_path,
         limit=limit,
         refresh=refresh,
+        frame="polars",
     )

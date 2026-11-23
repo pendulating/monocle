@@ -1,8 +1,8 @@
 """Fetch subway entrances/exits from NY State Open Data (``i9wp-a4ja``).
 
 This is a **state** Socrata host (``data.ny.gov``), not the city one
-(``data.cityofnewyork.us``) — the SoQL semantics are identical and the
-shared :mod:`..socrata` paginator handles it transparently.
+(``data.cityofnewyork.us``). The SoQL is the same, and the framework reader
+``dagspaces.sources.opendata.socrata.fetch_socrata`` reads both hosts.
 """
 
 from __future__ import annotations
@@ -10,13 +10,16 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Optional
 
-from ..socrata import FetchResult, fetch_socrata
+from dagspaces.sources.opendata.socrata import FetchResult, fetch_socrata
 
-__all__ = ["fetch_subway_entrances", "SUBWAY_URL", "SUBWAY_COLUMNS"]
+from .. import NY_STATE_OPEN_DATA
+
+__all__ = ["fetch_subway_entrances", "SUBWAY_DATASET", "SUBWAY_COLUMNS"]
 
 log = logging.getLogger(__name__)
 
-SUBWAY_URL = "https://data.ny.gov/resource/i9wp-a4ja.json"
+#: The Socrata dataset id (on NY_STATE_OPEN_DATA).
+SUBWAY_DATASET = "i9wp-a4ja"
 
 SUBWAY_COLUMNS: tuple[str, ...] = (
     "division",
@@ -92,10 +95,12 @@ def fetch_subway_entrances(
     select = ",".join(columns)
     log.info("fetch: subway entrances — where=%s", where)
     return fetch_socrata(
-        SUBWAY_URL,
+        NY_STATE_OPEN_DATA,
+        SUBWAY_DATASET,
         where=where,
         select=select,
         cache_path=cache_path,
         limit=limit,
         refresh=refresh,
+        frame="polars",
     )

@@ -55,10 +55,10 @@ class TestFetchClause:
     def test_where_always_requires_coords(self, monkeypatch):
         captured = {}
 
-        def fake_fetch_socrata(url, *, where, select, **_kw):
+        def fake_fetch_socrata(domain, dataset_id, *, where, select, **_kw):
             captured["where"] = where
             captured["select"] = select
-            from sv.nyc.curation.socrata import FetchResult
+            from dagspaces.sources.opendata.socrata import FetchResult
             return FetchResult(df=pl.DataFrame(), pages=0, total_rows=0)
 
         import sv.nyc.curation.open_restaurants.fetch as fetch_mod
@@ -136,7 +136,7 @@ def synthetic_buildings() -> gpd.GeoDataFrame:
 
 
 def _make_fetch_result(df: pl.DataFrame):
-    from sv.nyc.curation.socrata import FetchResult
+    from dagspaces.sources.opendata.socrata import FetchResult
     return FetchResult(df=df, pages=1, total_rows=df.height, page_rows=[df.height])
 
 
