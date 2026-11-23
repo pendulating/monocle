@@ -56,7 +56,7 @@ Pipeline
    the unsteered baseline. A CONTROL direction (random unit vector, seed-777)
    run through the identical pipeline shows specificity.
 
-Env: klara, .venv-nightly + LD_PRELOAD (see research/monocle/monocle.sub). No GPU work
+Env: klara, the site venv + LD_PRELOAD (see research/monocle/monocle.sub). No GPU work
 happens on the CPU test venv — the pure helpers are dependency-injectable and
 covered by tests/test_jlens_steer.py.
 

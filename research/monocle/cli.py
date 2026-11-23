@@ -7,7 +7,7 @@ image-global distribution, and renders a PNG (and optional SVG) beside the
 parquet. Mirrors the extraction recipe in `monocle.validate` so the CLI and the
 phase-0 validator agree on geometry and scoring.
 
-Usage (via research/monocle/monocle.sub on klara, .venv-nightly + LD_PRELOAD):
+Usage (via research/monocle/monocle.sub on klara, the site venv + LD_PRELOAD):
     python -m research.monocle.cli --image /path/to/face.jpg
     python -m research.monocle.cli --recording-id W0D0M3OU --dataset brooklyn_2025_1k
     python -m research.monocle.cli --image a.jpg b.jpg --k 5 --alpha 0.5 --svg \
@@ -148,8 +148,8 @@ def _resolve_faces_by_path(
 ) -> list[ImageJob]:
     """Catalog-free fallback: build face paths from the deterministic layout
     ``{RAW_ROOT}/{dataset}/{group}/{recording_id}/faces/{F}.jpg`` where group
-    is the recording-id prefix bucket. Needed on GPU nodes whose venv lacks
-    duckdb (.venv-nightly). No NFS tree walking — at most one single-level
+    is the recording-id prefix bucket. Needed when the venv has no duckdb.
+    No NFS tree walking — at most one single-level
     glob when the prefix guess misses."""
     import glob
 
@@ -250,8 +250,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     if not args.no_render:
         from research.monocle import render as render  # noqa: PLC0414 (lazy: written concurrently)
 
-    # Layer mode: load the fitted lens + unembed wrapper ONCE (jlens lives in
-    # .venv-nightly, so these imports stay lazy — only touched with --jlens).
+    # Layer mode: load the fitted lens + unembed wrapper ONCE (the imports stay
+    # lazy: only --jlens needs jlens).
     lens = lens_model = None
     layers = None
     jlens_read = None

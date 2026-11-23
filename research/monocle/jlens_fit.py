@@ -13,7 +13,7 @@ size and dim_batch dominate, NOT the number of source layers. Run --smoke
 first to calibrate dim_batch on the actual GPU, then shard the real fit
 across jobs and merge (JacobianLens.merge is n_prompts-weighted).
 
-Usage (klara, .venv-nightly + LD_PRELOAD — see research/monocle/monocle.sub):
+Usage (klara, the site venv + LD_PRELOAD — see research/monocle/monocle.sub):
     sbatch research/monocle/monocle.sub monocle.jlens_fit --smoke
     sbatch research/monocle/monocle.sub monocle.jlens_fit --shard 0/4
     ... (shards 1/4..3/4) then:

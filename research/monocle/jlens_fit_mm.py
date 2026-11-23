@@ -33,7 +33,7 @@ Two load-bearing invariants (wiki concept-jlens-monocle "Gotchas"):
       double-BOS every subsequent multimodal build_inputs on the SHARED
       processor tokenizer.
 
-Usage (klara, .venv-nightly + LD_PRELOAD -- see research/monocle/monocle.sub):
+Usage (klara, the site venv + LD_PRELOAD -- see research/monocle/monocle.sub):
     sbatch research/monocle/monocle.sub monocle.jlens_fit_mm --smoke
     sbatch research/monocle/monocle.sub monocle.jlens_fit_mm --shard 0/4
     ... (shards 1/4..3/4) then merge with the text fitter's --merge:

@@ -61,10 +61,7 @@ def answer_gradients(
     backward from the contrast. The gradient at every recorded block comes
     from that single backward.
     """
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
     root = min(layers)

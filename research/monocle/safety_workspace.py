@@ -52,7 +52,7 @@ The 4-way collapse (documented in the output metadata): the first tokens of
 tokenizer), so the first-token classes are {Much*, Less, Same, More}. Ordinal
 agreement is reported on this collapsed scale (see `collapsed_index`).
 
-Environment: klara, `.venv-nightly` + LD_PRELOAD libstdc++ (research/monocle/monocle.sub).
+Environment: klara, the site venv `.venv-vllm025cu129` + LD_PRELOAD libstdc++ (research/monocle/monocle.sub).
 NO GPU is needed for the CPU test-suite (tests/test_safety_workspace.py) —
 every jlens / transformers / model import is deferred into the GPU code paths.
 """
@@ -130,13 +130,10 @@ def log(m: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Two-venv import fallback (jlens is installed in .venv-nightly, not .venv).
+# A lazy import: only the capture needs jlens.
 # ---------------------------------------------------------------------------
 def _load_activation_recorder():
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
     return ActivationRecorder
 
 

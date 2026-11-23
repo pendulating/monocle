@@ -134,10 +134,7 @@ def contrast_and_answer_acts(
     token of every row, which holds because each row drops the same number
     of image tokens.
     """
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
     at = sorted(set(layers) | {final})
@@ -190,10 +187,7 @@ def natural_read(
 ) -> tuple[pd.DataFrame, np.ndarray]:
     """Batch-1 forward per eval image: ``c``, the model's own logit_diff,
     and the answer residual at each layer."""
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
     at = sorted(set(layers) | {final})

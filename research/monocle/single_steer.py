@@ -34,7 +34,7 @@ The text mirrors the canonical contract shape (subject line, question, label
 list, JSON instruction) and the forward is teacher-forced with the same
 ``{"answer": "`` prefix, so the last position emits the answer word.
 
-Env: klara, .venv-nightly + LD_PRELOAD (see research/monocle/monocle.sub). The pure
+Env: klara, the site venv + LD_PRELOAD (see research/monocle/monocle.sub). The pure
 helpers are CPU-testable (tests/test_single_steer.py).
 
 Usage:
@@ -504,10 +504,7 @@ def compute_direction_and_scales(
     """
     if positions_mode == "patches" and image_token_id is None:
         raise ValueError("positions_mode='patches' requires image_token_id")
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
     record_at = sorted(set(layers) | {final})
@@ -787,10 +784,7 @@ def run_experiment(args: argparse.Namespace) -> int:
                 for name in arms}
 
     # ---- depth read + steering sweep ---------------------------------------
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     done: set = set()
     records: list[dict] = []

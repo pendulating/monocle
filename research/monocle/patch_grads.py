@@ -56,10 +56,7 @@ def patch_gradients(model, lens_model, inputs: dict, layers: list[int],
                     slots: list[int], tok_pos: int, tok_neg: int):
     """``(grads {l: [n_cells, d]}, resid {l: [n_cells, d]}, answer_grads
     {l: [d]}, c)`` from one forward and one backward."""
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
     at = sorted(set(layers) | {final})

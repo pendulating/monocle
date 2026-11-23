@@ -39,10 +39,7 @@ def log(msg: str) -> None:
 
 
 def _load_lens_class():
-    try:
-        from jlens import JacobianLens
-    except ModuleNotFoundError:
-        from jlens import JacobianLens
+    from jlens import JacobianLens
     return JacobianLens
 
 

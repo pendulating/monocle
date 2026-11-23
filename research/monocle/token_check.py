@@ -8,8 +8,8 @@ rule, under the same call the scorer makes: `tokenizer.encode(word,
 add_special_tokens=False)` on the bare word. The space-prefixed form counts
 for the contract metric (`polar_variant_ids`), thus it prints too.
 
-    .venv-nightly/bin/python research/monocle/token_check.py                # the catalogue
-    .venv-nightly/bin/python research/monocle/token_check.py homeless gang  # your words
+    .venv-vllm025cu129/bin/python research/monocle/token_check.py             # the catalogue
+    .venv-vllm025cu129/bin/python research/monocle/token_check.py homeless gang  # your words
 
 Each word prints in 4 forms: bare, Capitalized, space-prefixed, and
 space-prefixed Capitalized. `ok` marks a form that is exactly 1 token.
