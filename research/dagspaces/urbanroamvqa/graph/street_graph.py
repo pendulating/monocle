@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple
 #   "absolute" — bearings are compass-fixed: F=North, R=East, B=South, L=West.
 #       Cyclomedia NYC cube faces are rendered in this globally-oriented frame
 #       (camera orientation is ~0° on 100% of NYC rows; verified 2026-04-22,
-#       see sv.cyclomedia_catalog.indexer._compute_bearing).
+#       see dagspaces.sources.cyclomedia.indexer._compute_bearing).
 #   "relative" — bearings are offsets from the recording yaw (vehicle heading),
 #       for datasets whose panoramas are vehicle-oriented.
 FACE_BEARING_DEG: Dict[str, float] = {

@@ -1,7 +1,7 @@
 # Tiny test dataset: Single location (6 images)
 # For quick pipeline validation
 
-handler: sv.ocr.cyclomedia_handler:CyclomediaHandler
+handler: dagspaces.sources.cyclomedia.ocr:CyclomediaHandler
 
 # Single location for minimal testing
 image_path: "/share/ju/cyclomedia/raw/bronx_2025_1k/W0ETZ/W0ETZ9YV"

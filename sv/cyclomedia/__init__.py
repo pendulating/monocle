@@ -1,10 +1,12 @@
-"""Interactive access to the materialised Cyclomedia NYC street-view database.
+"""Access to the Cyclomedia NYC street-view data, for the browser notebook.
 
-Backs ``research/notebooks/cyclomedia/browser.py``. Three layers:
+The code is in image-forward (``dagspaces.sources.cyclomedia``). These
+modules keep the old import paths for ``research/notebooks/cyclomedia/browser.py``
+and the research scripts:
 
-* :mod:`.catalog` -- DuckDB over the 31.5M-row face catalog; spatial queries.
-* :mod:`.cubemap` -- cube-face geometry; unfolded cross and equirectangular panorama.
-* :mod:`.depth`   -- depth-map decoding (relative only; see the module docstring).
+* :mod:`.catalog` -- DuckDB over the face catalog, with the NYC folders.
+* :mod:`.cubemap` -- the cube geometry (a copy of the names of the framework module).
+* :mod:`.depth`   -- the depth-map decode (the same).
 """
 
 from . import catalog, cubemap, depth
