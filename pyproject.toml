@@ -104,7 +104,7 @@ flash-attn = [{ requirement = "torch", match-runtime = true }, "ninja", "packagi
 # The framework. Change the rev to take a new image-forward commit, then run
 # `uv lock`. On the cluster, the site venv holds an editable install of the
 # image-forward checkout instead (see README.md).
-image-forward = { git = "ssh://git@github.com/pendulating/image-forward", rev = "3fcde573a246c58415e3d6fb179e0e125d024833" }
+image-forward = { git = "ssh://git@github.com/pendulating/image-forward", rev = "b5569049479c8cb2532516b8ba36291361c54c16" }
 vllm = { url = "https://github.com/vllm-project/vllm/releases/download/v0.25.0/vllm-0.25.0%2Bcu129-cp38-abi3-manylinux_2_28_x86_64.whl" }
 torch = { index = "pytorch-cu129" }
 torchvision = { index = "pytorch-cu129" }
