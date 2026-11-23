@@ -15,15 +15,15 @@ things that each break the lens read:
 
 | Mismatch | Old monocle build | Canonical battery |
 |---|---|---|
-| Image layout | ``images_then_text`` | ``images_then_labels`` (see ``REQUIRED_LAYOUT``) |
+| Image layout | ``images_then_text`` | ``interleaved_labels`` (see ``REQUIRED_LAYOUT``) |
 | System turn | a persona string | ``system: null`` — no system turn |
 | Abstention | 5 labels, no NotSure | NotSure in the enum + a guidance line |
 
 The layout mismatch is the worst of the three. The registry gate demands
-``images_then_labels`` for gemma-4-12b because that architecture does not bind
-image B without the text anchor between the two images. A lens read under
-``images_then_text`` measures a different forward pass, so every per-patch map
-over image B would be wrong.
+``interleaved_labels`` for gemma-4-12b. It puts a text anchor before each
+image, so the arch binds both images. A lens read under ``images_then_text``
+measures a different forward pass, so every per-patch map over image B would
+be wrong.
 
 Source of truth
 ---------------
@@ -117,16 +117,17 @@ ORDINAL = ("MuchLess", "Less", "Same", "More", "MuchMore")
 
 NOT_SURE = "NotSure"
 
-#: The ONLY layout a lens read may use, from 2026-08-20:
-#: image A, "Image A.", image B, "Image B.", prompt. It keeps text BETWEEN the
-#: two images (the arch reads adjacent images as one) AND opens the message
-#: with an image (the gemma-4 card asks for that order).
+#: The layout of the canonical run, from the decision of 2026-09-02:
+#: "Image A:", image A, "Image B:", image B, prompt. The anchor before each
+#: image makes the arch bind both images. The 1,000,000-pair gemma battery and
+#: the trace runs used it, thus the registry holds it. It is the same
+#: constant as `register_canonical_runs.REQUIRED_LAYOUT`.
 #:
-#: `interleaved_labels` is REJECTED. It was production until 2026-08-20, thus
-#: every run registered before that date warns here and needs a re-run.
+#: `images_then_labels` was the gate from 2026-08-20 to 2026-09-02. A run that
+#: records it warns here. It abstains more, thus it is a layout probe.
 #:
 #: Warning: the lens reads whatever the RUN recorded. It does not pick.
-REQUIRED_LAYOUT = "images_then_labels"
+REQUIRED_LAYOUT = "interleaved_labels"
 
 
 def log(m: str) -> None:
@@ -196,8 +197,8 @@ def prompt_cfg(case: str, kind: str = "proxy") -> DictConfig:
     layout = str(node.prompt.get("image_layout", "") or "")
     if layout != REQUIRED_LAYOUT:
         log(f"WARNING {case}/{kind}: recorded image_layout={layout!r}, not "
-            f"{REQUIRED_LAYOUT!r} — this run predates the layout of "
-            f"2026-08-20 and the lens read is not comparable")
+            f"{REQUIRED_LAYOUT!r} — this run does not use the canonical "
+            f"layout and the lens read is not comparable")
     return node
 
 
@@ -435,7 +436,7 @@ def build_conditions(
 
     Every arm is the canonical config with ONLY ``prompt.user_template``
     changed. The system turn stays absent, the layout stays
-    ``images_then_labels``, and the abstention guidance still appends. Thus a
+    ``interleaved_labels``, and the abstention guidance still appends. Thus a
     prod-vs-neutral difference measures the question, and nothing else.
 
     Warning: the pre-2026-08-11 build did not do this. Its neutral arm carried

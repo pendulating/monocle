@@ -163,14 +163,13 @@ a gemma-4-12b run may register with:
 
 | Layout | Block order | Status |
 |---|---|---|
-| `images_then_labels` | image, "Image A.", image, "Image B.", prompt | REQUIRED |
-| `interleaved_labels` | "Image A:", image, "Image B:", image, prompt | rejected |
+| `interleaved_labels` | "Image A:", image, "Image B:", image, prompt | REQUIRED |
+| `images_then_labels` | image, "Image A.", image, "Image B.", prompt | rejected |
 | `images_then_text` | image, image, prompt | rejected |
 
-Two rules meet in the required layout. Text must sit BETWEEN the two images,
-or the arch reads them as one image. An image must open the message, which is
-the modality order the gemma-4 card asks for. `interleaved_labels` keeps the
-first rule and breaks the second, thus it no longer registers.
+Text must sit BETWEEN the two images, or the arch reads them as one image.
+`interleaved_labels` does this and abstains less. The decision of 2026-09-02
+made it the canonical layout.
 
-Every run registered before 2026-08-20 used `interleaved_labels`. They fail
-`verify` by design, and the failure names the case to re-run.
+A run that used `images_then_labels` (2026-08-20 to 2026-09-02) fails `verify`
+by design, and the failure names the case to re-run.

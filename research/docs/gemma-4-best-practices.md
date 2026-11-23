@@ -140,9 +140,9 @@ reason for the switch, and the abstention cost weighs more. Thus:
   gemma half has NOT.
 - The text-first probe of the canonical layout is `text_first_interleaved`
   (prompt, "Image A:", A, "Image B:", B), added 2026-09-02.
-- `research/monocle/canonical.py` and `tests/test_canonical_prompt.py` still demand
-  `images_then_labels`. The lens work of 2026-08-21 to 2026-09-01 was built
-  on that layout. Whether the lens follows this decision is OPEN.
+- `research/monocle/canonical.py` and `tests/test_canonical_prompt.py` demand
+  `interleaved_labels` now. The lens work of 2026-08-21 to 2026-09-01 was built
+  on `images_then_labels`. The lens reads the layout that the run recorded.
 
 **Decision 2026-08-20 (superseded): production moves to `images_then_labels`.**
 It obeys the card and it binds. These sweeps set it at the time:
