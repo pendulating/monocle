@@ -7,6 +7,7 @@ This folder holds the cluster settings of this site (the Cornell Tech
 |--------|---------|
 | `conf/common/hydra/launcher/` | The launchers of this cluster |
 | `conf/ocr/hydra/launcher/` | The OCR launcher with 4 GPUs (tensor parallel 2) |
+| `gpu-census.md` | The GPU census of the `gpu` partition (`scripts/gpu_census.py`) |
 
 The image-forward search-path plugin adds `site/conf/`, because the
 `[tool.image-forward] conf-roots` list in `pyproject.toml` names it.

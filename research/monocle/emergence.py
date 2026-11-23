@@ -1,7 +1,8 @@
 """Per-patch emergence-depth (ignition-layer) maps over cyclomedia faces.
 
-Phase-4 "rung A" of the Jacobian-lens monocle (see
-vault/context/wiki/concept-jlens-monocle.md). For every image patch we ask: at
+Phase-4 "rung A" of the Jacobian-lens monocle (see the wiki page
+concept-jlens-monocle.md; the wiki left git, and the tag
+archive/pre-cleanup-2026-11-21 holds it). For every image patch we ask: at
 what depth does its Jacobian-lens readout "lock on" to what the model itself
 will finally say at that position? The Jacobian lens gives per-patch vocab
 logits at the fitted layers {6,12,18,24,30,36,42,46}; layer 47 (final) is the

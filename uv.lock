@@ -1130,9 +1130,30 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+curation = [
+    { name = "geopandas" },
+    { name = "opencv-python-headless" },
+    { name = "pyogrio" },
+    { name = "pyproj" },
+    { name = "rasterio" },
+    { name = "requests" },
+    { name = "shapely" },
+]
+cyclomedia = [
+    { name = "duckdb" },
+    { name = "matplotlib" },
+    { name = "polars" },
+    { name = "polars-st" },
+    { name = "pyproj" },
+    { name = "shapely" },
+]
 embed = [
     { name = "scikit-learn" },
     { name = "scipy" },
+]
+gdal = [
+    { name = "pyogrio" },
+    { name = "rasterio" },
 ]
 langextract = [
     { name = "absl-py" },
@@ -1677,38 +1698,22 @@ notebooks = [
     { name = "wordcloud" },
 ]
 research = [
-    { name = "duckdb" },
-    { name = "geopandas" },
     { name = "gepa" },
     { name = "huggingface-hub" },
+    { name = "image-forward", extra = ["curation", "cyclomedia", "gdal"] },
     { name = "jlens" },
-    { name = "matplotlib" },
     { name = "networkx" },
     { name = "opencv-python-headless" },
     { name = "osmnx" },
     { name = "peft" },
-    { name = "polars" },
-    { name = "polars-st" },
-    { name = "pyproj" },
-    { name = "rasterio" },
-    { name = "requests" },
-    { name = "shapely" },
     { name = "statsmodels" },
     { name = "timm" },
     { name = "trueskill" },
     { name = "webdataset" },
 ]
 urban = [
-    { name = "duckdb" },
-    { name = "geopandas" },
-    { name = "matplotlib" },
+    { name = "image-forward", extra = ["curation", "cyclomedia", "gdal"] },
     { name = "osmnx" },
-    { name = "polars" },
-    { name = "polars-st" },
-    { name = "pyproj" },
-    { name = "rasterio" },
-    { name = "requests" },
-    { name = "shapely" },
 ]
 
 [package.dev-dependencies]
@@ -1720,29 +1725,21 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "duckdb", marker = "extra == 'urban'", specifier = ">=1.5.4" },
-    { name = "geopandas", marker = "extra == 'urban'", specifier = ">=1.1.2" },
     { name = "gepa", marker = "extra == 'research'", specifier = "==0.1.1" },
     { name = "huggingface-hub", marker = "extra == 'research'", specifier = ">=1.0" },
+    { name = "image-forward", extras = ["cyclomedia", "gdal", "curation"], marker = "extra == 'urban'", git = "ssh://git@github.com/pendulating/image-forward?rev=cb9089421b2032c4813ad38a4195f1d3ac1e498e" },
     { name = "image-forward", extras = ["wandb", "embed", "langextract", "speech"], git = "ssh://git@github.com/pendulating/image-forward?rev=cb9089421b2032c4813ad38a4195f1d3ac1e498e" },
     { name = "ipykernel", marker = "extra == 'notebooks'", specifier = ">=7.2.0" },
     { name = "jlens", marker = "extra == 'research'", git = "https://github.com/pendulating/jacobian-lens?rev=7201af51a6b0206cc5cbf963cd78605b3ae9e1f1" },
     { name = "marimo", marker = "extra == 'notebooks'", specifier = ">=0.23.3" },
     { name = "matplotlib", marker = "extra == 'notebooks'", specifier = ">=3.10.8" },
-    { name = "matplotlib", marker = "extra == 'urban'", specifier = ">=3.10.8" },
     { name = "monocle", extras = ["urban"], marker = "extra == 'research'" },
     { name = "networkx", marker = "extra == 'research'", specifier = ">=3.0" },
     { name = "opencv-python-headless", marker = "extra == 'research'", specifier = ">=4.10" },
     { name = "osmnx", marker = "extra == 'urban'", specifier = ">=2.0.0" },
     { name = "peft", marker = "extra == 'research'", specifier = ">=0.14.0" },
     { name = "plotly", marker = "extra == 'notebooks'", specifier = ">=6.9.0" },
-    { name = "polars", marker = "extra == 'urban'", specifier = ">=1.39.3" },
-    { name = "polars-st", marker = "extra == 'urban'", specifier = ">=0.7.0" },
-    { name = "pyproj", marker = "extra == 'urban'", specifier = ">=3.6" },
-    { name = "rasterio", marker = "extra == 'urban'", specifier = ">=1.3.0" },
     { name = "ray", marker = "extra == 'cambrian'", specifier = ">=2.53.0" },
-    { name = "requests", marker = "extra == 'urban'", specifier = ">=2.31" },
-    { name = "shapely", marker = "extra == 'urban'", specifier = ">=2.0" },
     { name = "statsmodels", marker = "extra == 'research'", specifier = ">=0.14.6" },
     { name = "timm", marker = "extra == 'research'", specifier = ">=1.0.15" },
     { name = "trueskill", marker = "extra == 'research'", specifier = ">=0.4.5" },

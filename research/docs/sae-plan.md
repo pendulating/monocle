@@ -324,10 +324,10 @@ instead of it.
 |------|---------|
 | `research/monocle/sae_extract.py` | stage 1 |
 | `research/monocle/sae_train.py` | stage 2, the BatchTopK SAE |
-| `monocle/sae_census.py`, `scripts/sae_select.py` | stages 3 and 4 (the latent catalogue and the selection) |
-| `monocle/sae_steer.py`, `monocle/sae_writers.py` | stages 5 and 6 |
+| `research/monocle/sae_census.py`, `research/scripts/sae_select.py` (planned, not written) | stages 3 and 4 (the latent catalogue and the selection) |
+| `research/monocle/sae_steer.py`, `research/monocle/sae_writers.py` (planned, not written) | stages 5 and 6 |
 | `outputs/_monocle/sae/<ckpt>/<dict>/` | weights, metrics, catalogue, crops |
-| `research/docs/sae-results.md` | the results page |
+| `research/docs/sae-results.md` (planned, not written) | the results page |
 
 ## Related
 

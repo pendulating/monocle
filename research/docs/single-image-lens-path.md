@@ -50,7 +50,7 @@ answers are useful.
 
 | Piece | Value |
 |---|---|
-| prompt | `dagspaces/vqa/conf/prompt/rating_3point.yaml` |
+| prompt | `sv/conf/vqa/prompt/rating_2point.yaml` (the 3-point form is removed: its `Neutral` label collapsed, see the head of the file) |
 | pipeline | `sv/conf/vqa/pipeline/vqa_cyclomedia_rating.yaml` |
 | lens module | `research/monocle/single.py` |
 | label rule | `research/monocle/labels.py` |

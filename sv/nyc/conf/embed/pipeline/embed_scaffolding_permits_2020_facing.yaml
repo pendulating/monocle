@@ -5,7 +5,8 @@
 # faces that (a) sit inside the 80-ft buffer around any NYC DOB scaffold/shed
 # permit issued 2020-01-01 through 2025-12-31 AND (b) actually point toward
 # a permitted building (30-m forward-ray intersects coverage). See the data
-# config docstring + vault/context/wiki/scaffolding-permits-curation.md.
+# config docstring and the curation note scaffolding-permits-curation.md (it
+# left git; .dev_history/ and the tag archive/pre-cleanup-2026-11-21 hold it).
 #
 # Submit:
 #   python -m dagspaces.embed.cli -m pipeline=embed_scaffolding_permits_2020_facing

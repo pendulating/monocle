@@ -18,7 +18,7 @@ adds its own configs to the Hydra search path.
 | `research/docs/` | The research notes: experiments, results, runbooks |
 | `sv/` | The street-view data code: Cyclomedia, the catalog and the NYC curation, with their configs |
 | `site/` | The launchers of the Cornell Tech cluster (`pierson`, `ju`, `klara`) |
-| `scripts/` | Shims to the scripts of image-forward, and `build_browser_index.py` |
+| `scripts/` | Shims to the scripts of image-forward. The browser index is the `build_browser_index` stage of the image-forward `embed` dagspace (`pipeline=browser_index_cyclomedia`). |
 | `tests/` | The tests of the research and street-view code |
 
 ## The 2 checkouts

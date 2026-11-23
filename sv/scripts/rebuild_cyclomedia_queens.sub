@@ -29,7 +29,7 @@ echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
 
 source ~/.bashrc
 cd /share/ju/matt/mllmsci
-source .venv/bin/activate
+source /share/ju/matt/mllmsci/.venv-vllm025cu129/bin/activate
 
 export PATH="/share/ju/matt/.cargo/bin:${PATH}"
 echo "fd: $(which fd) $(fd --version)"

@@ -49,7 +49,7 @@ echo "MEM: $(free -g | awk 'NR==2{print $2}') GB"
 
 source ~/.bashrc
 cd /share/ju/matt/mllmsci
-source .venv/bin/activate
+source /share/ju/matt/mllmsci/.venv-vllm025cu129/bin/activate
 
 export OMP_NUM_THREADS="${SLURM_CPUS_ON_NODE:-16}"
 export POLARS_MAX_THREADS="${SLURM_CPUS_ON_NODE:-16}"

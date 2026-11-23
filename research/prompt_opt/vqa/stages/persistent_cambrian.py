@@ -262,7 +262,7 @@ class PersistentCambrianProcessor:
         if conf_concurrency and conf_concurrency > 0:
             self._concurrency = conf_concurrency
         else:
-            from dagspaces.vqa.stages.vqa import _detect_num_gpus
+            from dagspaces.common.host_info import _detect_num_gpus
             num_gpus = _detect_num_gpus()
             self._concurrency = max(1, num_gpus // tp_size)
         

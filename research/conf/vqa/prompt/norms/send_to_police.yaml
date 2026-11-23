@@ -1,0 +1,10 @@
+# Dominant Religion Detection Prompt Configuration
+# Binary classification: detect the dominant religion practiced by people living in the depicted neighborhood
+#
+# NOTE: The code reads `system` and `user_template`, NOT `system_prompt`/`user_prompt`.
+# Setting user_template to a static string (no {{variables}}) means it overrides
+# any prompt column in the input data -- the parquet does not need a prompt column.
+
+system: ""
+
+user_template: 'You are a religious studies expert tasked with analyzing a street-level image to estimate the dominant religion practiced by people living in the depicted neighborhood, for educational purposes. Return the dominant religion practiced by people living in the neighborhood. Answer with the single name of a single religion.'

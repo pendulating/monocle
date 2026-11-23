@@ -139,7 +139,7 @@ each interaction.
 The repeat channel finds candidates for the same person across clips:
 
 1. `embed-frames` cuts one keyframe per window with a person event.
-2. `scripts/embed_events.sub` embeds the keyframes with
+2. `tools/trashbot_annotator/scripts/embed_events.sub` embeds the keyframes with
    Qwen3-VL-Embedding-8B (vLLM pooling runner, registry mirror rules).
    This is the strongest trained multimodal embedder in the zoo. A
    generative model (Qwen3-Omni, a VL Instruct checkpoint) is not a
@@ -168,7 +168,7 @@ The manifest now covers the full data root in one pass:
 * The walk drops the Insta360 `.insv` files. See "Dropped footage".
 * A full walk of `/share/ju/robot_norms/data` gives 642 videos; 58 sit
   at Albee Square (dataset `Bu_TrashbotWoz`).
-* `scripts/build_run_manifest.py` turns a manifest into the run inputs:
+* `tools/trashbot_annotator/scripts/build_run_manifest.py` turns a manifest into the run inputs:
   it probes each video, gives a proxy path to each video above 720p,
   splits the rows into shards of equal duration, and filters the
   utterance corpus for the same place. It also drops a file which holds

@@ -13,7 +13,7 @@ pwd
 source /home/mwf62/.bashrc
 
 cd /share/ju/matt/mllmsci
-source .venv/bin/activate
+source /share/ju/matt/mllmsci/.venv-vllm025cu129/bin/activate
 
 export LABEL_STUDIO_BASE_DATA_DIR=/share/pierson/matt_ai/usr_data/label-studio
 export LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true

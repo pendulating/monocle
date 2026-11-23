@@ -183,7 +183,7 @@ the vLLM 0.25 upgrade is in `.dev_history/`.
   - `sv/nyc/curation/` — The NYC Socrata curation (`python -m sv.nyc.curation`).
   - `sv/conf/`, `sv/nyc/conf/` — The dataset configs, in `common/` (all dagspaces) and `<dagspace>/` folders.
   - `sv/scripts/`, `sv/nyc/scripts/`, `sv/tests/`, `sv/nyc/tests/` — The data scripts and their tests.
-  - `sv/docs/` — The design notes of the catalog and the NYC curation.
+  - The design notes of the catalog and of the NYC curation left git. `.dev_history/` holds them. `docs/sources-cyclomedia.md` in image-forward is the catalog guide.
 - `research/` — The research code. The framework does not import it. The editable install maps `research` and `sv`.
   - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`. `readout.py` is the core of the `lensread` dagspace.
   - `research/notebooks/` — The analysis notebooks (cvpr, facct).
@@ -195,7 +195,7 @@ the vLLM 0.25 upgrade is in `.dev_history/`.
   - `research/conf/` — The research configs: the pairwisevqa batteries (`pipeline/`, `prompt/`, `sweep/`, `extract/`) and the GEPA configs. The plugin adds them to the search path.
   - `research/ic/` — The Integrative Complexity schema, codes, examples and the `ic_extract` stage. A pipeline adds the stage with `pipeline.stage_runners`.
   - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). `gepa` is in the `research` extra.
-- `scripts/` — Shims to the scripts of image-forward (`_image_forward_home.sh` finds the checkout), and `build_browser_index.py`.
+- `scripts/` — Shims to the scripts of image-forward (`_image_forward_home.sh` finds the checkout). The browser index is the `build_browser_index` stage of the `embed` dagspace (`sv/conf/embed/pipeline/browser_index_cyclomedia.yaml`).
 - `conftest.py` — Loads `server.env`, sets the markers `gpu`, `slurm` and `data`, and gives the path fixtures. CI (`.github/workflows/ci.yml`) runs `pytest -m "not gpu and not slurm and not data"` and ruff.
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
 - `.dev_history/` — Gitignored. The development history: the cleanup plan, upgrade logs, incident reports, reviews and proposals.

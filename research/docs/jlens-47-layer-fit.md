@@ -5,7 +5,7 @@ gemma-4-12B, not at the 8 blocks of the first fit.
 
 ## Why more layers
 
-The fitted causal reader (`research/docs/fitted-causal-reader.md`)
+The fitted causal reader (the fitted ablation predictor, [causal-patch-reader-tools.md](causal-patch-reader-tools.md))
 reads a patch from `g * h`. It needs a lens at the layer it reads. The first
 multimodal fit covered 8 blocks, so a question about another depth had no
 answer. This fit covers blocks 0 to 46, with block 47 as the target.

@@ -365,7 +365,7 @@ folder, must be public for that step.
 **The download for reviewers (2026-11-03).** Anonymous GitHub shows the repository, but it does
 not serve the site (the pages fetch assets at `/artificial-aesthetic/...`). So the reviewer
 downloads the repository as a ZIP and runs `python3 serve.py` in it. `serve.py` (repository
-root, standard library only) serves `site/jlens-share` at the path `/artificial-aesthetic/`,
+root, standard library only) serves `artificial-aesthetic/site/jlens-share` at the path `/artificial-aesthetic/`,
 redirects `/` there, and opens the browser. The steps are the first section of the README.
 The check passes on a fresh copy of the tracked files served by `serve.py` (24 of 24 pages,
 624 of 624 readouts). One caution: the Anonymous GitHub term list must not match a word in
@@ -388,7 +388,7 @@ for a folder. So no change of the Pages setting is necessary, and the site is at
 `check_static.py --sandbox` serves a build with that header and no CORS, and the check passes
 (24 of 24 pages, 624 of 624 readouts); a click-through (index link, model tab, run link, Free
 Chat) passes too. The anonymized repository must be updated on Anonymous GitHub after each push.
-The size of `site/anon` is about 40 MB (each page carries its run twice: in the HTML and in the
+The size of `artificial-aesthetic/site/anon` is about 40 MB (each page carries its run twice: in the HTML and in the
 RSC payload).
 
 **To update the site.** Build with the command above, run the check with

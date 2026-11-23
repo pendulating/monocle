@@ -13,8 +13,9 @@ Two backends share one geometry/sizing core:
                      per-patch <title> tooltips listing all top-k tokens)
 
 The grid is n_rows x n_cols over the ORIGINAL image; patch (r, c) covers
-[c*W/n_cols, r*H/n_rows, (c+1)*W/n_cols, (r+1)*H/n_rows]. See
-vault/context/wiki/concept-activation-probe.md for the extraction recipe.
+[c*W/n_cols, r*H/n_rows, (c+1)*W/n_cols, (r+1)*H/n_rows]. The wiki page
+concept-activation-probe.md gives the extraction recipe. The wiki left git; the
+tag archive/pre-cleanup-2026-11-21 holds it.
 """
 from __future__ import annotations
 

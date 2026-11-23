@@ -26,13 +26,23 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
+from dagspaces.common.vllm_inference import filter_vllm_engine_kwargs
 from dagspaces.vqa.stages.vqa import (
     _build_guided_decoding_config,
     _ensure_json_schema_dict,
-    _filter_vllm_engine_kwargs,
+    _resolve_default_prompt,
 )
 
 LOG = logging.getLogger(__name__)
+
+
+def _sanitize_prompt_value(value: Any, cfg: DictConfig) -> str:
+    """Give the stripped prompt of a row, or the default prompt when it is empty.
+
+    This is a copy of the old helper of the vqa stage, which image-forward removed.
+    """
+    sanitized = ("" if value is None else str(value)).strip()
+    return sanitized or _resolve_default_prompt(cfg)
 
 # The local model folder (server.env). Empty: use the Hub ID.
 MODEL_ZOO_BASE = os.environ.get("IMAGE_FORWARD_MODEL_ZOO", "")
@@ -369,7 +379,7 @@ class PersistentVLLMProcessor:
             engine_kwargs["gpu_memory_utilization"] = gpu_mem_util
         
         # Filter out unsupported kwargs for current vLLM version
-        engine_kwargs = _filter_vllm_engine_kwargs(engine_kwargs)
+        engine_kwargs = filter_vllm_engine_kwargs(engine_kwargs)
         
         # For vision-language models, we may need limit_mm_per_prompt
         # Check multiple sources for multimodal detection
@@ -490,10 +500,7 @@ class PersistentVLLMProcessor:
         Returns:
             Tuple of (conversation_messages, metadata_dict)
         """
-        from dagspaces.vqa.stages.vqa import (
-            _sanitize_prompt_value,
-            _resolve_row_sample_id,
-        )
+        from dagspaces.vqa.stages.vqa import _resolve_row_sample_id
         
         row_values = dict(row)
         

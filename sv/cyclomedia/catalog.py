@@ -5,8 +5,8 @@ the NYC folders as defaults:
 
 * ``CATALOG_ROOT`` -- the face catalog (``/share/ju/cyclomedia/catalog/v1``).
 * ``RAW_ROOT`` -- the pull tree.
-* ``DEFAULT_INDEX_PATH`` -- the recording index of the browser (in ``data/``,
-  not in ``$HOME``, which has a small NFS quota).
+* ``DEFAULT_INDEX_PATH`` -- the recording index of the browser (in ``data/`` of
+  the project root, not in ``$HOME``, which has a small NFS quota).
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from typing import Optional
 import duckdb
 import pandas as pd
 
+from dagspaces.common.paths import project_root
 from dagspaces.sources.cyclomedia import recordings as _rec
 from dagspaces.sources.cyclomedia.recordings import (
     connect,
@@ -45,7 +46,8 @@ __all__ = [
 ]
 
 FACE_GLOB = os.path.join(CATALOG_ROOT, "by_dataset", "**", "*.parquet")
-DEFAULT_INDEX_PATH = "/share/ju/matt/mllmsci/data/cyclomedia/browser/recordings_v1.parquet"
+# The project root is IMAGE_FORWARD_PROJECT_ROOT, else the monocle checkout above the current folder.
+DEFAULT_INDEX_PATH = str(project_root() / "data" / "cyclomedia" / "browser" / "recordings_v1.parquet")
 
 
 def recording_dir(dataset: str, group: str, recording_id: str) -> str:

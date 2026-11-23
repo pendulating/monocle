@@ -14,7 +14,7 @@
 # = 30k for the OPF vision head). image_path is already an absolute /share/ju
 # path, so load_input_frame / _load_pairwise_manifest read it directly.
 #
-# Used by the urbanpairvqa street-photography case (pair_sampler.mode=image):
+# Used by the pairwisevqa street-photography case (pair_sampler.mode=image):
 # a 100k-pair run consumes ~220k image-slots, so against 500k blocks each block
 # is reused ~0.4x — most runs sample distinct blocks across all of NYC.
 

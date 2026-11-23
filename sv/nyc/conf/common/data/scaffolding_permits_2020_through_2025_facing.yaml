@@ -1,8 +1,9 @@
 # Cyclomedia images near NYC DOB scaffolding/shed permits issued 2020-01-01
 # through 2025-12-31, post-filtered to only faces that look at a permitted
 # building's 80-ft buffer (sv.nyc.curation.filter_facing; 30 m ray,
-# sampled at 3 points along the forward ray — see
-# vault/context/wiki/scaffolding-permits-curation.md).
+# sampled at 3 points along the forward ray — see the curation note
+# scaffolding-permits-curation.md: it left git, and .dev_history/ and the
+# tag archive/pre-cleanup-2026-11-21 hold it).
 #
 # Upstream pipeline (all under `curation/scaffolding_permits_2020_through_2025/`):
 #   1. `python -m sv.nyc.curation scaffolding-permits --since 2020-01-01 --cutoff 2025-12-31 --out <dir>`
@@ -32,7 +33,7 @@ columns:
 image_path: /share/ju/cyclomedia/raw
 
 # Metadata columns to preserve alongside the embedding in downstream output.
-# Superset of what urbanembed / raster / browser-index consumers read.
+# Superset of what the embed / raster / browser-index consumers read.
 metadata_columns:
   - recording_id
   - face

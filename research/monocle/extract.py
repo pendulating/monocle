@@ -2,8 +2,9 @@
 
 Reuses the exact production prompt path from the activation-probe work
 (`_gemma4_unified_chat_template` + `Gemma4UnifiedProcessor`) so the model we
-lens is the same one the pairvqa runs serve. See
-vault/context/wiki/concept-activation-probe.md for the verified recipe.
+lens is the same one the pairvqa runs serve. The wiki page
+concept-activation-probe.md gives the verified recipe. The wiki left git; the
+tag archive/pre-cleanup-2026-11-21 holds it.
 
 Off-by-one semantics: logits at sequence position i are the model's prediction
 for token i+1. We read logits *at* each patch position — "what would come next
