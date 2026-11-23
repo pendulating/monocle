@@ -1,0 +1,9 @@
+# @package _global_
+# The readout on the 10 example images of image-forward, with the F10 question.
+#
+#   dagspace research.dagspaces.lensread -m pipeline=readout_example
+defaults:
+  - readout
+  - override /data: example_images
+  - override /readout: f10
+  - _self_

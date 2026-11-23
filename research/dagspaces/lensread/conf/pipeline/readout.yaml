@@ -1,0 +1,23 @@
+# @package _global_
+# One node: the J-lens readout of each row of the data table.
+#
+#   dagspace research.dagspaces.lensread -m pipeline=readout data=<table> model=jpp_gemma-4-31b
+#   ... runtime.stage_launcher=null      # the stage in this process (a GPU node)
+#   ... readout=f10 readout.store=true   # the F10 positions, with the full store
+pipeline:
+  output_root: ${runtime.output_root}
+  allow_partial: false
+  graph:
+    nodes:
+      readout:
+        stage: readout
+        depends_on: []
+        outputs:
+          results: outputs/readout/results.parquet
+          answers: outputs/readout/answers.parquet
+          store: {path: outputs/readout/store, optional: true}
+        overrides:
+          runtime.debug: ${runtime.debug}
+          runtime.sample_n: ${runtime.sample_n}
+        launcher: ${runtime.stage_launcher}
+        wandb_suffix: readout

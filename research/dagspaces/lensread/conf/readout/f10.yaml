@@ -1,0 +1,17 @@
+# The 6 positions of the F10 stores (research/scripts/f10/hop_depth.POSITIONS),
+# for the question "Is this <noun> <adjective>? Answer with one word: yes or no."
+# Set readout.noun and readout.adjective (both 1 token, with a leading space).
+defaults:
+  - default
+  - _self_
+
+noun: place
+adjective: cool
+prompt: "Is this ${readout.noun} ${readout.adjective}? Answer with one word: yes or no."
+positions:
+  - {kind: head, n: 1, segment: text, label: after_image}
+  - {kind: match, text: "Is", occurrence: first, label: first_text}
+  - {kind: match, text: " ${readout.noun}", occurrence: first, label: place}
+  - {kind: match, text: " ${readout.adjective}", occurrence: first, label: after_place}
+  - {kind: match, text: "?", occurrence: first, label: after_cool}
+  - {kind: last, label: final}

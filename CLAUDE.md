@@ -146,7 +146,7 @@ ruff check .
 | The site settings | `server.env` in this repo (gitignored), with `IMAGE_FORWARD_HOME` |
 | The cluster launchers | `site/conf/common/hydra/launcher/`. They take the place of the generic launchers with the same name. See `site/README.md`. |
 | The framework scripts | `scripts/*.sh` and `scripts/*.py` are shims to `$IMAGE_FORWARD_HOME/scripts/` |
-| The research dagspaces | `research/dagspaces/`: `urbanroamvqa`, `urbanvit`, `opf_vision_labels`, `artifact_gen` |
+| The research dagspaces | `research/dagspaces/`: `urbanroamvqa`, `urbanvit`, `opf_vision_labels`, `artifact_gen`, `lensread` (J-lens readouts, see `research/docs/lensread.md`) |
 | A project stage | `pipeline.stage_runners` in a pipeline (for example `research/ic/` adds `ic_extract`) |
 
 The dataset configs (Cyclomedia, NYC, bayflood, nexar) are in `sv/conf/` and
@@ -181,7 +181,7 @@ the vLLM 0.25 upgrade is in `.dev_history/`.
   - `sv/scripts/`, `sv/nyc/scripts/`, `sv/tests/`, `sv/nyc/tests/` — The data scripts and their tests.
   - `sv/docs/` — The design notes of the catalog and the NYC curation.
 - `research/` — The research code. The framework does not import it. The editable install maps `research` and `sv`.
-  - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`.
+  - `research/monocle/` — The interpretability code (the J-lens). Import it as `research.monocle`. `readout.py` is the core of the `lensread` dagspace.
   - `research/notebooks/` — The analysis notebooks (cvpr, facct).
   - `research/scripts/` — The experiment scripts (f4 to f10, batteries, exports).
   - `research/traces/` — The shard submitter of the trace extraction (`python -m research.traces.submit_trace_shards`).

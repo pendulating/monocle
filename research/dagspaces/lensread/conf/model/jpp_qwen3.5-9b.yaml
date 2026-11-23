@@ -1,0 +1,11 @@
+# qwen3.5-9b with its released J++ lens (koayon/jpp-lenses).
+# GPU: 1 GPU of 96 GB: 36 GB of weights at fp32 (decision D154: fp32).
+key: qwen3.5-9b
+model_dir: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Qwen3.5-9B
+lens_path: ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/outputs/_monocle/jlens/jpp/qwen3.5-9b/lens.pt
+# The number of blocks. The reads use range(0, n_layers, readout.layer_step).
+n_layers: 31
+dtype: float32
+# cuda:0 for 1 GPU. auto splits the model over the GPUs of the job.
+device_map: cuda:0
+launcher: slurm_gpu_preempt_big

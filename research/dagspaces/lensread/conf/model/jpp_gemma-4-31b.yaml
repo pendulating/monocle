@@ -1,0 +1,11 @@
+# gemma-4-31b with its released J++ lens (koayon/jpp-lenses).
+# GPU: 2 GPUs of 96 GB: 124 GB of weights at fp32 (decision D154: fp32).
+key: gemma-4-31b
+model_dir: ${oc.env:IMAGE_FORWARD_MODEL_ZOO}/Gemma-4-31B-it
+lens_path: ${oc.env:IMAGE_FORWARD_PROJECT_ROOT}/outputs/_monocle/jlens/jpp/gemma-4-31b/lens.pt
+# The number of blocks. The reads use range(0, n_layers, readout.layer_step).
+n_layers: 59
+dtype: float32
+# cuda:0 for 1 GPU. auto splits the model over the GPUs of the job.
+device_map: auto
+launcher: slurm_gpu_preempt_2x_big

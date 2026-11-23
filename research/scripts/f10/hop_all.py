@@ -64,15 +64,9 @@ __version__ = "1.2.0"
 
 BATCH = 256
 CLAIM_S = 30 * 60
-# The yes forms come first, then the no forms, in the same order. Qwen3.6-27B writes the
-# forms with a leading space, thus the no-space forms alone give a false margin.
-ANSWERS = ("Yes", "yes", " Yes", " yes", "No", "no", " No", " no")
-
-
-def pooled_margin(logits: torch.Tensor) -> torch.Tensor:
-    """Give log p(any yes form) - log p(any no form). The first half of the last axis holds the yes forms."""
-    half = logits.shape[-1] // 2
-    return torch.logsumexp(logits[..., :half], -1) - torch.logsumexp(logits[..., half:], -1)
+# ANSWERS (the 8 yes/no forms) and pooled_margin live in research/monocle/readout.py, with
+# parts. The F10 scripts import them from this module, thus it gives them again.
+from research.monocle.readout import ANSWERS, parts, pooled_margin  # noqa: E402,F401
 
 
 def claim(path: Path, me: str, stale: float = CLAIM_S) -> bool:
@@ -87,14 +81,6 @@ def claim(path: Path, me: str, stale: float = CLAIM_S) -> bool:
     os.write(fd, me.encode())
     os.close(fd)
     return True
-
-
-def parts(seq: list[int], image: int) -> tuple[list[int], list[int], list[int]]:
-    """Give the indices of the prefix, the patches and the tail. The patches must be 1 block."""
-    hits = [i for i, t in enumerate(seq) if t == image]
-    if not hits or hits != list(range(hits[0], hits[-1] + 1)):
-        raise RuntimeError("the patch tokens are not 1 block")
-    return list(range(hits[0])), hits, list(range(hits[-1] + 1, len(seq)))
 
 
 def tail_names(tail: list[int], named: dict[str, int]) -> list[str]:

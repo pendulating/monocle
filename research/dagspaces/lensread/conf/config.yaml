@@ -1,0 +1,41 @@
+# The config of lensread: J-lens readouts of (images, prompt) rows.
+# See research/docs/lensread.md.
+defaults:
+  - _self_
+  - data: example_images
+  - model: jpp_qwen3.5-9b
+  - readout: default
+  - optional pipeline: null
+
+experiment:
+  name: LENSREAD
+
+runtime:
+  debug: false
+  sample_n: null
+  output_root: null
+  # The CPU memory of the stage job. The weights load to the GPU (fp32).
+  job_memory_gb: 128
+  # The launcher of the stage job. The model config gives one that fits its
+  # GPU need. With null, the stage runs in the process of the CLI.
+  stage_launcher: ${model.launcher}
+
+wandb:
+  enabled: true
+  name_prefix: null
+  project: ${oc.env:WANDB_PROJECT,LENSREAD}
+  entity: ${oc.env:WANDB_ENTITY,null}
+  group: ${oc.env:WANDB_GROUP,""}
+  table_sample_rows: 1000
+  single_run: true
+
+hydra:
+  searchpath:
+    - pkg://dagspaces.common.conf
+  job:
+    name: ${experiment.name}
+  run:
+    dir: ${oc.env:HYDRA_RUN_DIR,outputs}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:HYDRA_SWEEP_DIR,multirun}/${now:%Y-%m-%d}_${experiment.name}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

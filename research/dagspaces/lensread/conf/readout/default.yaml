@@ -1,0 +1,30 @@
+# The default readout: the answer position, the last 8 tokens, the first 3
+# words after the image, and the 5 tokens whose lens read changes most between
+# layers. See research/docs/lensread.md for each selector kind.
+
+# The prompt of every row. With null, each row gives its own (column prompt).
+prompt: null
+# image_first or text_first: where the images go in the user turn.
+layout: image_first
+# Text after the generation prompt, for example '{\n  "answer": "' (a forced prefix).
+force_prefix: ""
+# The read layers: a list, or null for range(0, model.n_layers, layer_step).
+layers: null
+layer_step: 4
+# The top-k words of each (position, layer).
+top_k: 20
+# words: only the tokens ' [a-z]{3,}' (the F10 word list). all: the full vocabulary.
+vocab: words
+# The yes forms, then the no forms (margin = log p(any yes) - log p(any no)).
+# An empty list gives no margin.
+answer_forms: ["Yes", "yes", " Yes", " yes", "No", "no", " No", " no"]
+# Also write the reads over the word list and the residuals at each position
+# (float16 npy, outputs/readout/store/). About 6 MB for each position.
+store: false
+# The rows of 1 chunk. A rerun skips the done chunks.
+chunk_rows: 50
+positions:
+  - {kind: last}
+  - {kind: tail, n: 8, segment: all}
+  - {kind: head, n: 3, segment: text}
+  - {kind: top_delta, k: 5, metric: read_js, segment: all}
