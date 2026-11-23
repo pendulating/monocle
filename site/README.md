@@ -19,6 +19,11 @@ These launchers read `SLURM_PARTITION` (default `pierson`). The generic
 launchers read `IMAGE_FORWARD_SLURM_PARTITION`. See `server.env.example` in
 image-forward.
 
+`slurm_gpu_g3` sends a stage to 1 B300 GPU (288 GB) of the separate `g3`
+cluster. Its key `clusters: g3` needs image-forward with
+`dagspaces/common/slurm_clusters.py`. `IMAGE_FORWARD_G3_QOS` gives the QoS
+(default `g3`, preemptable; `nissenbaum` has priority).
+
 **Another cluster:** delete this folder, or write your own launchers here. The
 generic launchers of image-forward (`dagspaces/common/conf/hydra/launcher/`)
 work with `server.env` only.

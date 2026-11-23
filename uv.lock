@@ -1095,7 +1095,7 @@ wheels = [
 [[package]]
 name = "image-forward"
 version = "0.1.0"
-source = { git = "ssh://git@github.com/pendulating/image-forward?rev=b5569049479c8cb2532516b8ba36291361c54c16#b5569049479c8cb2532516b8ba36291361c54c16" }
+source = { git = "ssh://git@github.com/pendulating/image-forward?rev=b6a85f093270ec41028a279c8065e64201569a36#b6a85f093270ec41028a279c8065e64201569a36" }
 dependencies = [
     { name = "cloudpickle" },
     { name = "hydra-core" },
@@ -1713,7 +1713,7 @@ requires-dist = [
     { name = "duckdb", marker = "extra == 'urban'", specifier = ">=1.5.4" },
     { name = "geopandas", marker = "extra == 'urban'", specifier = ">=1.1.2" },
     { name = "huggingface-hub", marker = "extra == 'research'", specifier = ">=1.0" },
-    { name = "image-forward", extras = ["wandb", "embed", "langextract", "speech"], git = "ssh://git@github.com/pendulating/image-forward?rev=b5569049479c8cb2532516b8ba36291361c54c16" },
+    { name = "image-forward", extras = ["wandb", "embed", "langextract", "speech"], git = "ssh://git@github.com/pendulating/image-forward?rev=b6a85f093270ec41028a279c8065e64201569a36" },
     { name = "ipykernel", marker = "extra == 'notebooks'", specifier = ">=7.2.0" },
     { name = "jlens", marker = "extra == 'research'", git = "https://github.com/pendulating/jacobian-lens?rev=7201af51a6b0206cc5cbf963cd78605b3ae9e1f1" },
     { name = "marimo", marker = "extra == 'notebooks'", specifier = ">=0.23.3" },

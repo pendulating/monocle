@@ -118,13 +118,17 @@ done chunks. A chunk file of other rows stops the stage.
 | `jpp_gemma-4-31b` | 59 | 2 × 96 GB (`device_map: auto`) | `slurm_gpu_preempt_2x_big` |
 | `jpp_qwen3.6-27b` | 63 | 2 × 96 GB (`device_map: auto`) | `slurm_gpu_preempt_2x_big` |
 
+A B300 of the `g3` cluster (288 GB) holds each model on 1 GPU, as in the F10
+runs. Use the site launcher `slurm_gpu_g3`:
+
+```bash
+dagspace research.dagspaces.lensread -m hydra/launcher=local pipeline=readout \
+    model=jpp_gemma-4-31b model.device_map=cuda:0 runtime.stage_launcher=slurm_gpu_g3 ...
+```
+
 The lenses are in `outputs/_monocle/jlens/jpp/<model>/lens.pt` (from HF
 `koayon/jpp-lenses`). The weights come from `$IMAGE_FORWARD_MODEL_ZOO`, or from
 the node-local mirror when the node has one.
-
-**Note:** the F10 runs used 1 B300 on the `g3` cluster. submitit tracks a job
-with `sacct` and no `-M` option, thus a launcher for `g3` needs a change in
-image-forward first.
 
 ## Agreement with F10
 
