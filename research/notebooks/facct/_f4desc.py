@@ -93,9 +93,9 @@ for _p in (_HERE, REPO_ROOT / "research" / "notebooks" / "cvpr"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-import _f4 as F  # noqa: E402
-import _style as S  # noqa: E402
-import _traces as T  # noqa: E402
+from research.notebooks.facct import _f4 as F  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
+from research.notebooks.cvpr import _traces as T  # noqa: E402
 
 __version__ = "1.8.0"
 

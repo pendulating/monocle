@@ -34,8 +34,8 @@ import pandas as pd
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "f8"))
-from analyze_cue import ALPHA, CASES, MODEL_COLORS, MODEL_MARKERS, MODELS, S, bonferroni, read_parts  # noqa: E402
-from analyze_decoupled import paired  # noqa: E402
+from research.scripts.f8.analyze_cue import ALPHA, CASES, MODEL_COLORS, MODEL_MARKERS, MODELS, S, bonferroni, read_parts  # noqa: E402
+from research.scripts.f8.analyze_decoupled import paired  # noqa: E402
 
 __version__ = "1.1.0"
 

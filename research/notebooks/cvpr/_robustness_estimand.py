@@ -33,11 +33,11 @@ from typing import Dict, List, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-import _canonical as C
-import _provenance as prov
-import _proxy_arms as PA
-import _results_table as R
-import _unit_validation as UV
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr import _provenance as prov
+from research.notebooks.cvpr import _proxy_arms as PA
+from research.notebooks.cvpr import _results_table as R
+from research.notebooks.cvpr import _unit_validation as UV
 
 HERE = Path(__file__).resolve().parent
 OUT_DIR = HERE / "master" / "outputs"

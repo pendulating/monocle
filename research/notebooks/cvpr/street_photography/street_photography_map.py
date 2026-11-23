@@ -54,10 +54,10 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _maps as M
-    import _proxies as px
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _maps as M
+    from research.notebooks.cvpr import _proxies as px
+    from research.notebooks.cvpr import _style as style
 
     C.verify_or_raise()
     style.apply_house_style()

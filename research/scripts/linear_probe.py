@@ -41,7 +41,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "research" / "scripts"))
 
-from make_ranking import pool  # noqa: E402
+from research.scripts.make_ranking import pool  # noqa: E402
 
 
 def zscore(v: np.ndarray) -> np.ndarray:

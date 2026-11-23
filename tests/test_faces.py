@@ -20,7 +20,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
-import _faces as FX  # noqa: E402
+from research.notebooks.cvpr import _faces as FX  # noqa: E402
 
 
 def _synth(n_places=40, n_draws=6000, beta=None, theta_sd=1.0, noise=0.5,
@@ -290,7 +290,7 @@ def test_face_combo_is_unordered():
 # The constants
 # --------------------------------------------------------------------------
 def test_the_ordinal_map_matches_provenance():
-    import _provenance as prov
+    from research.notebooks.cvpr import _provenance as prov
 
     assert FX.ORDINAL_SCORE == prov.ORDINAL_SCORE
     assert FX.NOT_SURE == prov.NOT_SURE

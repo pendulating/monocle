@@ -291,7 +291,7 @@ def test_non_finite_read_raises():
 
 def test_hop_all_gives_the_same_helpers():
     sys.path.insert(0, str(ROOT / "research" / "scripts" / "f10"))
-    import hop_all
+    from research.scripts.f10 import hop_all
 
     assert hop_all.pooled_margin is R.pooled_margin
     assert hop_all.parts is R.parts

@@ -15,7 +15,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
-import _ic_v3 as I  # noqa: E402
+from research.notebooks.cvpr import _ic_v3 as I  # noqa: E402
 
 
 def _row(case, pair, presented, cls, text="x", start=None, end=None, **attrs):

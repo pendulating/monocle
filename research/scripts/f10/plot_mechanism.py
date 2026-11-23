@@ -14,7 +14,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 OUT = ROOT / "research/figures/f10/mechanism"
 REASON = ROOT / "research/figures/f10/reason"

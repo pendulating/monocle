@@ -59,7 +59,7 @@ for _p in (_CVPR, _HERE):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-import _cues_across as CA  # noqa: E402
+from research.notebooks.cvpr import _cues_across as CA  # noqa: E402
 
 __version__ = "1.3.0"
 
@@ -663,7 +663,7 @@ def place_table(model: str, arms: Optional[Dict[str, pd.DataFrame]] = None,
     | `f9_score` | yes 1, no -1, mixed or graded 0 |
     | `net_pairwise`, `net_f9` | (good - bad) / spans on the image of the restaurant (U5) |
     """
-    import _provenance as prov
+    from research.notebooks.cvpr import _provenance as prov
 
     run = pd.read_parquet(CANON / f"restaurants__{model}" / "results.parquet")
     run = run[run.repeat_idx == 0][["pair_id", "relative_label"]]
@@ -742,7 +742,7 @@ UNIT_LABEL = {"U1": "U1  P(category)", "U2": "U2  P(valence | category)",
 
 
 def _colour(model: str) -> str:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
     return S.PAL["teal"] if model.startswith("gemma") else S.PAL["blue"]
 
 
@@ -807,7 +807,7 @@ def plot_cues(cues: pd.DataFrame, n_label: int = 5):
     """The net valence of each U3 cue, pairwise (x) against F9 (y), 1 panel for each (model, case)."""
     import matplotlib.pyplot as plt
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     cells = [(m, c) for m in MODELS for c in CASES]
     fig, axes = plt.subplots(2, 2, figsize=(7.0, 6.4), sharex=True, sharey=True)

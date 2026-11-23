@@ -26,8 +26,8 @@ from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from analyze_cool import OUT, load_spans  # noqa: E402
-from analyze_logit import MODELS, SEED, holm  # noqa: E402
+from research.scripts.f10.analyze_cool import OUT, load_spans  # noqa: E402
+from research.scripts.f10.analyze_logit import MODELS, SEED, holm  # noqa: E402
 
 # The object list comes from the most frequent observations. A pattern is fixed before the tests.
 OBJECTS = {

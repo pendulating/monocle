@@ -46,8 +46,8 @@ from typing import Dict, Iterable, List, Optional, Sequence
 
 import pandas as pd
 
-import _provenance as P
-import _traces as T
+from research.notebooks.cvpr import _provenance as P
+from research.notebooks.cvpr import _traces as T
 
 __version__ = "1.4.0"
 
@@ -325,7 +325,7 @@ def registry_mismatch(root: Optional[str | Path] = None) -> List[str]:
     """
     import os
 
-    import _canonical as C
+    from research.notebooks.cvpr import _canonical as C
 
     reg = {(r.case, r.model_config): os.path.realpath(r.results_path)
            for r in C.runs(kind="trace")}
@@ -1259,7 +1259,7 @@ def unit_win_rates(
 
     rank_source = "trace"
     if proxy_rank:
-        import _canonical as C
+        from research.notebooks.cvpr import _canonical as C
 
         judge = str(part.judge_model.iloc[0]).split("/")[0]
         proxy = [r for r in C.runs(kind="proxy", case=case, model=judge) if r.case == case]
@@ -1441,7 +1441,7 @@ def plot_class_rates(
     """
     import matplotlib.pyplot as plt
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     table = class_rates(df, per=per)
     if table.empty:
@@ -1469,7 +1469,7 @@ def plot_risk_panel(df: pd.DataFrame, per: int = 100, title: Optional[str] = Non
     """Draw the risk rates: inference past the pixels, and people."""
     import matplotlib.pyplot as plt
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     table = risk_panel(df, per=per)
     if table.empty:
@@ -1519,7 +1519,7 @@ def plot_win_cloud(
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import TwoSlopeNorm, to_hex
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     table = win_rates(df, case, classes=classes, min_count=min_count)
     if table.empty:
@@ -1613,7 +1613,7 @@ def plot_win_block(
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import TwoSlopeNorm, to_hex
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     if table is None:  # the caller can give another score: `cue`, `shrunk_rate`, `base_rate`
         table = win_rates(df, case, classes=classes, min_count=min_count)
@@ -1770,7 +1770,7 @@ def plot_win_block_column(
     from matplotlib.colors import TwoSlopeNorm, to_hex
     from matplotlib.ticker import MaxNLocator
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     full = win_rates(df, case, classes=classes, min_count=min_count) if table is None else table
     if full.empty:
@@ -1891,7 +1891,7 @@ def _photo_row(
     from matplotlib.colors import TwoSlopeNorm
     from PIL import Image
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     if units.empty:
         return
@@ -2038,7 +2038,7 @@ def plot_win_bars(
     import matplotlib.pyplot as plt
     from matplotlib.colors import TwoSlopeNorm
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     table = win_rates(df, case, classes=classes, min_count=min_count)
     if table.empty:

@@ -50,8 +50,8 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _paradigm_kl as K
-    import _style as style
+    from research.notebooks.facct import _paradigm_kl as K
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
 

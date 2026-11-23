@@ -61,12 +61,12 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _ablations as A
-import _canonical as C
-import _geography as geo
-import _provenance as prov
-import _results_table as R
-import _style as S
+from research.notebooks.cvpr import _ablations as A
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr import _geography as geo
+from research.notebooks.cvpr import _provenance as prov
+from research.notebooks.cvpr import _results_table as R
+from research.notebooks.cvpr import _style as S
 
 __version__ = "1.1.0"
 
@@ -256,7 +256,7 @@ def match_rate(folder: str, model: str, arm: str,
 @lru_cache(maxsize=16)
 def _units_gdf(folder: str):
     """The point layer of the places of one case, filtered to its kind."""
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     spec = CASE_SPEC[folder]
     if spec["mode"] == "image":

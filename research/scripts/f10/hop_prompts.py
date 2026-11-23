@@ -51,12 +51,12 @@ from scipy.special import logsumexp
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from analyze_logit import SEED, cluster_r, holm  # noqa: E402
-from hop_borough import BOROUGHS, split_within, two_sample_t  # noqa: E402
-from hop_free import REPEATS, folds, kernel, oof_mixed, oof_predict, r2, ridge_fit  # noqa: E402
-from hop_outcomes import outcome  # noqa: E402
-from hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10.analyze_logit import SEED, cluster_r, holm  # noqa: E402
+from research.scripts.f10.hop_borough import BOROUGHS, split_within, two_sample_t  # noqa: E402
+from research.scripts.f10.hop_free import REPEATS, folds, kernel, oof_mixed, oof_predict, r2, ridge_fit  # noqa: E402
+from research.scripts.f10.hop_outcomes import outcome  # noqa: E402
+from research.scripts.f10.hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -1249,7 +1249,7 @@ def task8(A: dict, words: dict) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
 
 def place_probe_rows(A: dict) -> pd.DataFrame:
     """Relate the `urban` margin to the F10.18 place probes, where a probe exists. Qwen3.6-27B has none: an open item."""
-    from analyze_probe import margins as probe_margins
+    from research.scripts.f10.analyze_probe import margins as probe_margins
 
     rows = []
     for m in MODELS:
@@ -1410,7 +1410,7 @@ def figures() -> None:
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     order = prompt_order()

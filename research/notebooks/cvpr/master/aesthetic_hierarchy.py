@@ -110,11 +110,11 @@ def _():
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _canonical as C
-    import _style as style
-    import _trace_notebook as TN
-    import _traces as T
-    import _words_across as WA
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _trace_notebook as TN
+    from research.notebooks.cvpr import _traces as T
+    from research.notebooks.cvpr import _words_across as WA
 
     # The gate. Every figure comes from the registered trace runs, thus the
     # notebook stops here when the registry does not match the disk.

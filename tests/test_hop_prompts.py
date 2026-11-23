@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
-import hop_prompts as hp  # noqa: E402
+from research.scripts.f10 import hop_prompts as hp  # noqa: E402
 
 
 def test_store_name_maps_each_prompt_to_one_store():

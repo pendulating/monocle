@@ -27,7 +27,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "research" / "scripts"))
 
-from k1_image_stats import cell_stats  # noqa: E402
+from research.scripts.k1_image_stats import cell_stats  # noqa: E402
 
 AXIS_ROOT = REPO / "outputs/_monocle/single_steer_axis"
 COORD_ROOT = REPO / "outputs/_monocle/steer_coord"

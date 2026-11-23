@@ -55,7 +55,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import torch
 
-import lens_common as lc
+from research.scripts.whatami import lens_common as lc
 
 SAMPLE = lc.REPO / "data/whatami/sample_1k.parquet"
 RUNS = lc.REPO / "multirun/whatami/sample_1k"

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
-from hop_all import align_text, parts, tail_names  # noqa: E402
+from research.scripts.f10.hop_all import align_text, parts, tail_names  # noqa: E402
 
 
 def test_parts_split_the_prompt():

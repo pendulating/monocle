@@ -51,10 +51,10 @@ def _():
     if str(_shared) not in sys.path:
         sys.path.insert(0, str(_shared))
 
-    import _geography as geo
-    import _provenance as prov
-    import _proxies as px
-    import _proxies_parks as pk
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _provenance as prov
+    from research.notebooks.cvpr import _proxies as px
+    from research.notebooks.cvpr import _proxies_parks as pk
 
     return Path, geo, mo, pd, pk, prov, px
 

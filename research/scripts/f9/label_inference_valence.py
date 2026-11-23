@@ -116,7 +116,7 @@ def _context(sp: pd.DataFrame, texts: pd.Series) -> pd.DataFrame:
 
 def prepare() -> None:
     """Write the spans to label and the text table of the other 3 outcomes."""
-    import analyze_subjective as A
+    from research.scripts.f9 import analyze_subjective as A
 
     OUT.mkdir(parents=True, exist_ok=True)
     inputs, tables = [], []

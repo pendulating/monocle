@@ -161,10 +161,10 @@ def main() -> int:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    import _canonical as C
-    import _extractions as X
-    import _figmeta as FM
-    import _style as S
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _extractions as X
+    from research.notebooks.cvpr import _figmeta as FM
+    from research.notebooks.cvpr import _style as S
 
     C.verify_or_raise()
     S.apply_house_style()

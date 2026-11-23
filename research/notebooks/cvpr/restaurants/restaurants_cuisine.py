@@ -38,9 +38,9 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _cuisine as CU
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _cuisine as CU
+    from research.notebooks.cvpr import _style as style
 
     C.verify_or_raise()
     style.apply_house_style()

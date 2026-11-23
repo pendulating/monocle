@@ -113,7 +113,7 @@ def _path(root: str, filename: str) -> Path:
 @lru_cache(maxsize=2)
 def load_units() -> pd.DataFrame:
     """The one-row-per-CAMIS unit table of the DOHMH curation."""
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     return geo.load_facilities(CURATION_ROOT, filename=UNIT_TABLE)
 
@@ -370,7 +370,7 @@ def restaurant_proxy(metric: str = "inspection_score_history",
     applies no inspection floor. The 0 rows carry the information, thus a
     filter on the inspection record would change what the mean means.
     """
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     if metric not in METRICS:
         raise KeyError(f"unknown metric {metric!r}; use one of {list(METRICS)}")
@@ -489,7 +489,7 @@ def unit_rows(models: Sequence[str] = MODELS,
             units that THAT metric keeps, thus the n of each row is the same
             and a reader compares 2 rulers on one set of restaurants.
     """
-    import _unit_validation as U
+    from research.notebooks.cvpr import _unit_validation as U
 
     units = load_units()
     proxies = {m: restaurant_proxy(m, units=units) for m in metrics}
@@ -588,8 +588,8 @@ def area_export(recipe: Sequence[Dict[str, Any]],
     `proxy_window`. The layers come from `_geography.LAYERS`, thus the frame
     lines up with the model-score export of the same case.
     """
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     units = load_units() if units is None else units
     frames: List[pd.DataFrame] = []

@@ -51,8 +51,8 @@ import pandas as pd
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hop_all import ANSWERS, parts, pooled_margin  # noqa: E402
-from hop_depth import IMAGES, ROOT, ask, atomic_save  # noqa: E402
+from research.scripts.f10.hop_all import ANSWERS, parts, pooled_margin  # noqa: E402
+from research.scripts.f10.hop_depth import IMAGES, ROOT, ask, atomic_save  # noqa: E402
 
 __version__ = "1.2.1"
 
@@ -93,9 +93,9 @@ def main() -> None:
     from jlens.hooks import ActivationRecorder
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
-    from hop_store import ALL_ROOT, open_store
+    from research.scripts.f10.hop_store import ALL_ROOT, open_store
     from research.monocle import jlens_read
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     out = Path(args.out_dir)
     for sub in ("last", "metrics", "uncapped"):

@@ -31,7 +31,7 @@ import pandas as pd
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "research" / "notebooks" / "cvpr"))
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 MODELS = ["gemma-4-12b", "gemma-4-31b", "qwen3.5-9b", "qwen3.8-27b"]
 MODEL_COLORS = {"gemma-4-12b": S.PAL["periwinkle"], "gemma-4-31b": S.PAL["blue"],

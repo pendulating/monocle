@@ -54,9 +54,9 @@ import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 
-import _canonical as C  # noqa: E402
-import _ic_v3 as I  # noqa: E402
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _ic_v3 as I  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 __version__ = "1.1.0"
 

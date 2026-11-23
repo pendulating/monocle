@@ -84,7 +84,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import pandas as pd
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "notebooks", "cvpr"))
-import _extractions as X  # noqa: E402
+from research.notebooks.cvpr import _extractions as X  # noqa: E402
 
 __version__ = "1.6.0"
 

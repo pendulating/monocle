@@ -104,7 +104,7 @@ def model_label(name: str) -> str:
 
 def arm_label(arm: str) -> str:
     """`gemma_by_qwen27_v3` -> `Gemma-4-12B / Qwen3.8-27B` (judge / extractor)."""
-    import _extractions as X
+    from research.notebooks.cvpr import _extractions as X
     spec = X.ARMS.get(arm)
     if spec is None:
         return escape(arm)
@@ -113,7 +113,7 @@ def arm_label(arm: str) -> str:
 
 def case_label(case: str) -> str:
     """The printed name of a case, from `_words_across.case_label`."""
-    import _words_across as WA
+    from research.notebooks.cvpr import _words_across as WA
     return escape(WA.case_label(case))
 
 

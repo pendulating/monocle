@@ -61,12 +61,12 @@ def _():
 
     import marimo as mo
 
-    import _ablations as A
-    import _canonical as C
-    import _proxy_arms as PA
-    import _quantile_shift as Q
-    import _results_table as R
-    import _style as style
+    from research.notebooks.cvpr import _ablations as A
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _proxy_arms as PA
+    from research.notebooks.cvpr import _quantile_shift as Q
+    from research.notebooks.cvpr import _results_table as R
+    from research.notebooks.cvpr import _style as style
 
     # The gate. Every section reads a run of the canonical registry. Stop
     # when the registry no longer matches the disk, because then a table

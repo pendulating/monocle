@@ -63,7 +63,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-import _canonical as C
+from research.notebooks.cvpr import _canonical as C
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent.parent

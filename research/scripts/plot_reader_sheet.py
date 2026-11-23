@@ -23,8 +23,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_separation import sep_z, table  # noqa: E402
-from k1_layer_profile import pooled_ranks  # noqa: E402
+from research.scripts.k1_separation import sep_z, table  # noqa: E402
+from research.scripts.k1_layer_profile import pooled_ranks  # noqa: E402
 
 TEAL = "#498573"
 CORAL = "#e57264"

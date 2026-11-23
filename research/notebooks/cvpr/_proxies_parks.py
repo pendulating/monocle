@@ -50,7 +50,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import pandas as pd
 
-import _proxies as px
+from research.notebooks.cvpr import _proxies as px
 
 __version__ = "1.0.0"
 
@@ -335,7 +335,7 @@ def dot_plazas(use_cache: bool = True):
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     entry = {"resource_id": DOT_PLAZA_RESOURCE, "index": "dot-plazas"}
     df = px.fetch(entry, use_cache=use_cache,
@@ -365,7 +365,7 @@ def attach_dot_plaza(units_gdf,
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     poly = dot_plazas()
     if poly is None or len(poly) == 0:
@@ -437,7 +437,7 @@ def bid_polygons(use_cache: bool = True):
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     entry = {"resource_id": BID_RESOURCE, "index": "bid"}
     df = px.fetch(entry, use_cache=use_cache,
@@ -471,7 +471,7 @@ def plaza_bid_values(units_gdf,
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     poly = bid_polygons()
     pts = units_gdf.to_crs(geo.WORKING_CRS)[["unit_uid", "geometry"]].copy()

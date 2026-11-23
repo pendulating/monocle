@@ -70,9 +70,9 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _ic
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _ic
+    from research.notebooks.cvpr import _style as style
 
     # The gate. The corpus is 1 step downstream of the thinking runs, thus it
     # must come from the runs the registry names.
@@ -224,8 +224,8 @@ def _(mo):
 
 @app.cell
 def _(load_error, raw):
-    import _ic_words as W
-    import _traces as T
+    from research.notebooks.cvpr import _ic_words as W
+    from research.notebooks.cvpr import _traces as T
 
     if load_error:
         block_counts, block_sizes = {}, None

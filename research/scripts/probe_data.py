@@ -87,8 +87,8 @@ def load_dotenv_keys() -> None:
 def tract_frame():
     import geopandas as gpd
 
-    import _geography as geo
-    import _proxies as P
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as P
 
     tr = gpd.read_file(geo.LAYERS["census_tract"]["path"]).to_crs(geo.WORKING_CRS)
     tr["geoid"] = tr["geoid"].astype(str)
@@ -199,7 +199,7 @@ def main(argv=None) -> int:
                     help="keep the catalog join on disk")
     args = ap.parse_args(argv)
     sys.path.insert(0, str(CVPR))
-    import _proxies as P
+    from research.notebooks.cvpr import _proxies as P
 
     load_dotenv_keys()
     OUT.mkdir(parents=True, exist_ok=True)

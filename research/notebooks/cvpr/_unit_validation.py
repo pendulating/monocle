@@ -75,11 +75,11 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _ablations as A
-import _canonical as C
-import _geography as geo
-import _provenance as prov
-import _results_table as R
+from research.notebooks.cvpr import _ablations as A
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr import _geography as geo
+from research.notebooks.cvpr import _provenance as prov
+from research.notebooks.cvpr import _results_table as R
 
 __version__ = "1.1.0"
 
@@ -338,7 +338,7 @@ def roll_up_to_station(scores: pd.DataFrame) -> pd.DataFrame:
     The subway notebook calls the same function, thus the 2 paths cannot part
     company and `reconcile()` tests the rest of the road.
     """
-    import _proxies_subway as sub
+    from research.notebooks.cvpr import _proxies_subway as sub
 
     return sub.station_scores(scores)
 
@@ -378,7 +378,7 @@ def place_scores(folder: str, model: str, arm: str = CONTROL_ARM
 @lru_cache(maxsize=8)
 def _units_gdf(folder: str):
     """The point layer of the units of one case, filtered to its kind."""
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     spec = _spec(folder)
     if spec["mode"] == "image":
@@ -415,13 +415,13 @@ def unit_proxy(folder: str, proxy: Optional[str] = None
     headline. The road case gets None back: its proxy is a LINE layer, and the
     value reaches an image through the nearest-segment join in `unit_key`.
     """
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     spec = _spec(folder)
     proxy = spec["proxy"] if proxy is None else proxy
 
     if folder == "subway":
-        import _proxies_subway as sub
+        from research.notebooks.cvpr import _proxies_subway as sub
 
         out = sub.station_proxy(
             metric=proxy,
@@ -429,7 +429,7 @@ def unit_proxy(folder: str, proxy: Optional[str] = None
                                                       "proxy_value"]]
 
     elif folder == "restaurants":
-        import _proxies_restaurants as pr
+        from research.notebooks.cvpr import _proxies_restaurants as pr
 
         # `_proxies_restaurants` loads its own unit table, the same way the
         # case notebook does, and it routes an old metric to `_proxies`
@@ -440,14 +440,14 @@ def unit_proxy(folder: str, proxy: Optional[str] = None
         out = out[["proxy_key", "proxy_value"]]
 
     elif folder == "libraries":
-        import _proxies_buildings as pb
+        from research.notebooks.cvpr import _proxies_buildings as pb
 
         facilities = geo.load_facilities(spec["root"],
                                          filename=spec["unit_table"])
         out = pb.unit_proxy_by_bin(facilities, metric=proxy)
 
     elif folder == "plazas":
-        import _proxies_parks as pk
+        from research.notebooks.cvpr import _proxies_parks as pk
 
         facilities = geo.load_facilities(spec["root"],
                                          filename=spec["unit_table"])
@@ -479,7 +479,7 @@ def unit_proxy(folder: str, proxy: Optional[str] = None
 
     elif folder == "parks":
         if proxy == "park_acreage":
-            import _proxies_parks as pk
+            from research.notebooks.cvpr import _proxies_parks as pk
 
             # `proxy_key` is the DPR `gispropnum`, the same key that
             # `attach_park_property_id` writes. This is a SIZE measure.
@@ -517,7 +517,7 @@ def unit_key(folder: str, scores: pd.DataFrame) -> Optional[pd.DataFrame]:
     """
     import geopandas as gpd
 
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     spec = _spec(folder)
 

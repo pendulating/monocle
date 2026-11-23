@@ -40,9 +40,9 @@ from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from hop_prompts import ADJECTIVES, MODELS, NAMES, NOUNS, store_name
-from hop_prompts import frame as build_frame  # noqa: E402
-from hop_sense import SOCIAL, TEMPERATURE  # noqa: E402
+from research.scripts.f10.hop_prompts import ADJECTIVES, MODELS, NAMES, NOUNS, store_name
+from research.scripts.f10.hop_prompts import frame as build_frame  # noqa: E402
+from research.scripts.f10.hop_sense import SOCIAL, TEMPERATURE  # noqa: E402
 
 __version__ = "1.2.0"
 

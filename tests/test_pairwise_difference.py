@@ -17,7 +17,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "scripts"))
 
-import pairwise_vqa_difference_report as diff  # noqa: E402
+from research.scripts import pairwise_vqa_difference_report as diff  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

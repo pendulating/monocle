@@ -44,8 +44,8 @@ sys.path.insert(0, str(CVPR))
 
 import pandas as pd  # noqa: E402
 
-import _canonical as C  # noqa: E402
-import _faces as FX  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _faces as FX  # noqa: E402
 
 __version__ = "1.0.0"
 

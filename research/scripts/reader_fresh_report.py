@@ -52,7 +52,7 @@ from scipy.stats import spearmanr
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "research" / "scripts"))
-from disorder_rubric import lexicon_v1          # noqa: E402
+from research.scripts.disorder_rubric import lexicon_v1          # noqa: E402
 
 CASES = ["restaurants", "libraries", "subway_safety", "schools",
          "street_photography", "parks_plazas", "road_quality"]

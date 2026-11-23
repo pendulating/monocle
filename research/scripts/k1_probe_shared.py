@@ -27,8 +27,8 @@ import numpy as np
 from scipy.stats import wilcoxon
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_separation import bh, boot_ci, sep_z  # noqa: E402
-import k1_fitted_probe as fp  # noqa: E402
+from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
+from research.scripts import k1_fitted_probe as fp  # noqa: E402
 
 
 def score(w, A: dict, B: dict, keys: list[str]) -> tuple:

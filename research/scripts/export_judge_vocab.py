@@ -21,9 +21,9 @@ import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 
-import _canonical as C  # noqa: E402
-import _judge_vocab as J  # noqa: E402
-import _style as style  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _judge_vocab as J  # noqa: E402
+from research.notebooks.cvpr import _style as style  # noqa: E402
 
 #: Keep this equal to `NOTEBOOK_VERSION` of the notebook.
 NOTEBOOK_VERSION = "1.0.0"

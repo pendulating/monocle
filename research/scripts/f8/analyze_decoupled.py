@@ -32,7 +32,7 @@ import pandas as pd
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from analyze_cue import (ALPHA, CASES, MODEL_COLORS, MODEL_MARKERS, MODELS, READOUTS, WORD_RE,  # noqa: E402
+from research.scripts.f8.analyze_cue import (ALPHA, CASES, MODEL_COLORS, MODEL_MARKERS, MODELS, READOUTS, WORD_RE,  # noqa: E402
                          S, bonferroni, load_r3, read_parts)
 
 ARMS = ("w_poor", "n_match", "n_rich", "city")

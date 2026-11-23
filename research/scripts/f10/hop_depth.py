@@ -96,7 +96,7 @@ def main() -> None:
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
     from research.monocle import jlens_read
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     out = Path(args.out_dir)
     for sub in ("reads", "residuals", "topk", "answers"):

@@ -128,7 +128,7 @@ def main() -> int:
 
     if a.rank:
         sys.path.insert(0, str(REPO / "research" / "scripts"))
-        from make_ranking import pool
+        from research.scripts.make_ranking import pool
 
         df = pd.read_parquet(a.maps)
         # 2 layouts hold a map. The gate writes `target`/`causal`; the

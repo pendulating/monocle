@@ -39,9 +39,9 @@ from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-import _style as S  # noqa: E402
-from hop_evidence import nta_targets  # noqa: E402
-from hop_prompts import HOP_LOGIT, answer_store, store_name  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
+from research.scripts.f10.hop_evidence import nta_targets  # noqa: E402
+from research.scripts.f10.hop_prompts import HOP_LOGIT, answer_store, store_name  # noqa: E402
 
 __version__ = "1.2.0"
 

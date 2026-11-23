@@ -53,8 +53,8 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _f8 as F8
-    import _xacc as XA
+    from research.notebooks.facct import _f8 as F8
+    from research.notebooks.facct import _xacc as XA
 
     NOTEBOOK_VERSION = "1.0.0"
     return F8, XA, mo, pd

@@ -73,11 +73,11 @@ def main() -> int:
 
     import matplotlib
     matplotlib.use("Agg")
-    import _canonical as C
-    import _cues_across as CA
-    import _style as style
-    import _trace_channels as TC
-    import _words_across as WA
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _cues_across as CA
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _trace_channels as TC
+    from research.notebooks.cvpr import _words_across as WA
 
     C.verify_or_raise()
     style.apply_house_style()

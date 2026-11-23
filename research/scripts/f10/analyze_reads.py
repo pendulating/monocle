@@ -35,8 +35,8 @@ from scipy import stats
 REPO = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(REPO / "research/scripts/f10"), str(REPO / "research/scripts/f8"), str(REPO / "research/notebooks/cvpr"), str(REPO / "research/notebooks/facct")]
 
-from analyze_cue import MODEL_COLORS, MODEL_MARKERS, S  # noqa: E402
-from word_read import LAYERS, SENSES, TARGETS  # noqa: E402
+from research.scripts.f8.analyze_cue import MODEL_COLORS, MODEL_MARKERS, S  # noqa: E402
+from research.scripts.f10.word_read import LAYERS, SENSES, TARGETS  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -130,8 +130,8 @@ def validity(root: Path, form: str = "mean", models: tuple = MODELS, layer: int 
 
 
 def ses(root: Path, passing: set) -> pd.DataFrame:
-    import _pairwise_ses as P
-    import _trace_ses as T
+    from research.notebooks.facct import _pairwise_ses as P
+    from research.notebooks.facct import _trace_ses as T
 
     keys = T.image_keys()
     rows = []
@@ -241,7 +241,7 @@ def plot_validity(df: pd.DataFrame, path: Path) -> None:
 
 def plot_ses(df: pd.DataFrame, path: Path) -> None:
     import matplotlib.pyplot as plt
-    import _pairwise_ses as P
+    from research.notebooks.facct import _pairwise_ses as P
 
     S.apply_house_style()
     colors = MODEL_COLORS

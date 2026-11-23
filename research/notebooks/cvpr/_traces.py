@@ -51,7 +51,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
-import _provenance as P
+from research.notebooks.cvpr import _provenance as P
 
 __version__ = "1.1.0"
 
@@ -438,7 +438,7 @@ def _discover_canonical(cases: Optional[Sequence[str]] = None) -> List[TraceRun]
     `verify_or_raise` stops the call when a file moved. No network, no cache,
     and no chance of a run from an older prompt.
     """
-    import _canonical as C
+    from research.notebooks.cvpr import _canonical as C
 
     C.verify_or_raise()
     out: List[TraceRun] = []
@@ -803,7 +803,7 @@ def make_cloud(
     """
     from wordcloud import WordCloud
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     if not weights:
         raise ValueError("no words to draw")

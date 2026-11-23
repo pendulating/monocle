@@ -33,10 +33,10 @@ from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/scripts/f9"), str(ROOT / "research/notebooks/cvpr")]
-from analyze_logit import LOGIT_ROOT, MODELS, SEED, cluster_r, holm  # noqa: E402
-from analyze_subjective import text_verdict  # noqa: E402
-from build_cool_schemas import example_ids  # noqa: E402
-from hop_borough import BOROUGHS, family_r2, split_within  # noqa: E402
+from research.scripts.f10.analyze_logit import LOGIT_ROOT, MODELS, SEED, cluster_r, holm  # noqa: E402
+from research.scripts.f9.analyze_subjective import text_verdict  # noqa: E402
+from research.scripts.f10.build_cool_schemas import example_ids  # noqa: E402
+from research.scripts.f10.hop_borough import BOROUGHS, family_r2, split_within  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -214,7 +214,7 @@ def analyze(model: str, trace: pd.DataFrame, spans: pd.DataFrame) -> dict[str, p
 
 
 def set_links(model: str, spans: pd.DataFrame) -> pd.DataFrame:
-    from analyze_logit import load
+    from research.scripts.f10.analyze_logit import load
 
     d = load(model)
     z = np.load(ROOT / "data/f10/hop_sets" / model / "scores.npz")

@@ -54,7 +54,7 @@ _CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
 if str(_CVPR) not in sys.path:
     sys.path.insert(0, str(_CVPR))
 
-import _style as style  # noqa: E402
+from research.notebooks.cvpr import _style as style  # noqa: E402
 from research.monocle.probe_frame import ABSTAIN, PROBE_ORDER, PROBES  # noqa: E402
 
 __version__ = "1.1.0"

@@ -41,8 +41,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 __version__ = "1.1.0"
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-import plot_patch_teaser as T  # noqa: E402
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10 import plot_patch_teaser as T  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 SRC = ROOT / "data/f10/steer" / T.MODEL / "patches"
 OUT = ROOT / "research/figures/f10/steer_patches/patch_steer_matrix"
@@ -82,7 +82,7 @@ def grid_of(x: np.ndarray, up: dict, severe: dict) -> list:
 
 
 def main() -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
     from PIL import Image
 
     OUT.parent.mkdir(parents=True, exist_ok=True)

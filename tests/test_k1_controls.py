@@ -80,7 +80,7 @@ def test_residualise_keeps_the_part_that_is_not_explained():
 # --- the sign split and the flip ---------------------------------------
 
 def test_the_halves_add_up_to_the_separation():
-    from k1_separation import sep_z
+    from research.scripts.k1_separation import sep_z
     rng = np.random.default_rng(3)
     v = rng.normal(size=256)
     t = rng.normal(size=256)

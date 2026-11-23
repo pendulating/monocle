@@ -44,8 +44,8 @@ REPO = Path(__file__).resolve().parents[3]
 os.environ.setdefault("F4_DATA", "canonical")  # the image_idx of the canonical batch
 sys.path.insert(0, str(REPO / "research" / "notebooks" / "facct"))
 sys.path.insert(0, str(REPO / "research" / "scripts" / "f8"))
-import _f4 as F4  # noqa: E402
-from build_cue_sample import canonical_images  # noqa: E402
+from research.notebooks.facct import _f4 as F4  # noqa: E402
+from research.scripts.f8.build_cue_sample import canonical_images  # noqa: E402
 
 SEED = 20261029
 MODEL = "gemma-4-12b"  # the model of the R-lens

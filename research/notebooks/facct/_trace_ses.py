@@ -43,9 +43,9 @@ for _p in (_CVPR, _HERE):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-import _f4 as F  # noqa: E402
-import _pairwise_ses as P  # noqa: E402
-import _style as S  # noqa: E402
+from research.notebooks.facct import _f4 as F  # noqa: E402
+from research.notebooks.facct import _pairwise_ses as P  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 __version__ = "1.2.1"
 
@@ -77,8 +77,8 @@ def uncertainty_reasons() -> pd.DataFrame:
     if path.exists():
         return pd.read_parquet(path)
     sys.path.insert(0, str(REPO_ROOT / "research" / "scripts" / "f9"))
-    import analyze_subjective as A
-    import label_inference_valence as L
+    from research.scripts.f9 import analyze_subjective as A
+    from research.scripts.f9 import label_inference_valence as L
 
     parts = []
     for case, (arm, name, _, _) in L.CASES.items():
@@ -115,7 +115,7 @@ def image_keys() -> pd.DataFrame:
     """Give the NTA and the district of each image: `case`, `image_idx`, 1 column for each CVPR layer."""
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     r = pd.read_parquet(POOLED / "f4_restaurants_nta.parquet", columns=["image_idx", "px", "py"])
     s = pd.read_parquet(POOLED / "f4_street_1k.parquet", columns=["image_idx", "latitude", "longitude"])
@@ -268,7 +268,7 @@ def main() -> int:
     import matplotlib
 
     matplotlib.use("Agg")
-    import _figmeta as FM
+    from research.notebooks.cvpr import _figmeta as FM
 
     S.apply_house_style()
     OUT.mkdir(parents=True, exist_ok=True)

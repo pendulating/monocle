@@ -37,8 +37,8 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_layer_profile import ARMS, pooled_ranks  # noqa: E402
-from k1_separation import bh, boot_ci, sep_z  # noqa: E402
+from research.scripts.k1_layer_profile import ARMS, pooled_ranks  # noqa: E402
+from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
 
 def loo_prior(stack: np.ndarray) -> np.ndarray:

@@ -75,9 +75,9 @@ import re
 import numpy as np
 import pandas as pd
 
-import _extractions as X
-import _style as S
-import _words_across as WA
+from research.notebooks.cvpr import _extractions as X
+from research.notebooks.cvpr import _style as S
+from research.notebooks.cvpr import _words_across as WA
 
 __version__ = "1.0.0"
 

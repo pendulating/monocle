@@ -41,11 +41,11 @@ from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from analyze_logit import cluster_r, holm  # noqa: E402
-from hop_borough import BOROUGHS, two_sample_t  # noqa: E402
-from hop_free import rdm_ranks  # noqa: E402
-from hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10.analyze_logit import cluster_r, holm  # noqa: E402
+from research.scripts.f10.hop_borough import BOROUGHS, two_sample_t  # noqa: E402
+from research.scripts.f10.hop_free import rdm_ranks  # noqa: E402
+from research.scripts.f10.hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -451,10 +451,10 @@ def margin_r_cells() -> pd.DataFrame:
 
 
 # ---- F10.24: the read-level analyses, on the saved stores of `build`. ----
-from hop_compare import williams  # noqa: E402  (same Williams t as F10.19)
-from hop_depth import N_LAYERS  # noqa: E402
-from analyze_logit import cluster_r as _cluster_r  # noqa: E402
-from hop_free import rdm_ranks  # noqa: E402
+from research.scripts.f10.hop_compare import williams  # noqa: E402  (same Williams t as F10.19)
+from research.scripts.f10.hop_depth import N_LAYERS  # noqa: E402
+from research.scripts.f10.analyze_logit import cluster_r as _cluster_r  # noqa: E402
+from research.scripts.f10.hop_free import rdm_ranks  # noqa: E402
 
 MSET = ("gemma-4-31b", "qwen3.5-9b", "qwen3.6-27b")
 LABEL = {"G": "gemma-4-31b", "Q9": "qwen3.5-9b", "Q27": "qwen3.6-27b"}

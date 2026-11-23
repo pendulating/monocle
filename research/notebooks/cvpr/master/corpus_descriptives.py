@@ -52,8 +52,8 @@ def _():
     from pyproj import Transformer
     from scipy.spatial import cKDTree
 
-    import _canonical as C
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
 

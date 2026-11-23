@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 
-from hop_outcomes import outcome  # noqa: E402
+from research.scripts.f10.hop_outcomes import outcome  # noqa: E402
 
 
 def test_each_form_of_a_verdict_is_a_verdict():

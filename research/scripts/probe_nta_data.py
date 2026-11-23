@@ -126,7 +126,7 @@ def _auth_header() -> dict:
     variables and builds the header, so this script holds no credential.
     """
     sys.path.insert(0, str(CVPR))
-    import _proxies as P
+    from research.notebooks.cvpr import _proxies as P
 
     return P._auth_header()
 

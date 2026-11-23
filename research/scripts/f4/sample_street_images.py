@@ -57,7 +57,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, os.path.join(ROOT, "research", "scripts"))
-import f6_select_storefront_views as f6  # noqa: E402
+from research.scripts import f6_select_storefront_views as f6  # noqa: E402
 
 NTA = os.path.join(ROOT, "data/geo/nynta2020_26b/nynta2020.shp")
 OUT = os.path.join(ROOT, "data/f4_traces/f4_street_1k.parquet")

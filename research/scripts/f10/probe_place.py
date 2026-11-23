@@ -21,8 +21,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from analyze_probe import margins  # noqa: E402
-from hop_borough import BOROUGHS  # noqa: E402
+from research.scripts.f10.analyze_probe import margins  # noqa: E402
+from research.scripts.f10.hop_borough import BOROUGHS  # noqa: E402
 
 __version__ = "1.0.0"
 MODELS = ("gemma-4-31b", "qwen3.5-9b", "qwen3.6-27b")

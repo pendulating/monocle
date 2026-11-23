@@ -27,8 +27,8 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_layer_profile import pooled_ranks  # noqa: E402
-from k1_separation import bh, boot_ci, sep_z  # noqa: E402
+from research.scripts.k1_layer_profile import pooled_ranks  # noqa: E402
+from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
 ROOT = Path("outputs/_monocle")
 OWN = ["gateB60_g1L", "gateB60_g1L_par", "gateB60_g1L_p2", "gateB60_g1L_p3"]

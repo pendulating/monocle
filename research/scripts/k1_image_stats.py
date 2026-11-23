@@ -30,7 +30,7 @@ from PIL import Image
 from scipy.stats import rankdata, wilcoxon
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_separation import bh, boot_ci, sep_z  # noqa: E402
+from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:

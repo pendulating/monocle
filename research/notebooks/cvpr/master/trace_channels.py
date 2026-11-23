@@ -76,10 +76,10 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _extractions as X
-    import _style as style
-    import _trace_channels as TC
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _extractions as X
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _trace_channels as TC
 
     # The gate on the judgment runs. The gate on the EXTRACTION corpus is a
     # second test, and the next cell holds it.

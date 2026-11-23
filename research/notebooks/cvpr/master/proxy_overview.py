@@ -65,9 +65,9 @@ def _():
 
     import marimo as mo
 
-    import _canonical as C
-    import _proxy_overview as O
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _proxy_overview as O
+    from research.notebooks.cvpr import _style as style
 
     # The gate. The raw rows read the run parquets of the registry. Stop when
     # the registry no longer matches the disk.

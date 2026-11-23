@@ -39,7 +39,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 __version__ = "1.0.0"
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/notebooks/cvpr"), str(ROOT / "research/scripts/f10")]
-from hop_hierarchy import answer_store  # noqa: E402
+from research.scripts.f10.hop_hierarchy import answer_store  # noqa: E402
 
 DATA = ROOT / "data/f10/prompts"
 OUT = ROOT / "research/figures/f10/mechanism/mech_standards"
@@ -120,7 +120,7 @@ def shared() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def figure(words: pd.DataFrame, embedded: pd.DataFrame) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     width, left, row, head = 6.0, 0.95, 0.30, 0.34

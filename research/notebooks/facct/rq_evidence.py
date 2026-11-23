@@ -35,9 +35,9 @@ def _():
     import marimo as mo
     import matplotlib.pyplot as plt
 
-    import _f8 as F8
-    import _rq as Q
-    import _style as style
+    from research.notebooks.facct import _f8 as F8
+    from research.notebooks.facct import _rq as Q
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
     R = Q.load()

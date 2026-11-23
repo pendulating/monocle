@@ -21,8 +21,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _provenance as prov
-import _style as S
+from research.notebooks.cvpr import _provenance as prov
+from research.notebooks.cvpr import _style as S
 
 __version__ = "1.0.0"
 

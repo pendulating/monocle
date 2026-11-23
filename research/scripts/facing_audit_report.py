@@ -39,7 +39,7 @@ from PIL import Image, UnidentifiedImageError
 # Reuse the typographic polish from the single-run report (side-effect import
 # applies global rcParams).
 sys.path.insert(0, str(Path(__file__).parent))
-import pairwise_vqa_report  # noqa: F401, E402
+from research.scripts import pairwise_vqa_report  # noqa: F401, E402
 
 
 REQUIRED_COLUMNS = (

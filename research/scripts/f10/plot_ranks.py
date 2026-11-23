@@ -53,7 +53,7 @@ NAMES = {"gemma-4-31b": "Gemma-4-31B", "qwen3.5-9b": "Qwen3.5-9B"}
 
 
 def compute(model: str) -> pd.DataFrame:
-    from analyze_logit import load, shard_reads
+    from research.scripts.f10.analyze_logit import load, shard_reads
 
     d = load(model)
     head = d["head"]
@@ -95,7 +95,7 @@ def picks(g: pd.DataFrame, kind: str, k: int) -> pd.DataFrame:
 
 
 def plot(t: pd.DataFrame, model: str) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     colors = {"embedded": S.PAL["blue"], "raised": S.PAL["coral"], "lowered": S.PAL["warmgrey"]}

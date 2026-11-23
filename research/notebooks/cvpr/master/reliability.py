@@ -81,8 +81,8 @@ def _():
 
     import marimo as mo
 
-    import _canonical as C
-    import _reliability as RL
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _reliability as RL
 
     # The gate. Stop when the registry no longer matches the disk, because
     # then the numbers describe runs that moved or changed.

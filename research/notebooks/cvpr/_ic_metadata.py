@@ -51,12 +51,12 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _cues_across as CA
-import _extractions as X
-import _figmeta as F
-import _ic_v3 as V
+from research.notebooks.cvpr import _cues_across as CA
+from research.notebooks.cvpr import _extractions as X
+from research.notebooks.cvpr import _figmeta as F
+from research.notebooks.cvpr import _ic_v3 as V
 # Re-exported, thus a notebook can call `M.caption_md(fig)`.
-from _figmeta import caption_md, captioned, save_figure  # noqa: F401
+from research.notebooks.cvpr._figmeta import caption_md, captioned, save_figure  # noqa: F401
 
 __version__ = "1.2.0"
 
@@ -956,7 +956,7 @@ def within_trace(df: pd.DataFrame) -> pd.DataFrame:
 def _unit_values(case: str, meta: pd.DataFrame) -> Optional[pd.DataFrame]:
     """The unit proxy of each canonical side of each pair: `value_a`,
     `value_b`. None when the case has no unit proxy."""
-    import _unit_validation as U
+    from research.notebooks.cvpr import _unit_validation as U
 
     if case not in UNIT_PROXY:
         return None
@@ -964,7 +964,7 @@ def _unit_values(case: str, meta: pd.DataFrame) -> Optional[pd.DataFrame]:
     m = meta[meta["case"].eq(case)].copy()
     if folder == "road":
         import geopandas as gpd
-        import _proxies as px
+        from research.notebooks.cvpr import _proxies as px
 
         segments = px.pavement_segments(since_year=U.CASE_SPEC["road"]["pavement_since_year"])
         pts = []
@@ -983,7 +983,7 @@ def _unit_values(case: str, meta: pd.DataFrame) -> Optional[pd.DataFrame]:
     else:
         prx = U.unit_proxy(folder, proxy).set_index("proxy_key")["proxy_value"]
         if folder == "subway":
-            import _proxies_subway as sub
+            from research.notebooks.cvpr import _proxies_subway as sub
 
             key = sub.entrance_station_map().set_index("unit_uid")["station_key"]
         elif folder == "parks":
@@ -1006,7 +1006,7 @@ def _unit_values(case: str, meta: pd.DataFrame) -> Optional[pd.DataFrame]:
 def _area_values(case: str, meta: pd.DataFrame, proxy: str,
                  layer: str = "community_district") -> Optional[pd.DataFrame]:
     """The polygon proxy of each canonical side (`_ic_link`'s join)."""
-    import _ic_link as L
+    from research.notebooks.cvpr import _ic_link as L
 
     if case not in L.linkable_cases() or proxy not in L.proxies_for(case):
         return None
@@ -1073,7 +1073,7 @@ def proxy_pairs(meta: pd.DataFrame, case: str, proxy: Optional[str] = None,
 def proxy_plan(cases: Sequence[str] = CASES) -> List[Tuple[str, str, Optional[str]]]:
     """The (case, mode, proxy) cells the notebook reads: the unit headline
     of each case, then the 2 area proxies where they exist."""
-    import _ic_link as L
+    from research.notebooks.cvpr import _ic_link as L
 
     plan: List[Tuple[str, str, Optional[str]]] = []
     for case in cases:
@@ -1512,7 +1512,7 @@ def plot_valence_grid(table: pd.DataFrame, names: Optional[Sequence[str]] = None
     cell is a name under the count floor in that case.
     """
     import matplotlib.pyplot as plt
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     names = _grid_names(table, names, n)
     grid = (table[table["key_name"].isin(names)]
@@ -1538,7 +1538,7 @@ def plot_partner_effect(rows: pd.DataFrame, arm: Optional[str] = None):
     `rows` holds `label`, `disagree_win_loss`, `disagree_same_outcome`.
     """
     import matplotlib.pyplot as plt
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     fig, ax = plt.subplots(figsize=(4.8, 0.45 * len(rows) + 1.2))
     y = np.arange(len(rows))
@@ -1560,7 +1560,7 @@ def plot_contrasts(table: pd.DataFrame, title: str = "",
     """A forest plot of `banded_contrast` rows: 1 line for each feature and
     group, the pooled difference with its 95% interval."""
     import matplotlib.pyplot as plt
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     t = table.dropna(subset=["diff"]).reset_index(drop=True)
     colours = {"income": S.PAL["amber"], "crime_area": S.PAL["coral"],
@@ -1618,7 +1618,7 @@ FAMILY_TEX = {"income": "Income (area)", "crime_area": "Low crime (area)",
 
 
 def _arm_heads(arms: Sequence[str], width: int, lead: int = 1) -> List[str]:
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     return L.group_header([(L.arm_label(a), width) for a in arms], lead=lead)
 
 
@@ -1644,7 +1644,7 @@ def latex_valence_flip(partner: Dict[str, pd.DataFrame],
                        caption: str = VALENCE_FLIP_CAPTION,
                        label: str = "tab:ic-meta-valence-flip") -> str:
     """The win-loss valence flip: `partner_effect` rows, 4 columns per arm."""
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     arms = list(partner)
     head = _arm_heads(arms, 4) + [L.row(["Entity"] + ["win", "$n$", "W/L", "same"] * len(arms))]
     body = []
@@ -1687,7 +1687,7 @@ def latex_same_image(same_image: Dict[str, pd.DataFrame],
                      caption: str = SAME_IMAGE_CAPTION,
                      label: str = "tab:ic-meta-same-image") -> str:
     """The same-image consistency: the `consistency` rows by case, pooled."""
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     arms = list(same_image)
     head = _arm_heads(arms, 4) + [L.row(["Entity"] + ["agree", "95\\% CI", "chance", "$n$"] * len(arms))]
     body = []
@@ -1755,7 +1755,7 @@ def latex_content_hierarchy(summaries: Dict[str, pd.DataFrame],
                             label: str = "tab:ic-meta-content-hierarchy") -> str:
     """The content hierarchy (`valence_summary`) and the perspective flips
     (`perspective_flips`), 2 columns per arm."""
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     arms = list(summaries)
     width = 1 + 2 * len(arms)
     head = _arm_heads(arms, 2) + [L.row(["Name"] + ["+/--", "range"] * len(arms))]
@@ -1807,7 +1807,7 @@ PROXY_FEATURES = ("wealth_inference", "risk_inference", "good_margin_hi",
 
 
 def _effect(r) -> str:
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     if r is None or pd.isna(r["diff"]):
         return L.DASH
     text = f"{L.fmt(r['diff'], signed=True)} {L.fmt_ci(r['lo'], r['hi'])}"
@@ -1823,7 +1823,7 @@ def latex_proxy_contrasts(contrasts: Dict[str, pd.DataFrame],
 
     1 block of rows per arm, 1 column per proxy family.
     """
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     fams = list(FAMILY_TEX)
     width = 1 + len(fams)
     head = [L.row(["Feature"] + [FAMILY_TEX[f] for f in fams])]
@@ -1858,7 +1858,7 @@ def latex_name_markers(names_both: Dict[str, pd.DataFrame], n: int = 10,
                        label: str = "tab:ic-meta-name-markers") -> str:
     """The names that clear 0 on both extractors (the `names_both` frame of
     the notebook replication), at most `n` per arm by the primary |diff|."""
-    import _latex as L
+    from research.notebooks.cvpr import _latex as L
     head = [L.row(["Name", "class", "proxy", "primary", "control"])]
     body = []
     for i, a in enumerate(names_both):

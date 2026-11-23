@@ -39,7 +39,7 @@ class TestTheShippedSchemas:
         from pathlib import Path
 
         sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
-        import _extractions as X  # noqa: E402
+        from research.notebooks.cvpr import _extractions as X  # noqa: E402
 
         spec = spec_from_config(OmegaConf.load(f"{self.CONF}/{name}.yaml"))
         assert spec.schema_version == version

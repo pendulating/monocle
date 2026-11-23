@@ -46,13 +46,13 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _extractions as X
-import _figmeta as F
-import _ic_v3 as I
-import _latex as L
-import _proxy_overview as PO
-import _style as S
-import _words_across as WA
+from research.notebooks.cvpr import _extractions as X
+from research.notebooks.cvpr import _figmeta as F
+from research.notebooks.cvpr import _ic_v3 as I
+from research.notebooks.cvpr import _latex as L
+from research.notebooks.cvpr import _proxy_overview as PO
+from research.notebooks.cvpr import _style as S
+from research.notebooks.cvpr import _words_across as WA
 
 __version__ = "1.0.0"
 _MOD = "_judge_vocab"

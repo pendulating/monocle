@@ -83,10 +83,10 @@ def _():
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _canonical as C
-    import _cues_across as CA
-    import _style as style
-    import _words_across as WA
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _cues_across as CA
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _words_across as WA
 
     # The gate on the judgment runs. The gate on the EXTRACTION corpus is a
     # second test, and the next cell holds it.

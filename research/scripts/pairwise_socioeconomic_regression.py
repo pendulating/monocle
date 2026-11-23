@@ -53,7 +53,7 @@ import geopandas as gpd  # noqa: E402
 import statsmodels.api as sm  # noqa: E402
 from scipy import stats as sps  # noqa: E402
 
-from pairwise_vqa_report import _compute_trueskill  # noqa: E402
+from research.scripts.pairwise_vqa_report import _compute_trueskill  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Static inputs
@@ -461,7 +461,7 @@ def write_report(layer_out: Dict[str, dict], outdir: Path) -> Path:
 
 def maybe_wandb(name: str, info: dict, report: Path, project: str,
                 entity: Optional[str]) -> Optional[str]:
-    from pairwise_analysis_common import mirror_to_wandb
+    from research.scripts.pairwise_analysis_common import mirror_to_wandb
     flat: Dict[str, float] = {}
     for spec, r in info["results"].items():
         for k, v in r.items():

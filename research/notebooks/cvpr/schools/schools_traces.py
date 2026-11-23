@@ -62,10 +62,10 @@ def _():
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _provenance as prov
-    import _style as style
-    import _traces as T
-    import _trace_notebook as TN
+    from research.notebooks.cvpr import _provenance as prov
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _traces as T
+    from research.notebooks.cvpr import _trace_notebook as TN
 
     # The paper's house palette and camera-ready rcParams. Call it once, before
     # any figure is drawn.
@@ -256,7 +256,7 @@ def _(mo):
     # as "'float' object has no attribute 'lower'" cannot say WHICH line
     # raised, and a reader then blames the data when the fault is in the code.
     try:
-        import _extractions as X
+        from research.notebooks.cvpr import _extractions as X
 
         ext = X.load()
         ext_error = ""

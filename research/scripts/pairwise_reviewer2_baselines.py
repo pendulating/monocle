@@ -68,8 +68,8 @@ from dagspaces.pairwisevqa.stages.pairwise_vqa import (  # noqa: E402
     INVERT_LABEL,
     ORDINAL_SCORE,
 )
-from pairwise_vqa_report import _compute_trueskill  # noqa: E402
-from pairwise_socioeconomic_regression import (  # noqa: E402
+from research.scripts.pairwise_vqa_report import _compute_trueskill  # noqa: E402
+from research.scripts.pairwise_socioeconomic_regression import (  # noqa: E402
     DRAW_PROB,
     LAYERS,
     MODEL_NAMES,
@@ -526,7 +526,7 @@ def write_report(tier: str, res: pd.DataFrame, outdir: Path) -> Path:
 
 def maybe_wandb(tier: str, res: pd.DataFrame, report: Path, outdir: Path,
                 project: str, entity: Optional[str]) -> Optional[str]:
-    from pairwise_analysis_common import mirror_to_wandb
+    from research.scripts.pairwise_analysis_common import mirror_to_wandb
     flat: Dict[str, float] = {}
     for _, r in res.iterrows():
         key = f"{r['arm']}/{r['model']}" if "arm" in res.columns else str(r["model"])

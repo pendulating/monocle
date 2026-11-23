@@ -76,8 +76,8 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _probe as P
-    import _style as style
+    from research.notebooks.probe import _probe as P
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
     return P, mo, os, pd

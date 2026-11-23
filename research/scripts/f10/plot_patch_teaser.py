@@ -55,8 +55,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 __version__ = "2.3.0"
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from hop_hierarchy import answer_store  # noqa: E402
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10.hop_hierarchy import answer_store  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 MODEL, N_LAYERS = "gemma-4-31b", 60
 DEPTH = (0.25, 0.75)
@@ -107,7 +107,7 @@ def pole_words(vocab: pd.DataFrame) -> dict[int, tuple[str, int]]:
 
 def severe_words(vocab: pd.DataFrame) -> dict[int, tuple[str, int]]:
     """Give {token id: (word, -1)} for the severe words within rank RANK_MAX of the down end."""
-    from patch_severe import RANK_MAX, SEVERE  # here, because patch_severe imports this module
+    from research.scripts.f10.patch_severe import RANK_MAX, SEVERE  # here, because patch_severe imports this module
 
     z = np.load(DIRECTION)
     d = z["direction"].astype(np.float64)
@@ -203,7 +203,7 @@ def block_words(ids: np.ndarray, layers: list[int], up: dict, severe: dict, rows
 
 
 def figure(sel: pd.DataFrame, grids: dict) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
     from PIL import Image
 
     S.apply_house_style()
@@ -250,7 +250,7 @@ def figure(sel: pd.DataFrame, grids: dict) -> None:
 
 
 def main() -> None:
-    from patch_severe import RANK_MAX
+    from research.scripts.f10.patch_severe import RANK_MAX
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     store = open_store(MODEL, ALL_ROOT)

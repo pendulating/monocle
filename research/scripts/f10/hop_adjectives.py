@@ -40,10 +40,10 @@ from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from analyze_logit import holm  # noqa: E402
-from hop_free import REPEATS, SEED, folds, kernel, oof_mixed, oof_predict, r2  # noqa: E402
-from hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10.analyze_logit import holm  # noqa: E402
+from research.scripts.f10.hop_free import REPEATS, SEED, folds, kernel, oof_mixed, oof_predict, r2  # noqa: E402
+from research.scripts.f10.hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -503,7 +503,7 @@ def q8() -> None:
     Gemma `nice` uses only the yes or no images (D167). The other stores hold a margin for every image.
     """
     sys.path.insert(0, str(ROOT / "research/scripts/f10"))
-    from analyze_logit import LOGIT_ROOT, cluster_r, load, margin_of  # noqa: E402
+    from research.scripts.f10.analyze_logit import LOGIT_ROOT, cluster_r, load, margin_of  # noqa: E402
 
     rows = []
     for m in MODELS:

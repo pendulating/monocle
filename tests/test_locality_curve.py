@@ -17,7 +17,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "research" / "scripts"))
 
-from locality_curve import curve, full_r, input_truth  # noqa: E402
+from research.scripts.locality_curve import curve, full_r, input_truth  # noqa: E402
 
 N_PATCH = 256
 

@@ -34,7 +34,7 @@ import pandas as pd
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from x2_retry import copy_flags  # noqa: E402
+from research.scripts.f4.x2_retry import copy_flags  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 IN = os.path.join(ROOT, "data/f4_traces/extract_input")

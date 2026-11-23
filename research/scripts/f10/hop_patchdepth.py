@@ -21,9 +21,9 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from analyze_logit import MODELS, SEED, load  # noqa: E402
-from analyze_probe import GROUP_OF, margins  # noqa: E402
-from hop_free import REPEATS, folds, kernel, oof_predict, r2  # noqa: E402
+from research.scripts.f10.analyze_logit import MODELS, SEED, load  # noqa: E402
+from research.scripts.f10.analyze_probe import GROUP_OF, margins  # noqa: E402
+from research.scripts.f10.hop_free import REPEATS, folds, kernel, oof_predict, r2  # noqa: E402
 
 __version__ = "1.0.0"
 OUT = ROOT / "research/figures/f10/free"

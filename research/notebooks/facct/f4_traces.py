@@ -62,9 +62,9 @@ def _():
     import marimo as mo
     import matplotlib.pyplot as plt
 
-    import _f4 as F
-    import _style as style
-    import _traces as T
+    from research.notebooks.facct import _f4 as F
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _traces as T
 
     # The paper's house palette and camera-ready rcParams. Call it once, before
     # any figure is drawn.

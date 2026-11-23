@@ -20,9 +20,9 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _geography as geo
-import _provenance as prov
-import _style as S
+from research.notebooks.cvpr import _geography as geo
+from research.notebooks.cvpr import _provenance as prov
+from research.notebooks.cvpr import _style as S
 
 __version__ = "1.0.0"
 
@@ -164,7 +164,7 @@ def export_street_photography(out_dir: Path, layer: str = "census_tract",
     """Write the income-against-score map, and the table behind it."""
     import matplotlib.pyplot as plt
 
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

@@ -96,9 +96,9 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _ablations as A
-import _canonical as C
-import _results_table as R
+from research.notebooks.cvpr import _ablations as A
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr import _results_table as R
 
 __version__ = "1.0.0"
 
@@ -961,7 +961,7 @@ def plot_grid(grid: pd.DataFrame, figsize=(6.8, 4.6)):
     """
     import matplotlib.pyplot as plt
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     rows = grid.dropna(subset=["swing"]).reset_index(drop=True)
@@ -995,7 +995,7 @@ def plot_head_to_head(tab: pd.DataFrame, title_value: str = "",
     """The 4 x 4 matrix as a heat map, with the value written in each cell."""
     import matplotlib.pyplot as plt
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     m = tab.to_numpy(dtype=float)
@@ -1025,7 +1025,7 @@ def plot_by_hour(hours: pd.DataFrame, figsize=(5.4, 3.6)):
     """
     import matplotlib.pyplot as plt
 
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     if hours.empty:

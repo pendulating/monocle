@@ -39,7 +39,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_cue_sample import CUE, OUT, PROMPT, canonical_images  # noqa: E402
+from research.scripts.f8.build_cue_sample import CUE, OUT, PROMPT, canonical_images  # noqa: E402
 
 SEED = 20261029
 CITY_CUE = "I am in New York City. "

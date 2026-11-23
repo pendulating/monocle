@@ -70,7 +70,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import pandas as pd
 
-import _proxies as px
+from research.notebooks.cvpr import _proxies as px
 
 __version__ = "1.0.0"
 
@@ -866,7 +866,7 @@ def school_unit_key(points, facilities: pd.DataFrame,
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     fpts = gpd.GeoDataFrame(
         facilities[["uid"]],

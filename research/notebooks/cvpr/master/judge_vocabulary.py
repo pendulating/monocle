@@ -77,10 +77,10 @@ def _():
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _figmeta as F
-    import _judge_vocab as J
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _figmeta as F
+    from research.notebooks.cvpr import _judge_vocab as J
+    from research.notebooks.cvpr import _style as style
 
     C.verify_or_raise()
     style.apply_house_style()

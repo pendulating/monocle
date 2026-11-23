@@ -84,7 +84,7 @@ def _f4():
     """Import `research/notebooks/facct/_f4.py`. The import is late, thus the OLS code needs no data."""
     if str(FACCT) not in sys.path:
         sys.path.insert(0, str(FACCT))
-    import _f4  # noqa: E402
+    from research.notebooks.facct import _f4  # noqa: E402
 
     return _f4
 

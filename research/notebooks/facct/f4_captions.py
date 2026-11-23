@@ -62,10 +62,10 @@ def _():
 
     import marimo as mo
 
-    import _f4 as F
-    import _f4cap as C
-    import _style as style
-    import _traces as T
+    from research.notebooks.facct import _f4 as F
+    from research.notebooks.facct import _f4cap as C
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _traces as T
 
     style.apply_house_style()
 

@@ -58,7 +58,7 @@ import pandas as pd
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hop_depth import IMAGES, N_LAYERS, POSITIONS, ROOT, STEP, TOP, ask, atomic_save, locate  # noqa: E402
+from research.scripts.f10.hop_depth import IMAGES, N_LAYERS, POSITIONS, ROOT, STEP, TOP, ask, atomic_save, locate  # noqa: E402
 
 __version__ = "1.2.0"
 
@@ -128,7 +128,7 @@ def main() -> None:
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
     from research.monocle import jlens_read
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     device = "cuda:0"
     proc = AutoProcessor.from_pretrained(args.model_dir)

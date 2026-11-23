@@ -33,7 +33,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from causal_word_report import js, log_odds  # noqa: E402
+from research.scripts.causal_word_report import js, log_odds  # noqa: E402
 
 WORD = re.compile(r"[a-z]{3,}")
 STOP = {"the", "and", "can", "see", "you", "this", "that", "with", "for",

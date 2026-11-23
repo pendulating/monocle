@@ -48,10 +48,10 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _canonical as C
-import _geography as geo
-import _ic
-import _style as S
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr import _geography as geo
+from research.notebooks.cvpr import _ic
+from research.notebooks.cvpr import _style as S
 
 __version__ = "1.0.0"
 

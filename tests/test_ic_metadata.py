@@ -15,7 +15,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
-import _ic_metadata as M  # noqa: E402
+from research.notebooks.cvpr import _ic_metadata as M  # noqa: E402
 
 
 def _span(case, pair, label, cls, **attrs):

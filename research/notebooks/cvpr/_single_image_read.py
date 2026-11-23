@@ -41,9 +41,9 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
-import _geography as geo  # noqa: E402
-import _results_table as R  # noqa: E402
-import _unit_validation as U  # noqa: E402
+from research.notebooks.cvpr import _geography as geo  # noqa: E402
+from research.notebooks.cvpr import _results_table as R  # noqa: E402
+from research.notebooks.cvpr import _unit_validation as U  # noqa: E402
 
 __version__ = "1.0.0"
 

@@ -13,9 +13,9 @@ Use:
 """
 import sys,numpy as np,pandas as pd
 sys.path[:0]=['research/scripts/f10','research/notebooks/cvpr']
-from analyze_logit import load, shard_reads
-from analyze_probe import margins
-from hop_borough import BOROUGHS, two_sample_t
+from research.scripts.f10.analyze_logit import load, shard_reads
+from research.scripts.f10.analyze_probe import margins
+from research.scripts.f10.hop_borough import BOROUGHS, two_sample_t
 pd.set_option('display.width',220,'display.max_rows',200,'display.max_colwidth',90,'display.max_columns',30)
 out=[]
 for model in ['gemma-4-31b','qwen3.5-9b']:

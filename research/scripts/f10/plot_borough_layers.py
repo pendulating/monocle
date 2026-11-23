@@ -37,7 +37,7 @@ ROW, HEAD, GAP, LEFT = 0.54, 0.2, 0.0, 0.86
 
 
 def main() -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     t = pd.read_csv(ROOT / "research/figures/f10/borough/borough_words.csv")

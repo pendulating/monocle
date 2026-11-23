@@ -83,8 +83,8 @@ def _():
     import marimo as mo
     import matplotlib.pyplot as plt
 
-    import _f4desc as D
-    import _style as style
+    from research.notebooks.facct import _f4desc as D
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
 

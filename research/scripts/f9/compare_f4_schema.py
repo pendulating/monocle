@@ -44,7 +44,7 @@ def _read(root: Path, arm: str, case: str) -> pd.DataFrame:
     files = glob.glob(str(root / arm / "runs" / f"f4_{case}__*" / "outputs" / "extractions" / "*.parquet"))
     if not files:
         raise FileNotFoundError(f"no runs of {case} under {root / arm}")
-    import _f4
+    from research.notebooks.facct import _f4
 
     return _f4.spans(pd.concat([pd.read_parquet(f) for f in files], ignore_index=True))
 

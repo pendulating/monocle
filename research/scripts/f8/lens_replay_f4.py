@@ -183,7 +183,7 @@ def load(model_dir: str):
 
 def build_prompt(proc, tmpl: str, image_path: str, user_text: str) -> dict:
     """The served prompt: thinking on, one user turn, the image then the text."""
-    from lens_common import open_image
+    from research.scripts.whatami.lens_common import open_image
 
     messages = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": user_text}]}]
     text = proc.apply_chat_template(messages, tokenize=False, add_generation_prompt=True,
@@ -321,7 +321,7 @@ def main() -> int:
             if plen != int(r.prompt_tokens):
                 raise ValueError(f"image {s.image_idx}: HF prompt {plen} tokens, served {r.prompt_tokens}")
             comp, fields, ws_fix, diff = build_completion(tok, r.reasoning, r.response, int(r.completion_tokens))
-            from lens_common import append_tokens
+            from research.scripts.whatami.lens_common import append_tokens
             inputs = append_tokens(prompt, comp)
             pos, tgt, arrs, agree_model = read_answer(model, lm, inputs, plen, layers, args.k)
             assert len(tgt) == len(comp) and (tgt == np.array(comp)).all()

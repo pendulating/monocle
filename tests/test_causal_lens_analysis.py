@@ -18,9 +18,9 @@ for extra in (str(REPO), str(REPO / "research" / "scripts")):
     if extra not in sys.path:
         sys.path.insert(0, extra)
 
-from gradient_rank import spectrum  # noqa: E402
-from linear_probe import run as probe_run  # noqa: E402
-from null_bar import paired  # noqa: E402
+from research.scripts.gradient_rank import spectrum  # noqa: E402
+from research.scripts.linear_probe import run as probe_run  # noqa: E402
+from research.scripts.null_bar import paired  # noqa: E402
 
 # The interpreter of the test run. Before, a fixed path to .venv-3.12, which a new clone does not have.
 PY_BIN = sys.executable
@@ -157,7 +157,7 @@ class TestMakeRankingShuffle:
         got = pd.read_parquet(out).set_index("image_id")
         import sys as _s
         _s.path.insert(0, str(REPO / "research" / "scripts"))
-        from make_ranking import pool
+        from research.scripts.make_ranking import pool
         want = {r["target"]: pool(r["lens_own"], 2) for r in rows}
         same = sum(np.allclose(got.loc[k, "values"], want[k]) for k in want)
         assert same == 0
@@ -166,7 +166,7 @@ class TestMakeRankingShuffle:
         assert a == b
 
 
-from linear_probe import block_features, run_blocks  # noqa: E402
+from research.scripts.linear_probe import block_features, run_blocks  # noqa: E402
 
 
 class TestBlockFeatures:

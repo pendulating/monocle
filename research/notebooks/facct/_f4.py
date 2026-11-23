@@ -80,9 +80,9 @@ _CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
 if str(_CVPR) not in sys.path:
     sys.path.insert(0, str(_CVPR))
 
-import _extractions as X  # noqa: E402
-import _style as S  # noqa: E402
-import _traces as T  # noqa: E402
+from research.notebooks.cvpr import _extractions as X  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
+from research.notebooks.cvpr import _traces as T  # noqa: E402
 
 __version__ = "2.11.0"
 

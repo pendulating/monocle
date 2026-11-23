@@ -39,7 +39,7 @@ from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from analyze_logit import MODELS, NAMES, SEED, holm, load, plot_grid, split_ntas  # noqa: E402
+from research.scripts.f10.analyze_logit import MODELS, NAMES, SEED, holm, load, plot_grid, split_ntas  # noqa: E402
 
 __version__ = "1.0.0"
 

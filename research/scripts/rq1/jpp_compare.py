@@ -19,7 +19,7 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(REPO_ROOT / "research" / "notebooks" / "cvpr"), str(REPO_ROOT / "research" / "notebooks" / "facct")]
 
-import _rq as Q  # noqa: E402
+from research.notebooks.facct import _rq as Q  # noqa: E402
 
 __version__ = "1.0.0"
 

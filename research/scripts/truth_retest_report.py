@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_separation import boot_ci  # noqa: E402
+from research.scripts.k1_separation import boot_ci  # noqa: E402
 
 
 def score(fresh: np.ndarray, stored: np.ndarray, flip: bool) -> dict:

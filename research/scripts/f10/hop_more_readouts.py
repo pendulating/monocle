@@ -38,7 +38,7 @@ from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from hop_prompts import MODELS, PROMPTS, store_name  # noqa: E402
+from research.scripts.f10.hop_prompts import MODELS, PROMPTS, store_name  # noqa: E402
 
 __version__ = "1.1.0"
 K3 = ROOT / "data/f10/prompts"
@@ -93,21 +93,21 @@ def agree() -> pd.DataFrame:
 
 
 def transfer() -> None:
-    import hop_transfer as ht
+    from research.scripts.f10 import hop_transfer as ht
 
     ht.DATA, ht.OUT = K10, OUT / "transfer"
     ht.main()
 
 
 def ses() -> pd.DataFrame:
-    import hop_hierarchy as hh
+    from research.scripts.f10 import hop_hierarchy as hh
 
     hh.DATA, hh.TRACES = K10, ()
     return hh.ses()
 
 
 def fit(model: str) -> None:
-    import hop_shared as hs
+    from research.scripts.f10 import hop_shared as hs
 
     hs.DATA, hs.FIG = K10, OUT / "shared"
     hs.fit(model, "place")
@@ -115,7 +115,7 @@ def fit(model: str) -> None:
 
 def words() -> tuple[pd.DataFrame, pd.DataFrame]:
     """The layer-mean word lists of the k = 10 direction, with the rank of each word in the k = 3 list."""
-    import hop_hierarchy as hh
+    from research.scripts.f10 import hop_hierarchy as hh
 
     n, rows, agree = hh.N_WORDS, [], []
     for model in MODELS:
@@ -140,8 +140,8 @@ def words() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def dirs(model: str) -> pd.DataFrame:
     """The task-7 residual directions on the k = 10 residuals, and their cosine with the 591-image directions."""
-    import hop_prompts as hp
-    import hop_steer as hst
+    from research.scripts.f10 import hop_prompts as hp
+    from research.scripts.f10 import hop_steer as hst
 
     hp.DATA, hst.OUT = K10, OUT / "steer"
     hst.dirs(model)

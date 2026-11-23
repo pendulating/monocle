@@ -97,7 +97,7 @@ def shared_words() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def figure(words: pd.DataFrame) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     col = (WIDTH - LEFT) / len(BANDS)

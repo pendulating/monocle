@@ -41,9 +41,9 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
-import _ic
-import _style as S
-import _traces as T
+from research.notebooks.cvpr import _ic
+from research.notebooks.cvpr import _style as S
+from research.notebooks.cvpr import _traces as T
 
 __version__ = "1.0.0"
 

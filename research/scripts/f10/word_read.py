@@ -73,7 +73,7 @@ def main() -> None:
 
     from research.monocle import extract, jlens_read
     from research.monocle.probe_words import POOL
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)

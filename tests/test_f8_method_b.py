@@ -11,7 +11,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research" / "scripts" / "f8"))
 
-import method_b as M  # noqa: E402
+from research.scripts.f8 import method_b as M  # noqa: E402
 
 
 def _clustered_data(seed: int = 0, groups: int = 200, per: int = 30, beta: float = 0.5):

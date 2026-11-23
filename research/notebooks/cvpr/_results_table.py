@@ -384,7 +384,7 @@ def load_case(case: Dict[str, str], layer: str = DEFAULT_LAYER,
     agg = agg[["model", key, "mean_score"]].dropna(subset=[key])
     prx = prx[["proxy", key, "proxy_mean"]].dropna(subset=[key])
     if not include_jia:
-        import _geography as geo
+        from research.notebooks.cvpr import _geography as geo
 
         drop = geo.excluded_keys(layer)
         if drop:
@@ -936,7 +936,7 @@ def load_raw_labels(canon_case: str, model: str, kind: str = "proxy",
     `arm` picks the prompt arm and defaults to `canonical`, which is what every
     paper number reads. Pass `noabstain` or `nocity` for an ablation.
     """
-    import _canonical as C
+    from research.notebooks.cvpr import _canonical as C
 
     hits = [r for r in C.runs(kind=kind, case=canon_case, model=model, arm=arm)
             if r.case == canon_case]

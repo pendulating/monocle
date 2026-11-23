@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import k1_fitted_probe as fp  # noqa: E402
+from research.scripts import k1_fitted_probe as fp  # noqa: E402
 
 MODEL_DIR = "/share/ju/matt/zoo/models/gemma-4-12B-it"
 

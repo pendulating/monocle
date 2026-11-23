@@ -48,8 +48,8 @@ def _():
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _f8 as F
-    import _style as style
+    from research.notebooks.facct import _f8 as F
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
 

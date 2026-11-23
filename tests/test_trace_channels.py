@@ -14,7 +14,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
-import _trace_channels as TC  # noqa: E402
+from research.notebooks.cvpr import _trace_channels as TC  # noqa: E402
 
 
 def _span(case, pair, label, cls, reason=None, marker=None):

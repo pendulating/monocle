@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
-from build_depth_sample import stratified  # noqa: E402
-from hop_depth import locate  # noqa: E402
+from research.scripts.f10.build_depth_sample import stratified  # noqa: E402
+from research.scripts.f10.hop_depth import locate  # noqa: E402
 
 
 def test_stratified_takes_3_or_all():
@@ -36,6 +36,6 @@ def test_locate_stops_on_other_tokens():
 
 
 def test_ask_changes_the_noun_and_the_adjective():
-    from hop_depth import QUESTION, ask
+    from research.scripts.f10.hop_depth import QUESTION, ask
     assert ask() == QUESTION
     assert ask("ugly", "scene") == "Is this scene ugly? Answer with one word: yes or no."

@@ -20,11 +20,11 @@ import pytest  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
-import _figmeta as F  # noqa: E402
-import _gold_alignment as G  # noqa: E402
-import _ic_metadata as M  # noqa: E402
-import _ic_v3 as I  # noqa: E402
-import _trace_channels as TC  # noqa: E402
+from research.notebooks.cvpr import _figmeta as F  # noqa: E402
+from research.notebooks.cvpr import _gold_alignment as G  # noqa: E402
+from research.notebooks.cvpr import _ic_metadata as M  # noqa: E402
+from research.notebooks.cvpr import _ic_v3 as I  # noqa: E402
+from research.notebooks.cvpr import _trace_channels as TC  # noqa: E402
 
 ARM = "gemma_by_qwen27_v3"
 

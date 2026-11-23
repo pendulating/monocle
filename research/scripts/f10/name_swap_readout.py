@@ -32,7 +32,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "f8"))
-from r3_readout import INSTRUCT, QWEN_MM, load_image  # noqa: E402
+from research.scripts.f8.r3_readout import INSTRUCT, QWEN_MM, load_image  # noqa: E402
 
 __version__ = "1.2.0"
 
