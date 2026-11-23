@@ -1,14 +1,15 @@
 """Access to the Cyclomedia NYC street-view data, for the browser notebook.
 
-The code is in image-forward (``dagspaces.sources.cyclomedia``). These
-modules keep the old import paths for ``research/notebooks/cyclomedia/browser.py``
+The code is in image-forward (``dagspaces.sources.cyclomedia``). This
+package adds the NYC folders for ``research/notebooks/cyclomedia/browser.py``
 and the research scripts:
 
 * :mod:`.catalog` -- DuckDB over the face catalog, with the NYC folders.
-* :mod:`.cubemap` -- the cube geometry (a copy of the names of the framework module).
-* :mod:`.depth`   -- the depth-map decode (the same).
+
+Import the cube geometry and the depth decode from the framework:
+``dagspaces.sources.cyclomedia.cubemap`` and ``dagspaces.sources.cyclomedia.depth``.
 """
 
-from . import catalog, cubemap, depth
+from . import catalog
 
-__all__ = ["catalog", "cubemap", "depth"]
+__all__ = ["catalog"]

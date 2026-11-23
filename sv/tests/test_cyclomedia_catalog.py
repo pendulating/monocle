@@ -83,13 +83,8 @@ def test_the_nyc_defaults():
 def test_the_shims_use_the_framework_code():
     from dagspaces.sources.cyclomedia import catalog as fw_catalog
     from dagspaces.sources.cyclomedia import validation as fw_validation
-    from dagspaces.sources.cyclomedia.ocr import CyclomediaHandler as FwHandler
-    from sv.ocr.cyclomedia_handler import CyclomediaHandler
-
-    assert CyclomediaHandler is FwHandler
     assert issubclass(CyclomediaCatalog, fw_catalog.CyclomediaCatalog)
     assert svc.ValidationError is fw_validation.ValidationError
-    from sv.cyclomedia_catalog.manifest import parse_manifests  # noqa: F401
     from sv.cyclomedia_catalog.schema import CATALOG_COLUMNS, FACE_BEARING_DEG  # noqa: F401
     from sv.cyclomedia_catalog.walker import FD_DEFAULT_PATH, walk_dataset  # noqa: F401
 

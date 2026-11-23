@@ -13,17 +13,15 @@ import os
 import pytest
 
 from sv.cyclomedia import catalog as cat
-from sv.cyclomedia import cubemap as cube
-from sv.cyclomedia import depth as dep
+from dagspaces.sources.cyclomedia import cubemap as cube
+from dagspaces.sources.cyclomedia import depth as dep
 
 
-def test_the_shims_are_the_framework_code():
-    from dagspaces.sources.cyclomedia import cubemap, depth, recordings
+def test_the_nyc_catalog_uses_the_framework_code():
+    from dagspaces.sources.cyclomedia import recordings
 
-    assert cube.cube_to_equirect is cubemap.cube_to_equirect
-    assert cube._face_uv_from_ray is cubemap._face_uv_from_ray
-    assert dep.decode_depth is depth.decode_depth and dep.NO_RETURN == 0
     assert cat.nearest_recordings is recordings.nearest_recordings
+    assert dep.NO_RETURN == 0
     assert set(cube.__all__) >= {"FACES", "cube_cross", "load_faces"}
 
 

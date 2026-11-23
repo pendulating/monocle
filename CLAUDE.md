@@ -178,8 +178,8 @@ the vLLM 0.25 upgrade is in `.dev_history/`.
 - `<output_root>/pipeline_manifest.json` — The orchestrator writes it in each run. It holds the stage results and the metadata. Git ignores it.
 - `site/` — The launchers of this cluster and `site/speech-guide.md`. The framework does not need them.
 - `sv/` — The street-view code. The framework does not import it.
-  - `sv/cyclomedia/`, `sv/cyclomedia_catalog/` — The NYC layer of the Cyclomedia source. The code (readers, catalog builder, `cyclomedia` CLI) is in image-forward: `dagspaces.sources.cyclomedia`. `sv/cyclomedia_catalog/nyc.py` holds the NYC settings (folders, boroughs, box, `America/New_York`). The other modules are shims at the old paths.
-  - `sv/ocr/` — A shim. The OCR handler is `handler: dagspaces.sources.cyclomedia.ocr:CyclomediaHandler`.
+  - `sv/cyclomedia/`, `sv/cyclomedia_catalog/` — The NYC layer of the Cyclomedia source. The code (readers, catalog builder, `cyclomedia` CLI) is in image-forward: `dagspaces.sources.cyclomedia`. `sv/cyclomedia_catalog/nyc.py` holds the NYC settings (folders, boroughs, box, `America/New_York`). The other modules are thin wrappers that give the framework functions the NYC defaults.
+  - The Cyclomedia OCR handler is in image-forward: `handler: dagspaces.sources.cyclomedia.ocr:CyclomediaHandler`.
   - `sv/nyc/curation/` — The NYC Socrata curation (`python -m sv.nyc.curation`).
   - `sv/conf/`, `sv/nyc/conf/` — The dataset configs, in `common/` (all dagspaces) and `<dagspace>/` folders.
   - `sv/scripts/`, `sv/nyc/scripts/`, `sv/tests/`, `sv/nyc/tests/` — The data scripts and their tests.
