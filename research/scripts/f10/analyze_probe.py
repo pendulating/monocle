@@ -22,7 +22,6 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -32,12 +31,11 @@ from scipy.special import logsumexp
 from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from analyze_logit import LOGIT_ROOT, MODELS, NAMES, SEED, cluster_r, holm  # noqa: E402
-from hop_borough import BOROUGHS, family_r2  # noqa: E402
-from hop_free import folds, oof_predict, r2  # noqa: E402
-from hop_stage import residual  # noqa: E402
-from probe_query import GROUPS  # noqa: E402
+from research.scripts.f10.analyze_logit import LOGIT_ROOT, MODELS, NAMES, SEED, cluster_r, holm  # noqa: E402
+from research.scripts.f10.hop_borough import BOROUGHS, family_r2  # noqa: E402
+from research.scripts.f10.hop_free import folds, oof_predict, r2  # noqa: E402
+from research.scripts.f10.hop_stage import residual  # noqa: E402
+from research.scripts.f10.probe_query import GROUPS  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -131,7 +129,7 @@ def analyze(model: str, m: pd.DataFrame) -> dict[str, pd.DataFrame]:
 def figures(links: pd.DataFrame, boro: pd.DataFrame) -> None:
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     fig, axes = plt.subplots(1, 2, figsize=(7.1, 7.2), constrained_layout=True)

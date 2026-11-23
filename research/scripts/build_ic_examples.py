@@ -23,7 +23,6 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO))
 
 from research.ic import ic_schema as S  # noqa: E402
 

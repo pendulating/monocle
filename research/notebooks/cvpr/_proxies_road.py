@@ -118,7 +118,7 @@ MIN_MILES = 0.25
 
 def _layer_key(layer: str) -> str:
     """The join key column of one geography layer."""
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     return geo.LAYERS[layer]["key"]
 
@@ -135,8 +135,8 @@ def centerline_lines(use_cache: bool = True):
     """
     import geopandas as gpd
 
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     if use_cache and LINES_PARQUET.exists():
         return gpd.read_parquet(LINES_PARQUET)
@@ -195,7 +195,7 @@ def centerline_miles(use_cache: bool = True, lines=None) -> pd.DataFrame:
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     if use_cache and MILES_PARQUET.exists():
         return pd.read_parquet(MILES_PARQUET)
@@ -275,8 +275,8 @@ def pavement_by_layer_weighted(layer: str, segments=None,
     """
     import geopandas as gpd
 
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     seg = px.pavement_segments() if segments is None else segments
     if seg is None or len(seg) == 0:
@@ -321,8 +321,8 @@ def pothole_repairs_per_mile(layer: str, since_year: int = 2024,
     """
     import geopandas as gpd
 
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     entry = {"resource_id": POTHOLE_RESOURCE, "index": "pothole"}
     df = px.fetch(
@@ -362,7 +362,7 @@ def pothole_complaints(since_year: int = 2024) -> pd.DataFrame:
     opens a work order. The 2 counts are not the same number, and the gap
     between them is itself a finding.
     """
-    import _proxies as px
+    from research.notebooks.cvpr import _proxies as px
 
     types = ",".join(f"'{t}'" for t in POTHOLE_311_TYPES)
     where = (
@@ -399,7 +399,7 @@ def pothole_complaints_per_mile(layer: str, since_year: int = 2024,
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     df = pothole_complaints(since_year=since_year) if complaints is None else complaints
     if df is None or df.empty:
@@ -440,8 +440,8 @@ def resurfacing_blocks(use_cache: bool = True):
     import geopandas as gpd
     from shapely import wkt as shapely_wkt
 
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     entry = {"resource_id": RESURFACING_RESOURCE, "index": "resurfacing"}
     df = px.fetch(
@@ -488,7 +488,7 @@ def resurfacing_age_by_layer(layer: str, blocks=None, min_segments: int = 3,
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     g = resurfacing_blocks() if blocks is None else blocks
     if g is None or len(g) == 0:
@@ -554,7 +554,7 @@ def compare(model_agg: pd.DataFrame, proxy_frames: Dict[str, pd.DataFrame],
     Returns 1 row for each model and proxy, with n, Pearson r, Spearman rho,
     and Kendall tau-b.
     """
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     key = _layer_key(layer)
     drop = frozenset() if include_jia else geo.excluded_keys(layer)
@@ -596,8 +596,8 @@ def street_density(layer: str = "community_district") -> pd.DataFrame:
     density. This frame lets a reader test that: correlate the old proxy with
     this one, and read how much of it the denominator carries.
     """
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     key = _layer_key(layer)
     poly = geo.load_layer(layer)[[key, "geometry"]].copy()
@@ -701,8 +701,8 @@ def area_export(recipe, min_segments: int = 3,
     columns (`centerline_miles`, `rated_miles`) stay out of it and the parquet
     keeps the shape that version 1.1.0 has.
     """
-    import _geography as geo
-    import _proxies as px
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies as px
 
     seg = px.pavement_segments() if segments is None else segments
     cmp_pts = pothole_complaints() if complaints is None else complaints

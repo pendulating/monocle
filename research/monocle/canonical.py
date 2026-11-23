@@ -50,7 +50,6 @@ Every import that needs a GPU stays inside a function, so the CPU test suite
 from __future__ import annotations
 
 import importlib.util
-import sys
 from pathlib import Path
 from typing import Any, Optional
 
@@ -58,8 +57,6 @@ import pandas as pd
 from omegaconf import DictConfig, OmegaConf
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 #: The registry directory. See research/docs/canonical-run-registry.md.
 REGISTRY = REPO / "research/notebooks/cvpr/canonical_data"

@@ -25,16 +25,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(REPO / "research" / "scripts"))
-from disorder_rubric import lexicon_v1          # noqa: E402
+from research.scripts.disorder_rubric import lexicon_v1          # noqa: E402
 
 PRES_DIR = REPO / "outputs/_monocle/patch_caption_pres"
 BASE_DIR = REPO / "outputs/_monocle/patch_caption_reader"

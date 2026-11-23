@@ -40,18 +40,11 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
-    from pathlib import Path
-
-    _here = Path(__file__).resolve().parent
-    if str(_here) not in sys.path:
-        sys.path.insert(0, str(_here))
-
     import marimo as mo
     import pandas as pd
 
-    import _paradigm_kl as K
-    import _style as style
+    from research.notebooks.facct import _paradigm_kl as K
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
 

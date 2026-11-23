@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import json
 import math
-import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -46,15 +45,9 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent.parent
 
-# `monocle.probe_frame` holds the label pairs and the proxy of each probe.
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 # `_style` holds the palette of the paper. It sits with the CVPR notebooks.
-_CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-if str(_CVPR) not in sys.path:
-    sys.path.insert(0, str(_CVPR))
-
-import _style as style  # noqa: E402
+from research.notebooks.cvpr import _style as style  # noqa: E402
+# `monocle.probe_frame` holds the label pairs and the proxy of each probe.
 from research.monocle.probe_frame import ABSTAIN, PROBE_ORDER, PROBES  # noqa: E402
 
 __version__ = "1.1.0"

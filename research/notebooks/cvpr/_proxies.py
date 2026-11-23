@@ -309,7 +309,7 @@ def load_geocode(entry: Dict[str, Any], case_dir: str | Path):
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     root = Path(case_dir)
     if not root.is_absolute():
@@ -464,7 +464,7 @@ def points_from_latlon(df: pd.DataFrame):
     """Make a point layer from latitude and longitude columns."""
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     d = df.dropna(subset=["latitude", "longitude"])
     return gpd.GeoDataFrame(
@@ -523,7 +523,7 @@ def income_by_layer(layer: str, min_tracts: int = 1) -> pd.DataFrame:
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     tracts = gpd.read_file(geo.LAYERS["census_tract"]["path"])
     tracts["geoid"] = tracts["geoid"].astype(str)
@@ -602,7 +602,7 @@ def load_parks_properties():
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     g = _parks_polygons().to_crs(geo.WORKING_CRS)
     # A park is a polygon. Use an interior point so a site lands in exactly 1
@@ -657,7 +657,7 @@ def attach_park_property_id(units_gdf, max_distance_ft: float = 500.0):
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     poly = _parks_polygons().to_crs(geo.WORKING_CRS)
     pts = units_gdf.to_crs(geo.WORKING_CRS)[["unit_uid", "geometry"]].copy()
@@ -796,7 +796,7 @@ def pavement_segments(since_year: int = 2024, drop_unrated: bool = True):
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     where = f"inspection > '{int(since_year)}-01-01'"
     if drop_unrated:
@@ -833,7 +833,7 @@ def attach_nearest_segment(points, segments, max_distance_ft: float = 100.0):
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     pts = points.to_crs(geo.WORKING_CRS)[["sample_id", "geometry"]].copy()
     seg = segments[["proxy_value", "geometry"]].copy()
@@ -856,7 +856,7 @@ def pavement_by_layer(layer: str, segments=None, min_segments: int = 3) -> pd.Da
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     seg = pavement_segments() if segments is None else segments
     if seg.empty:
@@ -889,7 +889,7 @@ def pothole_by_layer(layer: str, since_year: int = 2024) -> pd.DataFrame:
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     entry = {"resource_id": POTHOLE_RESOURCE, "index": "pothole"}
     df = fetch(
@@ -969,7 +969,7 @@ def crime_by_layer(layer: str, metric: str = "crime_density",
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     if metric not in CRIME_METRICS:
         raise KeyError(f"unknown metric {metric!r}; use one of {list(CRIME_METRICS)}")
@@ -1021,7 +1021,7 @@ def _population_by_layer(layer: str) -> pd.DataFrame:
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     key = geo.LAYERS[layer]["key"]
     tracts = gpd.read_file(geo.LAYERS["census_tract"]["path"]).to_crs(geo.WORKING_CRS)
@@ -1053,7 +1053,7 @@ def aggregate_proxy(proxy_points, layer: str, min_units: int = 3) -> pd.DataFram
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     poly = geo.load_layer(layer)
     key = geo.LAYERS[layer]["key"]
@@ -1113,7 +1113,7 @@ def correlate(model_agg: pd.DataFrame, proxy_agg: pd.DataFrame,
     Spearman is the safer read: the model score is an ordinal mean, so a
     monotone agreement matters more than a linear one.
     """
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     key = geo.LAYERS[layer]["key"]
     m = model_agg[model_agg.layer == layer]

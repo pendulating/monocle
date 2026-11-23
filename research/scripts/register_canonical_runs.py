@@ -557,7 +557,9 @@ def write_registry(chosen: Dict[Tuple[str, str, str, str], Candidate],
             link = d / name
             if link.is_symlink() or link.exists():
                 link.unlink()
-            os.symlink(target, link)
+            # A relative link: git holds the link, and a clone keeps its own
+            # `multirun/` folder. The manifest keeps the absolute target.
+            os.symlink(os.path.relpath(target, d), link)
         rec = asdict(c)
         rec["link"] = c.link_name
         runs.append(rec)

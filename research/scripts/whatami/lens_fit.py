@@ -40,7 +40,7 @@ from pathlib import Path
 
 import torch
 
-import lens_common as lc
+from research.scripts.whatami import lens_common as lc
 from research.monocle.jlens_fit_mm import DESCRIBE_CONTEXTS, _replicate_inputs, _resolve_layers
 
 

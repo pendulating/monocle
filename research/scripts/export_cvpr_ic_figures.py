@@ -29,18 +29,16 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
-sys.path.insert(0, str(REPO_ROOT))
 
 import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 
-import _canonical as C  # noqa: E402
-import _ic  # noqa: E402
-import _ic_link as LK  # noqa: E402
-import _ic_words as W  # noqa: E402
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _ic  # noqa: E402
+from research.notebooks.cvpr import _ic_link as LK  # noqa: E402
+from research.notebooks.cvpr import _ic_words as W  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 from research.ic import ic_codes as IC  # noqa: E402
 

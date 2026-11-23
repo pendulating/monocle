@@ -1,15 +1,8 @@
 """Integrated gradients in the residual must be complete and must write slots."""
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 import torch
-
-REPO = Path(__file__).resolve().parent.parent
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle.residual_ig import SlotWriter  # noqa: E402
 

@@ -22,7 +22,6 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
 from collections import Counter
 from pathlib import Path
 
@@ -37,9 +36,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 __version__ = "1.0.0"
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-import plot_patch_teaser as T  # noqa: E402
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10 import plot_patch_teaser as T  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 MODEL = "gemma-4-31b"
 SRC = ROOT / "data/f10/steer" / MODEL / "patches"
@@ -141,7 +139,7 @@ def block_grid(x: np.ndarray, base: Counter, n_base: int, word_of: dict, pole_en
 
 
 def plot_margins(m: pd.DataFrame) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     prompts = ["place cool", "place pretty", "place ugly"]
@@ -169,7 +167,7 @@ def plot_margins(m: pd.DataFrame) -> None:
 
 
 def plot_rows(ids: dict, d: pd.DataFrame, store, word_of: dict, pole: dict) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
     from PIL import Image
 
     S.apply_house_style()

@@ -25,7 +25,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from pathlib import Path
 from typing import Optional
@@ -35,8 +34,6 @@ import pandas as pd
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle import single_steer as ss  # noqa: E402
@@ -67,7 +64,6 @@ def answer_gradients(
     try:
         from jlens.hooks import ActivationRecorder
     except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
         from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1

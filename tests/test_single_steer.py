@@ -6,16 +6,11 @@ under research/monocle/monocle.sub.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pandas as pd
 import pytest
 import torch
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import single_steer  # noqa: E402
 

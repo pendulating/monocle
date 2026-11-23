@@ -6,32 +6,24 @@ tiny per-position linear toy model whose true patch->target Jacobian is known
 in closed form, so the estimator's correctness (and its source/target mask
 semantics) can be pinned exactly on CPU.
 
-ActivationRecorder is pulled in *inside* jacobian_for_inputs via a two-venv
-fallback (installed jlens first, else the vendored copy on sys.path), so these
-tests run in the plain .venv where jlens is not pip-installed.
+jacobian_for_inputs imports ActivationRecorder of jlens in the function. When
+the venv does not have jlens, these tests skip.
 """
 from __future__ import annotations
-
-import sys
-from pathlib import Path
 
 import pytest
 import torch
 from torch import nn
 
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
-
 from research.monocle import jlens_fit_mm as jf  # noqa: E402
 
 
 def _have_jlens() -> bool:
-    """jlens is installed, or its local copy is in sub/jacobian-lens (not in git)."""
+    """The venv has jlens."""
     try:
         import jlens  # noqa: F401
     except ModuleNotFoundError:
-        return (REPO / "sub" / "jacobian-lens" / "jlens").is_dir()
+        return False
     return True
 
 

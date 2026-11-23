@@ -41,9 +41,6 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-for _p in (HERE, REPO_ROOT / "research" / "notebooks" / "cvpr", REPO_ROOT / "research" / "notebooks" / "facct"):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
 __version__ = "1.6.0"
 
@@ -151,8 +148,8 @@ def terms(text: str, drop: frozenset = frozenset(), before: str = "") -> list:
 
 def valence_spans(case: str) -> pd.DataFrame:
     """Give the `visual_evidence` spans with a valence of the `response` field: 1 row each, with `terms`."""
-    import analyze_subjective as A
-    import _f4 as F
+    from research.scripts.f9 import analyze_subjective as A
+    from research.notebooks.facct import _f4 as F
 
     arm, name = CASES[case][:2]
     raw = pd.read_parquet(A.X2 / arm / f"f4_{name}_extractions.parquet", filters=[("field", "==", FIELD)])
@@ -258,9 +255,9 @@ def main() -> int:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    import _extractions as X
-    import _figmeta as FM
-    import _style as S
+    from research.notebooks.cvpr import _extractions as X
+    from research.notebooks.cvpr import _figmeta as FM
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     OUT.mkdir(parents=True, exist_ok=True)

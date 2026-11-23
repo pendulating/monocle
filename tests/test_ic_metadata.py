@@ -6,16 +6,11 @@ same-image consistency count, the partner test, and the band-controlled
 agreement contrast.
 """
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
-
-import _ic_metadata as M  # noqa: E402
+from research.notebooks.cvpr import _ic_metadata as M  # noqa: E402
 
 
 def _span(case, pair, label, cls, **attrs):

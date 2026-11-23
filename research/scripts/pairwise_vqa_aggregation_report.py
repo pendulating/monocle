@@ -20,7 +20,6 @@ Example:
 from __future__ import annotations
 
 import argparse
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,8 +36,7 @@ from sklearn.metrics import cohen_kappa_score
 
 # Sibling helpers. Importing `pairwise_vqa_report` also applies the shared
 # matplotlib rcParams polish as a side effect.
-sys.path.insert(0, str(Path(__file__).parent))
-from pairwise_vqa_report import (  # noqa: E402
+from research.scripts.pairwise_vqa_report import (  # noqa: E402
     ACCENT,
     ACCENT_WARM,
     ORDINAL_COLORS,

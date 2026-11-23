@@ -16,19 +16,16 @@ the integrations, and the schema holds no ingredient for it. See
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
 
-import _provenance as P
-import _style as S
+from research.notebooks.cvpr import _provenance as P
+from research.notebooks.cvpr import _style as S
 
 REPO_ROOT = P.REPO_ROOT
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 from research.ic import ic_codes as IC  # noqa: E402
 
@@ -83,7 +80,7 @@ def registry_mismatch(root: Optional[str | Path] = None) -> List[str]:
     ingredient corpus is 1 step downstream of a thinking run, thus it goes
     stale the moment the battery runs again.
     """
-    import _canonical as C
+    from research.notebooks.cvpr import _canonical as C
 
     reg = {(r.case, r.model_config): os.path.realpath(r.results_path)
            for r in C.runs(kind="trace")}

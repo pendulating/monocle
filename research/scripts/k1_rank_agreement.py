@@ -25,14 +25,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_layer_profile import ARMS, pooled_ranks  # noqa: E402
-from k1_separation import bh, boot_ci  # noqa: E402
+from research.scripts.k1_layer_profile import ARMS, pooled_ranks  # noqa: E402
+from research.scripts.k1_separation import bh, boot_ci  # noqa: E402
 
 
 def spearman(a: np.ndarray, b: np.ndarray) -> float:

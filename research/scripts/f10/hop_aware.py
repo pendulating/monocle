@@ -18,16 +18,14 @@ Use:
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from hop_prompts import MODELS, PROMPTS, Summary, store_name  # noqa: E402
-from hop_shared import corr_cols  # noqa: E402
+from research.scripts.f10.hop_prompts import MODELS, PROMPTS, Summary, store_name  # noqa: E402
+from research.scripts.f10.hop_shared import corr_cols  # noqa: E402
 
 __version__ = "1.0.0"
 OUT = ROOT / "research/figures/f10/aware"

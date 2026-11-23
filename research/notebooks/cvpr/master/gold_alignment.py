@@ -54,23 +54,19 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
     import matplotlib.pyplot as plt
     import numpy as np
     import pandas as pd
 
-    import _canonical as C
-    import _extractions as X
-    import _gold_alignment as G
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _extractions as X
+    from research.notebooks.cvpr import _gold_alignment as G
+    from research.notebooks.cvpr import _style as style
 
     C.verify_or_raise()
     style.apply_house_style()

@@ -21,7 +21,6 @@ The record of each part is in `research/docs/`: `f8-method-b.md`,
 
 from __future__ import annotations
 
-import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -30,11 +29,8 @@ import numpy as np
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-_CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-if str(_CVPR) not in sys.path:
-    sys.path.insert(0, str(_CVPR))
 
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 S.apply_house_style()  # the same font and sizes in a script as in the notebooks
 

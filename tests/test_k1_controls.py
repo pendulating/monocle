@@ -5,7 +5,6 @@ Each test checks a rule the analysis depends on, not the numbers of a run.
 from __future__ import annotations
 
 import importlib.util
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +12,6 @@ import pytest
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "research" / "scripts"))
 
 
 def load(name: str):
@@ -80,7 +78,7 @@ def test_residualise_keeps_the_part_that_is_not_explained():
 # --- the sign split and the flip ---------------------------------------
 
 def test_the_halves_add_up_to_the_separation():
-    from k1_separation import sep_z
+    from research.scripts.k1_separation import sep_z
     rng = np.random.default_rng(3)
     v = rng.normal(size=256)
     t = rng.normal(size=256)

@@ -56,12 +56,8 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-_HERE = Path(__file__).resolve().parent
-for _p in (_CVPR, _HERE):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 __version__ = "1.1.0"
 
@@ -104,7 +100,7 @@ def area_scores(case: str, layer: str) -> pd.DataFrame:
     image-mode case is slow (1,100,000 pairs for each model), thus its
     result goes to a cache in `data/facct_pairwise/`.
     """
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     _, folder, prefix = CASES[case]
     short, key, _, _ = LAYERS[layer]
@@ -118,7 +114,7 @@ def area_scores(case: str, layer: str) -> pd.DataFrame:
         if path.exists():
             out = pd.read_parquet(path)
         else:
-            import _maps as M
+            from research.notebooks.cvpr import _maps as M
 
             sc = M.image_scores_by_layer(case, layer)
             out = pd.DataFrame({"model": sc["model"].map(_model), "key": sc[key].astype(str),
@@ -175,8 +171,8 @@ def f6_answers() -> pd.Series:
 
 def _restaurant_units():
     """Give the restaurant point layer, with `unit_uid` as a string."""
-    import _geography as geo
-    import _proxies_restaurants as pr
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _proxies_restaurants as pr
 
     units = geo.load_units(pr.CURATION_ROOT, filename=pr.UNIT_TABLE)
     return units.assign(unit_uid=units["unit_uid"].astype(str))
@@ -184,7 +180,7 @@ def _restaurant_units():
 
 def _areas(scores: pd.DataFrame, units, layer: str) -> pd.DataFrame:
     """Give the mean score and the features of each area with residents and 3 or more units."""
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     key = geo.LAYERS[layer]["key"]
     area = geo.aggregate(scores, units, layer, min_units=3).assign(key=lambda d: d[key].astype(str))
@@ -199,7 +195,7 @@ def restaurant_f6_cells(answers: Optional[pd.Series] = None) -> pd.DataFrame:
     `significant` uses the Bonferroni count of the figure (90), thus it reads
     as a filled or hollow marker of the figure.
     """
-    import _provenance as prov
+    from research.notebooks.cvpr import _provenance as prov
     from scipy.stats import kendalltau
 
     answers = f6_answers() if answers is None else answers
@@ -344,7 +340,7 @@ def main() -> int:
     import matplotlib
 
     matplotlib.use("Agg")
-    import _figmeta as FM
+    from research.notebooks.cvpr import _figmeta as FM
 
     S.apply_house_style()
     OUT.mkdir(parents=True, exist_ok=True)

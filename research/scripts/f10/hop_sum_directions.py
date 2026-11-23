@@ -24,16 +24,14 @@ from __future__ import annotations
 
 import argparse
 import itertools
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-import hop_shared as hs  # noqa: E402
-from hop_prompts import MODELS, store_name  # noqa: E402
+from research.scripts.f10 import hop_shared as hs  # noqa: E402
+from research.scripts.f10.hop_prompts import MODELS, store_name  # noqa: E402
 
 __version__ = "1.1.0"
 SINGLE = ("urban", "nice", "cool", "ordinary")
@@ -92,8 +90,8 @@ def plot_pairs(out: Path) -> None:
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import _figmeta as FM
-    import _style as S
+    from research.notebooks.cvpr import _figmeta as FM
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     df = pd.read_csv(out / "pairs.csv")

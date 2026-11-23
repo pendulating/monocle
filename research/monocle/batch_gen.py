@@ -36,17 +36,11 @@ bit-comparable with a batch-1 run. `equivalence` measures how far apart the
 """
 from __future__ import annotations
 
-import sys
 import time
 from collections import defaultdict
-from pathlib import Path
 from typing import Any, Callable, Optional
 
 import torch
-
-REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import patch_ablate as pab  # noqa: E402
 

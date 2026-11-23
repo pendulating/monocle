@@ -57,8 +57,6 @@ from pathlib import Path
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 
@@ -124,28 +122,18 @@ def fit_date() -> str:
 
 
 def _load_activation_recorder():
-    """Import ActivationRecorder, tolerating both venvs.
+    """Import ActivationRecorder of jlens.
 
-    jlens is pip-installed in .venv-nightly but NOT in the plain .venv the CPU
-    test-suite runs in. Try the installed import first; on failure put the
-    vendored copy on sys.path and retry. This keeps jacobian_for_inputs
-    importable and CPU-testable in either environment.
+    The import is in this function, thus jacobian_for_inputs imports in a
+    venv that does not have jlens.
     """
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
     return ActivationRecorder
 
 
 def _load_jacobian_lens():
-    """Import JacobianLens with the same two-venv fallback as above."""
-    try:
-        from jlens import JacobianLens
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        from jlens import JacobianLens
+    """Import JacobianLens of jlens, in the function as above."""
+    from jlens import JacobianLens
     return JacobianLens
 
 
@@ -440,11 +428,7 @@ def load_lens_model(model_dir: str, *, eager: bool = False):
 
     Returns ``(proc, model, tmpl, lens_model, image_token_id)``.
     """
-    try:
-        import jlens
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        import jlens
+    import jlens
 
     if eager:
         from research.monocle import attn_route as ar

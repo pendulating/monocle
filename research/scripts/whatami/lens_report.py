@@ -33,7 +33,7 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-import lens_common as lc
+from research.scripts.whatami import lens_common as lc
 
 REPLAY = lc.REPO / "multirun/whatami/lens_replay"
 REPORT = lc.REPO / "multirun/whatami/lens_report"

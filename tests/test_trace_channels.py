@@ -5,16 +5,13 @@ They cover the trace frame (the reason and marker counts), the AUC of each
 count, the dose bins, and the shape of the long frames across arms.
 """
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
-
-import _trace_channels as TC  # noqa: E402
+from research.notebooks.cvpr import _trace_channels as TC  # noqa: E402
 
 
 def _span(case, pair, label, cls, reason=None, marker=None):

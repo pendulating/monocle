@@ -25,8 +25,7 @@ import time
 
 import requests
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from label_studio_setup import _authenticated_session, read_creds  # noqa: E402
+from research.scripts.label_studio_setup import _authenticated_session, read_creds  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SET_DIR = os.path.join(ROOT, "data", "f6_restaurant_depiction")

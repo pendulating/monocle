@@ -50,21 +50,14 @@ def _(mo):
 @app.cell
 def _():
     import re
-    import sys
     from pathlib import Path
-
-    # `_f4` sits beside this notebook. It puts `research/notebooks/cvpr/` on the path
-    # itself, thus `_traces`, `_extractions`, and `_style` import after it.
-    _here = Path(__file__).resolve().parent
-    if str(_here) not in sys.path:
-        sys.path.insert(0, str(_here))
 
     import marimo as mo
     import matplotlib.pyplot as plt
 
-    import _f4 as F
-    import _style as style
-    import _traces as T
+    from research.notebooks.facct import _f4 as F
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _traces as T
 
     # The paper's house palette and camera-ready rcParams. Call it once, before
     # any figure is drawn.

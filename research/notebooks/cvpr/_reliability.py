@@ -43,8 +43,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _canonical as C
-from _results_table import MODEL_LABEL, RAW_CASE_LABEL, cohen_kappa
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr._results_table import MODEL_LABEL, RAW_CASE_LABEL, cohen_kappa
 
 HERE = Path(__file__).resolve().parent
 OUT_DIR = HERE / "master" / "outputs"

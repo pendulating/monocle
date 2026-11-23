@@ -29,12 +29,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
 
 import pandas as pd  # noqa: E402
 
-import _canonical as C  # noqa: E402
-import _results_table as R  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _results_table as R  # noqa: E402
 
 __version__ = "1.0.0"
 

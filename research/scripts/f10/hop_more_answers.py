@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -36,9 +35,8 @@ import pandas as pd
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from hop_prompts import ADJECTIVES, MODELS, NOUNS, answer_store  # noqa: E402
-from hop_sample import icc1  # noqa: E402
+from research.scripts.f10.hop_prompts import ADJECTIVES, MODELS, NOUNS, answer_store  # noqa: E402
+from research.scripts.f10.hop_sample import icc1  # noqa: E402
 
 __version__ = "1.2.0"
 ANSWERS = ROOT / "data/f10/hop_more/answers"
@@ -228,7 +226,7 @@ def borough_table(o: pd.DataFrame, t: pd.DataFrame, k: int) -> None:
 
 def table(k: int = 50) -> None:
     """Write `tab:prompt-ses` at k images for each NTA, in the paper layout of `hop_hierarchy.prompt_table`, from `ses.csv`."""
-    import hop_hierarchy as hh
+    from research.scripts.f10 import hop_hierarchy as hh
 
     d = pd.read_csv(OUT / "ses.csv")
     d = d[d.k == k].copy()

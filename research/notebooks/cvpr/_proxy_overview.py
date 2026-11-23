@@ -37,11 +37,9 @@ import pandas as pd
 from matplotlib.lines import Line2D
 
 HERE = Path(__file__).resolve().parent
-if str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))
 
-import _results_table as R  # noqa: E402
-import _style as S  # noqa: E402
+from research.notebooks.cvpr import _results_table as R  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
 
 __version__ = "1.1.0"
 
@@ -863,7 +861,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = ap.parse_args(argv)
 
     if not args.skip_verify:
-        import _canonical as C
+        from research.notebooks.cvpr import _canonical as C
         C.verify_or_raise()
     matplotlib.use("Agg")
     S.apply_house_style()

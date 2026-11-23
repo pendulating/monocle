@@ -69,20 +69,14 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # folder here uses them. This notebook lives one level down.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
 
-    import _canonical as C
-    import _reliability as RL
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _reliability as RL
 
     # The gate. Stop when the registry no longer matches the disk, because
     # then the numbers describe runs that moved or changed.

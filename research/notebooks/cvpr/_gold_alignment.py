@@ -49,11 +49,11 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _extractions as X
-import _figmeta as F
-import _latex as L
+from research.notebooks.cvpr import _extractions as X
+from research.notebooks.cvpr import _figmeta as F
+from research.notebooks.cvpr import _latex as L
 # Re-exported, thus a notebook can call `G.caption_md(fig)`.
-from _figmeta import caption_md, captioned, save_figure  # noqa: F401
+from research.notebooks.cvpr._figmeta import caption_md, captioned, save_figure  # noqa: F401
 
 __version__ = "1.7.0"
 

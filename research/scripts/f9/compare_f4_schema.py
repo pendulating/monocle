@@ -23,7 +23,6 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -31,7 +30,6 @@ import pandas as pd
 __version__ = "1.0.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT / "research" / "notebooks" / "facct"))
 
 # case -> (new-schema arm, x2 arm, smoke input case)
 ARMS = {"restaurant": ("x2_cues_subj", "x2_cues", "x2smoke_restaurant"),
@@ -44,7 +42,7 @@ def _read(root: Path, arm: str, case: str) -> pd.DataFrame:
     files = glob.glob(str(root / arm / "runs" / f"f4_{case}__*" / "outputs" / "extractions" / "*.parquet"))
     if not files:
         raise FileNotFoundError(f"no runs of {case} under {root / arm}")
-    import _f4
+    from research.notebooks.facct import _f4
 
     return _f4.spans(pd.concat([pd.read_parquet(f) for f in files], ignore_index=True))
 

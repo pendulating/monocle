@@ -319,7 +319,7 @@ def _records_from_registry(case: str, only_canonical: bool,
     read every arm at once, which an ablation table needs and a paper number
     must not use.
     """
-    import _canonical as C
+    from research.notebooks.cvpr import _canonical as C
 
     C.verify_or_raise()
     out: List[RunRecord] = []

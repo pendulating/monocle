@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from itertools import combinations
 from pathlib import Path
 
@@ -32,7 +31,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 __version__ = "1.0.0"
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/notebooks/cvpr")]
 DATA = ROOT / "data/f10/prompts"
 OUT = ROOT / "research/figures/f10/mechanism/mech_borough_shared"
 # The number of layers of each model. Relative depth = layer / this number.
@@ -97,7 +95,7 @@ def shared_words() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def figure(words: pd.DataFrame) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     col = (WIDTH - LEFT) / len(BANDS)

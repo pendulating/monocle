@@ -14,18 +14,14 @@ Use:
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from pathlib import Path
 
 import pandas as pd
 import torch
 
-ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "research/scripts/f8"), str(ROOT / "research/scripts/f10")]
-
-from name_swap_readout import NAMES, READOUTS, WORDS, render  # noqa: E402
-from r3_readout import load_image  # noqa: E402
+from research.scripts.f10.name_swap_readout import NAMES, READOUTS, WORDS, render  # noqa: E402
+from research.scripts.f8.r3_readout import load_image  # noqa: E402
 
 __version__ = "1.0.0"
 

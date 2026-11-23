@@ -37,8 +37,6 @@ import pandas as pd
 __version__ = "1.0.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 OUT = REPO_ROOT / "data" / "f4_traces" / "subj" / "inference_valence"
 MODEL_SOURCE = "/share/ju/matt/zoo/models/DeepSeek-V4-Flash-0731"
 
@@ -116,7 +114,7 @@ def _context(sp: pd.DataFrame, texts: pd.Series) -> pd.DataFrame:
 
 def prepare() -> None:
     """Write the spans to label and the text table of the other 3 outcomes."""
-    import analyze_subjective as A
+    from research.scripts.f9 import analyze_subjective as A
 
     OUT.mkdir(parents=True, exist_ok=True)
     inputs, tables = [], []

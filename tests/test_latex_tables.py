@@ -4,20 +4,17 @@ The first part tests the shared helper `_latex`. The other parts test 1 or
 more tables of each v3 analysis module on small synthetic frames.
 """
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
-
-import _gold_alignment as G  # noqa: E402
-import _ic_metadata as M  # noqa: E402
-import _ic_v3 as I  # noqa: E402
-import _latex as L  # noqa: E402
-import _trace_channels as TC  # noqa: E402
+from research.notebooks.cvpr import _gold_alignment as G  # noqa: E402
+from research.notebooks.cvpr import _ic_metadata as M  # noqa: E402
+from research.notebooks.cvpr import _ic_v3 as I  # noqa: E402
+from research.notebooks.cvpr import _latex as L  # noqa: E402
+from research.notebooks.cvpr import _trace_channels as TC  # noqa: E402
 
 
 # --------------------------------------------------------------------------
@@ -148,7 +145,7 @@ def test_gold_rare_class_leaves_the_table():
 
 def _trace_stats() -> pd.DataFrame:
     """A small long frame of `abstention_from_traces` over 4 arms."""
-    import _extractions as X
+    from research.notebooks.cvpr import _extractions as X
     rows = []
     for arm in TC.v3_arms():
         spec = X.ARMS[arm]

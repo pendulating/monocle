@@ -36,13 +36,10 @@ lens reads the prompt the run sends. That is the rule `canonical` follows.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any, Optional
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import canonical  # noqa: E402
 from research.monocle import labels as lb  # noqa: E402

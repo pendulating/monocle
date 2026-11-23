@@ -30,7 +30,6 @@ import torch
 from PIL import Image, ImageDraw, ImageFont
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle import extract, scoring  # noqa: E402

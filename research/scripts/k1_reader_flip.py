@@ -17,16 +17,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy.stats import wilcoxon
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_separation import bh, boot_ci  # noqa: E402
-import k1_fitted_probe as fp  # noqa: E402
+from research.scripts.k1_separation import bh, boot_ci  # noqa: E402
+from research.scripts import k1_fitted_probe as fp  # noqa: E402
 
 
 def flips(values: np.ndarray, truth: np.ndarray, c0: float) -> bool:

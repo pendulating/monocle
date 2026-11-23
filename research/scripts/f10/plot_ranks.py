@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import matplotlib
@@ -36,7 +35,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patheffects import withStroke  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 OUT = ROOT / "research/figures/f10/mechanism"
 TOP, FAR = 100, 1000
 CAP = 30.0
@@ -53,7 +51,7 @@ NAMES = {"gemma-4-31b": "Gemma-4-31B", "qwen3.5-9b": "Qwen3.5-9B"}
 
 
 def compute(model: str) -> pd.DataFrame:
-    from analyze_logit import load, shard_reads
+    from research.scripts.f10.analyze_logit import load, shard_reads
 
     d = load(model)
     head = d["head"]
@@ -95,7 +93,7 @@ def picks(g: pd.DataFrame, kind: str, k: int) -> pd.DataFrame:
 
 
 def plot(t: pd.DataFrame, model: str) -> None:
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     colors = {"embedded": S.PAL["blue"], "raised": S.PAL["coral"], "lowered": S.PAL["warmgrey"]}

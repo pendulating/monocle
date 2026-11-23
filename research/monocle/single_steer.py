@@ -57,8 +57,6 @@ import pandas as pd
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle import canonical  # noqa: E402  (CPU-safe)
@@ -509,7 +507,6 @@ def compute_direction_and_scales(
     try:
         from jlens.hooks import ActivationRecorder
     except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
         from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
@@ -793,7 +790,6 @@ def run_experiment(args: argparse.Namespace) -> int:
     try:
         from jlens.hooks import ActivationRecorder
     except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
         from jlens.hooks import ActivationRecorder
 
     done: set = set()

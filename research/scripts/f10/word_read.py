@@ -22,15 +22,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 
 import pandas as pd
 import torch
 
-ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "sub/jacobian-lens"), str(ROOT / "research/scripts/f8")]
 
 __version__ = "1.0.0"
 
@@ -73,7 +70,7 @@ def main() -> None:
 
     from research.monocle import extract, jlens_read
     from research.monocle.probe_words import POOL
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)

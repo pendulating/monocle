@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import shutil
-import sys
 import time
 from pathlib import Path
 
@@ -31,8 +30,6 @@ import pandas as pd
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle import canonical  # noqa: E402

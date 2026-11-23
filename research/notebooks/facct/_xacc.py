@@ -499,7 +499,7 @@ def plot_grounding(g: pd.DataFrame):
     """Plot the verbatim share of each class, 1 marker for each case and prompt."""
     import matplotlib.pyplot as plt
 
-    import _f8 as F8
+    from research.notebooks.facct import _f8 as F8
 
     w = grounding_wide(g)
     colors = {"restaurant": F8.S.PAL["blue"], "street": F8.S.PAL["teal"]}
@@ -529,7 +529,7 @@ def plot_position(p: pd.DataFrame):
     """Plot the spans per 1,000 characters in each tenth of the long reasoning traces."""
     import matplotlib.pyplot as plt
 
-    import _f8 as F8
+    from research.notebooks.facct import _f8 as F8
 
     colors = {"restaurant": F8.S.PAL["blue"], "street": F8.S.PAL["teal"]}
     fig, ax = plt.subplots(figsize=(4.2, 2.4))

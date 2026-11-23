@@ -96,25 +96,19 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`. This notebook
-    # lives one level down, in `master/`, because it reads every prompt.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _canonical as C
-    import _style as style
-    import _trace_notebook as TN
-    import _traces as T
-    import _words_across as WA
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _trace_notebook as TN
+    from research.notebooks.cvpr import _traces as T
+    from research.notebooks.cvpr import _words_across as WA
 
     # The gate. Every figure comes from the registered trace runs, thus the
     # notebook stops here when the registry does not match the disk.

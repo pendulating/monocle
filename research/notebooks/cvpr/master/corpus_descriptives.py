@@ -31,17 +31,11 @@ app = marimo.App(width="full")
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
     import marimo as mo
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # folder here uses them. This notebook lives one level down.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import matplotlib.pyplot as plt
     import numpy as np
@@ -52,8 +46,8 @@ def _():
     from pyproj import Transformer
     from scipy.spatial import cKDTree
 
-    import _canonical as C
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
 

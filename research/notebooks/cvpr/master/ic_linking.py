@@ -61,21 +61,17 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _ic
-    import _ic_link as LK
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _ic
+    from research.notebooks.cvpr import _ic_link as LK
+    from research.notebooks.cvpr import _style as style
 
     # The gate: the corpus must come from the registered thinking runs.
     C.verify_or_raise()

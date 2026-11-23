@@ -30,7 +30,6 @@ import argparse
 import json
 import math
 import os
-import sys
 from datetime import datetime, timezone
 
 import numpy as np
@@ -39,8 +38,7 @@ import shapely
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, "research", "scripts"))
-import f6_select_storefront_views as f6  # noqa: E402
+from research.scripts import f6_select_storefront_views as f6  # noqa: E402
 
 __version__ = "1.0.0"
 

@@ -69,24 +69,18 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`. This notebook
-    # lives one level down, in `master/`, because it reads every prompt.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _canonical as C
-    import _cues_across as CA
-    import _style as style
-    import _words_across as WA
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _cues_across as CA
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _words_across as WA
 
     # The gate on the judgment runs. The gate on the EXTRACTION corpus is a
     # second test, and the next cell holds it.

@@ -49,7 +49,6 @@ from __future__ import annotations
 import argparse
 import math
 import os
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -64,8 +63,7 @@ from scipy import stats as sps
 
 # Sibling helpers. Importing `pairwise_vqa_report` also applies the shared
 # matplotlib rcParams polish as a side effect.
-sys.path.insert(0, str(Path(__file__).parent))
-from pairwise_vqa_report import (  # noqa: E402
+from research.scripts.pairwise_vqa_report import (  # noqa: E402
     ACCENT,
     ACCENT_WARM,
     _compute_trueskill,
@@ -73,7 +71,7 @@ from pairwise_vqa_report import (  # noqa: E402
     _load_run_config,
     _md_table,
 )
-from pairwise_analysis_common import (  # noqa: E402
+from research.scripts.pairwise_analysis_common import (  # noqa: E402
     DEFAULT_WANDB_PROJECT,
     _centered_image,
     _fmt_p,
@@ -678,7 +676,7 @@ def main() -> None:
 
     # ---- Sources (one per model) ----
     if multi:
-        from pairwise_vqa_aggregation_report import _discover_runs
+        from research.scripts.pairwise_vqa_aggregation_report import _discover_runs
 
         runs, skipped = _discover_runs(args.aggregation_dir)
         for name, reason in skipped:

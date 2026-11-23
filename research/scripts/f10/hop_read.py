@@ -23,17 +23,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 
 import pandas as pd
 import torch
 
-ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "sub/jacobian-lens"), str(ROOT / "research/scripts/f8"), str(ROOT / "research/scripts/f10")]
-
-from word_read import LAYERS, PROMPTS as F9  # noqa: E402
+from research.scripts.f10.word_read import LAYERS, PROMPTS as F9  # noqa: E402
 
 __version__ = "1.1.0"
 
@@ -82,7 +78,7 @@ def main() -> None:
     from transformers import AutoModelForImageTextToText, AutoProcessor
 
     from research.monocle import jlens_read
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)

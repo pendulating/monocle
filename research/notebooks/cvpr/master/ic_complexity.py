@@ -57,22 +57,16 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`. This notebook
-    # lives one level down.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _ic
-    import _style as style
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _ic
+    from research.notebooks.cvpr import _style as style
 
     # The gate. The corpus is 1 step downstream of the thinking runs, thus it
     # must come from the runs the registry names.
@@ -224,8 +218,8 @@ def _(mo):
 
 @app.cell
 def _(load_error, raw):
-    import _ic_words as W
-    import _traces as T
+    from research.notebooks.cvpr import _ic_words as W
+    from research.notebooks.cvpr import _traces as T
 
     if load_error:
         block_counts, block_sizes = {}, None

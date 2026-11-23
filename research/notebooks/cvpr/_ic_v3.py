@@ -41,14 +41,14 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-import _cues_across as CA
-import _latex as L
-import _extractions as X
-import _figmeta as F
-import _style as S
-import _words_across as WA
+from research.notebooks.cvpr import _cues_across as CA
+from research.notebooks.cvpr import _latex as L
+from research.notebooks.cvpr import _extractions as X
+from research.notebooks.cvpr import _figmeta as F
+from research.notebooks.cvpr import _style as S
+from research.notebooks.cvpr import _words_across as WA
 # Re-exported, thus a notebook can call `I.caption_md(fig)`.
-from _figmeta import caption_md, captioned, save_figure  # noqa: F401
+from research.notebooks.cvpr._figmeta import caption_md, captioned, save_figure  # noqa: F401
 
 __version__ = "1.2.0"
 
@@ -1476,7 +1476,7 @@ def plot_consistent(tables: pd.DataFrame, consistent: pd.DataFrame,
     The figure is `_trace_channels.plot_kind_ladder`, thus it reads like the
     inference and artifact ladders of `master/trace_channels.py`.
     """
-    import _trace_channels as TC
+    from research.notebooks.cvpr import _trace_channels as TC
 
     if consistent.empty:
         raise EmptyFigure("no key holds its sign")

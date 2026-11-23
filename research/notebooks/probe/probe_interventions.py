@@ -45,20 +45,12 @@ def _(mo):
 @app.cell
 def _():
     import os
-    import sys
-    from pathlib import Path
-
-    _here = Path(__file__).resolve().parent
-    _cvpr = _here.parent / "cvpr"
-    for _p in (str(_here), str(_cvpr)):
-        if _p not in sys.path:
-            sys.path.insert(0, _p)
 
     import marimo as mo
     import pandas as pd
 
-    import _probe as P
-    import _style as style
+    from research.notebooks.probe import _probe as P
+    from research.notebooks.cvpr import _style as style
 
     style.apply_house_style()
     return P, mo, os, pd

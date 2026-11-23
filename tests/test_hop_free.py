@@ -1,13 +1,10 @@
 """Tests for the word sets and the lens-free analysis."""
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
-from hop_free import folds, grid_pool, kernel, monotone_path, oof_mixed, oof_predict, r2, rdm_ranks  # noqa: E402
-from hop_sets import match_controls  # noqa: E402
+from research.scripts.f10.hop_free import folds, grid_pool, kernel, monotone_path, oof_mixed, oof_predict, r2, rdm_ranks  # noqa: E402
+from research.scripts.f10.hop_sets import match_controls  # noqa: E402
 
 
 def test_folds_keep_each_nta_whole():
@@ -62,7 +59,7 @@ def test_match_controls_are_unique_and_outside_the_set():
 
 
 def test_borough_split_and_t():
-    from hop_borough import balanced_means, held_out, split_within, two_sample_t
+    from research.scripts.f10.hop_borough import balanced_means, held_out, split_within, two_sample_t
 
     borough = np.array(["A"] * 10 + ["B"] * 6)
     half = split_within(borough)
@@ -80,7 +77,7 @@ def test_borough_split_and_t():
 
 
 def test_link_scores_find_a_shared_word_and_ignore_a_borough_word():
-    from hop_link import link_scores, presence
+    from research.scripts.f10.hop_link import link_scores, presence
 
     rows = pd.DataFrame({"image_idx": [0, 1, 2, 3], "text": ["alpha gamma", "beta gamma", "alpha", "beta"]})
     assert presence(rows, pd.Series([0, 1, 2, 3]), np.array(["alpha", "beta", "gamma", "delta"])).shape == (4, 4)
@@ -95,7 +92,7 @@ def test_link_scores_find_a_shared_word_and_ignore_a_borough_word():
 
 
 def test_axes_recover_the_large_axis():
-    from hop_axes import axes
+    from research.scripts.f10.hop_axes import axes
 
     rng = np.random.default_rng(5)
     load = rng.normal(size=500)
@@ -107,7 +104,7 @@ def test_axes_recover_the_large_axis():
 
 
 def test_argument_tag_and_icc():
-    from analyze_argument import icc, tag
+    from research.scripts.f10.analyze_argument import icc, tag
 
     assert "brick" in tag("red brick building") and "tree or greenery" in tag("large trees")
     assert tag("nothing to see") == []

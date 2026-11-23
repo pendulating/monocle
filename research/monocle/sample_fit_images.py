@@ -41,7 +41,6 @@ import duckdb
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 
 from sv.cyclomedia.catalog import (  # noqa: E402
     DEFAULT_INDEX_PATH,

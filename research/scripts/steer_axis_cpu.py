@@ -25,7 +25,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -34,11 +33,9 @@ import pandas as pd
 from scipy import stats as sps
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle.steer_coord import contribution_sign, delta_map  # noqa: E402
-from scripts.steer_coord_report import CASES, steering_gain  # noqa: E402
+from research.scripts.steer_coord_report import CASES, steering_gain  # noqa: E402
 
 ROOT_DEFAULT = REPO / "outputs/_monocle/steer_coord"
 SWEEP_DEFAULT = REPO / "outputs/_monocle/single_steer_fine"

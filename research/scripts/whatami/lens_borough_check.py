@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-import lens_common as lc
-from lens_report import REPLAY, REPORT, bands, single_token_ids
+from research.scripts.whatami import lens_common as lc
+from research.scripts.whatami.lens_report import REPLAY, REPORT, bands, single_token_ids
 
 BOROUGH_TERMS = {"bronx": "Bronx", "brooklyn": "Brooklyn", "manhattan": "Manhattan",
                  "queens": "Queens", "staten_island": "Staten"}

@@ -18,7 +18,6 @@ Use:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -26,8 +25,7 @@ import pandas as pd
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from analyze_logit import MODELS, cluster_r, holm, load, shard_reads  # noqa: E402
+from research.scripts.f10.analyze_logit import MODELS, cluster_r, holm, load, shard_reads  # noqa: E402
 
 __version__ = "1.0.0"
 

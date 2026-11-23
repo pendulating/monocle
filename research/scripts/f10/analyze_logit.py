@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -33,8 +32,7 @@ from scipy import stats
 from scipy.special import logsumexp
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
-from hop_store import ALL_ROOT, open_store  # noqa: E402
+from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -240,7 +238,7 @@ def label(token: str) -> str:
 
 def plot_grid(tables: dict, column: str, path: Path, title: str, caption: str, tags: list[str], vmin: float, vmax: float, label_bar: str, div: bool) -> None:
     import matplotlib.pyplot as plt
-    import _style as S
+    from research.notebooks.cvpr import _style as S
 
     S.apply_house_style()
     keys = list(tables)

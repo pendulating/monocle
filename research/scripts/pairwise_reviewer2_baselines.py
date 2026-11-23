@@ -48,7 +48,6 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -57,8 +56,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / "research" / "scripts"))
-sys.path.insert(0, str(REPO))
 
 from scipy.spatial.distance import jensenshannon  # noqa: E402
 from scipy import stats as sps  # noqa: E402
@@ -68,8 +65,8 @@ from dagspaces.pairwisevqa.stages.pairwise_vqa import (  # noqa: E402
     INVERT_LABEL,
     ORDINAL_SCORE,
 )
-from pairwise_vqa_report import _compute_trueskill  # noqa: E402
-from pairwise_socioeconomic_regression import (  # noqa: E402
+from research.scripts.pairwise_vqa_report import _compute_trueskill  # noqa: E402
+from research.scripts.pairwise_socioeconomic_regression import (  # noqa: E402
     DRAW_PROB,
     LAYERS,
     MODEL_NAMES,
@@ -526,7 +523,7 @@ def write_report(tier: str, res: pd.DataFrame, outdir: Path) -> Path:
 
 def maybe_wandb(tier: str, res: pd.DataFrame, report: Path, outdir: Path,
                 project: str, entity: Optional[str]) -> Optional[str]:
-    from pairwise_analysis_common import mirror_to_wandb
+    from research.scripts.pairwise_analysis_common import mirror_to_wandb
     flat: Dict[str, float] = {}
     for _, r in res.iterrows():
         key = f"{r['arm']}/{r['model']}" if "arm" in res.columns else str(r["model"])

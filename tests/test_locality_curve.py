@@ -5,19 +5,11 @@ would send the whole ladder to the wrong layer.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
 
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(REPO / "research" / "scripts"))
-
-from locality_curve import curve, full_r, input_truth  # noqa: E402
+from research.scripts.locality_curve import curve, full_r, input_truth  # noqa: E402
 
 N_PATCH = 256
 

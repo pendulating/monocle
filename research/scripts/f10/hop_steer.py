@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 
@@ -42,7 +41,6 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "sub/jacobian-lens"), str(ROOT / "research/scripts/f8"), str(ROOT / "research/scripts/f10")]
 
 __version__ = "1.0.0"
 OUT = ROOT / "data/f10/steer"
@@ -65,7 +63,7 @@ SEED = 7
 
 def dirs(model: str) -> None:
     """Build the 2 directions and the control on the CPU, from the F10.26 summaries."""
-    from hop_prompts import PROMPTS as ALL14, Summary, dual_weights, prompt_name, shared_direction
+    from research.scripts.f10.hop_prompts import PROMPTS as ALL14, Summary, dual_weights, prompt_name, shared_direction
 
     out = OUT / model
     out.mkdir(parents=True, exist_ok=True)
@@ -122,7 +120,7 @@ def answer_margin(model: str, adjective: str, noun: str, image_idx: np.ndarray) 
     """Give the 8-form logit margin of each image. It is finite also where the model refuses."""
     from scipy.special import logsumexp
 
-    from hop_hierarchy import answer_store
+    from research.scripts.f10.hop_hierarchy import answer_store
 
     a = pd.read_parquet(ROOT / "data/f10/hop_logit" / answer_store(model, adjective, noun) / "answers.parquet").set_index("image_idx")
     yes, no = ["lp_Yes", "lp_yes", "lp_ Yes", "lp_ yes"], ["lp_No", "lp_no", "lp_ No", "lp_ no"]
@@ -140,8 +138,8 @@ def patch_dirs(model: str) -> None:
     folds, and the r of the held-out projection with the margin. The cosines compare each direction with the noun
     direction at the same layer (`dirs.npz`). The patch norm is the median norm of single patches (1 shard).
     """
-    from hop_prompts import PROMPTS as ALL14, dual_weights, mean_patch, prompt_name, shared_direction
-    from hop_store import ALL_ROOT, open_store
+    from research.scripts.f10.hop_prompts import PROMPTS as ALL14, dual_weights, mean_patch, prompt_name, shared_direction
+    from research.scripts.f10.hop_store import ALL_ROOT, open_store
 
     out = OUT / model
     store = open_store(model, ALL_ROOT)
@@ -262,9 +260,9 @@ def grow(torch, cur: dict, nxt: int) -> dict:
 
 
 def run(args: argparse.Namespace) -> None:
-    from hop_all import ANSWERS, pooled_margin
-    from hop_depth import ask, locate
-    from r3_readout import load_image
+    from research.scripts.f10.hop_all import ANSWERS, pooled_margin
+    from research.scripts.f10.hop_depth import ask, locate
+    from research.scripts.f8.r3_readout import load_image
 
     torch, proc, model, lens_model, _, device = gpu_setup(args)
     tok = proc.tokenizer
@@ -346,7 +344,7 @@ def run(args: argparse.Namespace) -> None:
 
 def words(args: argparse.Namespace) -> None:
     """Item 7: the lens words of a token with the direction added, with no image."""
-    from hop_depth import ask
+    from research.scripts.f10.hop_depth import ask
 
     torch, proc, model, lens_model, lens, device = gpu_setup(args)
     tok = proc.tokenizer
@@ -398,8 +396,8 @@ def words(args: argparse.Namespace) -> None:
 
 def words_model(args: argparse.Namespace) -> None:
     """Item 7 with the model's own readout: inject at the word token, read the next-token words and the margin."""
-    from hop_all import ANSWERS, pooled_margin
-    from hop_depth import ask
+    from research.scripts.f10.hop_all import ANSWERS, pooled_margin
+    from research.scripts.f10.hop_depth import ask
 
     torch, proc, model, lens_model, _, device = gpu_setup(args)
     tok = proc.tokenizer
@@ -457,9 +455,9 @@ DOSE_IMAGES = 40
 
 def dose(args: argparse.Namespace) -> None:
     """Item 5 at larger doses, on 40 images."""
-    from hop_all import ANSWERS, pooled_margin
-    from hop_depth import ask, locate
-    from r3_readout import load_image
+    from research.scripts.f10.hop_all import ANSWERS, pooled_margin
+    from research.scripts.f10.hop_depth import ask, locate
+    from research.scripts.f8.r3_readout import load_image
 
     torch, proc, model, lens_model, _, device = gpu_setup(args)
     tok = proc.tokenizer
@@ -539,10 +537,10 @@ def patches_stage(args: argparse.Namespace) -> None:
     `patches/{sample_id}.parquet` (the rows) and `patches/{sample_id}.npz` (ids [conditions, patches, layers, top]).
     A requeue skips the images that are done.
     """
-    from hop_all import ANSWERS, parts, pooled_margin
-    from hop_depth import ask, locate
+    from research.scripts.f10.hop_all import ANSWERS, parts, pooled_margin
+    from research.scripts.f10.hop_depth import ask, locate
     from jlens.hooks import ActivationRecorder
-    from r3_readout import load_image
+    from research.scripts.f8.r3_readout import load_image
 
     torch, proc, model, lens_model, lens, device = gpu_setup(args)
     tok = proc.tokenizer

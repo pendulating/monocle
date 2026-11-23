@@ -24,15 +24,10 @@ must reproduce ``out.logits`` at patch positions.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Any, Optional
 
 import torch
 from PIL import Image
-
-REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 
 from research.monocle import extract  # noqa: E402
 

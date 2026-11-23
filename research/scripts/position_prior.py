@@ -36,12 +36,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-REPO = Path(__file__).resolve().parents[2]
-import sys  # noqa: E402
-sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(REPO / "research" / "scripts"))
-
-from linear_probe import block_features, ridge_fit, zscore  # noqa: E402
+from research.scripts.linear_probe import block_features, ridge_fit, zscore  # noqa: E402
 
 
 def load_truth(path: str) -> dict:

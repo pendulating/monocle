@@ -34,10 +34,6 @@ from pathlib import Path
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
-# The jlens package is vendored. A venv that does not install it must
-# still import it, so put the vendored path on sys.path.
-sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 

@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -45,8 +44,6 @@ import pandas as pd
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 OUT_DEFAULT = REPO / "outputs/_monocle/cell_statistics"
 #: The model sees a 768 px square, whatever the file holds.

@@ -30,19 +30,18 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
 
 import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 
-import _canonical as C  # noqa: E402
-import _extractions as X  # noqa: E402
-import _gen_trace_notebooks as G  # noqa: E402
-import _provenance as P  # noqa: E402
-import _style as S  # noqa: E402
-import _trace_notebook as TN  # noqa: E402
-import _traces as T  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _extractions as X  # noqa: E402
+from research.notebooks.cvpr import _gen_trace_notebooks as G  # noqa: E402
+from research.notebooks.cvpr import _provenance as P  # noqa: E402
+from research.notebooks.cvpr import _style as S  # noqa: E402
+from research.notebooks.cvpr import _trace_notebook as TN  # noqa: E402
+from research.notebooks.cvpr import _traces as T  # noqa: E402
 
 __version__ = "1.0.0"
 

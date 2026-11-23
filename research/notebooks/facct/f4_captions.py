@@ -52,20 +52,14 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
-
-    # `_f4cap` sits beside this notebook and puts `research/notebooks/cvpr/` on the path.
-    _here = Path(__file__).resolve().parent
-    if str(_here) not in sys.path:
-        sys.path.insert(0, str(_here))
 
     import marimo as mo
 
-    import _f4 as F
-    import _f4cap as C
-    import _style as style
-    import _traces as T
+    from research.notebooks.facct import _f4 as F
+    from research.notebooks.facct import _f4cap as C
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _traces as T
 
     style.apply_house_style()
 

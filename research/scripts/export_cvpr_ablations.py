@@ -27,14 +27,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
 
-import _ablations as A  # noqa: E402
-import _canonical as C  # noqa: E402
-import _proxy_arms as PA  # noqa: E402
-import _quantile_shift as Q  # noqa: E402
-import _results_table as R  # noqa: E402
-import _style as style  # noqa: E402
+from research.notebooks.cvpr import _ablations as A  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _proxy_arms as PA  # noqa: E402
+from research.notebooks.cvpr import _quantile_shift as Q  # noqa: E402
+from research.notebooks.cvpr import _results_table as R  # noqa: E402
+from research.notebooks.cvpr import _style as style  # noqa: E402
 
 __version__ = "1.0.0"
 

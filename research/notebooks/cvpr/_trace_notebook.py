@@ -22,8 +22,8 @@ from typing import Dict, List, Optional, Sequence
 
 import pandas as pd
 
-import _provenance as P
-import _traces as T
+from research.notebooks.cvpr import _provenance as P
+from research.notebooks.cvpr import _traces as T
 
 __version__ = "1.0.0"
 

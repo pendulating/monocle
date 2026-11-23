@@ -88,7 +88,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import pandas as pd
 
-import _proxies as px
+from research.notebooks.cvpr import _proxies as px
 
 __version__ = "1.0.0"
 
@@ -443,7 +443,7 @@ def stations(refresh: bool = False) -> pd.DataFrame:
 
 def load_entrances() -> pd.DataFrame:
     """Read the subway curation table, 1 row for each entrance."""
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     cols = ["uid", "facname", "station_id", "complex_id", "gtfs_stop_id",
             "stop_name", "borough", "division", "entrance_type",
@@ -639,7 +639,7 @@ def assign_complaints(max_distance_ft: float = MAX_COMPLAINT_FT
     """
     import geopandas as gpd
 
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     st = stations()
     st = st.assign(station_key=station_key_of(st["complex_id"],
@@ -916,7 +916,7 @@ def build_area_proxy(case: str = "subway",
     Warning: the area rows come from `_proxies`, unchanged. The station rows use
     the same aggregation function, thus the 2 halves of the export share 1 rule.
     """
-    import _geography as geo
+    from research.notebooks.cvpr import _geography as geo
 
     recipe = px.load_recipe(case)
     income_entry = next(e for e in recipe if "S1901" in e["name"])

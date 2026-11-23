@@ -43,18 +43,11 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
-    from pathlib import Path
-
-    _here = Path(__file__).resolve().parent
-    if str(_here) not in sys.path:
-        sys.path.insert(0, str(_here))
-
     import marimo as mo
     import pandas as pd
 
-    import _f8 as F8
-    import _xacc as XA
+    from research.notebooks.facct import _f8 as F8
+    from research.notebooks.facct import _xacc as XA
 
     NOTEBOOK_VERSION = "1.0.0"
     return F8, XA, mo, pd

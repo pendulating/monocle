@@ -27,23 +27,15 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
     import marimo as mo
     import pandas as pd
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # prompt folder uses them. This notebook lives one level down.
-    _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
-
-    import _geography as geo
-    import _provenance as prov
-    import _proxies as px
-    import _proxies_subway as subx
+    from research.notebooks.cvpr import _geography as geo
+    from research.notebooks.cvpr import _provenance as prov
+    from research.notebooks.cvpr import _proxies as px
+    from research.notebooks.cvpr import _proxies_subway as subx
 
     return Path, geo, mo, pd, prov, px, subx
 

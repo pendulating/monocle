@@ -44,12 +44,11 @@ import pandas as pd
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
-from analyze_logit import ALL_ROOT, cluster_r, holm, load, open_store, shard_reads  # noqa: E402
-from hop_borough import BOROUGHS, split_within, two_sample_t  # noqa: E402
-from hop_depth import N_LAYERS  # noqa: E402
-from hop_free import load_tail, rdm_ranks  # noqa: E402
-from hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
+from research.scripts.f10.analyze_logit import ALL_ROOT, cluster_r, holm, load, open_store, shard_reads  # noqa: E402
+from research.scripts.f10.hop_borough import BOROUGHS, split_within, two_sample_t  # noqa: E402
+from research.scripts.f10.hop_depth import N_LAYERS  # noqa: E402
+from research.scripts.f10.hop_free import load_tail, rdm_ranks  # noqa: E402
+from research.scripts.f10.hop_sense import CAP, SOCIAL, TEMPERATURE  # noqa: E402
 
 __version__ = "1.0.0"
 
@@ -232,11 +231,11 @@ def sense(got: dict) -> pd.DataFrame:
 
 def solo(model: str, out: Path) -> None:
     """Run the per-model scripts on 1 model. Each script writes to a subfolder of `out`."""
-    import analyze_logit
-    import hop_axes
-    import hop_borough
-    import hop_sets
-    import hop_stage
+    from research.scripts.f10 import analyze_logit
+    from research.scripts.f10 import hop_axes
+    from research.scripts.f10 import hop_borough
+    from research.scripts.f10 import hop_sets
+    from research.scripts.f10 import hop_stage
 
     argv = sys.argv
     steps = (("logit", analyze_logit), ("sets", hop_sets), ("borough", hop_borough), ("axes", hop_axes), ("stage", hop_stage))

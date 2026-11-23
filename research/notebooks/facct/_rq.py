@@ -23,8 +23,8 @@ from typing import Dict, Optional
 import numpy as np
 import pandas as pd
 
-import _f8 as F8
-from _f8 import S
+from research.notebooks.facct import _f8 as F8
+from research.notebooks.facct._f8 import S
 
 __version__ = "1.10.0"
 

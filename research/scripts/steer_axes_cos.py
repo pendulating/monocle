@@ -14,7 +14,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -23,11 +22,8 @@ import pandas as pd
 from scipy import stats as sps
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(REPO / "research" / "scripts"))
 
-from k1_image_stats import cell_stats  # noqa: E402
+from research.scripts.k1_image_stats import cell_stats  # noqa: E402
 
 AXIS_ROOT = REPO / "outputs/_monocle/single_steer_axis"
 COORD_ROOT = REPO / "outputs/_monocle/steer_coord"

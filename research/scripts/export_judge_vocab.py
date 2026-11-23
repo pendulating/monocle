@@ -11,19 +11,15 @@ filters, runs `_judge_vocab.build_bundle`, and writes the files of
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(ROOT / "research" / "notebooks" / "cvpr"))
 
 import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 
-import _canonical as C  # noqa: E402
-import _judge_vocab as J  # noqa: E402
-import _style as style  # noqa: E402
+from research.notebooks.cvpr import _canonical as C  # noqa: E402
+from research.notebooks.cvpr import _judge_vocab as J  # noqa: E402
+from research.notebooks.cvpr import _style as style  # noqa: E402
 
 #: Keep this equal to `NOTEBOOK_VERSION` of the notebook.
 NOTEBOOK_VERSION = "1.0.0"

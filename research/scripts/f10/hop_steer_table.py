@@ -7,14 +7,12 @@ at 12 sigma. Output: `research/notebooks/facct/tables/f10_steer_dose.tex`, synce
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hop_prompts import MODELS  # noqa: E402
+from research.scripts.f10.hop_prompts import MODELS  # noqa: E402
 
 __version__ = "1.1.0"
 DOSE = ROOT / "research/figures/f10/steer/dose.csv"

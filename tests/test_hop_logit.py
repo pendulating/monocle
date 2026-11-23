@@ -1,13 +1,10 @@
 """Tests for the logit metrics of `hop_logit.py`."""
 import math
-import sys
-from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
-from hop_all import claim  # noqa: E402
-from hop_logit import js_divergence, kl_divergence, pooled_margin, softcap  # noqa: E402
+from research.scripts.f10.hop_all import claim  # noqa: E402
+from research.scripts.f10.hop_logit import js_divergence, kl_divergence, pooled_margin, softcap  # noqa: E402
 
 
 def test_softcap_is_off_without_a_cap_and_bounded_with_a_cap():
@@ -51,7 +48,7 @@ def test_pooled_margin_uses_both_cases_and_ignores_a_shift():
 
 def test_split_gives_98_ntas_and_is_fixed():
     import pandas as pd
-    from analyze_logit import split_ntas
+    from research.scripts.f10.analyze_logit import split_ntas
 
     ntas = pd.Series([f"N{i:03d}" for i in range(197) for _ in range(3)])
     a, b = split_ntas(ntas), split_ntas(ntas)
@@ -61,7 +58,7 @@ def test_split_gives_98_ntas_and_is_fixed():
 
 def test_cluster_r_gives_the_pearson_r_and_a_lower_t_for_clusters():
     import numpy as np
-    from analyze_logit import cluster_r
+    from research.scripts.f10.analyze_logit import cluster_r
 
     rng = np.random.default_rng(1)
     u = np.repeat(rng.normal(size=60), 3)
@@ -73,6 +70,6 @@ def test_cluster_r_gives_the_pearson_r_and_a_lower_t_for_clusters():
 
 def test_holm_of_a_known_case():
     import numpy as np
-    from analyze_logit import holm
+    from research.scripts.f10.analyze_logit import holm
 
     assert np.allclose(holm(np.array([0.01, 0.04, 0.03])), [0.03, 0.06, 0.06])

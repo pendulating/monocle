@@ -73,8 +73,8 @@ from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-import _canonical as C
-import _results_table as R
+from research.notebooks.cvpr import _canonical as C
+from research.notebooks.cvpr import _results_table as R
 
 __version__ = "1.0.0"
 

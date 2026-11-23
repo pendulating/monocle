@@ -75,23 +75,17 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # folder here uses them. This notebook lives one level down.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
     import pandas as pd
 
-    import _canonical as C
-    import _results_table as R
-    import _style as style
-    import _unit_validation as U
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _results_table as R
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _unit_validation as U
 
     # The gate. This notebook reads what the case notebooks exported, and those
     # exports came from the canonical registry. Stop when the registry no

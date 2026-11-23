@@ -49,24 +49,18 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
 
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # folder here uses them. This notebook lives one level down.
     _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
 
     import marimo as mo
 
-    import _ablations as A
-    import _canonical as C
-    import _proxy_arms as PA
-    import _quantile_shift as Q
-    import _results_table as R
-    import _style as style
+    from research.notebooks.cvpr import _ablations as A
+    from research.notebooks.cvpr import _canonical as C
+    from research.notebooks.cvpr import _proxy_arms as PA
+    from research.notebooks.cvpr import _quantile_shift as Q
+    from research.notebooks.cvpr import _results_table as R
+    from research.notebooks.cvpr import _style as style
 
     # The gate. Every section reads a run of the canonical registry. Stop
     # when the registry no longer matches the disk, because then a table

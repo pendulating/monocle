@@ -7,15 +7,11 @@ score.
 """
 
 import json
-import sys
-from pathlib import Path
 
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
-
-import _extractions as X  # noqa: E402
+from research.notebooks.cvpr import _extractions as X  # noqa: E402
 
 
 def _row(case, pair, cls, text, attrs, label="Same", quotable=True):

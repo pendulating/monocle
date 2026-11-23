@@ -20,10 +20,8 @@ from pathlib import Path
 
 import numpy as np
 
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from k1_fitted_probe import Gram, load_acts, predict  # noqa: E402
-from k1_separation import sep_z  # noqa: E402
+from research.scripts.k1_fitted_probe import Gram, load_acts, predict  # noqa: E402
+from research.scripts.k1_separation import sep_z  # noqa: E402
 
 
 def null_gain(case: str, layer: int, feat: str, alpha: float, own: Path,

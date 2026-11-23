@@ -28,14 +28,10 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
-REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 
 FEATURES = ("luminance", "contrast", "edge", "saturation", "row", "col")
 
@@ -127,8 +123,7 @@ def main() -> int:
         return 0
 
     if a.rank:
-        sys.path.insert(0, str(REPO / "research" / "scripts"))
-        from make_ranking import pool
+        from research.scripts.make_ranking import pool
 
         df = pd.read_parquet(a.maps)
         # 2 layouts hold a map. The gate writes `target`/`causal`; the

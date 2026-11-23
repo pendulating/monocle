@@ -30,15 +30,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import torch
-
-REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
-
 
 def log(msg: str) -> None:
     print(f"[jlens-merge] {msg}", flush=True)
@@ -48,7 +42,6 @@ def _load_lens_class():
     try:
         from jlens import JacobianLens
     except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
         from jlens import JacobianLens
     return JacobianLens
 
