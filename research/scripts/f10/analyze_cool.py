@@ -23,7 +23,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +31,6 @@ from scipy import stats
 from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/scripts/f9"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10.analyze_logit import LOGIT_ROOT, MODELS, SEED, cluster_r, holm  # noqa: E402
 from research.scripts.f9.analyze_subjective import text_verdict  # noqa: E402
 from research.scripts.f10.build_cool_schemas import example_ids  # noqa: E402

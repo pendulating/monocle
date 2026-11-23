@@ -37,11 +37,6 @@ import numpy as np
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-_CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-_HERE = Path(__file__).resolve().parent
-for _p in (_CVPR, _HERE):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
 from research.notebooks.facct import _f4 as F  # noqa: E402
 from research.notebooks.facct import _pairwise_ses as P  # noqa: E402
@@ -76,7 +71,6 @@ def uncertainty_reasons() -> pd.DataFrame:
     path = VALENCE / "uncertainty_reasons.parquet"
     if path.exists():
         return pd.read_parquet(path)
-    sys.path.insert(0, str(REPO_ROOT / "research" / "scripts" / "f9"))
     from research.scripts.f9 import analyze_subjective as A
     from research.scripts.f9 import label_inference_valence as L
 

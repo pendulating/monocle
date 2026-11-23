@@ -44,7 +44,6 @@ import pandas as pd
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
 from research.scripts.f10.analyze_logit import ALL_ROOT, cluster_r, holm, load, open_store, shard_reads  # noqa: E402
 from research.scripts.f10.hop_borough import BOROUGHS, split_within, two_sample_t  # noqa: E402
 from research.scripts.f10.hop_depth import N_LAYERS  # noqa: E402

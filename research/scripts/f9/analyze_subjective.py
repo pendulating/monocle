@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
@@ -49,9 +48,6 @@ import pandas as pd
 __version__ = "1.1.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-for p in (REPO_ROOT / "research" / "scripts" / "f8", REPO_ROOT / "research" / "notebooks" / "facct"):
-    if str(p) not in sys.path:
-        sys.path.insert(0, str(p))
 from research.scripts.f8 import method_b as MB  # noqa: E402
 
 X2 = REPO_ROOT / "data" / "f4_traces" / "subj" / "x2"

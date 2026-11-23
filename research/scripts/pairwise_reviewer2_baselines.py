@@ -48,7 +48,6 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -57,8 +56,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / "research" / "scripts"))
-sys.path.insert(0, str(REPO))
 
 from scipy.spatial.distance import jensenshannon  # noqa: E402
 from scipy import stats as sps  # noqa: E402

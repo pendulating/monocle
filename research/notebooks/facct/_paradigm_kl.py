@@ -43,7 +43,6 @@ the paradigm with the extractor. Read each value against the references
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -54,10 +53,6 @@ from scipy.stats import spearmanr
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-_HERE = Path(__file__).resolve().parent
-for _p in (_CVPR, _HERE):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
 from research.notebooks.cvpr import _cues_across as CA  # noqa: E402
 

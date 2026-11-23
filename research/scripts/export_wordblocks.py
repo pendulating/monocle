@@ -33,7 +33,6 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 CVPR = HERE.parent.parent / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
 
 __version__ = "1.3.0"
 

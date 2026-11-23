@@ -32,7 +32,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -42,8 +41,6 @@ from PIL import Image, ImageDraw
 from scipy import stats as sps
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import causal_maps as cm  # noqa: E402
 from research.monocle.single_steer import CASE_WORDS  # noqa: E402

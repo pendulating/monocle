@@ -72,13 +72,7 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
     from pathlib import Path
-
-    # `_f4desc` sits beside this notebook and puts `research/notebooks/cvpr/` on the path.
-    _here = Path(__file__).resolve().parent
-    if str(_here) not in sys.path:
-        sys.path.insert(0, str(_here))
 
     import marimo as mo
     import matplotlib.pyplot as plt

@@ -38,8 +38,6 @@ import numpy as np
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-if str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))
 
 from research.notebooks.cvpr import _geography as geo  # noqa: E402
 from research.notebooks.cvpr import _results_table as R  # noqa: E402

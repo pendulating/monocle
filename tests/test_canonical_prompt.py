@@ -17,15 +17,12 @@ No GPU is needed. The tokenizer tests skip when the model directory is absent.
 """
 from __future__ import annotations
 
-import sys
 import os
 from pathlib import Path
 
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import canonical  # noqa: E402
 

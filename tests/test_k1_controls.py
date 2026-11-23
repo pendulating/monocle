@@ -5,7 +5,6 @@ Each test checks a rule the analysis depends on, not the numbers of a run.
 from __future__ import annotations
 
 import importlib.util
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +12,6 @@ import pytest
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / "research" / "scripts"))
 
 
 def load(name: str):

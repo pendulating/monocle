@@ -37,8 +37,6 @@ import pandas as pd
 __version__ = "1.0.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 OUT = REPO_ROOT / "data" / "f4_traces" / "subj" / "inference_valence"
 MODEL_SOURCE = "/share/ju/matt/zoo/models/DeepSeek-V4-Flash-0731"
 

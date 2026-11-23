@@ -46,7 +46,6 @@ directly via `_norm` and needs no anchors.
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 from xml.sax.saxutils import escape
@@ -54,12 +53,6 @@ from xml.sax.saxutils import escape
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw
-
-# monocle.render lives beside us; mirror jlens_read's path bootstrap so this
-# module imports whether it is loaded as a package member or a loose script.
-REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import render  # noqa: E402
 

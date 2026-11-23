@@ -54,16 +54,11 @@ Usage:
 from __future__ import annotations
 
 import contextlib
-import sys
-from pathlib import Path
 from typing import Any, Iterator, Optional
 
 import torch
 from torch import nn
 
-REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 #: Below this the ratio y/x is not a usable slope, so the rule falls back to
 #: the slope of the activation at 0.

@@ -12,12 +12,8 @@ Use:
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import pandas as pd
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(REPO_ROOT / "research" / "notebooks" / "cvpr"), str(REPO_ROOT / "research" / "notebooks" / "facct")]
 
 from research.notebooks.facct import _rq as Q  # noqa: E402
 

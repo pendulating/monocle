@@ -24,14 +24,12 @@ from __future__ import annotations
 
 import argparse
 import itertools
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10 import hop_shared as hs  # noqa: E402
 from research.scripts.f10.hop_prompts import MODELS, store_name  # noqa: E402
 

@@ -67,7 +67,6 @@ extractor, the schema, the prompt, and the images at the same time.
 from __future__ import annotations
 
 import os
-import sys
 from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -76,9 +75,6 @@ import numpy as np
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-_CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-if str(_CVPR) not in sys.path:
-    sys.path.insert(0, str(_CVPR))
 
 from research.notebooks.cvpr import _extractions as X  # noqa: E402
 from research.notebooks.cvpr import _style as S  # noqa: E402

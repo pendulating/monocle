@@ -35,12 +35,10 @@ Warning: it reads 14 runs of 1,100,000 rows. It needs about 10 minutes.
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
 
 import pandas as pd  # noqa: E402
 

@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import matplotlib
@@ -36,7 +35,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patheffects import withStroke  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 OUT = ROOT / "research/figures/f10/mechanism"
 TOP, FAR = 100, 1000
 CAP = 30.0

@@ -36,15 +36,9 @@ than treat the number as a verdict.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Any, Optional
 
 import torch
-
-REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import patch_ablate as pab  # noqa: E402
 from research.monocle import single as sg  # noqa: E402

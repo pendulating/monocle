@@ -12,7 +12,6 @@ Use:
 """
 from __future__ import annotations
 
-import sys
 from collections import Counter
 from pathlib import Path
 
@@ -22,7 +21,6 @@ from scipy import stats
 from scipy.special import logsumexp
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
 from research.scripts.f10 import plot_patch_teaser as T  # noqa: E402
 from research.scripts.f10.hop_hierarchy import answer_store  # noqa: E402
 from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402

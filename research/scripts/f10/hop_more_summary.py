@@ -26,14 +26,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
 READ_POSITIONS = ("place", "after_place", "final")  # as hop_lean.py
 from research.scripts.f10.hop_outcomes import outcome  # noqa: E402
 from research.scripts.f10.hop_prompts import ADJECTIVES, NOUNS, softcap_of, store_name, uncap, zscore  # noqa: E402

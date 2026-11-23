@@ -1,13 +1,9 @@
 """Tests for the gold-set alignment measures: nested spans, the character
 agreement, the ledger, the coverage, and the decisions."""
 
-import sys
-from pathlib import Path
-
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 from research.notebooks.cvpr import _gold_alignment as G  # noqa: E402
 
 TEXT = "Image A shows a bank. It looks like a wealthy area. So A is More."

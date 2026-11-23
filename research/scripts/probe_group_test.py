@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 
@@ -35,7 +34,6 @@ import pandas as pd
 from scipy.stats import mannwhitneyu, rankdata, spearmanr
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 from research.monocle.probe_frame import PROBE_ORDER, PROBES  # noqa: E402
 
 DEFAULT_ROOT = REPO / "outputs/_monocle/probe_nta"

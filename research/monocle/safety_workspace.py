@@ -61,7 +61,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -72,8 +71,6 @@ import torch
 from PIL import Image, ImageDraw
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import canonical, extract, render  # noqa: E402  (CPU-safe)
 from research.monocle import jlens_read  # noqa: E402  (jlens is imported lazily inside)
@@ -139,7 +136,6 @@ def _load_activation_recorder():
     try:
         from jlens.hooks import ActivationRecorder
     except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
         from jlens.hooks import ActivationRecorder
     return ActivationRecorder
 

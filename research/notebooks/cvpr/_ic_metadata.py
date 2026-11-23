@@ -43,7 +43,6 @@ from __future__ import annotations
 
 import math
 import os
-import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
@@ -62,9 +61,6 @@ __version__ = "1.2.0"
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
 
 WIN_FOR_A = CA.WIN_FOR_A
 WIN_FOR_B = CA.WIN_FOR_B

@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/notebooks/cvpr"), str(ROOT / "research/scripts/f10")]
 import matplotlib
 
 matplotlib.use("Agg")

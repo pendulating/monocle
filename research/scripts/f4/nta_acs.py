@@ -42,7 +42,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -51,7 +50,6 @@ import numpy as np
 import pandas as pd
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-sys.path.insert(0, ROOT)
 from dagspaces.common.stage_utils import ensure_dotenv  # noqa: E402
 
 TRACTS = os.path.join(ROOT, "data/geo/2020_Census_Tracts_20260304.geojson")

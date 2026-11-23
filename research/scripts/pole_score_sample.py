@@ -16,14 +16,12 @@ n_comparisons, folder, case.
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-CVPR = REPO / "research/notebooks/cvpr"
 OUT = REPO / "outputs/_monocle/pole_score"
 FOLDER_CASE = {"restaurants": "restaurants", "subway": "subway_safety",
                "libraries": "libraries", "schools": "schools",
@@ -55,7 +53,6 @@ def main(argv=None) -> int:
     ap.add_argument("--images-per-unit", type=int, default=3)
     ap.add_argument("--seed", type=int, default=777)
     args = ap.parse_args(argv)
-    sys.path.insert(0, str(CVPR))
     from research.notebooks.cvpr import _canonical as C
     from research.notebooks.cvpr import _unit_validation as U
 

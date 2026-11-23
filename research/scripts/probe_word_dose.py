@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -33,7 +32,6 @@ import pandas as pd
 from scipy.stats import rankdata, spearmanr
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 from research.monocle.probe_frame import PROBES  # noqa: E402
 from research.monocle.probe_words import WORDS  # noqa: E402
 from scripts.probe_group_test import auc_u  # noqa: E402

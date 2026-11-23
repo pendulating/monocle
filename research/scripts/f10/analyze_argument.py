@@ -14,8 +14,6 @@ supports it. This script asks if the object or the value gives the sign of the a
 from __future__ import annotations
 
 import re
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -24,8 +22,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupKFold
 
-ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
 from research.scripts.f10.analyze_cool import OUT, load_spans  # noqa: E402
 from research.scripts.f10.analyze_logit import MODELS, SEED, holm  # noqa: E402
 

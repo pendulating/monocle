@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -29,12 +28,8 @@ import pandas as pd
 from PIL import Image
 from scipy.stats import rankdata, wilcoxon
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
-REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 SIZE = 896
 STATS = ("lum", "contrast", "edge", "sat", "row", "col", "centre")

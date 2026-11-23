@@ -42,7 +42,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 from pathlib import Path
 
@@ -50,7 +49,6 @@ import numpy as np
 import pandas as pd
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.f10.hop_all import ANSWERS, parts, pooled_margin  # noqa: E402
 from research.scripts.f10.hop_depth import IMAGES, ROOT, ask, atomic_save  # noqa: E402
 

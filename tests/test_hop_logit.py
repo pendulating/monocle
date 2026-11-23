@@ -1,11 +1,8 @@
 """Tests for the logit metrics of `hop_logit.py`."""
 import math
-import sys
-from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from research.scripts.f10.hop_all import claim  # noqa: E402
 from research.scripts.f10.hop_logit import js_divergence, kl_divergence, pooled_margin, softcap  # noqa: E402
 

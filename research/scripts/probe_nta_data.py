@@ -51,7 +51,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 import urllib.parse
 import urllib.request
@@ -62,7 +61,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-CVPR = REPO / "research/notebooks/cvpr"
 PROBE = REPO / "outputs/_monocle/probe/data"
 OUT = REPO / "outputs/_monocle/probe_nta/data"
 
@@ -125,7 +123,6 @@ def _auth_header() -> dict:
     Warning: never print the value. `_proxies` reads the 2 environment
     variables and builds the header, so this script holds no credential.
     """
-    sys.path.insert(0, str(CVPR))
     from research.notebooks.cvpr import _proxies as P
 
     return P._auth_header()

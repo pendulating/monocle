@@ -39,7 +39,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Any, Optional
 
@@ -49,8 +48,6 @@ import torch
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import jlens_read  # noqa: E402
 from research.monocle import patch_attribution as pa  # noqa: E402
@@ -136,7 +133,6 @@ def patch_groups(n_patches: int, k: int) -> list[list[int]]:
             out.append([(r0 + dr) * side + (c0 + dc)
                         for dr in range(k) for dc in range(k)])
     return out
-
 
 
 def pool_by_groups(values: Any, group: int) -> np.ndarray:

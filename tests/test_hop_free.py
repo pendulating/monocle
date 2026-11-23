@@ -1,11 +1,8 @@
 """Tests for the word sets and the lens-free analysis."""
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from research.scripts.f10.hop_free import folds, grid_pool, kernel, monotone_path, oof_mixed, oof_predict, r2, rdm_ranks  # noqa: E402
 from research.scripts.f10.hop_sets import match_controls  # noqa: E402
 

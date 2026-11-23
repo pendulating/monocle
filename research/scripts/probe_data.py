@@ -32,7 +32,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 import urllib.parse
 import urllib.request
@@ -43,7 +42,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-CVPR = REPO / "research/notebooks/cvpr"
 OUT = REPO / "outputs/_monocle/probe/data"
 CATALOG = REPO / "data/cyclomedia/cyclomedia_all_2025_citywide_500k.parquet"
 NYC311_DATASET = "erm2-nwe9"  # on NYC Open Data
@@ -118,7 +116,6 @@ def join_catalog(tr) -> pd.DataFrame:
 def pull_311(tr) -> tuple[pd.DataFrame, dict]:
     import geopandas as gpd
 
-    sys.path.insert(0, str(REPO))
     from dagspaces.sources.opendata.socrata import fetch_socrata
     from sv.nyc.curation import NYC_OPEN_DATA
 
@@ -198,7 +195,6 @@ def main(argv=None) -> int:
     ap.add_argument("--skip-catalog", action="store_true",
                     help="keep the catalog join on disk")
     args = ap.parse_args(argv)
-    sys.path.insert(0, str(CVPR))
     from research.notebooks.cvpr import _proxies as P
 
     load_dotenv_keys()

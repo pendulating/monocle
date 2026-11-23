@@ -32,14 +32,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 import numpy as np
-
-REPO = Path(__file__).resolve().parents[2]
-import sys  # noqa: E402
-sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(REPO / "research" / "scripts"))
 
 from research.scripts.make_ranking import pool  # noqa: E402
 
@@ -113,7 +107,6 @@ def run(acts: dict, layer: int, alphas: list[float], n_folds: int,
             ovs.append(len(set(np.argsort(-pp)[:K]) & set(np.argsort(-tt)[:K])))
     return {"layer": layer, "n": len(rs), "r": float(np.mean(rs)),
             "spearman": float(np.mean(sps)), "top16": float(np.mean(ovs))}
-
 
 
 def block_features(h: np.ndarray, group: int) -> np.ndarray:

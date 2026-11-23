@@ -10,12 +10,9 @@ difference and judge it, rather than test equality.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
 
 import torch  # noqa: E402
 from jlens import JacobianLens  # noqa: E402

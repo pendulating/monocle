@@ -38,7 +38,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -46,7 +45,6 @@ import pandas as pd
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10.analyze_logit import MODELS, NAMES, holm, load, plot_grid, shard_reads  # noqa: E402
 
 __version__ = "1.0.0"

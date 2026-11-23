@@ -15,8 +15,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "scripts"))
-
 from research.scripts import pairwise_vqa_regression_report as reg  # noqa: E402
 from research.scripts import pairwise_analysis_common as common  # noqa: E402
 

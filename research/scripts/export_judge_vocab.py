@@ -11,11 +11,7 @@ filters, runs `_judge_vocab.build_bundle`, and writes the files of
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(ROOT / "research" / "notebooks" / "cvpr"))
 
 import matplotlib  # noqa: E402
 

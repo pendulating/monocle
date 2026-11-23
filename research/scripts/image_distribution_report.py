@@ -33,7 +33,6 @@ from __future__ import annotations
 
 import argparse
 import math
-import sys
 import time
 from pathlib import Path
 from typing import Optional
@@ -49,7 +48,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 # Reuse the typographic polish (rcParams applied on import) + accent colours
 # from the single-run report, and the robust thumbnail loader from the
 # per-unit audit. Both live next to this file.
-sys.path.insert(0, str(Path(__file__).parent))
 from research.scripts.pairwise_vqa_report import ACCENT, ACCENT_WARM  # noqa: E402
 from research.scripts.facing_audit_report import _load_thumb  # noqa: E402
 

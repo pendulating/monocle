@@ -22,7 +22,6 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
 from collections import Counter
 from pathlib import Path
 
@@ -37,7 +36,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 __version__ = "1.0.0"
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10 import plot_patch_teaser as T  # noqa: E402
 from research.scripts.f10.hop_store import ALL_ROOT, open_store  # noqa: E402
 

@@ -7,16 +7,10 @@ a GPU stays inside `main`, so this file imports on a login node.
 from __future__ import annotations
 
 import math
-import sys
-from pathlib import Path
 
 import pandas as pd
 import pytest
 import torch
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import answer_tokens as at  # noqa: E402
 

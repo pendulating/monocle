@@ -1,16 +1,9 @@
 """CPU tests for the answer-position attention routing."""
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pandas as pd
 import pytest
 import torch
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import attn_route as ar  # noqa: E402
 

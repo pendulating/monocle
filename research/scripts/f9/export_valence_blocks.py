@@ -41,9 +41,6 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-for _p in (HERE, REPO_ROOT / "research" / "notebooks" / "cvpr", REPO_ROOT / "research" / "notebooks" / "facct"):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
 __version__ = "1.6.0"
 

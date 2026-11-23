@@ -32,7 +32,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -40,7 +39,6 @@ import pandas as pd
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10")]
 from research.scripts.f10.analyze_logit import cluster_r, holm  # noqa: E402
 from research.scripts.f10.hop_borough import BOROUGHS, two_sample_t  # noqa: E402
 from research.scripts.f10.hop_free import rdm_ranks  # noqa: E402
@@ -355,9 +353,6 @@ def reproduction(S: dict | None = None) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-
-
-
 def analyze() -> None:
     """Write the tables of F10.24. Needs the 9 stores of `build`, except for the margin tables."""
     OUT.mkdir(parents=True, exist_ok=True)
@@ -375,7 +370,6 @@ def sense_l24_table() -> pd.DataFrame:
     """Give the sense values at L24 that `replication` needs, from `sense.csv`."""
     s = sense_l24()
     return s
-
 
 
 # ---- F10.24 question 1: the replication of each F10 finding for the Qwen3.6-27B `cool` analyses. ----

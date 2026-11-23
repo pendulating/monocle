@@ -28,12 +28,9 @@ import glob
 import json
 import os
 
-import sys
-
 import pandas as pd
 import yaml
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from research.scripts.f4.x2_retry import copy_flags  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

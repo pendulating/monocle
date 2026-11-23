@@ -6,15 +6,9 @@ a model — the prompt order, and the 3 statistics.
 """
 from __future__ import annotations
 
-import sys
 import unittest
-from pathlib import Path
 
 import numpy as np
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import modality_order as mo  # noqa: E402
 from research.monocle import single as sg  # noqa: E402

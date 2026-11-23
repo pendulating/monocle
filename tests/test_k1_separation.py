@@ -1,14 +1,9 @@
 """Tests for the 1-cell deletion statistic."""
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research" / "scripts"))
 
 from research.scripts import k1_separation as k1  # noqa: E402
 
@@ -139,8 +134,6 @@ def test_a_wrong_length_instrument_gives_nan():
 
 
 def test_pooled_ranks_averages_over_layers(tmp_path):
-    import sys as _sys
-    _sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research" / "scripts"))
     from research.scripts import k1_layer_profile as lp
 
     t = np.array([0.0, 1.0, 2.0, 3.0])
@@ -157,8 +150,6 @@ def test_pooled_ranks_averages_over_layers(tmp_path):
 
 
 def test_pooled_ranks_skips_a_missing_arm(tmp_path):
-    import sys as _sys
-    _sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research" / "scripts"))
     from research.scripts import k1_layer_profile as lp
 
     t = [0.0, 1.0, 2.0]
@@ -173,8 +164,6 @@ def test_pooled_ranks_skips_a_missing_arm(tmp_path):
 
 
 def test_pooled_ranks_drops_an_image_with_no_usable_layer(tmp_path):
-    import sys as _sys
-    _sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research" / "scripts"))
     from research.scripts import k1_layer_profile as lp
 
     rows = [{"layer": 18, "target": "a", "causal": [0.0, 1.0],

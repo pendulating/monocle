@@ -37,8 +37,6 @@ import pandas as pd
 from matplotlib.lines import Line2D
 
 HERE = Path(__file__).resolve().parent
-if str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))
 
 from research.notebooks.cvpr import _results_table as R  # noqa: E402
 from research.notebooks.cvpr import _style as S  # noqa: E402

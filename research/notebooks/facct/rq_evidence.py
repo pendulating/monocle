@@ -25,13 +25,6 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
-    from pathlib import Path
-
-    _here = Path(__file__).resolve().parent
-    if str(_here) not in sys.path:
-        sys.path.insert(0, str(_here))
-
     import marimo as mo
     import matplotlib.pyplot as plt
 

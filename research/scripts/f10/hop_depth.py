@@ -36,7 +36,6 @@ import argparse
 import json
 import os
 import re
-import sys
 import time
 from pathlib import Path
 
@@ -45,7 +44,6 @@ import pandas as pd
 import torch
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "sub/jacobian-lens"), str(ROOT / "research/scripts/f8")]
 
 __version__ = "1.0.0"
 

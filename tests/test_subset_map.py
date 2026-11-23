@@ -1,15 +1,8 @@
 """The subset map must recover an additive truth and must say when it cannot."""
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pytest
-
-REPO = Path(__file__).resolve().parent.parent
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle.subset_map import draw_sets, fit_values, holdout_r2  # noqa: E402
 

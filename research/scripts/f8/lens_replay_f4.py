@@ -64,7 +64,6 @@ import argparse
 import itertools
 import json
 import os
-import sys
 import time
 from pathlib import Path
 
@@ -72,8 +71,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / "research/scripts/whatami"))
-sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
 
 TRACES = REPO / "data/f4_traces/pooled/f4_traces_1k.parquet"
 NTA = REPO / "data/f4_traces/pooled/f4_restaurants_nta.parquet"

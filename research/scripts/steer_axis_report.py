@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -32,8 +31,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 ROOT_DEFAULT = REPO / "outputs/_monocle/single_steer_axis"
 AXIS_CPU_DEFAULT = REPO / "outputs/_monocle/steer_coord/axis_cpu_report.parquet"

@@ -1,10 +1,7 @@
 """The clamp of the F10.3 coordinate swap (CPU)."""
-import sys
-from pathlib import Path
 
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from research.scripts.f10.name_coord_swap import added_targets, clamp_hook, deleted_targets, matched_basis, swapped_targets  # noqa: E402
 
 

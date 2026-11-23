@@ -4,14 +4,11 @@ The first part tests the shared helper `_latex`. The other parts test 1 or
 more tables of each v3 analysis module on small synthetic frames.
 """
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 from research.notebooks.cvpr import _gold_alignment as G  # noqa: E402
 from research.notebooks.cvpr import _ic_metadata as M  # noqa: E402

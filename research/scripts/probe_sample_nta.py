@@ -34,14 +34,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 from research.monocle.probe_frame import PROBE_ORDER, PROBES  # noqa: E402
 
 DATA_NTA = REPO / "outputs/_monocle/probe_nta/data"

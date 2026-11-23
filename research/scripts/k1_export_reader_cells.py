@@ -29,13 +29,11 @@ photograph sets share no image.
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts import k1_fitted_probe as fp  # noqa: E402
 
 

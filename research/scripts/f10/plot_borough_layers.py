@@ -12,7 +12,6 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import matplotlib
@@ -22,7 +21,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/notebooks/cvpr")]
 OUT = ROOT / "research/figures/f10/mechanism/mech_borough_layers.png"
 MODEL = "gemma-4-31b"
 TOKENS = (" cool",)

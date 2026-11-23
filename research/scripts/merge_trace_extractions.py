@@ -86,8 +86,6 @@ def registry_notes(df: pd.DataFrame) -> List[str]:
     it would say so nowhere.
     """
     try:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..",
-                                        "notebooks", "cvpr"))
         from research.notebooks.cvpr import _canonical as C  # type: ignore
 
         reg = {(r.case, r.model_config): os.path.realpath(r.results_path)

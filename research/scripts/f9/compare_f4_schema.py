@@ -23,7 +23,6 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -31,7 +30,6 @@ import pandas as pd
 __version__ = "1.0.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT / "research" / "notebooks" / "facct"))
 
 # case -> (new-schema arm, x2 arm, smoke input case)
 ARMS = {"restaurant": ("x2_cues_subj", "x2_cues", "x2smoke_restaurant"),

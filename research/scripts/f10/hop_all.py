@@ -49,7 +49,6 @@ import argparse
 import json
 import os
 import re
-import sys
 import time
 from pathlib import Path
 
@@ -57,7 +56,6 @@ import numpy as np
 import pandas as pd
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.f10.hop_depth import IMAGES, N_LAYERS, POSITIONS, ROOT, STEP, TOP, ask, atomic_save, locate  # noqa: E402
 
 __version__ = "1.2.0"

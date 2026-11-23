@@ -5,13 +5,8 @@ the layout `neutral_first`, so only the filler kind tells the 2 apart.
 """
 from __future__ import annotations
 
-import sys
 import unittest
 from pathlib import Path
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle.causal_maps import case_dir_for  # noqa: E402
 

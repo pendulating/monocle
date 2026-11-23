@@ -23,15 +23,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 
 import pandas as pd
 import torch
-
-ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT), str(ROOT / "sub/jacobian-lens"), str(ROOT / "research/scripts/f8"), str(ROOT / "research/scripts/f10")]
 
 from research.scripts.f10.word_read import LAYERS, PROMPTS as F9  # noqa: E402
 

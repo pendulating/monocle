@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from itertools import combinations
 from pathlib import Path
 
@@ -38,7 +37,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 __version__ = "1.0.0"
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/notebooks/cvpr"), str(ROOT / "research/scripts/f10")]
 from research.scripts.f10.hop_hierarchy import answer_store  # noqa: E402
 
 DATA = ROOT / "data/f10/prompts"

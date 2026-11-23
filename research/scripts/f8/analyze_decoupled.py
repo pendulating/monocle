@@ -24,14 +24,12 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.f8.analyze_cue import (ALPHA, CASES, MODEL_COLORS, MODEL_MARKERS, MODELS, READOUTS, WORD_RE,  # noqa: E402
                          S, bonferroni, load_r3, read_parts)
 

@@ -29,7 +29,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -38,7 +37,6 @@ from scipy import linalg, stats
 from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10.analyze_logit import MODELS, NAMES, SEED, holm, load, plot_grid, split_ntas  # noqa: E402
 
 __version__ = "1.0.0"

@@ -20,14 +20,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 
 # Each caption store names the map store it was cut from.
 MAP_ROOTS = [

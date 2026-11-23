@@ -11,17 +11,11 @@ Run: python -m pytest \
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 
 import pandas as pd
 import pytest
 from omegaconf import OmegaConf
 import torch
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import safety_workspace as sw  # noqa: E402
 

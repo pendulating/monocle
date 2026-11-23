@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import argparse
 import math
-import sys
 import time
 from pathlib import Path
 from typing import Optional
@@ -38,7 +37,6 @@ from PIL import Image, UnidentifiedImageError
 
 # Reuse the typographic polish from the single-run report (side-effect import
 # applies global rcParams).
-sys.path.insert(0, str(Path(__file__).parent))
 from research.scripts import pairwise_vqa_report  # noqa: F401, E402
 
 

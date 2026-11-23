@@ -46,7 +46,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
 from pathlib import Path
 from typing import Dict, Optional, Sequence
@@ -57,7 +56,6 @@ import pandas as pd
 __version__ = "1.0.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-FACCT = REPO_ROOT / "research" / "notebooks" / "facct"
 OUT_DIR = REPO_ROOT / "research" / "figures" / "f8" / "method_b"
 ACS_PATH = REPO_ROOT / "data" / "f4_traces" / "nta_acs.parquet"
 INSPECTIONS_PATH = REPO_ROOT / "curation" / "dohmh_restaurants_inspected_all" / "restaurants.parquet"
@@ -82,8 +80,6 @@ GRADE_MISSING = "missing"
 
 def _f4():
     """Import `research/notebooks/facct/_f4.py`. The import is late, thus the OLS code needs no data."""
-    if str(FACCT) not in sys.path:
-        sys.path.insert(0, str(FACCT))
     from research.notebooks.facct import _f4  # noqa: E402
 
     return _f4

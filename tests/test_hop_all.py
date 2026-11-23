@@ -1,10 +1,7 @@
 """Tests for the split of a prompt in `hop_all.py`."""
-import sys
-from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from research.scripts.f10.hop_all import align_text, parts, tail_names  # noqa: E402
 
 

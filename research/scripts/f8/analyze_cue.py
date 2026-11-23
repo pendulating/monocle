@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from itertools import combinations
 from pathlib import Path
 
@@ -30,7 +29,6 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "research" / "notebooks" / "cvpr"))
 from research.notebooks.cvpr import _style as S  # noqa: E402
 
 MODELS = ["gemma-4-12b", "gemma-4-31b", "qwen3.5-9b", "qwen3.8-27b"]

@@ -18,9 +18,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 
 #: The concepts to frame, grouped. Each group holds the forms worth a try.

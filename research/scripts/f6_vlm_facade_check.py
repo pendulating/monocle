@@ -44,13 +44,11 @@ import glob
 import json
 import math
 import os
-import sys
 from datetime import datetime, timezone
 
 import polars as pl
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, ROOT)
 
 # The selection of f6_select_storefront_views.py 2.0.0 (D73 to D84).
 SEL_DIR = os.path.join(ROOT, "data/f6_restaurant_depiction/v4")

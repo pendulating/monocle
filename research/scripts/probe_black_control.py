@@ -23,7 +23,6 @@ threshold):
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -31,7 +30,6 @@ import pandas as pd
 from scipy.stats import rankdata
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 from research.monocle.probe_words import WORDS  # noqa: E402
 from scripts.probe_word_dose import load_arm  # noqa: E402
 

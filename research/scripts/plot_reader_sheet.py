@@ -15,14 +15,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.k1_separation import sep_z, table  # noqa: E402
 from research.scripts.k1_layer_profile import pooled_ranks  # noqa: E402
 

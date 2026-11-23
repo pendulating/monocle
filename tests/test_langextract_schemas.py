@@ -35,10 +35,7 @@ class TestTheShippedSchemas:
         """`_extractions.VOCABULARY` is the union of the values of every
         version, thus each value a version declares must be in it. A value
         that is absent there becomes `other` in the analysis."""
-        import sys
-        from pathlib import Path
 
-        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
         from research.notebooks.cvpr import _extractions as X  # noqa: E402
 
         spec = spec_from_config(OmegaConf.load(f"{self.CONF}/{name}.yaml"))

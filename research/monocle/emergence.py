@@ -48,8 +48,6 @@ import torch
 from PIL import Image, ImageDraw
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle.render import get_font  # noqa: E402

@@ -42,7 +42,6 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 NB = HERE.parent.parent / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(NB))
 
 __version__ = "1.2.0"
 

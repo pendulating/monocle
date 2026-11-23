@@ -48,16 +48,6 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
-    from pathlib import Path
-
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # prompt folder uses them. This notebook lives one level down.
-    _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
-
     import marimo as mo
     import matplotlib.pyplot as plt
     import pandas as pd

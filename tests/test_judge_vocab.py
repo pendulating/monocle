@@ -1,12 +1,7 @@
 """Tests for `research/notebooks/cvpr/_judge_vocab.py` on small synthetic frames."""
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 from research.notebooks.cvpr import _judge_vocab as J  # noqa: E402
 from research.notebooks.cvpr import _latex as L  # noqa: E402

@@ -45,14 +45,6 @@ def _(mo):
 @app.cell
 def _():
     import os
-    import sys
-    from pathlib import Path
-
-    _here = Path(__file__).resolve().parent
-    _cvpr = _here.parent / "cvpr"
-    for _p in (str(_here), str(_cvpr)):
-        if _p not in sys.path:
-            sys.path.insert(0, _p)
 
     import marimo as mo
     import pandas as pd

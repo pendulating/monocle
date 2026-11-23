@@ -33,7 +33,6 @@ import argparse
 import glob
 import math
 import re
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -46,8 +45,6 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO / "research" / "scripts"))
-sys.path.insert(0, str(REPO))
 
 import geopandas as gpd  # noqa: E402
 import statsmodels.api as sm  # noqa: E402

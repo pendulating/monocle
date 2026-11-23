@@ -14,9 +14,6 @@ import pandas as pd
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-for extra in (str(REPO), str(REPO / "research" / "scripts")):
-    if extra not in sys.path:
-        sys.path.insert(0, extra)
 
 from research.scripts.gradient_rank import spectrum  # noqa: E402
 from research.scripts.linear_probe import run as probe_run  # noqa: E402

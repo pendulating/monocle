@@ -13,14 +13,12 @@ Use:
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10.analyze_logit import MODELS, SEED, load  # noqa: E402
 from research.scripts.f10.analyze_probe import GROUP_OF, margins  # noqa: E402
 from research.scripts.f10.hop_free import REPEATS, folds, kernel, oof_predict, r2  # noqa: E402

@@ -6,7 +6,6 @@ silently score every instrument against the wrong ground truth.
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -14,8 +13,6 @@ import pandas as pd
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle.input_gate import load_truth  # noqa: E402
 from research.monocle.patch_map_causal import patch_groups, pool_by_groups  # noqa: E402

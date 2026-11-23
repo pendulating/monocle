@@ -25,14 +25,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO))
 from scripts.k1_target_words import TARGET_WORDS  # noqa: E402
 
 JUNK = re.compile(r"^[\s\W_]*$")

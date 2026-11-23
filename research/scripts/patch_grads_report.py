@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -37,8 +36,6 @@ import pandas as pd
 from scipy import stats as sps
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 GRADS = REPO / "outputs/_monocle/patch_grads"
 VECS = REPO / "outputs/_monocle/patch_axis"

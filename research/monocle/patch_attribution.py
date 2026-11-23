@@ -55,7 +55,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 from pathlib import Path
 from typing import Any, Optional
@@ -66,8 +65,6 @@ import torch
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import answer_tokens as at  # noqa: E402
 from research.monocle import canonical, extract  # noqa: E402

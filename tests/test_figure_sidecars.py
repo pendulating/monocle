@@ -6,8 +6,6 @@ frames by hand. They read no corpus and need no GPU.
 """
 
 import json
-import sys
-from pathlib import Path
 
 import matplotlib
 
@@ -17,8 +15,6 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "research" / "notebooks" / "cvpr"))
 
 from research.notebooks.cvpr import _figmeta as F  # noqa: E402
 from research.notebooks.cvpr import _gold_alignment as G  # noqa: E402

@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -42,8 +41,6 @@ import pandas as pd
 
 REPO = Path(__file__).resolve().parents[3]
 os.environ.setdefault("F4_DATA", "canonical")  # the image_idx of the canonical batch
-sys.path.insert(0, str(REPO / "research" / "notebooks" / "facct"))
-sys.path.insert(0, str(REPO / "research" / "scripts" / "f8"))
 from research.notebooks.facct import _f4 as F4  # noqa: E402
 from research.scripts.f8.build_cue_sample import canonical_images  # noqa: E402
 

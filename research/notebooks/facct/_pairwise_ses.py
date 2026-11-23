@@ -56,10 +56,6 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-_HERE = Path(__file__).resolve().parent
-for _p in (_CVPR, _HERE):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
 from research.notebooks.cvpr import _style as S  # noqa: E402
 

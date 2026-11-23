@@ -30,10 +30,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-sys.path.insert(0, ROOT)
 
 INPUT_DIR = os.path.join(ROOT, "data/f4_traces/extract_input")
 KEEP = ["model", "case", "field", "image_idx", "uid", "camis", "dba", "borough",

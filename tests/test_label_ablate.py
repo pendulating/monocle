@@ -5,17 +5,10 @@ No GPU, no model, no jlens import. The GPU glue stays untested here; the
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
 import torch
-
-REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle.label_ablate import (  # noqa: E402
     answer_metrics,

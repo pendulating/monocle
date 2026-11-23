@@ -22,7 +22,6 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +31,6 @@ from scipy.special import logsumexp
 from sklearn.model_selection import GroupKFold
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(ROOT / "research/scripts/f10"), str(ROOT / "research/notebooks/cvpr")]
 from research.scripts.f10.analyze_logit import LOGIT_ROOT, MODELS, NAMES, SEED, cluster_r, holm  # noqa: E402
 from research.scripts.f10.hop_borough import BOROUGHS, family_r2  # noqa: E402
 from research.scripts.f10.hop_free import folds, oof_predict, r2  # noqa: E402

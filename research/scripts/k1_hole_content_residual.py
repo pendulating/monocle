@@ -18,14 +18,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, wilcoxon
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
 

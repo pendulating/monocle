@@ -53,7 +53,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 from pathlib import Path
 from typing import Optional
@@ -63,8 +62,6 @@ import pandas as pd
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle import canonical  # noqa: E402  (CPU-safe)
@@ -242,11 +239,7 @@ def summarize_frame(df: pd.DataFrame) -> dict:
 # B) GPU glue (deferred imports)
 # ---------------------------------------------------------------------------
 def _activation_recorder():
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
     return ActivationRecorder
 
 
@@ -256,11 +249,7 @@ def load_model_and_lens(model_dir: str):
     force_bos=False is load-bearing: the chat template emits its own <bos>.
     Returns ``(proc, model, tmpl, lens_model)``.
     """
-    try:
-        import jlens
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        import jlens
+    import jlens
     from research.monocle import extract
     proc, model, tmpl = extract.load_model(model_dir)
     lens_model = jlens.from_hf(model, proc.tokenizer, force_bos=False)
@@ -268,11 +257,7 @@ def load_model_and_lens(model_dir: str):
 
 
 def load_lens(path: str):
-    try:
-        from jlens import JacobianLens
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        from jlens import JacobianLens
+    from jlens import JacobianLens
     return JacobianLens.load(path)
 
 

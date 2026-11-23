@@ -9,15 +9,12 @@ against each other. Two things can be wrong without a model:
 from __future__ import annotations
 
 import importlib.util
-import sys
 import unittest
 from pathlib import Path
 
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[1]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 # `scripts/` is not a package, so load the module from its path.
 _spec = importlib.util.spec_from_file_location(

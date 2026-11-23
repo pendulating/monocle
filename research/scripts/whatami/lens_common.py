@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,9 +25,6 @@ from pathlib import Path
 import torch
 
 REPO = Path(__file__).resolve().parents[3]
-for _p in (REPO, REPO / "sub/jacobian-lens"):
-    if str(_p) not in sys.path:
-        sys.path.insert(0, str(_p))
 
 ZOO = Path("/share/ju/matt/zoo/models")
 LENS_ROOT = REPO / "outputs/_monocle/jlens/whatami"

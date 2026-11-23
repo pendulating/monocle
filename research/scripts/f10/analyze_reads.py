@@ -24,7 +24,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from functools import lru_cache
 from pathlib import Path
 
@@ -33,7 +32,6 @@ import pandas as pd
 from scipy import stats
 
 REPO = Path(__file__).resolve().parents[3]
-sys.path[:0] = [str(REPO / "research/scripts/f10"), str(REPO / "research/scripts/f8"), str(REPO / "research/notebooks/cvpr"), str(REPO / "research/notebooks/facct")]
 
 from research.scripts.f8.analyze_cue import MODEL_COLORS, MODEL_MARKERS, S  # noqa: E402
 from research.scripts.f10.word_read import LAYERS, SENSES, TARGETS  # noqa: E402

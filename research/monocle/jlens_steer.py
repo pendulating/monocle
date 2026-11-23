@@ -79,8 +79,6 @@ import pandas as pd
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import MODEL_DIR_DEFAULT  # noqa: E402
 from research.monocle import canonical  # noqa: E402  (CPU-safe)
@@ -366,13 +364,8 @@ def split_calibration_eval(
 # B) Gemma / jlens glue (imported lazily so the CPU test venv stays clean)
 # ---------------------------------------------------------------------------
 def load_lens(path: str):
-    """Load the fitted JacobianLens, tolerating the CPU venv (jlens not pip
-    installed there) with the vendored-copy sys.path fallback."""
-    try:
-        from jlens import JacobianLens
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        from jlens import JacobianLens
+    """Load the fitted JacobianLens. The venv must have jlens."""
+    from jlens import JacobianLens
     return JacobianLens.load(path)
 
 
@@ -381,11 +374,7 @@ def load_model_and_lens(model_dir: str):
     — the chat template emits its own <bos>; the default True would double-BOS
     the SHARED processor tokenizer). Returns
     ``(proc, model, tmpl, lens_model, image_token_id)``."""
-    try:
-        import jlens
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        import jlens
+    import jlens
 
     from research.monocle import extract
 
@@ -473,11 +462,7 @@ def compute_direction_and_scales(
     """
     if positions_mode == "patches" and image_token_id is None:
         raise ValueError("positions_mode='patches' requires image_token_id")
-    try:
-        from jlens.hooks import ActivationRecorder
-    except ModuleNotFoundError:
-        sys.path.insert(0, str(REPO / "sub/jacobian-lens"))
-        from jlens.hooks import ActivationRecorder
+    from jlens.hooks import ActivationRecorder
 
     final = lens_model.n_layers - 1
     record_at = sorted(set(layers) | {final})

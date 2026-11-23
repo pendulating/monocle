@@ -32,13 +32,10 @@ Use:
 from __future__ import annotations
 
 import json
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.f8.build_cue_sample import CUE, OUT, PROMPT, canonical_images  # noqa: E402
 
 SEED = 20261029

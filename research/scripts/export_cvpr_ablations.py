@@ -27,7 +27,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CVPR = REPO_ROOT / "research" / "notebooks" / "cvpr"
-sys.path.insert(0, str(CVPR))
 
 from research.notebooks.cvpr import _ablations as A  # noqa: E402
 from research.notebooks.cvpr import _canonical as C  # noqa: E402

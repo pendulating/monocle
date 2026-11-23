@@ -1,10 +1,7 @@
-import sys
-from pathlib import Path
 
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research/scripts/f10"))
 from research.scripts.f10.build_depth_sample import stratified  # noqa: E402
 from research.scripts.f10.hop_depth import locate  # noqa: E402
 

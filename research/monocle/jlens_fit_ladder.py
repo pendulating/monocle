@@ -36,7 +36,6 @@ import argparse
 import json
 import math
 import os
-import sys
 import time
 from pathlib import Path
 from typing import Any, Optional, Sequence
@@ -44,8 +43,6 @@ from typing import Any, Optional, Sequence
 import torch
 
 REPO = Path(__file__).resolve().parents[2]
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
 
 from research.monocle import jlens_fit_mm as mm  # noqa: E402
 

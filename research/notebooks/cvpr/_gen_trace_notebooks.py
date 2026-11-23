@@ -77,24 +77,14 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
-    from pathlib import Path
-
-    # The shared modules sit in the parent, `research/notebooks/cvpr/`, because every
-    # prompt folder uses them. This notebook lives one level down.
-    _here = Path(__file__).resolve().parent
-    _shared = _here.parent
-    if str(_shared) not in sys.path:
-        sys.path.insert(0, str(_shared))
-
     import marimo as mo
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    import _provenance as prov
-    import _style as style
-    import _traces as T
-    import _trace_notebook as TN
+    from research.notebooks.cvpr import _provenance as prov
+    from research.notebooks.cvpr import _style as style
+    from research.notebooks.cvpr import _traces as T
+    from research.notebooks.cvpr import _trace_notebook as TN
 
     # The paper's house palette and camera-ready rcParams. Call it once, before
     # any figure is drawn.

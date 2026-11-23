@@ -11,8 +11,7 @@ Output: `research/figures/f10/axes/axes_claim_words.csv`, `research/figures/f10/
 Use:
     .venv-mllmsci-vllm025cu129/bin/python research/scripts/f10/hop_claim_axis.py
 """
-import sys,numpy as np,pandas as pd
-sys.path[:0]=['research/scripts/f10','research/notebooks/cvpr']
+import numpy as np, pandas as pd
 from research.scripts.f10.analyze_logit import load, shard_reads
 from research.scripts.f10.analyze_probe import margins
 from research.scripts.f10.hop_borough import BOROUGHS, two_sample_t

@@ -39,14 +39,12 @@ from __future__ import annotations
 import argparse
 import json
 from functools import lru_cache
-import sys
 from pathlib import Path
 
 import numpy as np
 import torch
 from scipy.stats import spearmanr, wilcoxon
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from research.scripts.k1_separation import bh, boot_ci, sep_z  # noqa: E402
 
 ALPHAS = (1e1, 1e2, 1e3, 1e4, 1e5, 1e6)
