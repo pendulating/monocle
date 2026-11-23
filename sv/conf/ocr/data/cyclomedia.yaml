@@ -1,7 +1,7 @@
 # Cyclomedia Street View Data Configuration
 # Handles the cube face directory structure
 
-handler: sv.ocr.cyclomedia_handler:CyclomediaHandler
+handler: dagspaces.sources.cyclomedia.ocr:CyclomediaHandler
 
 # Base path to Cyclomedia data
 # Structure: {base_path}/{location_group}/{location_id}/faces/{face}.jpg

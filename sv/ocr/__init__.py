@@ -1,1 +1,1 @@
-"""Street-view OCR data handlers."""
+"""Old path of the Cyclomedia OCR handler (now ``dagspaces.sources.cyclomedia.ocr``)."""

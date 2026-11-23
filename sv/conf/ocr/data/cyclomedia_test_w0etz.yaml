@@ -1,7 +1,7 @@
 # Test dataset: W0ETZ location group from Bronx 2025
 # Medium-sized test (~2927 images)
 
-handler: sv.ocr.cyclomedia_handler:CyclomediaHandler
+handler: dagspaces.sources.cyclomedia.ocr:CyclomediaHandler
 
 # Single location group
 image_path: "/share/ju/cyclomedia/raw/bronx_2025_1k/W0ETZ"
