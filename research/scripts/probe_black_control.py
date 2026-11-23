@@ -31,7 +31,7 @@ from scipy.stats import rankdata
 
 REPO = Path(__file__).resolve().parents[2]
 from research.monocle.probe_words import WORDS  # noqa: E402
-from scripts.probe_word_dose import load_arm  # noqa: E402
+from research.scripts.probe_word_dose import load_arm  # noqa: E402
 
 SAMPLE = REPO / "outputs/_monocle/probe_words_all/sample/images.parquet"
 LUMA = REPO / "outputs/_monocle/probe_black_control/luma.parquet"

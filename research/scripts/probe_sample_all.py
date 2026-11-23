@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from scripts.probe_sample_nta import DATA_NTA, DATA_R1, NTA_COLS, draw_nta, log, tract_to_nta  # noqa: E402
+from research.scripts.probe_sample_nta import DATA_NTA, DATA_R1, NTA_COLS, draw_nta, log, tract_to_nta  # noqa: E402
 
 
 def main(argv=None) -> int:

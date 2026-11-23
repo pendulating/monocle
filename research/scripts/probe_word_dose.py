@@ -34,7 +34,7 @@ from scipy.stats import rankdata, spearmanr
 REPO = Path(__file__).resolve().parents[2]
 from research.monocle.probe_frame import PROBES  # noqa: E402
 from research.monocle.probe_words import WORDS  # noqa: E402
-from scripts.probe_group_test import auc_u  # noqa: E402
+from research.scripts.probe_group_test import auc_u  # noqa: E402
 
 ROOT = REPO / "outputs/_monocle/probe_words_all"
 SAMPLE = ROOT / "sample/images.parquet"

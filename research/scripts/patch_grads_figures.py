@@ -21,7 +21,7 @@ from scipy import stats as sps
 
 from research.monocle import causal_maps as cm  # noqa: E402
 from research.monocle.single_steer import CASE_WORDS  # noqa: E402
-from scripts.patch_grads_report import CASES, COORD, GRADS, VECS  # noqa: E402
+from research.scripts.patch_grads_report import CASES, COORD, GRADS, VECS  # noqa: E402
 
 OUT = GRADS / "figures"
 

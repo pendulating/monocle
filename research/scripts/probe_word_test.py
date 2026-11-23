@@ -37,7 +37,7 @@ import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
 from research.monocle.probe_words import WORDS  # noqa: E402
-from scripts.probe_group_test import auc_u, cluster_draws, match_pairs  # noqa: E402
+from research.scripts.probe_group_test import auc_u, cluster_draws, match_pairs  # noqa: E402
 
 ROOT = REPO / "outputs/_monocle/probe_words"
 SAMPLE = REPO / "outputs/_monocle/probe_nta/sample/images.parquet"

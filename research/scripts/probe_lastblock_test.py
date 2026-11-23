@@ -25,8 +25,8 @@ import numpy as np
 import pandas as pd
 
 from research.monocle.probe_words import WORDS  # noqa: E402
-from scripts.probe_group_test import auc_u, cluster_draws  # noqa: E402
-from scripts.probe_word_test import SAMPLE, test_arm  # noqa: E402
+from research.scripts.probe_group_test import auc_u, cluster_draws  # noqa: E402
+from research.scripts.probe_word_test import SAMPLE, test_arm  # noqa: E402
 
 BLOCKS = [46, 47]
 SCALARS = ["lse", "rms", "hnorm", "top1_logit"]

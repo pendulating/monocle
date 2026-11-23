@@ -24,7 +24,7 @@ from scipy import stats as sps
 
 REPO = Path(__file__).resolve().parents[2]
 
-from scripts.patch_budget_report import compare, pool, resample, square  # noqa: E402
+from research.scripts.patch_budget_report import compare, pool, resample, square  # noqa: E402
 
 ROOT = REPO / "outputs/_monocle/patch_group"
 BUDGET = REPO / "outputs/_monocle/patch_budget"

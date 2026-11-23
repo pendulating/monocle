@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
-from scripts.k1_target_words import TARGET_WORDS  # noqa: E402
+from research.scripts.k1_target_words import TARGET_WORDS  # noqa: E402
 
 JUNK = re.compile(r"^[\s\W_]*$")
 ASCII_WORD = re.compile(r"^[a-z][a-z\-']*$")
