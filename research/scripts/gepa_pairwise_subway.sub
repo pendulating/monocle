@@ -13,8 +13,8 @@
 
 # GEPA prompt optimization over the subway-safety pairwise task.
 # gemma-4-12b (gemma4_unified) is both task model and reflection model, so
-# this must run on .venv-nightly (vLLM >= 0.23) with the klara libstdc++
-# LD_PRELOAD — same environment recipe as slurm_gpu_klara_1x.
+# this runs on the site venv .venv-vllm025cu129 (vLLM 0.25, gepa) with the
+# klara libstdc++ LD_PRELOAD, as slurm_gpu_klara_1x.
 #
 # Submit from the repo root:
 #   sbatch research/scripts/gepa_pairwise_subway.sub [extra gepa_pairwise args...]
@@ -23,7 +23,7 @@ set -euo pipefail
 cd /share/ju/matt/mllmsci
 
 source ~/.bashrc
-source /share/ju/matt/mllmsci/.venv-nightly/bin/activate
+source /share/ju/matt/mllmsci/.venv-vllm025cu129/bin/activate
 # bashrc conda-activates anaconda base, whose old libstdc++.so.6 lacks
 # GLIBCXX_3.4.32 (needed by flashinfer JIT); force the system one.
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6

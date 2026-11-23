@@ -21,7 +21,7 @@ set -euo pipefail
 cd /share/ju/matt/mllmsci
 
 source ~/.bashrc
-source /share/ju/matt/mllmsci/.venv-nightly/bin/activate
+source /share/ju/matt/mllmsci/.venv-vllm025cu129/bin/activate
 export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
 export PYTHONUNBUFFERED=1
 

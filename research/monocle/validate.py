@@ -14,7 +14,7 @@ Checks, in increasing order of what would kill monocle:
                 meta + a copy of the image so the renderer can be exercised
                 on real data without a GPU.
 
-Usage (via research/monocle/monocle.sub on klara, .venv-nightly + LD_PRELOAD):
+Usage (via research/monocle/monocle.sub on klara, the site venv + LD_PRELOAD):
     python -m research.monocle.validate [--image PATH] [--out-dir DIR]
 """
 from __future__ import annotations

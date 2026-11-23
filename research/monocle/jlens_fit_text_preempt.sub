@@ -46,7 +46,7 @@ set -a; source /share/ju/matt/mllmsci/server.env; set +a
 
 # A `gpu` node holds no /scratch mirror at first. The helper builds one from
 # the bootstrap tarball, so only the first job on a node pays for it.
-export IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-nightly
+export IMAGE_FORWARD_DRIVER_VENV=/share/ju/matt/mllmsci/.venv-vllm025cu129
 set +eu
 source /share/ju/matt/mllmsci/scripts/activate_stage_venv.sh
 set -eu

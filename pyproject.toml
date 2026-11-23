@@ -42,6 +42,8 @@ research = [
     # The J-lens (research/monocle): a fork of anthropics/jacobian-lens with
     # lens metadata and a device cache. Apache-2.0.
     "jlens @ git+https://github.com/pendulating/jacobian-lens@7201af51a6b0206cc5cbf963cd78605b3ae9e1f1",
+    # GEPA prompt optimization (research/prompt_opt). No required dependencies.
+    "gepa==0.1.1",
 ]
 # The analysis notebooks in research/notebooks/.
 notebooks = [

@@ -148,6 +148,7 @@ ruff check .
 | The framework scripts | `scripts/*.sh` and `scripts/*.py` are shims to `$IMAGE_FORWARD_HOME/scripts/` |
 | The research dagspaces | `research/dagspaces/`: `urbanroamvqa`, `urbanvit`, `opf_vision_labels`, `artifact_gen`, `lensread` (J-lens readouts, see `research/docs/lensread.md`) |
 | A project stage | `pipeline.stage_runners` in a pipeline (for example `research/ic/` adds `ic_extract`) |
+| Bee Maps (Hivemapper) images | The `beemaps` command of image-forward (`dagspaces/sources/beemaps`): `inspect`, `sample`, `nearest`. The key is `BEE_MAPS_API_KEY` in `.env`. Read `docs/sources-beemaps.md` in image-forward for the costs. |
 
 The dataset configs (Cyclomedia, NYC, bayflood, nexar) are in `sv/conf/` and
 `sv/nyc/conf/`. Thus `pipeline=vqa_bayflood` and `data=cyclomedia_manhattan`
@@ -157,9 +158,9 @@ work in each dagspace.
 
 On this site, `.venv-vllm025cu129` (a symlink to `.venv-mllmsci-vllm025cu129`)
 is the default venv for all launchers. `server.env` sets it. It holds editable
-installs of the image-forward checkout and of this repo. `.venv-3.12` (vLLM
-0.19) and `.venv-nightly` (vLLM 0.23) stay on disk; override
-`IMAGE_FORWARD_VENV_ACTIVATE` to use one.
+installs of the image-forward checkout and of this repo, jlens and gepa. The
+job files (`*.sub`) use it too. `.venv-3.12` (vLLM 0.19) and `.venv-nightly`
+(vLLM 0.23) stay on disk, but they do not have image-forward: no job uses them.
 
 **Warning:** do not change the site venv while jobs run. Check `squeue -u $USER` first.
 
@@ -190,7 +191,7 @@ the vLLM 0.25 upgrade is in `.dev_history/`.
   - `research/docs/` — The research documentation: experiments, results, runbooks (for example `facct-runbook.md`).
   - `research/conf/` — The research configs: the pairwisevqa batteries (`pipeline/`, `prompt/`, `sweep/`, `extract/`) and the GEPA configs. The plugin adds them to the search path.
   - `research/ic/` — The Integrative Complexity schema, codes, examples and the `ic_extract` stage. A pipeline adds the stage with `pipeline.stage_runners`.
-  - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). The `gepa` package is not in the venv.
+  - `research/prompt_opt/` — The GEPA prompt optimization (single-image and pairwise). `gepa` is in the `research` extra.
 - `scripts/` — Shims to the scripts of image-forward (`_image_forward_home.sh` finds the checkout), and `build_browser_index.py`.
 - `conftest.py` — Loads `server.env`, sets the markers `gpu`, `slurm` and `data`, and gives the path fixtures. CI (`.github/workflows/ci.yml`) runs `pytest -m "not gpu and not slurm and not data"` and ruff.
 - `tests/test_roaming_vqa.py` — Roaming VQA tests (graph construction, bearings, checkpoints)
