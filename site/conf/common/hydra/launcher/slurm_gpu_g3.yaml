@@ -41,6 +41,11 @@ additional_parameters:
   wckey: ""
 setup:
   - export HYDRA_FULL_ERROR=1
+  # The job does not always get the environment of the submitter. Hydra writes
+  # the 2 roots and the server.env path into these lines at compose time.
+  - export IMAGE_FORWARD_HOME=${oc.env:IMAGE_FORWARD_HOME}
+  - export IMAGE_FORWARD_PROJECT_ROOT=${oc.env:IMAGE_FORWARD_PROJECT_ROOT}
+  - export IMAGE_FORWARD_SERVER_ENV=${oc.env:IMAGE_FORWARD_SERVER_ENV,""}
   - source ~/.bashrc
   - source ${oc.env:IMAGE_FORWARD_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
   # A node-local mirror of the venv. The first job on a g3 node makes it from

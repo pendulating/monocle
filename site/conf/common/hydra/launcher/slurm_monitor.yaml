@@ -32,6 +32,11 @@ setup:
   #      There's no ~/.local/bin/srun shim, so we need this dir too.
   - export PATH=$HOME/.local/bin:${oc.env:IMAGE_FORWARD_SLURM_BIN,/usr/local/slurm/current/bin}:$PATH
   - export HYDRA_FULL_ERROR=1
+  # The job does not always get the environment of the submitter. Hydra writes
+  # the 2 roots and the server.env path into these lines at compose time.
+  - export IMAGE_FORWARD_HOME=${oc.env:IMAGE_FORWARD_HOME}
+  - export IMAGE_FORWARD_PROJECT_ROOT=${oc.env:IMAGE_FORWARD_PROJECT_ROOT}
+  - export IMAGE_FORWARD_SERVER_ENV=${oc.env:IMAGE_FORWARD_SERVER_ENV,""}
   - source ~/.bashrc
   - source ${oc.env:IMAGE_FORWARD_VENV_ACTIVATE,/share/ju/matt/mllmsci/.venv-mllmsci-vllm025cu129/bin/activate}
   # This job runs the DRIVER, so it must keep the NFS venv: IMAGE_FORWARD_DRIVER_VENV
