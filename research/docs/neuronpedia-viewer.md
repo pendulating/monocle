@@ -66,6 +66,49 @@ a new export, run `neuronpedia_up.sh`, and do not copy the files only.
 | 1 borough | The borough minus the other images. |
 | `high-yes-no`, `low-yes-no` | The top third of `yes_no` minus the bottom third, and the reverse. |
 
+## Instruments
+
+The readout instruments (F10.35 in `facct-runbook.md`) mark possible steps of the
+judgment. A word is salient at a token and a layer when it is in the top 10 there. The
+definitions are in `research/monocle/instruments.py`. The patch adds the same definitions to
+the viewer.
+
+The `INSTRUMENT` row is under the layer bar. In a mode other than `Count`, the side list of
+each column shows the instrument, and select, highlight, `STEER` and `SWAP` stay as they
+are.
+
+| Instrument | Variant | Start and end | Value in the list |
+|------------|---------|---------------|-------------------|
+| Layer loss | 1 token | The 2 ends of the layer bar, at the selected token | `start rank → end rank` of each word that loses salience |
+| Layer loss | All tokens, salience count | The low end of the layer bar | `salient / not salient`: the count of tokens |
+| Layer loss | All tokens, loss and gain | The 2 ends of the layer bar | `loss / gain`: the count of tokens |
+| Position loss | 1 layer | The 2 selected tokens, in prompt order, at the layer of the menu | `start rank → end rank` |
+| Position loss | All layers, salience count | The first selected token, the layers of the layer bar | `salient / not salient`: the count of layers |
+| Position loss | All layers, loss and gain | The 2 selected tokens, the layers of the layer bar | `loss / gain`: the count of layers |
+| Smear | | The selected token, the layers of the layer bar | `run: first layer–last layer` for each run of 3 or more contiguous read layers |
+
+- `Reverse A ↔ B` makes position loss go from the later token to the earlier token.
+- In the "all" variants, `Sort by` chooses the first or the second value.
+- The line under the controls gives the instrument and its parameters. An amber note
+  tells you when a selection is missing.
+- A share opens with 2 tokens selected. For layer loss with 1 token and for the smear,
+  click 1 of them to remove it.
+
+**The rank block.** A word that leaves the top 30 has no rank in the top lists of a run.
+The group runs hold the `instruments` key: the ranks of the words that are salient at 1 or
+more point (`hop_viewer.py` 1.1.0, `--instruments groups`). The 1-image runs do not have it,
+and the list shows such a rank as `>30`.
+
+**Warning:** the viewer shows the instrument of 1 run. In a group run, that is the
+instrument of the mean read, not the mean of the instrument over the images. For counts
+and tests over images, use `research/scripts/f10/hop_instruments.py`.
+
+| Command | Purpose |
+|---------|---------|
+| `pytest tests/test_instruments.py tests/test_hop_viewer.py` | Test the Python core and the rank block |
+| `npx vitest run components/jlens/jlens-instruments.test.ts` (in the webapp of the checkout) | Compare the TypeScript with the Python core, on the fixture of `neuronpedia_patches/make_golden.py` |
+| `python research/scripts/f10/neuronpedia_patches/make_golden.py OUT.json` | Write the fixture again, after a change of the core |
+
 ## Limits
 
 - The viewer shows the image as 1 token with no read. The patch residuals and top words
@@ -86,9 +129,14 @@ a new export, run `neuronpedia_up.sh`, and do not copy the files only.
 
 ## Local patches
 
-`neuronpedia_up.sh` changes 2 kinds of text in the local copy and sends nothing upstream:
+`neuronpedia_up.sh` changes 3 kinds of text in the local copy and sends nothing upstream:
 
 - The labels of the `LOGIT_LENS` column now say `Contrast`.
+- `research/scripts/f10/neuronpedia_patches/instruments.patch` adds the instruments (9 files
+  in `apps/webapp/components/jlens/`). The script first resets that folder to `e2573d3`,
+  thus a new version of the patch applies too. `share_static.py` applies the same patch.
+  To change the patch: edit the files in the checkout, then write the patch again with
+  `git add -N` on the new files and `git diff -- apps/webapp/components/jlens`.
 - `.env.localhost` uses port 55432 and lists our 3 models (`gemma-4-31b`, `qwen3.5-9b`, `qwen3.6-27b`) as J++ models. Qwen3.6-27B joined on 2026-11-02; see [neuronpedia-public-release.md](neuronpedia-public-release.md).
 
 A static copy of the share pages, for reviewers, comes from `research/scripts/f10/share_static/`. See [neuronpedia-public-release.md](neuronpedia-public-release.md), section 8.

@@ -260,6 +260,7 @@ review") and set the goal below.
 | D189 | Run the F10.28 word lists and the F10.29 task-7 directions again from the k = 10 fit, and compare the directions by what they read (the projections of the images), not by the cosine alone. Build the k = 50 SES table in the paper layout in `research/notebooks/facct/tables/`, not in the paper repo. Propose the paper edits in `f10-manuscript-proposals.md` section 7. |
 | D191 | Review the results of the paper against the record pages of 2026-10-29 to 2026-11-03, and put the findings that the paper does not hold into the main narrative: the steering test (F10.29 Q5), the refusal readout (Q4), the third model on the New York probe, the borough order of each standard at 50 images, `ugly` against `pretty` in the residual, the noun, H9 in both forms, and the in-view uncertainty gradient. Record: `f10-manuscript-proposals.md` section 8 (P59 to P67). |
 | D190 | Add and subtract the prompt directions of the 7 adjectives at the noun token pair by pair, and give the cosine of each sum and difference with each single direction as 2 heatmaps for the appendix. Script `research/scripts/f10/hop_sum_directions.py`. |
+| D192 | Build 3 readout instruments for the F10 reads (F10.35): layer loss (1 token, all tokens), position loss (1 layer, all layers) and smear. Salience = the top 10 by rank. The "all" variants give 2 measures: the salience count at the start point, and the loss and gain counts. The viewer shows them in the Neuronpedia word list; the group runs carry a rank block; the static share site gets a rebuild. Each 4th layer is sufficient; no dense read. |
 
 Claude made the design choices of F8 that the user did not set (the cue
 names, the cue form, the models, the R3 answer position of Q36, the word
@@ -4172,6 +4173,89 @@ and an appendix pointer. We moved these details to the appendix, so no number is
 | New York yes shares by borough, other-city captions | `app:place-probes` |
 
 Not kept: the Spearman .23 for 'ordinary' (conceptions) and the lighting-income rho (.25 to .44).
+
+### F10.35 Readout instruments (D192, 2026-11-23)
+
+The instruments mark possible steps of the judgment in the lens reads. They find
+candidates. A test on the store decides if a candidate is a result.
+
+| Term | Definition |
+|------|------------|
+| Rank | The rank of a word among the store words at 1 token and 1 layer. 1 = top |
+| Salient | Rank 10 or better |
+| Loss | Salient at the start point and not salient at the end point |
+| Gain | Not salient at the start point and salient at the end point |
+
+| Instrument | Variant | Output |
+|------------|---------|--------|
+| Layer loss, layer X to layer Y | 1 token | The words that lose salience, with the start and end rank |
+| Layer loss | all tokens | For each word: the salience count at X (salient, not salient), and the loss and gain counts over the tokens |
+| Position loss, token A to token B | 1 layer | The words that lose salience, with the start and end rank |
+| Position loss | all layers | For each word: the salience count at A, and the loss and gain counts over the layers |
+| Smear | 1 token | The words that stay salient for 3 or more contiguous read layers |
+
+**Warning:** the F10.6 store reads each 4th layer. "Contiguous" means contiguous read
+layers, 4 model layers apart.
+
+- A change across layers can be a change of the lens and not of the model.
+- In a group run of the viewer, the instrument applies to the mean read. Statistics
+  come from the store script, not from the viewer.
+
+| Step | Status | Output |
+|------|--------|--------|
+| 1. The core and its tests | Done (2026-11-23) | `research/monocle/instruments.py`, `tests/test_instruments.py` (15 tests) |
+| 2. The instruments on each image of the F10.6 stores, with the text control and a held-out test | Done (2026-11-23), 3 models, 591 images, session node | `research/scripts/f10/hop_instruments.py` (and `.sbatch`), `data/f10/instruments/{model}/`, `research/figures/f10/instruments/` |
+| 3. The rank block in the group runs | Done (2026-11-23): 24 group runs, 1 to 2 MB each; the viewer folder grew from 779 MB to 808 MB. The block agrees with the top 10 of the runs at 2,444 points of a smoke export. The export took 25 min and 10.5 GB on the session node | `hop_viewer.py` 1.1.0, `data/f10/hop_all/viewer/` |
+| 4. The viewer patch | Done (2026-11-23). 9 files at `e2573d3`: 4 new (`jlens-instruments.ts`, `jlens-instruments-bar.tsx`, the test, the fixture), 5 changed. The TS test compares 72 cases with the Python core (`neuronpedia_patches/make_golden.py`): 77 of 77 pass; the webapp suite passes (452); `tsc` passes. `neuronpedia_up.sh` and `share_static.py` apply the patch | `research/scripts/f10/neuronpedia_patches/` |
+| 5. The check in the local viewer and with `check_static.py` | Done (2026-11-23). Local viewer: a headless browser on the Gemma-4-31B `all` run, each mode, no console error. `check_static.py` 1.4.0 sets 4 instruments on each page with the rank block and compares both lists with the run file: 24 of 24 pages pass, 17,649 rows, 624 token readouts | `check_static.py` |
+| 6. The section "Instruments" in `neuronpedia-viewer.md` | Done (2026-11-23) | `research/docs/neuronpedia-viewer.md` |
+| 8. The rebuild of the static share site | Built and checked (2026-11-23): 24 of 24 pages, 17,649 instrument rows, 624 token readouts in each output. The zip (6.5 to 18 MB) and `artificial-aesthetic/site/jlens-share` (21 to 50 MB) have the instruments; the site copy is not committed, and nothing goes to `artificial-aesthetic` (user, 2026-11-23). `artificial-aesthetic/site/anon` stays at the old copy, with no instruments (user, 2026-11-23): a build with the instruments was 118 MB, against 40 MB | `share_static.py` 1.5.0 |
+
+#### Step 2 result (2026-11-23, `hop_instruments.py` 1.1.0)
+
+The test compares the top third of `yes_no` with the bottom third: candidates on the
+search half of the NTAs (chi-square, p < .001), then a test on the other half
+(Bonferroni within each instrument). The counts agree with the rank form of the core on
+50 images, for each instrument.
+
+The tests use steps, not all pairs of layers or tokens. A step goes from 1 read layer to
+the next (or from 1 token to the next), thus each change counts once, at its boundary.
+With all pairs, 1 change repeated: a word salient at L56 only had a loss to each other
+layer. The step tables agree with the matching rows of the pair tables.
+
+An answer word is a word that is salient at the last token and the last read layer in
+5% or more of the images (`answer_words` in `data/f10/instruments/{model}/meta.json`).
+Gemma-4-31B: 18 words, among them `subjective`, `subjectivity`, `opinion`, `prefer`,
+`yes`, `unsure`. Qwen3.5-9B: 14 words, among them `yes`, `nope`, `cool`, `subjective`.
+Qwen3.6-27B: 20 words, among them `yes`, `cool`, `nope`, `city`, `town`.
+
+| Model | Instrument | Candidates | Pass | Pass, not answer | Pass, not answer, not in the text read |
+|-------|------------|------------|------|------------------|----------------------------------------|
+| Gemma-4-31B | salient | 736 | 280 | 231 | 207 |
+| | layer step | 818 | 321 | 263 | 231 |
+| | position step | 1,218 | 410 | 341 | 304 |
+| | smear | 58 | 27 | 18 | 16 |
+| Qwen3.5-9B | salient | 254 | 132 | 105 | 86 |
+| | layer step | 390 | 195 | 166 | 145 |
+| | position step | 480 | 233 | 187 | 155 |
+| | smear | 23 | 17 | 14 | 7 |
+| Qwen3.6-27B | salient | 241 | 59 | 50 | 47 |
+| | layer step | 295 | 56 | 47 | 40 |
+| | position step | 393 | 86 | 74 | 70 |
+| | smear | 15 | 8 | 7 | 6 |
+
+**Warning:** most rows that pass are at the template tokens after the question (on
+Gemma-4-31B: `<|turn>`, `\n`, `<channel|>`, ` or`, `.`). There the answer forms, thus
+the rows can follow the answer even when the word is not an answer word.
+
+A pattern in the steps: a gain at 1 boundary and a loss at the next boundary is a word
+that is salient at 1 read layer only. Examples on Gemma-4-31B at `<channel|>`: `guessing`
+at L40 (76% of the top third, 2% of the bottom third) and `indic` at L36 (85%, 11%). Words
+of the bottom third at `<channel|>`: `neutrality` (gain at L52 to L56, 72% against 0%),
+`unfit`, `tidak`. On Qwen3.6-27B at `Is`: `image` is salient at L56 in 88% of the bottom
+third and 49% of the top third.
+
+These rows are candidates from a search, not results.
 
 ## F11. Judgment consistency: pairwise against single-image (D150)
 

@@ -29,6 +29,12 @@ export PATH=$PG:$PATH NEXT_TELEMETRY_DISABLED=1
 
 [ -d "$WEB/node_modules" ] || (cd "$WEB" && npm ci --no-audit --no-fund)
 
+# Local patch: the readout instruments of F10.35. Start from the pinned files, thus a new
+# version of the patch applies too.
+git -C "$BASE/src" checkout -q -- apps/webapp/components/jlens
+git -C "$BASE/src" clean -fdq -- apps/webapp/components/jlens
+git -C "$BASE/src" apply "$ROOT/research/scripts/f10/neuronpedia_patches/instruments.patch"
+
 # Local patch: the second column holds the contrast, not a logit lens.
 sed -i "s/\[LensType.LOGIT_LENS\]: 'Logit Lens'/[LensType.LOGIT_LENS]: 'Contrast'/" "$WEB/lib/utils/lens.ts"
 sed -i "s/\[LensColumn.LOGIT_LENS\]: 'Logit'/[LensColumn.LOGIT_LENS]: 'Contrast'/" "$WEB/lib/utils/lens.ts"

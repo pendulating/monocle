@@ -1,0 +1,13 @@
+model,instrument,rows,candidates,passes,passes_not_answer,passes_clean
+gemma-4-31b,salient,52889,736,280,231,207
+gemma-4-31b,layer_step,71710,818,321,263,231
+gemma-4-31b,position_step,93872,1218,410,341,304
+gemma-4-31b,smear,4607,58,27,18,16
+qwen3.5-9b,salient,7036,254,132,105,86
+qwen3.5-9b,layer_step,10196,390,195,166,145
+qwen3.5-9b,position_step,12999,480,233,187,155
+qwen3.5-9b,smear,480,23,17,14,7
+qwen3.6-27b,salient,22543,241,59,50,47
+qwen3.6-27b,layer_step,31250,295,56,47,40
+qwen3.6-27b,position_step,40516,393,86,74,70
+qwen3.6-27b,smear,1925,15,8,7,6

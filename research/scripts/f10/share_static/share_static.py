@@ -36,11 +36,12 @@ import sys
 import zipfile
 from pathlib import Path
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 ROOT = Path(__file__).resolve().parents[4]
 HERE = Path(__file__).resolve().parent
 PIN = "e2573d3"
+INSTRUMENTS_PATCH = Path(__file__).resolve().parents[1] / "neuronpedia_patches" / "instruments.patch"
 REPO = "https://github.com/hijohnnylin/neuronpedia.git"
 GROUPS = ("all", "bronx", "brooklyn", "manhattan", "queens", "staten-island", "high-yes-no", "low-yes-no")
 # The rows that neuronpedia_load.py inserts into the Model table, as the global provider wants them.
@@ -84,6 +85,10 @@ def checkout(base: Path, base_path: str = "") -> Path:
     sh(["git", "-C", str(src), "checkout", "-q", "--", "apps/webapp/app/[modelId]/jlens/jlens-model-selector.tsx"], cwd=base)
     if not (web / "node_modules").exists():
         sh(["npm", "ci", "--no-audit", "--no-fund"], cwd=web, env={**os.environ, "NEXT_TELEMETRY_DISABLED": "1"})
+    # The readout instruments of F10.35. Start from the pinned files, thus a new version of the patch applies too.
+    sh(["git", "-C", str(src), "checkout", "-q", "--", "apps/webapp/components/jlens"], cwd=base)
+    sh(["git", "-C", str(src), "clean", "-fdq", "--", "apps/webapp/components/jlens"], cwd=base)
+    sh(["git", "-C", str(src), "apply", str(INSTRUMENTS_PATCH)], cwd=base)
     lens = web / "lib" / "utils" / "lens.ts"
     text = lens.read_text()
     for old, new in PATCHES:
@@ -301,7 +306,8 @@ def manifest(out: Path, runs: Path, rows: list[dict], web: Path, base_path: str 
         "site": SITE,
         "writer": f"research/scripts/f10/share_static/share_static.py {__version__}",
         "neuronpedia_commit": PIN,
-        "neuronpedia_patches": [f"{old} -> {new}" for old, new in PATCHES],
+        "neuronpedia_patches": [f"{old} -> {new}" for old, new in PATCHES]
+        + [f"research/scripts/f10/neuronpedia_patches/instruments.patch sha256 {sha256(INSTRUMENTS_PATCH)}"],
         "base_path": base_path,
         "runs_inline": rows[0]["url"].startswith("data:") if rows else False,
         "exporter": "research/scripts/f10/hop_viewer.py",

@@ -9,7 +9,9 @@ Serves the output folder over HTTP, opens each share page in Chromium, and check
 - the Contrast column label is present;
 - a click on a token opens its readout, and the top word at each layer, for the J++ column and
   the Contrast column, equals the first entry of the run file at that layer (0 mismatches);
-- the index links every share, and each model's landing page links its runs.
+- the index links every share, and each model's landing page links its runs;
+- on a run with the rank block (F10.35), each readout instrument lists the words that the run file
+  gives, in the same order, with the same values, in both columns (`check_instruments`).
 
     /scratch/$USER/neuronpedia-static/pwvenv/bin/python research/scripts/f10/share_static/check_static.py
     ... --explore   # print the text and the clickable elements of the first page, for the selectors
@@ -37,7 +39,8 @@ from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
+import re  # noqa: E402
 USER = os.environ.get("USER", "user")
 # The page prints a leading space as an open box and a newline as a return arrow.
 GLYPHS = {"␣": " ", "↵": "\n"}
@@ -137,6 +140,140 @@ def expected_readout(run: dict, token: dict) -> dict[str, dict[int, str]]:
     return out
 
 
+K = 10  # salient = top 10, as in the viewer patch
+
+
+class RunTable:
+    """The expected instrument lists of 1 run, from its top lists and its rank block (F10.35).
+
+    This is a third form of the definitions (after `research/monocle/instruments.py` and the
+    TypeScript of the patch), kept short: it reads only what the page shows.
+    """
+
+    def __init__(self, run: dict, typ: str):
+        self.layers = run["meta"]["layers_by_type"][typ]
+        self.top = {t["position"]: next(r for r in t["results"] if r["type"] == typ)["top_tokens"] for t in run["tokens"]}
+        col = run["instruments"]["columns"][typ]
+        w = col["words"]
+        self.by_pos = {int(p): {w[i]: r for i, r in zip(e["w"], e["r"])} for p, e in col["byPosition"].items()}
+        self.by_layer = {int(layer): ({p: j for j, p in enumerate(e["positions"])}, {w[i]: r for i, r in zip(e["w"], e["r"])})
+                         for layer, e in col["byLayer"].items()}
+
+    def sal(self, pos: int, li: int) -> list[str] | None:
+        row = self.top[pos][li] if li < len(self.top[pos]) else []
+        return row[:K] if row else None
+
+    def label(self, r: int | None, pos: int, li: int) -> str:
+        return str(r) if r is not None else f">{len(self.top[pos][li])}"
+
+    def layer_one(self, pos: int, X: int, Y: int) -> list[tuple[str, str]]:
+        a, b = self.sal(pos, X), self.sal(pos, Y)
+        rows = [(w, i + 1, self.by_pos.get(pos, {}).get(w, [None] * len(self.layers))[Y]) for i, w in enumerate(a) if w not in b]
+        rows.sort(key=lambda x: (-(x[2] or 10**15), x[1]))
+        return [(w, f"{s} → {self.label(e, pos, Y)}") for w, s, e in rows]
+
+    def layer_all(self, X: int, Y: int) -> list[tuple[str, str]]:
+        loss, gain = {}, {}
+        for pos in self.top:
+            a, b = self.sal(pos, X), self.sal(pos, Y)
+            if a is None or b is None:
+                continue
+            for w in a:
+                loss[w] = loss.get(w, 0) + (w not in b)
+                gain.setdefault(w, 0)
+            for w in b:
+                gain[w] = gain.get(w, 0) + (w not in a)
+                loss.setdefault(w, 0)
+        return [(w, f"{loss[w]} / {gain[w]}") for w in sorted(loss, key=lambda w: (-loss[w], w))]
+
+    def position_one(self, A: int, B: int, li: int) -> list[tuple[str, str]]:
+        a, b = self.sal(A, li), self.sal(B, li)
+        at, ranks = self.by_layer.get(self.layers[li], ({}, {}))
+        rows = [(w, i + 1, ranks[w][at[B]] if w in ranks and B in at else None) for i, w in enumerate(a) if w not in b]
+        rows.sort(key=lambda x: (-(x[2] or 10**15), x[1]))
+        return [(w, f"{s} → {self.label(e, B, li)}") for w, s, e in rows]
+
+    def smear(self, pos: int, lo: int, hi: int, m: int) -> list[tuple[str, str]]:
+        best, cur = {}, {}
+        for li in range(lo, hi + 1):
+            s = set(self.sal(pos, li) or [])
+            cur = {w: cur.get(w, 0) + 1 for w in s}
+            for w, c in cur.items():
+                if c > best.get(w, (0, 0))[0]:
+                    best[w] = (c, li)
+        rows = [(w, c, li - c + 1, li) for w, (c, li) in best.items() if c >= m]
+        rows.sort(key=lambda x: (-x[1], x[2], x[0]))
+        return [(w, f"{c}: L{self.layers[a]}–{self.layers[b]}") for w, c, a, b in rows]
+
+
+def page_rows(page) -> list[tuple[str, str]]:
+    """The rows of the word lists, in page order: the word and the value text."""
+    got = page.evaluate("""() => [...document.querySelectorAll('button')]
+        .filter(b => b.querySelector('span.tabular-nums') && b.innerText.includes('STEER'))
+        .map(b => b.innerText.replace(/\\s+/g, ' ').trim())""")
+    out = []
+    for text in got:
+        word, _, rest = text.partition(" STEER SWAP ")
+        out.append((unglyph(word), rest))
+    return out
+
+
+def check_instruments(page, run: dict, toggle: int) -> tuple[list[str], int]:
+    """Set each instrument and compare the 2 lists with `RunTable`. ``toggle``: a token to add or remove."""
+    errors: list[str] = []
+    compared = 0
+    tables = [RunTable(run, t) for t in ("JPP_LENS", "LOGIT_LENS")]
+    page.keyboard.press("Escape")
+    page.mouse.move(2, 2)
+
+    def click(name: str) -> None:
+        page.get_by_role("button", name=name, exact=True).first.click()
+        page.wait_for_timeout(300)
+
+    def describe() -> str:
+        return page.locator("div.text-slate-600.leading-snug").first.inner_text()
+
+    def ensure(pattern: str):
+        for _ in range(2):
+            m = re.search(pattern, describe())
+            if m:
+                return m
+            page.locator(f'[data-token-position="{toggle}"]').first.click()
+            page.mouse.move(2, 2)
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(400)
+        return None
+
+    li = lambda layer: tables[0].layers.index(int(layer))  # noqa: E731
+    cases = [
+        ("Layer loss", None, r"Layer loss, 1 token \(position (\d+)\), L(\d+) → L(\d+)",
+         lambda t, m: t.layer_one(int(m[1]), li(m[2]), li(m[3]))),
+        ("All tokens", None, r"Layer loss, all tokens, loss and gain, L(\d+) → L(\d+)",
+         lambda t, m: t.layer_all(li(m[1]), li(m[2]))),
+        ("Smear", None, r"Smear at position (\d+), (\d+) or more contiguous read layers in L(\d+) to L(\d+)",
+         lambda t, m: t.smear(int(m[1]), li(m[3]), li(m[4]), int(m[2]))),
+        ("Position loss", "1 layer", r"Position loss, 1 layer \(L(\d+)\), position (\d+) → (\d+)",
+         lambda t, m: t.position_one(int(m[2]), int(m[3]), li(m[1]))),
+    ]
+    for button, variant, pattern, expect in cases:
+        click(button)
+        if variant:
+            click(variant)
+        m = ensure(pattern)
+        if m is None:
+            errors.append(f"{button}: no describe line that matches; the page says {describe()!r}")
+            continue
+        want = [row for t in tables for row in expect(t, m)]
+        got = page_rows(page)
+        if got != want:
+            diff = next((i for i, (a, b) in enumerate(zip(got, want)) if a != b), min(len(got), len(want)))
+            errors.append(f"{button}: {len(got)} rows on the page, {len(want)} from the run file; first difference at row {diff}: "
+                          f"{got[diff:diff + 1]} against {want[diff:diff + 1]}")
+        compared += len(want)
+    click("Count")
+    return errors, compared
+
+
 def allowed(text: str, sandbox: bool) -> bool:
     return sandbox and any(a in text for a in SANDBOX_ALLOWED)
 
@@ -194,6 +331,10 @@ def check_page(page, origin: str, row: dict, run: dict, shot: Path | None, sandb
                 compared += len(by_layer)
                 if bad:
                     errors.append(f"{typ}: {len(bad)} of {len(by_layer)} layers differ, e.g. {bad[:2]}")
+    if "instruments" in run:
+        more, n_rows = check_instruments(page, run, pos)
+        errors += [f"instruments: {e}" for e in more]
+        row["_instrument_rows"] = n_rows
     if console:
         errors.append(f"console errors: {console[:3]}")
     if failed:
@@ -240,6 +381,7 @@ def main() -> int:
     print(f"[check] site {base}{' (sandbox)' if args.sandbox else ''}", flush=True)
     bad = 0
     compared = 0
+    instrument_rows = instrument_pages = 0
     shot_done: set[str] = set()
     try:
         with sync_playwright() as pw:
@@ -278,9 +420,12 @@ def main() -> int:
                     shot_done.add(row["modelId"])
                 errors, n = check_page(page, base, row, run, shot, args.sandbox)
                 compared += n
+                instrument_rows += row.get("_instrument_rows", 0)
+                instrument_pages += "_instrument_rows" in row
                 page.close()
                 status = "ok" if not errors else "FAIL"
-                note = "; ".join(errors) or f"loads, tokens, click, {n} layer readouts match"
+                note = "; ".join(errors) or f"loads, tokens, click, {n} layer readouts match" + (
+                    f", {row['_instrument_rows']} instrument rows match" if "_instrument_rows" in row else "")
                 print(f"[check] {status} {row['modelId']} {file.split('/')[-1]}: {note}", flush=True)
                 bad += bool(errors)
             browser.close()
@@ -289,7 +434,8 @@ def main() -> int:
             server.shutdown()
         if tmp is not None:
             shutil.rmtree(tmp)
-    print(f"[check] {len(rows) - bad} of {len(rows)} pages pass; {compared} layer readouts compared", flush=True)
+    print(f"[check] {len(rows) - bad} of {len(rows)} pages pass; {compared} layer readouts compared; "
+          f"{instrument_rows} instrument rows compared on {instrument_pages} pages", flush=True)
     return 1 if bad else 0
 
 

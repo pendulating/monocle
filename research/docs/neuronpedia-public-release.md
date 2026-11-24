@@ -326,6 +326,22 @@ does not work. Steer, Swap, Send and "Load Oracle Lens" (Qwen3.6-27B) show "unav
 
 **To add runs.** `--all` builds every run of the viewer folder (1,797 pages, about 780 MB).
 
+**The readout instruments (2026-11-23, F10.35).** `share_static.py` 1.5.0 applies
+`research/scripts/f10/neuronpedia_patches/instruments.patch` to the checkout, and
+`MANIFEST.json` gives its sha256. The group runs now hold the rank block, thus the outputs
+grow: the zip from 6.5 to 18 MB, `site/jlens-share` from 21 to 50 MB. A build of `site/anon`
+with the instruments was 118 MB, against 40 MB, thus `site/anon` stays at the old copy with no
+instruments (user, 2026-11-23). The new `site/jlens-share` is not committed in
+`artificial-aesthetic` (user, 2026-11-23). `check_static.py` 1.4.0 also sets 4 instruments on each page with the block and
+compares both lists with the run file (17,649 rows on the 24 pages). It needs `--shares` for
+a copy outside the build folder: `--shares /scratch/$USER/neuronpedia-static/app/data/shares.json`
+(right after the build of that copy).
+
+**Words of the runs that look like names.** The rank blocks add many vocabulary words. A
+whole-word scan of the sites finds `matt` (a vocabulary word, in the Qwen3.6-27B Queens run,
+also before the blocks), `unicorn` and `franchise` and its forms (vocabulary words), and `MWF`
+(bytes of a font file). Keep the Anonymous GitHub term list free of these words.
+
 ```
 python research/scripts/f10/share_static/share_static.py            # the zip
 python research/scripts/f10/share_static/share_static.py --base-path /artificial-aesthetic \

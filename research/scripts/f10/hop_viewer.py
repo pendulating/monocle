@@ -33,6 +33,23 @@ Output in `data/f10/hop_all/viewer/`:
 | `img/{sample_id}.jpg` | a small copy of each street image |
 | `index.html` | the list of runs, with the images and the answers |
 
+The rank block (F10.35, version 1.1.0). With `--instruments groups` (the default), each
+group run gets an optional key `instruments`. The viewer patch of F10.35 reads it to give
+the true end rank of a word that leaves the top 30. The old viewer ignores the key.
+
+    "instruments": {"version": 1, "unit": "rank", "k": 10, "vocab": <store words>,
+      "columns": {"JPP_LENS": {
+          "words": [...],                       # the words of the block; the lists below hold indices
+          "byPosition": {"<token>": {"w": [...], "r": [[rank at each layer], ...]}},
+          "byLayer": {"<layer>": {"positions": [...], "w": [...], "r": [[rank at each token], ...]}}},
+        "LOGIT_LENS": {...}}}
+
+`byPosition[p]` holds the words salient (rank <= k) at token `p` at 1 or more layers, with
+their ranks at each layer of `layers_by_type`. `byLayer[l]` holds the words salient at
+layer `l` at 1 or more tokens, with their ranks at each token of `positions`. Ranks come
+from `research.monocle.instruments.ranks`: 1 = top, among the store words. A token with
+no read (the image, and the prefix in the Contrast column) is absent.
+
 Use:
     .venv-mllmsci-vllm025cu129/bin/python research/scripts/f10/hop_viewer.py [--limit 50]
 """
@@ -47,9 +64,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from research.monocle.instruments import K, ranks, salient
 from research.scripts.f10.hop_store import ALL_ROOT, Store, open_store  # noqa: E402
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 MODELS = {
     "gemma-4-31b": "/share/ju/matt/zoo/models/Gemma-4-31B-it",
@@ -114,6 +132,41 @@ def run(model: str, tokens: list, at: dict, positions: list[str], layers: list[i
             "prompt": "".join(w for w, _ in tokens), "tokens": rows, "layerRange": [layers[0], layers[-1]]}
 
 
+def rank_column(x: np.ndarray, read_at: list[int], layers: list[int], words: np.ndarray, k: int = K) -> dict:
+    """Give the rank block of 1 column. ``x`` is ``[read tokens, layers, vocab]``; ``read_at`` gives the token of each row."""
+    r = ranks(x)
+    sal = salient(r, k)
+    have = r[:, :, 0] > 0  # [tokens, layers]
+    by_position, by_layer, used = {}, {}, set()
+    for i, k_at in enumerate(read_at):
+        if not have[i].any():
+            continue
+        u = np.flatnonzero(sal[i].any(0))
+        by_position[str(k_at)] = (u, r[i][:, u].T)
+        used.update(u.tolist())
+    for j, layer in enumerate(layers):
+        rows = np.flatnonzero(have[:, j])
+        if len(rows) == 0:
+            continue
+        u = np.flatnonzero(sal[rows, j].any(0))
+        by_layer[str(layer)] = (rows, u, r[rows, j][:, u].T)
+        used.update(u.tolist())
+    order = np.array(sorted(used), dtype=int)
+    index = {w: i for i, w in enumerate(order.tolist())}
+    idx = lambda u: [index[w] for w in u.tolist()]
+    return {"words": words[order].tolist(),
+            "byPosition": {p: {"w": idx(u), "r": rk.tolist()} for p, (u, rk) in by_position.items()},
+            "byLayer": {layer: {"positions": [read_at[i] for i in rows], "w": idx(u), "r": rk.tolist()}
+                        for layer, (rows, u, rk) in by_layer.items()}}
+
+
+def rank_block(at: dict, positions: list[str], layers: list[int], raw: np.ndarray, contrast: np.ndarray, words: np.ndarray) -> dict:
+    """Give the `instruments` key of a run: the rank block of both columns."""
+    read_at = [at[p] for p in positions]
+    return {"version": 1, "unit": "rank", "k": K, "vocab": len(words),
+            "columns": {RAW: rank_column(raw, read_at, layers, words), CONTRAST: rank_column(contrast, read_at, layers, words)}}
+
+
 def share_id(model: str, name: str) -> str:
     return f"f10-{model.replace('.', '-')}-{name}".lower()
 
@@ -144,7 +197,7 @@ def group_masks(images: pd.DataFrame) -> dict[str, np.ndarray]:
     return masks
 
 
-def write_model(model: str, out: Path, limit: int | None) -> pd.DataFrame:
+def write_model(model: str, out: Path, limit: int | None, instruments: str = "groups") -> pd.DataFrame:
     s = open_store(model, ALL_ROOT)
     files = shards(s, limit)
     n = sum(np.load(f, mmap_mode="r").shape[0] for f in files)
@@ -171,8 +224,11 @@ def write_model(model: str, out: Path, limit: int | None) -> pd.DataFrame:
     text = np.load(s.path / "text_reads.npy")
     rows = []
 
-    def add(name: str, description: str, raw: np.ndarray, contrast: np.ndarray) -> None:
-        full = run(model, tokens, at, positions, layers, np.concatenate([prefix, raw]), np.concatenate([no_contrast, contrast]), words)
+    def add(name: str, description: str, raw: np.ndarray, contrast: np.ndarray, group: bool = True) -> None:
+        raw, contrast = np.concatenate([prefix, raw]), np.concatenate([no_contrast, contrast])
+        full = run(model, tokens, at, positions, layers, raw, contrast, words)
+        if instruments == "all" or (instruments == "groups" and group):
+            full["instruments"] = rank_block(at, positions, layers, raw, contrast, words)
         (dest / f"{name}.json").write_text(json.dumps(full, ensure_ascii=False))
         rows.append(share(model, name, description, len(tokens), at))
 
@@ -190,7 +246,7 @@ def write_model(model: str, out: Path, limit: int | None) -> pd.DataFrame:
         x = np.load(f)
         for i, r in enumerate(images.iloc[seen: seen + len(x)].itertuples()):
             add(r.sample_id, f"{r.nta_name}, {r.borough}. Answer {r.top!r}, yes_no {r.yes_no:+.2f}. Contrast: this image minus the mean of all images.",
-                x[i], x[i] - pool)
+                x[i], x[i] - pool, group=False)
         seen += len(x)
         print(f"[viewer] {model}: runs {seen}/{n}", flush=True)
     (out / model / "shares.json").write_text(json.dumps(rows, indent=0, ensure_ascii=False))
@@ -236,9 +292,11 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None, help="the first images only, rounded up to a whole shard")
     ap.add_argument("--out", default=str(ALL_ROOT / "viewer"))
     ap.add_argument("--models", nargs="+", default=list(MODELS))
+    ap.add_argument("--instruments", choices=["groups", "all", "none"], default="groups",
+                    help="the runs that get the rank block of F10.35 (about 1.5 MB more for each run)")
     args = ap.parse_args()
     out = Path(args.out)
-    images = pd.concat([write_model(m, out, args.limit) for m in args.models], ignore_index=True)
+    images = pd.concat([write_model(m, out, args.limit, args.instruments) for m in args.models], ignore_index=True)
     thumbs(images, out)
     index(images, out)
     print("[viewer] finished", flush=True)

@@ -45,3 +45,35 @@ def test_group_masks_keep_the_thirds_apart():
 def test_the_link_of_a_run_opens_the_row_of_that_run():
     row = share("qwen3.5-9b", "W0E8UOWG", "text", 9, {"place": 1, "final": 2})
     assert run_link("qwen3.5-9b", "W0E8UOWG") == f"/qwen3.5-9b/jlens?shareId={row['id']}"
+
+
+def test_the_rank_block_gives_the_core_ranks_and_skips_a_token_with_no_read():
+    from research.monocle.instruments import ranks
+    from research.scripts.f10.hop_viewer import rank_block
+
+    tokens, at = sequence(MANIFEST)
+    positions = list(at)
+    rng = np.random.default_rng(0)
+    raw = rng.normal(size=(len(positions), 3, 40)).astype(np.float32)
+    contrast = raw.copy()
+    contrast[0] = np.nan  # the prefix token has no contrast
+    words = np.array([f" w{i}" for i in range(40)])
+    block = rank_block(at, positions, [0, 4, 8], raw, contrast, words)
+    assert block["unit"] == "rank" and block["k"] == 10 and block["vocab"] == 40
+    col = block["columns"][RAW]
+    r = ranks(raw)
+    place = positions.index("place")
+    entry = col["byPosition"][str(at["place"])]
+    for w, row in zip(entry["w"], entry["r"]):
+        word = int(col["words"][w].strip()[1:])
+        assert row == r[place, :, word].tolist()
+        assert min(row) <= 10
+    salient_any = {int(i) for i in np.flatnonzero((r[place] <= 10).any(0))}
+    assert {int(col["words"][w].strip()[1:]) for w in entry["w"]} == salient_any
+    layer = col["byLayer"]["4"]
+    assert layer["positions"] == [at[p] for p in positions]
+    first = layer["w"][0]
+    assert [rk[0] for rk in layer["r"]][0] == r[0, 1, int(col["words"][first].strip()[1:])]
+    con = block["columns"][CONTRAST]
+    assert str(at["p00"]) not in con["byPosition"]
+    assert at["p00"] not in con["byLayer"]["4"]["positions"]
